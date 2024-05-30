@@ -16,6 +16,9 @@ importers:
       '@babel/core':
         specifier: ^7.23.9
         version: 7.24.6
+      '@fraxfinance/layerzero-v2-upgradeable':
+        specifier: github:fraxfinance/LayerZero-v2-upgradeable
+        version: https://codeload.github.com/fraxfinance/LayerZero-v2-upgradeable/tar.gz/e1470197e0cffe0d89dd9c776762c8fdcfc1e160
       '@layerzerolabs/eslint-config-next':
         specifier: ~2.3.3
         version: 2.3.19(typescript@5.4.5)
@@ -374,6 +377,11 @@ packages:
   '@fastify/busboy@2.1.1':
     resolution: {integrity: sha512-vBZP4NlzfOlerQTnba4aqZoMhE/a9HY7HRqoOPaETQcSQuWEIyZMHGfVu6w9wGtGK5fED5qRs2DteVCjOH60sA==}
     engines: {node: '>=14'}
+
+  '@fraxfinance/layerzero-v2-upgradeable@https://codeload.github.com/fraxfinance/LayerZero-v2-upgradeable/tar.gz/e1470197e0cffe0d89dd9c776762c8fdcfc1e160':
+    resolution: {tarball: https://codeload.github.com/fraxfinance/LayerZero-v2-upgradeable/tar.gz/e1470197e0cffe0d89dd9c776762c8fdcfc1e160}
+    version: 2.0.2
+    engines: {node: '>=18.12.0'}
 
   '@humanwhocodes/config-array@0.11.14':
     resolution: {integrity: sha512-3T8LkOmg45BV5FICb15QQMsyUSWrQ8AygVfC7ZG32zOalnqrilm018ZVCw0eapXux8FtA33q8PSRSstjee3jSg==}
@@ -4647,6 +4655,8 @@ snapshots:
       '@ethersproject/strings': 5.7.0
 
   '@fastify/busboy@2.1.1': {}
+
+  '@fraxfinance/layerzero-v2-upgradeable@https://codeload.github.com/fraxfinance/LayerZero-v2-upgradeable/tar.gz/e1470197e0cffe0d89dd9c776762c8fdcfc1e160': {}
 
   '@humanwhocodes/config-array@0.11.14':
     dependencies:

@@ -23,6 +23,7 @@
   },
   "devDependencies": {
     "@babel/core": "^7.23.9",
+    "@fraxfinance/layerzero-v2-upgradeable": "github:fraxfinance/LayerZero-v2-upgradeable",
     "@layerzerolabs/eslint-config-next": "~2.3.3",
     "@layerzerolabs/lz-definitions": "~2.3.3",
     "@layerzerolabs/lz-evm-messagelib-v2": "~2.3.3",

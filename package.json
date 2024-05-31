@@ -24,22 +24,10 @@
   "devDependencies": {
     "@babel/core": "^7.23.9",
     "@fraxfinance/layerzero-v2-upgradeable": "github:fraxfinance/LayerZero-v2-upgradeable",
-    "@layerzerolabs/eslint-config-next": "~2.3.3",
-    "@layerzerolabs/lz-definitions": "~2.3.3",
-    "@layerzerolabs/lz-evm-messagelib-v2": "~2.3.3",
-    "@layerzerolabs/lz-evm-oapp-v2": "~2.3.3",
+    "@layerzerolabs/lz-evm-oapp-v2": "~2.3.19",
     "@layerzerolabs/lz-evm-protocol-v2": "~2.3.3",
-    "@layerzerolabs/lz-evm-v1-0.7": "~2.3.3",
-    "@layerzerolabs/lz-v2-utilities": "~2.3.3",
-    "@layerzerolabs/prettier-config-next": "^2.3.3",
-    "@layerzerolabs/solhint-config": "^2.3.3",
-    "@layerzerolabs/test-devtools-evm-foundry": "~0.2.3",
-    "@layerzerolabs/toolbox-foundry": "~0.1.5",
-    "@layerzerolabs/toolbox-hardhat": "~0.2.21",
-    "@nomicfoundation/hardhat-ethers": "^3.0.5",
-    "@nomiclabs/hardhat-ethers": "^2.2.3",
-    "@openzeppelin/contracts": "^5.0.1",
-    "@openzeppelin/contracts-upgradeable": "^5.0.1",
+    "@openzeppelin/contracts": "^4.8.1",
+    "@openzeppelin/contracts-upgradeable": "^4.8.1",
     "@rushstack/eslint-patch": "^1.7.0",
     "@types/chai": "^4.3.11",
     "@types/mocha": "^10.0.6",
@@ -48,6 +36,8 @@
     "dotenv": "^16.4.1",
     "eslint-plugin-jest-extended": "~2.0.0",
     "ethers": "^5.7.2",
+    "frax-standard-solidity": "github:FraxFinance/frax-standard-solidity",
+    "frax-template": "github:FraxFinance/frax-template",
     "hardhat": "^2.22.3",
     "hardhat-contract-sizer": "^2.10.0",
     "hardhat-deploy": "^0.12.1",
@@ -72,5 +62,8 @@
     "@nomicfoundation/edr": "0.3.5",
     "ethers": "^5.7.2",
     "hardhat-deploy": "^0.12.1"
+  },
+  "dependencies": {
+    "frax-template": "github:fraxfinance/frax-template"
   }
 }

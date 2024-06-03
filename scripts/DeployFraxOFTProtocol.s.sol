@@ -30,22 +30,57 @@ Mainnet Addresses
 contract DeployFraxOFTProtocol is BaseScript {
 
     // TODO: convert to PK
-    address public proxyDeployer = 0xDed884435f2db0169010b3c325e733dF0038E51d;
-    address public basicDeployer = address(0x123); // TODO
+    uint256 public oftDeployer = 1;
+    uint256 public configDeployer = 1;
 
     address public delegate;
     address public endpoint;
+
+    // Deployed proxies
+    address public fxsOft;
+    address public sFraxOft;
+    address public frxEthOft;
+    address public sFraxOft;
+
+    uint256 public chainId;
+
+    // TODO: fix data types
+    modifier broadcastAs(uint256 privateKey) {
+        vm.startBroadcast(privateKey);
+        _;
+        vm.stopBroadcast();
+    }
+
     function setUp() external {
         // Set constants based on deployment chain id
-        if (block.chainid == 1) {
+        chainId = block.chainid;
+        if (chainId == 1)
             delegate = Constants.Mainnet.TIMELOCK_ADDRESS;
             endpoint = Constants.Mainnet.L0_ENDPOINT; // TODO: does this vary per OFT?
+        } else if (chainId == 34443) {
+            // mode
+            delegate = Constants.Mode.TIMELOCK_ADDRESS;
+            endpoint = Constants.Mode.L0_ENDPOINT;
         }
     }
 
     function run() external {
+        deployImplementationsAndProxies();
+        deployConfig();
+
+    }
+
+    function deployConfig() public {
+        // TODO: set peers, set enforced options, set delegate, transfer owership of oft, transfer proxy ownership
+
+    }
+
+
+    // TODO: missing ecosystem tokens (FPI, etc.)
+    function deployFraxOFTUpgradeablesAndProxies() public {
+
         // Deploy FXS
-        address frxFxsOft = deployFraxOFTUpgradeableAndProxy({
+        (,fxsOft) = deployFraxOFTUpgradeableAndProxy({
             _oftBytecode: type(OFTUpgradeable).creationCode,
             _constructorArgs: abi.encode(endpoint),
             _initializeArgs: abi.encodeWithSelector(
@@ -57,7 +92,7 @@ contract DeployFraxOFTProtocol is BaseScript {
         });
 
         // Deploy sFRAX
-        address sFraxOft = deployFraxOFTUpgradeableAndProxy({
+        (,sFraxOft) = deployFraxOFTUpgradeableAndProxy({
             _oftBytecode: type(OFTUpgradeable).creationCode,
             _constructorArgs: abi.encode(endpoint),
             _initializeArgs: abi.encodeWithSelector(
@@ -69,7 +104,7 @@ contract DeployFraxOFTProtocol is BaseScript {
         });
 
         // sfrxETH
-        address frxEthOft = deployFraxOFTUpgradeableAndProxy({
+        (,frxEthOft) = deployFraxOFTUpgradeableAndProxy({
             _oftBytecode: type(OFTUpgradeable).creationCode,
             _constructorArgs: abi.encode(endpoint),
             _initializeArgs: abi.encodeWithSelector(
@@ -81,7 +116,7 @@ contract DeployFraxOFTProtocol is BaseScript {
         });
 
         // Deploy FRAX
-        address sFraxOft = deployFraxOFTUpgradeableAndProxy({
+        (,fraxOft) = deployFraxOFTUpgradeableAndProxy({
             _oftBytecode: type(OFTUpgradeable).creationCode,
             _constructorArgs: abi.encode(endpoint),
             _initializeArgs: abi.encodeWithSelector(
@@ -92,7 +127,7 @@ contract DeployFraxOFTProtocol is BaseScript {
             )
         });
 
-        // Deploy FPI
+            // Deploy FPI
         // address frxEthOft = deployFraxOFTUpgradeableAndProxy({
         //     _oftBytecode: type(OFTUpgradeable).creationCode,
         //     _constructorArgs: abi.encode(endpoint),
@@ -104,10 +139,7 @@ contract DeployFraxOFTProtocol is BaseScript {
         //     )
         // });
 
-    // TODO: set peers, set enforced options, set delegate, transfer owership of oft, transfer proxy ownership
-
     }
-
 
     /// @notice Sourced from https://github.com/FraxFinance/LayerZero-v2-upgradeable/blob/e1470197e0cffe0d89dd9c776762c8fdcfc1e160/oapp/test/TestHelper.sol#L266
     function deployFraxOFTUpgradeableAndProxy(
@@ -115,9 +147,8 @@ contract DeployFraxOFTProtocol is BaseScript {
         bytes memory _constructorArgs,
         bytes memory _initializeArgs,
         address _delegate
-    ) returns (address implementation, address proxy) {
+    ) public broadcastAs(oftDeployer) returns (address implementation, address proxy) {
         bytes memory bytecode = bytes.concat(abi.encodePacked(_oftBytecode), _constructorArgs);
-        vm.broadcast(basicDeployer);
         assembly {
             implementation := create(0, add(bytecode, 0x20), mload(bytecode))
             if iszero(extcodesize(implementation)) {
@@ -125,7 +156,6 @@ contract DeployFraxOFTProtocol is BaseScript {
             }
         }
         /// @dev: OFT delegate is proxy admin
-        vm.broadcast(proxyDeployer);
         proxy = address(new TransparentUpgradeableProxy(implementation, basicDeployer, _initializeArgs));
     }
 

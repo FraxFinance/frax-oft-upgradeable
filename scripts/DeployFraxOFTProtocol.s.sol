@@ -8,6 +8,12 @@ import { TransparentUpgradeableProxy } from "@fraxfinance/layerzero-v2-upgradeab
 
 
 /*
+For L0:
+    Am I able to setPeer for chains which do not yet contain the deployed OFT?
+
+For Frax:
+    - The most time-efficient approach in full scale deployment is to deploy *all* desired types of OFTs at the start.  If we later decide to deploy FPI, for example, we would need to craft a msig tx for *every* endpoint chain to support peer-to-peer of FPI.  So, as long as we're good with FXS, sFRAX, sfrxETH, and FRAX as our primary OFTs, there are no more adapter deployments required on mainnet.
+
 https://etherscan.io/tx/0xc83526447f7c7467d16ea65975a2b39edeb3ebe7c88959af333194a0a24ef0e4#eventlog
 (FXS) Mainnet => Base
 
@@ -42,9 +48,13 @@ contract DeployFraxOFTProtocol is BaseScript {
     address public frxEthOft;
     address public sFraxOft;
 
-    uint256 public chainId;
+    // 1:1 match between these arrays for setting peers
+    address[] public proxyOfts;
+    address[] public legacyOfts;
 
-    // TODO: fix data types
+    uint256 public chainId;
+    // string public rpc;
+
     modifier broadcastAs(uint256 privateKey) {
         vm.startBroadcast(privateKey);
         _;
@@ -62,22 +72,61 @@ contract DeployFraxOFTProtocol is BaseScript {
             delegate = Constants.Mode.TIMELOCK_ADDRESS;
             endpoint = Constants.Mode.L0_ENDPOINT;
         }
+
+        /// @dev: this array maintains the same token order as proxyOfts and the addrs are confirmed on eth mainnet.
+        legacyOfts.push(0x23432452B720C80553458496D4D9d7C5003280d0); // fxs
+        legacyOfts.push(0xe4796cCB6bB5DE2290C417Ac337F2b66CA2E770E); // sFRAX
+        legacyOfts.push(0x1f55a02A049033E3419a8E2975cF3F572F4e6E9A); // sfrxETH
+        legacyOfts.push(0x909DBdE1eBE906Af95660033e478D59EFe831fED); // FRAX
     }
 
     function run() external {
-        deployImplementationsAndProxies();
-        deployConfig();
+        deployFraxOFTUpgradeablesAndProxies();
+        setLegacyPeers();
+        setProxyPeers();
+    }
 
+    /// @dev legacy, non-upgradeable OFTs
+    function setLegacyPeers() public broadcastAs(configDeployer) {
+        /// @dev EIDs from https://docs.layerzero.network/v2/developers/evm/technical-reference/deployed-contracts
+        uint256 ethereum = 30101;
+        uint256 metis = 30151;
+        uint256 base = 30184;
+        uint256 blast = 30243;
+        
+        for (uint256 i=0; i<proxyOfts.length; i++) {
+            address proxyOft = proxyOfts[i];
+            address legacyOft = legacyOfts[i];
+
+            OFTUpgradeable(proxyOft).setPeer(ethereum, abi.encode(legacyOft));
+            OFTUpgradeable(proxyOft).setPeer(base, abi.encode(legacyOft));
+            OFTUpgradeable(proxyOft).setPeer(blast, abi.encode(legacyOft));
+            OFTUpgradeable(proxyOft).setPeer(metis, abi.encode(legacyOft));
+        }
+    }
+
+    /// @dev Upgradeable OFTs maintaining the same address cross-chain.
+    function setProxyPeers() public broadcastAs(configDeployer) {
+        // TODO
+        for (uint256 i=0; i<proxyOfts.length; i++) {
+            address proxyOft = proxyOfts[i];
+            // TODO: setup peerEids
+            // for (uint256 p=0; i<peerEids.length; p++) {
+            //     OFTUpgradeable(proxyOft).setPeer(peerEids[p], abi.encode(proxyOft));
+            // }
+        }
     }
 
     function deployConfig() public {
         // TODO: set peers, set enforced options, set delegate, transfer owership of oft, transfer proxy ownership
+
 
     }
 
 
     // TODO: missing ecosystem tokens (FPI, etc.)
     function deployFraxOFTUpgradeablesAndProxies() public {
+        /// @dev: follows deployment order of legacy OFTs found at https://etherscan.io/address/0xded884435f2db0169010b3c325e733df0038e51d
 
         // Deploy FXS
         (,fxsOft) = deployFraxOFTUpgradeableAndProxy({
@@ -87,7 +136,7 @@ contract DeployFraxOFTProtocol is BaseScript {
                 FraxOFTUpgradeable.initialize.selector,
                 "Frax Share",
                 "FXS",
-                delegate
+                configDeployer
             )
         });
 
@@ -99,19 +148,19 @@ contract DeployFraxOFTProtocol is BaseScript {
                 FraxOFTUpgradeable.initialize.selector,
                 "Staked Frax",
                 "sFRAX",
-                delegate
+                configDeployer
             )
         });
 
         // sfrxETH
-        (,frxEthOft) = deployFraxOFTUpgradeableAndProxy({
+        (,sfrxEthOft) = deployFraxOFTUpgradeableAndProxy({
             _oftBytecode: type(OFTUpgradeable).creationCode,
             _constructorArgs: abi.encode(endpoint),
             _initializeArgs: abi.encodeWithSelector(
                 FraxOFTUpgradeable.initialize.selector,
-                "Frax Ether",
-                "frxETH",
-                delegate
+                "Staked Frax Ether",
+                "sfrxETH",
+                configDeployer
             )
         });
 
@@ -123,7 +172,7 @@ contract DeployFraxOFTProtocol is BaseScript {
                 FraxOFTUpgradeable.initialize.selector,
                 "Frax",
                 "FRAX",
-                delegate
+                configDeployer
             )
         });
 
@@ -145,8 +194,7 @@ contract DeployFraxOFTProtocol is BaseScript {
     function deployFraxOFTUpgradeableAndProxy(
         bytes memory _oftBytecode,
         bytes memory _constructorArgs,
-        bytes memory _initializeArgs,
-        address _delegate
+        bytes memory _initializeArgs
     ) public broadcastAs(oftDeployer) returns (address implementation, address proxy) {
         bytes memory bytecode = bytes.concat(abi.encodePacked(_oftBytecode), _constructorArgs);
         assembly {
@@ -155,8 +203,10 @@ contract DeployFraxOFTProtocol is BaseScript {
                 revert(0, 0)
             }
         }
-        /// @dev: OFT delegate is proxy admin
-        proxy = address(new TransparentUpgradeableProxy(implementation, basicDeployer, _initializeArgs));
+        /// @dev: config deployer is temporary proxy admin until post-setup
+        proxy = address(new TransparentUpgradeableProxy(implementation, configDeployer, _initializeArgs));
+
+        proxyOfts.push(proxy);
     }
 
 }

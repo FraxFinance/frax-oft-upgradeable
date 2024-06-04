@@ -5,14 +5,15 @@ pragma solidity ^0.8.19;
 import { BaseScript } from "frax-std/BaseScript.sol";
 import { Constants } from "frax-template/src/contracts/Constants.sol";
 import { TransparentUpgradeableProxy } from "@fraxfinance/layerzero-v2-upgradeable/messagelib/contracts/upgradeable/proxy/TransparentUpgradeableProxy.sol";
-
+import { Ownable } from "@openzeppelin/contracts/access/Ownable.sol";
 
 /*
-For L0:
-    Am I able to setPeer for chains which do not yet contain the deployed OFT?
-
-For Frax:
-    - The most time-efficient approach in full scale deployment is to deploy *all* desired types of OFTs at the start.  If we later decide to deploy FPI, for example, we would need to craft a msig tx for *every* endpoint chain to support peer-to-peer of FPI.  So, as long as we're good with FXS, sFRAX, sfrxETH, and FRAX as our primary OFTs, there are no more adapter deployments required on mainnet.
+TODO
+- Mode msig
+- Mode RPC
+- state checks
+- PK inits
+- Mainnet sig
 
 https://etherscan.io/tx/0xc83526447f7c7467d16ea65975a2b39edeb3ebe7c88959af333194a0a24ef0e4#eventlog
 (FXS) Mainnet => Base
@@ -64,7 +65,7 @@ contract DeployFraxOFTProtocol is BaseScript {
     function setUp() external {
         // Set constants based on deployment chain id
         chainId = block.chainid;
-        if (chainId == 1)
+        if (chainId == 1) {
             delegate = Constants.Mainnet.TIMELOCK_ADDRESS;
             endpoint = Constants.Mainnet.L0_ENDPOINT; // TODO: does this vary per OFT?
         } else if (chainId == 34443) {
@@ -84,6 +85,25 @@ contract DeployFraxOFTProtocol is BaseScript {
         deployFraxOFTUpgradeablesAndProxies();
         setLegacyPeers();
         setProxyPeers();
+        // TODO: set enforced options
+        setDelegate();
+        transferOwnerships();
+        // TODO: state checks
+    }
+
+    function trasferOwnerships() public broadcastAs(configDeployer) {
+        /// @dev transfer ownership of OFT and proxy
+        for (uint256 i=0; i<proxyOfts.length; i++) {
+            address proxyOft = proxyOfts[i];
+            Ownable(proxyOft).transferOwnership(delegate);
+            TransparentUpgradeableProxy(proxyOft).changeAdmin(delegate);
+        }
+    }
+
+    function setDelegate() public broadcastAs(configDeployer) {
+        for (uint256 i=0; i<proxyOfts.length; i++) {
+            OFTUpgradeable(proxyOfts[i]).setDelegate(delegate);
+        }
     }
 
     /// @dev legacy, non-upgradeable OFTs
@@ -115,12 +135,6 @@ contract DeployFraxOFTProtocol is BaseScript {
             //     OFTUpgradeable(proxyOft).setPeer(peerEids[p], abi.encode(proxyOft));
             // }
         }
-    }
-
-    function deployConfig() public {
-        // TODO: set peers, set enforced options, set delegate, transfer owership of oft, transfer proxy ownership
-
-
     }
 
 
@@ -208,5 +222,4 @@ contract DeployFraxOFTProtocol is BaseScript {
 
         proxyOfts.push(proxy);
     }
-
 }

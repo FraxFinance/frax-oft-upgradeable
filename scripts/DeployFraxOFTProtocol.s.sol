@@ -8,23 +8,24 @@ import { ProxyAdmin, TransparentUpgradeableProxy } from "@fraxfinance/layerzero-
 import { Ownable } from "@openzeppelin/contracts/access/Ownable.sol";
 import { EndpointV2 } from "@fraxfinance/layerzero-v2-upgradeable/protocol/contracts/EndpointV2.sol";
 import { OptionsBuilder } from "@fraxfinance/layerzero-v2-upgradeable/oapp/contracts/oapp/libs/OptionsBuilder.sol";
+import { SetConfigParam, IMessageLibManager} from "@fraxfinance/layerzero-v2-upgradeable/protocol/contracts/interfaces/IMessageLibManager.sol";
+import { UlnConfig } from "@fraxfinance/layerzero-v2-upgradeable/messagelib/contracts/uln/UlnBase.sol";
+import { EnforcedOptionParam } from "@fraxfinance/layerzero-v2-upgradeable/oapp/contracts/oapp/interfaces/IOAppOptionsType3.sol";
+import { Constant } from "@fraxfinance/layerzero-v2-upgradeable/messagelib/test/util/Constant.sol";
 
 /*
 TODO
 - Mode msig
 - Mode RPC
-- Mainnet tx
-- Sam to setup frxETH, FPI with L0 mainnet adapter
-- setup enforcedOptions on legacy chains
-
-https://etherscan.io/tx/0xc83526447f7c7467d16ea65975a2b39edeb3ebe7c88959af333194a0a24ef0e4#eventlog
-(FXS) Mainnet => Base
+- Legacy chains
+    - setProxyPeers()
+    - setEnforcedOptions()
+    - setDVNs()
+- Sam to setup frxETH, FPI with L0 mainnet adapter & legacies
 
 Required DVNs:
-- 0x380275805876Ff19055EA900CDb2B46a94ecF20D
-- 0x589dEDbD617e0CBcB916A9223F4d1300c294236b
-
-Delegate & owner: 0xB1748C79709f4Ba2Dd82834B8c82D4a505003f27
+- L0
+- Horizon
 
 Mainnet Addresses
 - FXSOFTAdapter:        0x23432452B720C80553458496D4D9d7C5003280d0
@@ -43,7 +44,8 @@ contract DeployFraxOFTProtocol is BaseScript {
     uint256 public configDeployer = vm.envUint("PK_CONFIG_DEPLOYER");
     address public delegate = vm.envAddress("DELEGATE");
 
-    address public endpoint;
+    // TODO: load in dynamic
+    address public endpoint = 0x1a44076050125825900e736c501f859c50fE728c;
 
     // Deployed proxies
     address public proxyAdmin
@@ -52,14 +54,17 @@ contract DeployFraxOFTProtocol is BaseScript {
     address public frxEthOft;
     address public sFraxOft;
 
-    /// EIDs of legacy chains
+    /// EIDs- each value should be unique
     uint32[] public legacyEids;
+    uint32[] public proxyEids;
     
     // 1:1 match between these arrays for setting peers
-    address[] public proxyOfts;
     address[] public legacyOfts;
+    address[] public proxyOfts;
 
-    EnforcedOptionParam[] public enforcedOptions;
+    EnforcedOptionParam[] public enforcedOptionsParams;
+
+    SetConfigParam[] public setConfigParams;
 
     uint256 public chainId;
     // string public rpc;
@@ -102,7 +107,67 @@ contract DeployFraxOFTProtocol is BaseScript {
         setLegacyPeers();
         setProxyPeers();
         setEnforcedOptions();
+        setDVNs();
         setPriviledgedRoles();
+    }
+
+    function setDVNs() public {
+        UlnConfig memory ulnConfig;
+        ulnConfig.requiredDVNCount = 2;
+        address[] memory requiredDVNs = new address[](2);
+        // TODO: change from mode
+        // https://docs.layerzero.network/v2/developers/evm/technical-reference/dvn-addresses#layerzero-labs
+        address dvnHorizon = 0xaCDe1f22EEAb249d3ca6Ba8805C8fEe9f52a16e7;
+        address dvnL0 = 0xce8358bc28dd8296Ce8cAF1CD2b44787abd65887;
+        // sort in ascending order
+        if (uint160(dvnHorizon) < uint160(dvnL0)) {
+            requiredDvns[0] = dvnHorizon;
+            requiredDVNs[1] = dvnL0;
+        } else {
+            requiredDVNs[0] = dvnL0;
+            requiredDvns[1] = dvnHorizon;
+        }
+        ulnConfig.requiredDVNs = requiredDVNs;
+
+        // push config for legacy OFTs
+        for (uint256 e=0; e<legacyEids.length; e++) {
+            setConfigParams.push(
+                SetConfigParam({
+                    eid: legacyEids[e],
+                    configType: Constant.CONFIG_TYPE_ULN,
+                    abi.encode(ulnConfig)                    
+                })
+            );
+        }
+
+        // TODO: push config for proxy OFTs
+        for (uint256 e=0; e<proxyEids.length; e++) {
+            setConfigParams.push(
+                SetConfigParam({
+                    eid: proxyEids[e],
+                    configType: Constant.CONFIG_TYPE_ULN,
+                    abi.encode(ulnConfig)
+                })
+            );
+        }
+
+        // TODO: change from mode
+        address receiveLib302 = 0xc1B621b18187F74c8F6D52a6F709Dd2780C09821;
+        address sendLib302 = 0x2367325334447C5E1E0f1b3a6fB947b262F58312;
+
+        // Submit txs to setup DVN on source chain
+        for (uint256 i=0; i<proxyOfts.length; i++) {
+            IMessageLibManager(endpoint).setConfig({
+                _oapp: proxyOfts[i],
+                _lib: receiveLib302,
+                _params: setConfigParams
+            });
+            IMessageLibManager(endpoint).setConfig({
+                _oapp: proxyOfts[i],
+                _lib: sendLib302,
+                _params: setConfigParams
+            });
+        }
     }
 
     function setPriviledgedRoles() public {
@@ -123,19 +188,19 @@ contract DeployFraxOFTProtocol is BaseScript {
         // legacy eids
         for (uint256 e=0; e<legacyEids.length; e++) {
             uint32 eid = legacyEids[e];
-            enforcedOptions.push(EnforcedOptionParam(eid, 1, optionsTypeOne));
-            enforcedOptions.push(EnforcedOptionParam(eid, 2, optionsTypeTwo));
+            enforcedOptionsParams.push(EnforcedOptionParam(eid, 1, optionsTypeOne));
+            enforcedOptionsParams.push(EnforcedOptionParam(eid, 2, optionsTypeTwo));
         }
 
         // TODO: proxy eids
         // for (uint256 p=0; p<proxyEids.length; p++) {
         //     uint32 eid = proxyEids[p];
-        //     enforcedOptions.push(EnforcedOptionParam(eid, 1, optionsTypeOne));
-        //     enforcedOptions.push(EnforcedOptionParam(eid, 2, optionsTypeTwo));
+        //     enforcedOptionsParams.push(EnforcedOptionParam(eid, 1, optionsTypeOne));
+        //     enforcedOptionsParams.push(EnforcedOptionParam(eid, 2, optionsTypeTwo));
         // }
 
         for (uint256 i=0; i<proxyOfts.length; i++) {
-            OFTUpgradeable(proxyOfts[i]).setEnforcedOptions(enforcedOptions);
+            OFTUpgradeable(proxyOfts[i]).setEnforcedOptions(enforcedOptionsParams);
         }
     }
 

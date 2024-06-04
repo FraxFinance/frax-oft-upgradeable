@@ -7,12 +7,15 @@ import { Constants } from "frax-template/src/contracts/Constants.sol";
 import { ProxyAdmin, TransparentUpgradeableProxy } from "@fraxfinance/layerzero-v2-upgradeable/messagelib/contracts/upgradeable/proxy/ProxyAdmin.sol";
 import { Ownable } from "@openzeppelin/contracts/access/Ownable.sol";
 import { EndpointV2 } from "@fraxfinance/layerzero-v2-upgradeable/protocol/contracts/EndpointV2.sol";
+import { OptionsBuilder } from "@fraxfinance/layerzero-v2-upgradeable/oapp/contracts/oapp/libs/OptionsBuilder.sol";
 
 /*
 TODO
 - Mode msig
 - Mode RPC
 - Mainnet tx
+- Sam to setup frxETH, FPI with L0 mainnet adapter
+- setup enforcedOptions on legacy chains
 
 https://etherscan.io/tx/0xc83526447f7c7467d16ea65975a2b39edeb3ebe7c88959af333194a0a24ef0e4#eventlog
 (FXS) Mainnet => Base
@@ -34,6 +37,7 @@ Mainnet Addresses
 
 
 contract DeployFraxOFTProtocol is BaseScript {
+    using OptionsBuilder for bytes;
 
     uint256 public oftDeployer = vm.envUint("PK_OFT_DEPLOYER");
     uint256 public configDeployer = vm.envUint("PK_CONFIG_DEPLOYER");
@@ -48,9 +52,14 @@ contract DeployFraxOFTProtocol is BaseScript {
     address public frxEthOft;
     address public sFraxOft;
 
+    /// EIDs of legacy chains
+    uint32[] public legacyEids;
+    
     // 1:1 match between these arrays for setting peers
     address[] public proxyOfts;
     address[] public legacyOfts;
+
+    EnforcedOptionParam[] public enforcedOptions;
 
     uint256 public chainId;
     // string public rpc;
@@ -80,13 +89,19 @@ contract DeployFraxOFTProtocol is BaseScript {
         legacyOfts.push(0xe4796cCB6bB5DE2290C417Ac337F2b66CA2E770E); // sFRAX
         legacyOfts.push(0x1f55a02A049033E3419a8E2975cF3F572F4e6E9A); // sfrxETH
         legacyOfts.push(0x909DBdE1eBE906Af95660033e478D59EFe831fED); // FRAX
+
+        /// @dev EIDs from https://docs.layerzero.network/v2/developers/evm/technical-reference/deployed-contracts
+        legacyEids.push(uint32(30101)); // ethereum
+        legacyEids.push(uint32(30151)); // metis
+        legacyEids.push(uint32(30184)); // base
+        legacyEids.push(uint32(30253)); // blast
     }
 
     function run() external {
         deployFraxOFTUpgradeablesAndProxies();
         setLegacyPeers();
         setProxyPeers();
-        // TODO: set enforced option
+        setEnforcedOptions();
         setPriviledgedRoles();
     }
 
@@ -99,22 +114,39 @@ contract DeployFraxOFTProtocol is BaseScript {
         }
     }
 
+    function setEnforcedOptions() public {
+        // For each peer, default 
+        // https://github.com/FraxFinance/LayerZero-v2-upgradeable/blob/e1470197e0cffe0d89dd9c776762c8fdcfc1e160/oapp/test/OFT.t.sol#L417
+        bytes memory optionsTypeOne = OptionsBuilder.newOptions().addExecutorLzReceiveOption(200000, 0);
+        bytes memory optionsTypeTwo = OptionsBuilder.newOptions().addExecutorLzReceiveOption(250000, 0);
+
+        // legacy eids
+        for (uint256 e=0; e<legacyEids.length; e++) {
+            uint32 eid = legacyEids[e];
+            enforcedOptions.push(EnforcedOptionParam(eid, 1, optionsTypeOne));
+            enforcedOptions.push(EnforcedOptionParam(eid, 2, optionsTypeTwo));
+        }
+
+        // TODO: proxy eids
+        // for (uint256 p=0; p<proxyEids.length; p++) {
+        //     uint32 eid = proxyEids[p];
+        //     enforcedOptions.push(EnforcedOptionParam(eid, 1, optionsTypeOne));
+        //     enforcedOptions.push(EnforcedOptionParam(eid, 2, optionsTypeTwo));
+        // }
+
+        for (uint256 i=0; i<proxyOfts.length; i++) {
+            OFTUpgradeable(proxyOfts[i]).setEnforcedOptions(enforcedOptions);
+        }
+    }
+
     /// @dev legacy, non-upgradeable OFTs
     function setLegacyPeers() public broadcastAs(configDeployer) {
-        /// @dev EIDs from https://docs.layerzero.network/v2/developers/evm/technical-reference/deployed-contracts
-        uint256 ethereum = 30101;
-        uint256 metis = 30151;
-        uint256 base = 30184;
-        uint256 blast = 30243;
-        
         for (uint256 i=0; i<proxyOfts.length; i++) {
             address proxyOft = proxyOfts[i];
             address legacyOft = legacyOfts[i];
-
-            OFTUpgradeable(proxyOft).setPeer(ethereum, addressToBytes32(legacyOft));
-            OFTUpgradeable(proxyOft).setPeer(base, addressToBytes32(legacyOft));
-            OFTUpgradeable(proxyOft).setPeer(blast, addressToBytes32(legacyOft));
-            OFTUpgradeable(proxyOft).setPeer(metis, addressToBytes32(legacyOft));
+            for (uint256 e=0; e<legacyEids.length; e++) {
+                OFTUpgradeable(proxyOft).setPeer(legacyEids[e], addressToBytes32(legacyOft));
+            }
         }
     }
 
@@ -123,9 +155,9 @@ contract DeployFraxOFTProtocol is BaseScript {
         // TODO
         for (uint256 i=0; i<proxyOfts.length; i++) {
             address proxyOft = proxyOfts[i];
-            // TODO: setup peerEids
-            // for (uint256 p=0; i<peerEids.length; p++) {
-            //     OFTUpgradeable(proxyOft).setPeer(peerEids[p], addressToBytes32(proxyOft));
+            // TODO: setup proxyEids
+            // for (uint256 p=0; i<proxyEids.length; p++) {
+            //     OFTUpgradeable(proxyOft).setPeer(proxyEids[p], addressToBytes32(proxyOft));
             // }
         }
     }

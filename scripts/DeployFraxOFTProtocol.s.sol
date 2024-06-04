@@ -6,6 +6,7 @@ import { BaseScript } from "frax-std/BaseScript.sol";
 import { Constants } from "frax-template/src/contracts/Constants.sol";
 import { TransparentUpgradeableProxy } from "@fraxfinance/layerzero-v2-upgradeable/messagelib/contracts/upgradeable/proxy/TransparentUpgradeableProxy.sol";
 import { Ownable } from "@openzeppelin/contracts/access/Ownable.sol";
+import { EndpointV2 } from "@fraxfinance/layerzero-v2-upgradeable/protocol/contracts/EndpointV2.sol";
 
 /*
 TODO
@@ -118,10 +119,10 @@ contract DeployFraxOFTProtocol is BaseScript {
             address proxyOft = proxyOfts[i];
             address legacyOft = legacyOfts[i];
 
-            OFTUpgradeable(proxyOft).setPeer(ethereum, abi.encode(legacyOft));
-            OFTUpgradeable(proxyOft).setPeer(base, abi.encode(legacyOft));
-            OFTUpgradeable(proxyOft).setPeer(blast, abi.encode(legacyOft));
-            OFTUpgradeable(proxyOft).setPeer(metis, abi.encode(legacyOft));
+            OFTUpgradeable(proxyOft).setPeer(ethereum, addressToBytes32(legacyOft));
+            OFTUpgradeable(proxyOft).setPeer(base, addressToBytes32(legacyOft));
+            OFTUpgradeable(proxyOft).setPeer(blast, addressToBytes32(legacyOft));
+            OFTUpgradeable(proxyOft).setPeer(metis, addressToBytes32(legacyOft));
         }
     }
 
@@ -132,7 +133,7 @@ contract DeployFraxOFTProtocol is BaseScript {
             address proxyOft = proxyOfts[i];
             // TODO: setup peerEids
             // for (uint256 p=0; i<peerEids.length; p++) {
-            //     OFTUpgradeable(proxyOft).setPeer(peerEids[p], abi.encode(proxyOft));
+            //     OFTUpgradeable(proxyOft).setPeer(peerEids[p], addressToBytes32(proxyOft));
             // }
         }
     }
@@ -144,73 +145,41 @@ contract DeployFraxOFTProtocol is BaseScript {
 
         // Deploy FXS
         (,fxsOft) = deployFraxOFTUpgradeableAndProxy({
-            _oftBytecode: type(OFTUpgradeable).creationCode,
-            _constructorArgs: abi.encode(endpoint),
-            _initializeArgs: abi.encodeWithSelector(
-                FraxOFTUpgradeable.initialize.selector,
-                "Frax Share",
-                "FXS",
-                configDeployer
-            )
+            _name: "Frax Share",
+            _symbol: "FXS"
         });
 
         // Deploy sFRAX
         (,sFraxOft) = deployFraxOFTUpgradeableAndProxy({
-            _oftBytecode: type(OFTUpgradeable).creationCode,
-            _constructorArgs: abi.encode(endpoint),
-            _initializeArgs: abi.encodeWithSelector(
-                FraxOFTUpgradeable.initialize.selector,
-                "Staked Frax",
-                "sFRAX",
-                configDeployer
-            )
+            _name: "Staked Frax",
+            _symbol: "sFRAX"
         });
 
         // sfrxETH
         (,sfrxEthOft) = deployFraxOFTUpgradeableAndProxy({
-            _oftBytecode: type(OFTUpgradeable).creationCode,
-            _constructorArgs: abi.encode(endpoint),
-            _initializeArgs: abi.encodeWithSelector(
-                FraxOFTUpgradeable.initialize.selector,
-                "Staked Frax Ether",
-                "sfrxETH",
-                configDeployer
-            )
+            _name: "Staked Frax Ether",
+            _symbol: "sfrxETH"
         });
 
         // Deploy FRAX
         (,fraxOft) = deployFraxOFTUpgradeableAndProxy({
-            _oftBytecode: type(OFTUpgradeable).creationCode,
-            _constructorArgs: abi.encode(endpoint),
-            _initializeArgs: abi.encodeWithSelector(
-                FraxOFTUpgradeable.initialize.selector,
-                "Frax",
-                "FRAX",
-                configDeployer
-            )
+            _name: "Frax",
+            _symbol: "FRAX"
         });
 
-            // Deploy FPI
-        // address frxEthOft = deployFraxOFTUpgradeableAndProxy({
-        //     _oftBytecode: type(OFTUpgradeable).creationCode,
-        //     _constructorArgs: abi.encode(endpoint),
-        //     _initializeArgs: abi.encodeWithSelector(
-        //         FraxOFTUpgradeable.initialize.selector,
-        //         "Frax Price Index",
-        //         "FPI",
-        //         delegate
-        //     )
-        // });
-
+        // Deploy FPI
     }
 
     /// @notice Sourced from https://github.com/FraxFinance/LayerZero-v2-upgradeable/blob/e1470197e0cffe0d89dd9c776762c8fdcfc1e160/oapp/test/TestHelper.sol#L266
+    ///     With state checks
     function deployFraxOFTUpgradeableAndProxy(
-        bytes memory _oftBytecode,
-        bytes memory _constructorArgs,
-        bytes memory _initializeArgs
+        string memory _name,
+        string memory _symbol
     ) public broadcastAs(oftDeployer) returns (address implementation, address proxy) {
-        bytes memory bytecode = bytes.concat(abi.encodePacked(_oftBytecode), _constructorArgs);
+        bytes memory bytecode = bytes.concat(
+            abi.encodePacked(type(OFTUpgradeable).creationCode),
+            abi.encode(endpoint)
+        );
         assembly {
             implementation := create(0, add(bytecode, 0x20), mload(bytecode))
             if iszero(extcodesize(implementation)) {
@@ -218,8 +187,47 @@ contract DeployFraxOFTProtocol is BaseScript {
             }
         }
         /// @dev: config deployer is temporary proxy admin until post-setup
-        proxy = address(new TransparentUpgradeableProxy(implementation, configDeployer, _initializeArgs));
-
+        bytes memory initializeArgs = abi.encodeWithSelector(
+            FraxOFTUpgradeable.initialize.selector,
+            _name,
+            _symbol,
+            configDeployer
+        );
+        proxy = address(new TransparentUpgradeableProxy(implementation, configDeployer, initializeArgs));
         proxyOfts.push(proxy);
+
+        // State checks
+        require(
+            isStringEqual(OFTUpgradeable(proxy).name(), _name),
+            "OFT name incorrect"
+        );
+        require(
+            isStringEqual(OFTUpgradeable(proxy).symbol(), _symbol),
+            "OFT symbol incorrect"
+        );
+        require(
+            address(OFTUpgradeable(proxy).endpoint()) == endpoint,
+            "OFT endpoint incorrect"
+        );
+        require(
+            EndpointV2(endpoint).delegates(address(this)) == configDeployer,
+            "Endpoint delegate incorrect"
+        );
+        require(
+            OFTUpgradeable(proxy).owner() == configDeployer,
+            "OFT owner incorrect"
+        );
+        require(
+            TransparentUpgradeableProxy(proxy).admin() == configDeployer,
+            "Proxy admin incorrect"
+        );
+    }
+
+    function isStringEqual(string memory _a, string memory _b) internal pure returns (bool) {
+        return keccak256(abi.encodePacked(_a)) == keccak256(abi.encodePacked(_b));
+    }
+
+    function addressToBytes32(address _addr) internal pure returns (bytes32) {
+        return bytes32(uint256(uint160(_addr)));
     }
 }

@@ -4,7 +4,7 @@ pragma solidity ^0.8.19;
 // TODO: package names under same base dir
 import { BaseScript } from "frax-std/BaseScript.sol";
 import { Constants } from "frax-template/src/contracts/Constants.sol";
-import { TransparentUpgradeableProxy } from "@fraxfinance/layerzero-v2-upgradeable/messagelib/contracts/upgradeable/proxy/TransparentUpgradeableProxy.sol";
+import { ProxyAdmin, TransparentUpgradeableProxy } from "@fraxfinance/layerzero-v2-upgradeable/messagelib/contracts/upgradeable/proxy/ProxyAdmin.sol";
 import { Ownable } from "@openzeppelin/contracts/access/Ownable.sol";
 import { EndpointV2 } from "@fraxfinance/layerzero-v2-upgradeable/protocol/contracts/EndpointV2.sol";
 
@@ -12,9 +12,7 @@ import { EndpointV2 } from "@fraxfinance/layerzero-v2-upgradeable/protocol/contr
 TODO
 - Mode msig
 - Mode RPC
-- state checks
-- PK inits
-- Mainnet sig
+- Mainnet tx
 
 https://etherscan.io/tx/0xc83526447f7c7467d16ea65975a2b39edeb3ebe7c88959af333194a0a24ef0e4#eventlog
 (FXS) Mainnet => Base
@@ -37,14 +35,14 @@ Mainnet Addresses
 
 contract DeployFraxOFTProtocol is BaseScript {
 
-    // TODO: convert to PK
-    uint256 public oftDeployer = 1;
-    uint256 public configDeployer = 1;
+    uint256 public oftDeployer = vm.envUint("PK_OFT_DEPLOYER");
+    uint256 public configDeployer = vm.envUint("PK_CONFIG_DEPLOYER");
+    address public delegate = vm.envAddress("DELEGATE");
 
-    address public delegate;
     address public endpoint;
 
     // Deployed proxies
+    address public proxyAdmin
     address public fxsOft;
     address public sFraxOft;
     address public frxEthOft;
@@ -74,6 +72,8 @@ contract DeployFraxOFTProtocol is BaseScript {
             delegate = Constants.Mode.TIMELOCK_ADDRESS;
             endpoint = Constants.Mode.L0_ENDPOINT;
         }
+        require(delegate != address(0), "Empty delegate");
+        require(endpoint != address(0), "Empty endpoint");
 
         /// @dev: this array maintains the same token order as proxyOfts and the addrs are confirmed on eth mainnet.
         legacyOfts.push(0x23432452B720C80553458496D4D9d7C5003280d0); // fxs
@@ -86,24 +86,16 @@ contract DeployFraxOFTProtocol is BaseScript {
         deployFraxOFTUpgradeablesAndProxies();
         setLegacyPeers();
         setProxyPeers();
-        // TODO: set enforced options
-        setDelegate();
-        transferOwnerships();
-        // TODO: state checks
+        // TODO: set enforced option
+        setPriviledgedRoles();
     }
 
-    function trasferOwnerships() public broadcastAs(configDeployer) {
+    function setPriviledgedRoles() public {
         /// @dev transfer ownership of OFT and proxy
         for (uint256 i=0; i<proxyOfts.length; i++) {
             address proxyOft = proxyOfts[i];
             Ownable(proxyOft).transferOwnership(delegate);
-            TransparentUpgradeableProxy(proxyOft).changeAdmin(delegate);
-        }
-    }
-
-    function setDelegate() public broadcastAs(configDeployer) {
-        for (uint256 i=0; i<proxyOfts.length; i++) {
-            OFTUpgradeable(proxyOfts[i]).setDelegate(delegate);
+            OFTUpgradeable(proxyOft).setDelegate(delegate);
         }
     }
 
@@ -141,8 +133,11 @@ contract DeployFraxOFTProtocol is BaseScript {
 
     // TODO: missing ecosystem tokens (FPI, etc.)
     function deployFraxOFTUpgradeablesAndProxies() public {
-        /// @dev: follows deployment order of legacy OFTs found at https://etherscan.io/address/0xded884435f2db0169010b3c325e733df0038e51d
 
+        // Proxy admin
+        proxyAdmin = new ProxyAdmin(delegate);
+
+        /// @dev: follows deployment order of legacy OFTs found at https://etherscan.io/address/0xded884435f2db0169010b3c325e733df0038e51d
         // Deploy FXS
         (,fxsOft) = deployFraxOFTUpgradeableAndProxy({
             _name: "Frax Share",
@@ -193,7 +188,7 @@ contract DeployFraxOFTProtocol is BaseScript {
             _symbol,
             configDeployer
         );
-        proxy = address(new TransparentUpgradeableProxy(implementation, configDeployer, initializeArgs));
+        proxy = address(new TransparentUpgradeableProxy(implementation, proxyAdmin, initializeArgs));
         proxyOfts.push(proxy);
 
         // State checks

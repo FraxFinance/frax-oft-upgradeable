@@ -114,7 +114,7 @@ contract DeployFraxOFTProtocol is Script {
         setPriviledgedRoles();
     }
 
-    function setDVNs() public {
+    function setDVNs() broadcastAs(configDeployerPK) public {
         UlnConfig memory ulnConfig;
         ulnConfig.requiredDVNCount = 2;
         address[] memory requiredDVNs = new address[](2);
@@ -144,15 +144,15 @@ contract DeployFraxOFTProtocol is Script {
         }
 
         // TODO: push config for proxy OFTs
-        for (uint256 e=0; e<proxyEids.length; e++) {
-            setConfigParams.push(
-                SetConfigParam({
-                    eid: proxyEids[e],
-                    configType: Constant.CONFIG_TYPE_ULN,
-                    config: abi.encode(ulnConfig)
-                })
-            );
-        }
+        // for (uint256 e=0; e<proxyEids.length; e++) {
+        //     setConfigParams.push(
+        //         SetConfigParam({
+        //             eid: proxyEids[e],
+        //             configType: Constant.CONFIG_TYPE_ULN,
+        //             config: abi.encode(ulnConfig)
+        //         })
+        //     );
+        // }
 
         // TODO: change from mode
         address receiveLib302 = 0xc1B621b18187F74c8F6D52a6F709Dd2780C09821;
@@ -173,7 +173,7 @@ contract DeployFraxOFTProtocol is Script {
         }
     }
 
-    function setPriviledgedRoles() public {
+    function setPriviledgedRoles() broadcastAs(configDeployerPK) public {
         /// @dev transfer ownership of OFT and proxy
         for (uint256 i=0; i<proxyOfts.length; i++) {
             address proxyOft = proxyOfts[i];
@@ -182,7 +182,7 @@ contract DeployFraxOFTProtocol is Script {
         }
     }
 
-    function setEnforcedOptions() public {
+    function setEnforcedOptions() broadcastAs(configDeployerPK) public {
         // For each peer, default 
         // https://github.com/FraxFinance/LayerZero-v2-upgradeable/blob/e1470197e0cffe0d89dd9c776762c8fdcfc1e160/oapp/test/OFT.t.sol#L417
         bytes memory optionsTypeOne = OptionsBuilder.newOptions().addExecutorLzReceiveOption(200000, 0);
@@ -286,7 +286,7 @@ contract DeployFraxOFTProtocol is Script {
             FraxOFTUpgradeable.initialize.selector,
             _name,
             _symbol,
-            configDeployerPK
+            vm.addr(configDeployerPK)
         );
         proxy = address(new TransparentUpgradeableProxy(implementation, proxyAdmin, initializeArgs));
         proxyOfts.push(proxy);
@@ -305,16 +305,12 @@ contract DeployFraxOFTProtocol is Script {
             "OFT endpoint incorrect"
         );
         require(
-            EndpointV2(endpoint).delegates(address(this)) == vm.addr(configDeployerPK),
+            EndpointV2(endpoint).delegates(proxy) == vm.addr(configDeployerPK),
             "Endpoint delegate incorrect"
         );
         require(
             FraxOFTUpgradeable(proxy).owner() == vm.addr(configDeployerPK),
             "OFT owner incorrect"
-        );
-        require(
-            TransparentUpgradeableProxy(payable(proxy)).admin() == vm.addr(configDeployerPK),
-            "Proxy admin incorrect"
         );
     }
 

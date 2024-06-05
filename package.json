@@ -64,6 +64,8 @@
     "hardhat-deploy": "^0.12.1"
   },
   "dependencies": {
+    "@layerzerolabs/lz-evm-messagelib-v2": "^2.3.21",
+    "@layerzerolabs/toolbox-foundry": "^0.1.5",
     "frax-template": "github:fraxfinance/frax-template"
   }
 }

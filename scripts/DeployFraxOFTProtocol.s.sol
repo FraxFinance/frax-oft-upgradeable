@@ -2,8 +2,9 @@
 pragma solidity ^0.8.19;
 
 // TODO: package names under same base dir
-import { BaseScript } from "frax-std/BaseScript.sol";
-import { Constants } from "frax-template/src/contracts/Constants.sol";
+import { Script } from "forge-std/Script.sol";
+import "frax-template/src/Constants.sol";
+import { FraxOFTUpgradeable } from "contracts/FraxOFTUpgradeable.sol";
 import { ProxyAdmin, TransparentUpgradeableProxy } from "@fraxfinance/layerzero-v2-upgradeable/messagelib/contracts/upgradeable/proxy/ProxyAdmin.sol";
 import { Ownable } from "@openzeppelin/contracts/access/Ownable.sol";
 import { EndpointV2 } from "@fraxfinance/layerzero-v2-upgradeable/protocol/contracts/EndpointV2.sol";
@@ -26,6 +27,7 @@ TODO
 Required DVNs:
 - L0
 - Horizon
+- example: https://explorer.metis.io/tx/0x465d4dac4e7bc8cb9c8be8908aac5bdc00b4bc64988f82c1e46c10b3c93829e5/eventlog
 
 Mainnet Addresses
 - FXSOFTAdapter:        0x23432452B720C80553458496D4D9d7C5003280d0
@@ -37,22 +39,22 @@ Mainnet Addresses
 */
 
 
-contract DeployFraxOFTProtocol is BaseScript {
+contract DeployFraxOFTProtocol is Script {
     using OptionsBuilder for bytes;
 
-    uint256 public oftDeployer = vm.envUint("PK_OFT_DEPLOYER");
-    uint256 public configDeployer = vm.envUint("PK_CONFIG_DEPLOYER");
+    uint256 public oftDeployerPK = vm.envUint("PK_OFT_DEPLOYER");
+    uint256 public configDeployerPK = vm.envUint("PK_CONFIG_DEPLOYER");
     address public delegate = vm.envAddress("DELEGATE");
 
     // TODO: load in dynamic
     address public endpoint = 0x1a44076050125825900e736c501f859c50fE728c;
 
     // Deployed proxies
-    address public proxyAdmin
+    address public proxyAdmin;
     address public fxsOft;
     address public sFraxOft;
-    address public frxEthOft;
-    address public sFraxOft;
+    address public sfrxEthOft;
+    address public fraxOft;
 
     /// EIDs- each value should be unique
     uint32[] public legacyEids;
@@ -79,12 +81,13 @@ contract DeployFraxOFTProtocol is BaseScript {
         // Set constants based on deployment chain id
         chainId = block.chainid;
         if (chainId == 1) {
-            delegate = Constants.Mainnet.TIMELOCK_ADDRESS;
-            endpoint = Constants.Mainnet.L0_ENDPOINT; // TODO: does this vary per OFT?
+            // TODO: configure constants with these addrs
+            // delegate = Constants.Mainnet.TIMELOCK_ADDRESS;
+            // endpoint = Constants.Mainnet.L0_ENDPOINT; // TODO: may / may not vary
         } else if (chainId == 34443) {
             // mode
-            delegate = Constants.Mode.TIMELOCK_ADDRESS;
-            endpoint = Constants.Mode.L0_ENDPOINT;
+            delegate = makeAddr("delegate"); // TODO
+            endpoint = 0x1a44076050125825900e736c501f859c50fE728c;
         }
         require(delegate != address(0), "Empty delegate");
         require(endpoint != address(0), "Empty endpoint");
@@ -121,11 +124,11 @@ contract DeployFraxOFTProtocol is BaseScript {
         address dvnL0 = 0xce8358bc28dd8296Ce8cAF1CD2b44787abd65887;
         // sort in ascending order
         if (uint160(dvnHorizon) < uint160(dvnL0)) {
-            requiredDvns[0] = dvnHorizon;
+            requiredDVNs[0] = dvnHorizon;
             requiredDVNs[1] = dvnL0;
         } else {
             requiredDVNs[0] = dvnL0;
-            requiredDvns[1] = dvnHorizon;
+            requiredDVNs[1] = dvnHorizon;
         }
         ulnConfig.requiredDVNs = requiredDVNs;
 
@@ -135,7 +138,7 @@ contract DeployFraxOFTProtocol is BaseScript {
                 SetConfigParam({
                     eid: legacyEids[e],
                     configType: Constant.CONFIG_TYPE_ULN,
-                    abi.encode(ulnConfig)                    
+                    config: abi.encode(ulnConfig)                    
                 })
             );
         }
@@ -146,7 +149,7 @@ contract DeployFraxOFTProtocol is BaseScript {
                 SetConfigParam({
                     eid: proxyEids[e],
                     configType: Constant.CONFIG_TYPE_ULN,
-                    abi.encode(ulnConfig)
+                    config: abi.encode(ulnConfig)
                 })
             );
         }
@@ -175,7 +178,7 @@ contract DeployFraxOFTProtocol is BaseScript {
         for (uint256 i=0; i<proxyOfts.length; i++) {
             address proxyOft = proxyOfts[i];
             Ownable(proxyOft).transferOwnership(delegate);
-            OFTUpgradeable(proxyOft).setDelegate(delegate);
+            FraxOFTUpgradeable(proxyOft).setDelegate(delegate);
         }
     }
 
@@ -200,29 +203,29 @@ contract DeployFraxOFTProtocol is BaseScript {
         // }
 
         for (uint256 i=0; i<proxyOfts.length; i++) {
-            OFTUpgradeable(proxyOfts[i]).setEnforcedOptions(enforcedOptionsParams);
+            FraxOFTUpgradeable(proxyOfts[i]).setEnforcedOptions(enforcedOptionsParams);
         }
     }
 
     /// @dev legacy, non-upgradeable OFTs
-    function setLegacyPeers() public broadcastAs(configDeployer) {
+    function setLegacyPeers() public broadcastAs(configDeployerPK) {
         for (uint256 i=0; i<proxyOfts.length; i++) {
             address proxyOft = proxyOfts[i];
             address legacyOft = legacyOfts[i];
             for (uint256 e=0; e<legacyEids.length; e++) {
-                OFTUpgradeable(proxyOft).setPeer(legacyEids[e], addressToBytes32(legacyOft));
+                FraxOFTUpgradeable(proxyOft).setPeer(legacyEids[e], addressToBytes32(legacyOft));
             }
         }
     }
 
     /// @dev Upgradeable OFTs maintaining the same address cross-chain.
-    function setProxyPeers() public broadcastAs(configDeployer) {
+    function setProxyPeers() public broadcastAs(configDeployerPK) {
         // TODO
         for (uint256 i=0; i<proxyOfts.length; i++) {
             address proxyOft = proxyOfts[i];
             // TODO: setup proxyEids
             // for (uint256 p=0; i<proxyEids.length; p++) {
-            //     OFTUpgradeable(proxyOft).setPeer(proxyEids[p], addressToBytes32(proxyOft));
+            //     FraxOFTUpgradeable(proxyOft).setPeer(proxyEids[p], addressToBytes32(proxyOft));
             // }
         }
     }
@@ -232,7 +235,7 @@ contract DeployFraxOFTProtocol is BaseScript {
     function deployFraxOFTUpgradeablesAndProxies() public {
 
         // Proxy admin
-        proxyAdmin = new ProxyAdmin(delegate);
+        proxyAdmin = address(new ProxyAdmin(delegate));
 
         /// @dev: follows deployment order of legacy OFTs found at https://etherscan.io/address/0xded884435f2db0169010b3c325e733df0038e51d
         // Deploy FXS
@@ -267,9 +270,9 @@ contract DeployFraxOFTProtocol is BaseScript {
     function deployFraxOFTUpgradeableAndProxy(
         string memory _name,
         string memory _symbol
-    ) public broadcastAs(oftDeployer) returns (address implementation, address proxy) {
+    ) public broadcastAs(oftDeployerPK) returns (address implementation, address proxy) {
         bytes memory bytecode = bytes.concat(
-            abi.encodePacked(type(OFTUpgradeable).creationCode),
+            abi.encodePacked(type(FraxOFTUpgradeable).creationCode),
             abi.encode(endpoint)
         );
         assembly {
@@ -283,34 +286,34 @@ contract DeployFraxOFTProtocol is BaseScript {
             FraxOFTUpgradeable.initialize.selector,
             _name,
             _symbol,
-            configDeployer
+            configDeployerPK
         );
         proxy = address(new TransparentUpgradeableProxy(implementation, proxyAdmin, initializeArgs));
         proxyOfts.push(proxy);
 
         // State checks
         require(
-            isStringEqual(OFTUpgradeable(proxy).name(), _name),
+            isStringEqual(FraxOFTUpgradeable(proxy).name(), _name),
             "OFT name incorrect"
         );
         require(
-            isStringEqual(OFTUpgradeable(proxy).symbol(), _symbol),
+            isStringEqual(FraxOFTUpgradeable(proxy).symbol(), _symbol),
             "OFT symbol incorrect"
         );
         require(
-            address(OFTUpgradeable(proxy).endpoint()) == endpoint,
+            address(FraxOFTUpgradeable(proxy).endpoint()) == endpoint,
             "OFT endpoint incorrect"
         );
         require(
-            EndpointV2(endpoint).delegates(address(this)) == configDeployer,
+            EndpointV2(endpoint).delegates(address(this)) == vm.addr(configDeployerPK),
             "Endpoint delegate incorrect"
         );
         require(
-            OFTUpgradeable(proxy).owner() == configDeployer,
+            FraxOFTUpgradeable(proxy).owner() == vm.addr(configDeployerPK),
             "OFT owner incorrect"
         );
         require(
-            TransparentUpgradeableProxy(proxy).admin() == configDeployer,
+            TransparentUpgradeableProxy(payable(proxy)).admin() == vm.addr(configDeployerPK),
             "Proxy admin incorrect"
         );
     }

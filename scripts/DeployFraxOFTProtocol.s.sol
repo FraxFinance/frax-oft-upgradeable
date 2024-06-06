@@ -114,7 +114,7 @@ contract DeployFraxOFTProtocol is Script {
         legacyEids.push(uint32(30101)); // ethereum
         legacyEids.push(uint32(30151)); // metis
         legacyEids.push(uint32(30184)); // base
-        // legacyEids.push(uint32(30253)); // blast
+        legacyEids.push(uint32(30253)); // blast
     }
 
     function run() external {
@@ -128,22 +128,37 @@ contract DeployFraxOFTProtocol is Script {
     }
 
     function setSendAndReceiveLibraries() public {
+        /// @dev this isn't technically required as we could assume fallback to the default send/receive library.
+        ///     However, the default can be upgraded by the MessageLibManager.owner(), and so in setting these libraries
+        ///     manually there is no trust assumption.
+        ///     Note that in the case of a broken send/receive lib, OFT messages will not be automatically upgraded
+        ///     in sync with the default and will need to again be manually set by the Frax team.
         for (uint256 i=0; i<proxyOfts.length; i++) {
             address proxyOft = proxyOfts[i];
 
             // legacy EIDs
             for (uint256 e=0; e<legacyEids.length; e++) {
+                uint32 eid = legacyEids[e];
+                require(
+                    IMessageLibManager(endpoint).isSupportedEid(eid),
+                    "L0 team required to setup `defaultSendLibrary` and `defaultReceiveLibrary` for EID"
+                );
                 setSendAndReceiveLibrary({
                     _proxyOft: proxyOft,
-                    _eid: legacyEids[e]
+                    _eid: eid
                 });
             }
 
             // proxy EIDs
             for (uint256 e=0; e<proxyEids.length; e++) {
+                uint32 eid = proxyEids[e];
+                require(
+                    IMessageLibManager(endpoint).isSupportedEid(eid),
+                    "L0 team required to setup `defaultSendLibrary` and `defaultReceiveLibrary` for EID"
+                );
                 setSendAndReceiveLibrary({
                     _proxyOft: proxyOft,
-                    _eid: proxyEids[e]
+                    _eid: eid
                 });
             }
         }
@@ -171,7 +186,7 @@ contract DeployFraxOFTProtocol is Script {
         ulnConfig.requiredDVNCount = 2;
         address[] memory requiredDVNs = new address[](2);
 
-        // sort in ascending order
+        // sort in ascending order (as spec'd in UlnConfig)
         if (uint160(dvnHorizon) < uint160(dvnL0)) {
             requiredDVNs[0] = dvnHorizon;
             requiredDVNs[1] = dvnL0;

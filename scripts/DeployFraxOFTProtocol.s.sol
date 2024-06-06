@@ -114,71 +114,34 @@ contract DeployFraxOFTProtocol is Script {
         legacyEids.push(uint32(30101)); // ethereum
         legacyEids.push(uint32(30151)); // metis
         legacyEids.push(uint32(30184)); // base
-        legacyEids.push(uint32(30253)); // blast
+        // legacyEids.push(uint32(30253)); // blast
     }
 
     function run() external {
+        preDeployChecks();
         deployFraxOFTUpgradeablesAndProxies();
         setLegacyPeers();
         setProxyPeers();
         setEnforcedOptions();
-        setSendAndReceiveLibraries();
         setDVNs();
         setPriviledgedRoles();
     }
 
-    function setSendAndReceiveLibraries() public {
-        /// @dev this isn't technically required as we could assume fallback to the default send/receive library.
-        ///     However, the default can be upgraded by the MessageLibManager.owner(), and so in setting these libraries
-        ///     manually there is no trust assumption.
-        ///     Note that in the case of a broken send/receive lib, OFT messages will not be automatically upgraded
-        ///     in sync with the default and will need to again be manually set by the Frax team.
-        for (uint256 i=0; i<proxyOfts.length; i++) {
-            address proxyOft = proxyOfts[i];
-
-            // legacy EIDs
-            for (uint256 e=0; e<legacyEids.length; e++) {
-                uint32 eid = legacyEids[e];
-                require(
-                    IMessageLibManager(endpoint).isSupportedEid(eid),
-                    "L0 team required to setup `defaultSendLibrary` and `defaultReceiveLibrary` for EID"
-                );
-                setSendAndReceiveLibrary({
-                    _proxyOft: proxyOft,
-                    _eid: eid
-                });
-            }
-
-            // proxy EIDs
-            for (uint256 e=0; e<proxyEids.length; e++) {
-                uint32 eid = proxyEids[e];
-                require(
-                    IMessageLibManager(endpoint).isSupportedEid(eid),
-                    "L0 team required to setup `defaultSendLibrary` and `defaultReceiveLibrary` for EID"
-                );
-                setSendAndReceiveLibrary({
-                    _proxyOft: proxyOft,
-                    _eid: eid
-                });
-            }
+    function preDeployChecks() public {
+        // legacy EIDs
+        for (uint256 e=0; e<legacyEids.length; e++) {
+            require(
+                IMessageLibManager(endpoint).isSupportedEid(legacyEids[e]),
+                "L0 team required to setup `defaultSendLibrary` and `defaultReceiveLibrary` for EID"
+            );
         }
-    }
-
-    function setSendAndReceiveLibrary(
-        address _proxyOft,
-        uint32 _eid
-    ) public broadcastAs(configDeployerPK) {
-        IMessageLibManager(endpoint).setSendLibrary({
-            _oapp: _proxyOft,
-            _eid: _eid,
-            _newLib: sendLib302
-        });
-        IMessageLibManager(endpoint).setReceiveLibrary({
-            _oapp: _proxyOft,
-            _eid: _eid,
-            _newLib: receiveLib302,
-            _gracePeriod: 0
-        });
+        // proxy EIDs
+        for (uint256 e=0; e<proxyEids.length; e++) {
+            require(
+                IMessageLibManager(endpoint).isSupportedEid(proxyEids[e]),
+                "L0 team required to setup `defaultSendLibrary` and `defaultReceiveLibrary` for EID"
+            );
+        }
     }
 
     function setDVNs() broadcastAs(configDeployerPK) public {

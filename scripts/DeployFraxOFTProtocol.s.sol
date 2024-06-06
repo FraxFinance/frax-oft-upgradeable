@@ -17,12 +17,13 @@ import { Constant } from "@fraxfinance/layerzero-v2-upgradeable/messagelib/test/
 /*
 TODO
 - Mode msig
-- Mode RPC
 - Legacy chains
     - setProxyPeers()
     - setEnforcedOptions()
+    - setSendReceiveLibraries()
     - setDVNs()
 - Sam to setup frxETH, FPI with L0 mainnet adapter & legacies
+- Proxy EIDs
 
 Required DVNs:
 - L0
@@ -48,6 +49,11 @@ contract DeployFraxOFTProtocol is Script {
 
     // TODO: load in dynamic
     address public endpoint = 0x1a44076050125825900e736c501f859c50fE728c;
+    address public receiveLib302 = 0xc1B621b18187F74c8F6D52a6F709Dd2780C09821;
+    address public sendLib302 = 0x2367325334447C5E1E0f1b3a6fB947b262F58312;
+    // https://docs.layerzero.network/v2/developers/evm/technical-reference/dvn-addresses#layerzero-labs
+    address public dvnHorizon = 0xaCDe1f22EEAb249d3ca6Ba8805C8fEe9f52a16e7;
+    address public dvnL0 = 0xce8358bc28dd8296Ce8cAF1CD2b44787abd65887;
 
     // Deployed proxies
     address public proxyAdmin;
@@ -58,7 +64,7 @@ contract DeployFraxOFTProtocol is Script {
 
     /// EIDs- each value should be unique
     uint32[] public legacyEids;
-    uint32[] public proxyEids;
+    uint32[] public proxyEids; // TODO: setup
     
     // 1:1 match between these arrays for setting peers
     address[] public legacyOfts;
@@ -110,18 +116,55 @@ contract DeployFraxOFTProtocol is Script {
         setLegacyPeers();
         setProxyPeers();
         setEnforcedOptions();
+        setSendAndReceiveLibrary();
         setDVNs();
         setPriviledgedRoles();
+    }
+
+    function setSendAndReceiveLibraries() public {
+        for (uint256 i=0; i<proxyOfts.length; i++) {
+            address proxyOft = proxyOfts[i];
+
+            // legacy EIDs
+            for (uint256 e=0; e<legacyEids.length; e++) {
+                setSendAndReceiveLibrary({
+                    _proxyOft: proxyOft,
+                    _eid: legacyEids[e]
+                });
+            }
+
+            // proxy EIDs
+            for (uint256 e=0; e<proxyEids.length; e++) {
+                setSendAndReceiveLibrary({
+                    _proxyOft: proxyOft,
+                    _eid: proxyEids[e]
+                });
+            }
+        }
+    }
+
+    function setSendAndReceiveLibrary(
+        address _proxyOft,
+        uint32 _eid
+    ) public {
+        IMessageLibManager(endpoint).setSendLibrary({
+            _oapp: _proxyOft,
+            _eid: _eid,
+            _newLib: sendLib302
+        });
+        IMessageLibManager(endpoint).setReceiveLibrary({
+            _oapp: _proxyOft,
+            _eid: _eid,
+            _newLib: receiveLib302,
+            _gracePeriod: 0
+        });
     }
 
     function setDVNs() broadcastAs(configDeployerPK) public {
         UlnConfig memory ulnConfig;
         ulnConfig.requiredDVNCount = 2;
         address[] memory requiredDVNs = new address[](2);
-        // TODO: change from mode
-        // https://docs.layerzero.network/v2/developers/evm/technical-reference/dvn-addresses#layerzero-labs
-        address dvnHorizon = 0xaCDe1f22EEAb249d3ca6Ba8805C8fEe9f52a16e7;
-        address dvnL0 = 0xce8358bc28dd8296Ce8cAF1CD2b44787abd65887;
+
         // sort in ascending order
         if (uint160(dvnHorizon) < uint160(dvnL0)) {
             requiredDVNs[0] = dvnHorizon;
@@ -143,20 +186,15 @@ contract DeployFraxOFTProtocol is Script {
             );
         }
 
-        // TODO: push config for proxy OFTs
-        // for (uint256 e=0; e<proxyEids.length; e++) {
-        //     setConfigParams.push(
-        //         SetConfigParam({
-        //             eid: proxyEids[e],
-        //             configType: Constant.CONFIG_TYPE_ULN,
-        //             config: abi.encode(ulnConfig)
-        //         })
-        //     );
-        // }
-
-        // TODO: change from mode
-        address receiveLib302 = 0xc1B621b18187F74c8F6D52a6F709Dd2780C09821;
-        address sendLib302 = 0x2367325334447C5E1E0f1b3a6fB947b262F58312;
+        for (uint256 e=0; e<proxyEids.length; e++) {
+            setConfigParams.push(
+                SetConfigParam({
+                    eid: proxyEids[e],
+                    configType: Constant.CONFIG_TYPE_ULN,
+                    config: abi.encode(ulnConfig)
+                })
+            );
+        }
 
         // Submit txs to setup DVN on source chain
         for (uint256 i=0; i<proxyOfts.length; i++) {
@@ -195,12 +233,11 @@ contract DeployFraxOFTProtocol is Script {
             enforcedOptionsParams.push(EnforcedOptionParam(eid, 2, optionsTypeTwo));
         }
 
-        // TODO: proxy eids
-        // for (uint256 p=0; p<proxyEids.length; p++) {
-        //     uint32 eid = proxyEids[p];
-        //     enforcedOptionsParams.push(EnforcedOptionParam(eid, 1, optionsTypeOne));
-        //     enforcedOptionsParams.push(EnforcedOptionParam(eid, 2, optionsTypeTwo));
-        // }
+        for (uint256 p=0; p<proxyEids.length; p++) {
+            uint32 eid = proxyEids[p];
+            enforcedOptionsParams.push(EnforcedOptionParam(eid, 1, optionsTypeOne));
+            enforcedOptionsParams.push(EnforcedOptionParam(eid, 2, optionsTypeTwo));
+        }
 
         for (uint256 i=0; i<proxyOfts.length; i++) {
             FraxOFTUpgradeable(proxyOfts[i]).setEnforcedOptions(enforcedOptionsParams);
@@ -220,13 +257,11 @@ contract DeployFraxOFTProtocol is Script {
 
     /// @dev Upgradeable OFTs maintaining the same address cross-chain.
     function setProxyPeers() public broadcastAs(configDeployerPK) {
-        // TODO
         for (uint256 i=0; i<proxyOfts.length; i++) {
             address proxyOft = proxyOfts[i];
-            // TODO: setup proxyEids
-            // for (uint256 p=0; i<proxyEids.length; p++) {
-            //     FraxOFTUpgradeable(proxyOft).setPeer(proxyEids[p], addressToBytes32(proxyOft));
-            // }
+            for (uint256 p=0; i<proxyEids.length; p++) {
+                FraxOFTUpgradeable(proxyOft).setPeer(proxyEids[p], addressToBytes32(proxyOft));
+            }
         }
     }
 

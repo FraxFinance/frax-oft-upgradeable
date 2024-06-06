@@ -114,7 +114,7 @@ contract DeployFraxOFTProtocol is Script {
         legacyEids.push(uint32(30101)); // ethereum
         legacyEids.push(uint32(30151)); // metis
         legacyEids.push(uint32(30184)); // base
-        // legacyEids.push(uint32(30253)); // blast
+        legacyEids.push(uint32(30243)); // blast
     }
 
     function run() external {

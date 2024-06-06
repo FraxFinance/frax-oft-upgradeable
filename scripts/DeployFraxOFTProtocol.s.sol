@@ -16,7 +16,8 @@ import { Constant } from "@fraxfinance/layerzero-v2-upgradeable/messagelib/test/
 
 /*
 TODO
-- Mode msig
+- confirm DVNs
+- Mode msig > delegate
 - Legacy chains
     - setProxyPeers()
     - setEnforcedOptions()
@@ -24,6 +25,7 @@ TODO
     - setDVNs()
 - Sam to setup frxETH, FPI with L0 mainnet adapter & legacies
 - Proxy EIDs
+- setup PKs
 
 Required DVNs:
 - L0
@@ -47,13 +49,13 @@ contract DeployFraxOFTProtocol is Script {
     uint256 public configDeployerPK = vm.envUint("PK_CONFIG_DEPLOYER");
     address public delegate = vm.envAddress("DELEGATE");
 
-    // TODO: load in dynamic
-    address public endpoint = 0x1a44076050125825900e736c501f859c50fE728c;
-    address public receiveLib302 = 0xc1B621b18187F74c8F6D52a6F709Dd2780C09821;
-    address public sendLib302 = 0x2367325334447C5E1E0f1b3a6fB947b262F58312;
+    // TODO: load these dynamically in setUp based on chainId
+    address public endpoint;
+    address public receiveLib302;
+    address public sendLib302;
     // https://docs.layerzero.network/v2/developers/evm/technical-reference/dvn-addresses#layerzero-labs
-    address public dvnHorizon = 0xaCDe1f22EEAb249d3ca6Ba8805C8fEe9f52a16e7;
-    address public dvnL0 = 0xce8358bc28dd8296Ce8cAF1CD2b44787abd65887;
+    address public dvnHorizon;
+    address public dvnL0;
 
     // Deployed proxies
     address public proxyAdmin;
@@ -94,6 +96,10 @@ contract DeployFraxOFTProtocol is Script {
             // mode
             delegate = makeAddr("delegate"); // TODO
             endpoint = 0x1a44076050125825900e736c501f859c50fE728c;
+            receiveLib302 = 0xc1B621b18187F74c8F6D52a6F709Dd2780C09821;
+            sendLib302 = 0x2367325334447C5E1E0f1b3a6fB947b262F58312;
+            dvnHorizon = 0xaCDe1f22EEAb249d3ca6Ba8805C8fEe9f52a16e7;
+            dvnL0 = 0xce8358bc28dd8296Ce8cAF1CD2b44787abd65887;
         }
         require(delegate != address(0), "Empty delegate");
         require(endpoint != address(0), "Empty endpoint");
@@ -108,7 +114,7 @@ contract DeployFraxOFTProtocol is Script {
         legacyEids.push(uint32(30101)); // ethereum
         legacyEids.push(uint32(30151)); // metis
         legacyEids.push(uint32(30184)); // base
-        legacyEids.push(uint32(30253)); // blast
+        // legacyEids.push(uint32(30253)); // blast
     }
 
     function run() external {
@@ -116,7 +122,7 @@ contract DeployFraxOFTProtocol is Script {
         setLegacyPeers();
         setProxyPeers();
         setEnforcedOptions();
-        setSendAndReceiveLibrary();
+        setSendAndReceiveLibraries();
         setDVNs();
         setPriviledgedRoles();
     }
@@ -146,7 +152,7 @@ contract DeployFraxOFTProtocol is Script {
     function setSendAndReceiveLibrary(
         address _proxyOft,
         uint32 _eid
-    ) public {
+    ) public broadcastAs(configDeployerPK) {
         IMessageLibManager(endpoint).setSendLibrary({
             _oapp: _proxyOft,
             _eid: _eid,
@@ -215,8 +221,8 @@ contract DeployFraxOFTProtocol is Script {
         /// @dev transfer ownership of OFT and proxy
         for (uint256 i=0; i<proxyOfts.length; i++) {
             address proxyOft = proxyOfts[i];
-            Ownable(proxyOft).transferOwnership(delegate);
             FraxOFTUpgradeable(proxyOft).setDelegate(delegate);
+            Ownable(proxyOft).transferOwnership(delegate);
         }
     }
 

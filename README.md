@@ -16,6 +16,38 @@
 
 <p align="center">Template project for getting started with LayerZero's <code>OFT</code> contract development.</p>
 
+```
+carter@laptop:~/Documents/frax/frax-oft-upgradeable$ forge verify-contract --rpc-url $MODE_RPC_URL --constructor-args $(cast abi-encode "constructor(address)" 0x1a44076050125825900e736c501f859c50fE728c) --verifier-url 'https://api.routescan.io/v2/network/mainnet/evm/34443/etherscan' --etherscan-api-key "verifyContract" --chain-id 34443 0x90a706775489D190256D0C721fC6eA3Df64904d0 contracts/FraxOFTUpgradeable.sol:FraxOFTUpgradeable --watch
+Start verifying contract `0x90a706775489D190256D0C721fC6eA3Df64904d0` deployed on mode
+
+Submitting verification for [contracts/FraxOFTUpgradeable.sol:FraxOFTUpgradeable] 0x90a706775489D190256D0C721fC6eA3Df64904d0.
+Submitted contract for verification:
+	Response: `OK`
+	GUID: `fdbc2830-068c-5ab7-8814-76ed815b7cdc`
+	URL: https://explorer.mode.network/address/0x90a706775489d190256d0c721fc6ea3df64904d0
+Contract verification status:
+Response: `NOTOK`
+Details: `Pending in queue`
+Contract verification status:
+Response: `NOTOK`
+Details: `Pending in queue`
+Contract verification status:
+Response: `NOTOK`
+Details: `Error: contract does not exist`
+
+
+
+carter@laptop:~/Documents/frax/frax-oft-upgradeable$ forge verify-contract --rpc-url $MODE_RPC_URL --constructor-args 0x0000000000000000000000006336CFA6eDBeC2A459d869031DB77fC2770Eaa66 --verifier-url 'https://api.routescan.io/v2/network/mainnet/evm/34443/etherscan' --etherscan-api-key "verifyContract" --chain-id 34443 0xb65c2079dfed58b7a6e472c0d6971605023ec6a9 node_modules/@fraxfinance/layerzero-v2-upgradeable/messagelib/contracts/upgradeable/proxy/ProxyAdmin.sol:ProxyAdmin
+Start verifying contract `0xb65c2079dfed58B7a6E472c0d6971605023ec6A9` deployed on mode
+Error: 
+Failed to get standard json input
+
+Context:
+- cannot resolve file at "/home/carter/Documents/frax/frax-oft-upgradeable/node_modules/@fraxfinance/layerzero-v2-upgradeable/messagelib/contracts/upgradeable/proxy/ProxyAdmin.sol"
+
+
+```
+
 ## 1) Developing Contracts
 
 #### Installing dependencies

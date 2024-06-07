@@ -201,6 +201,9 @@ contract DeployFraxOFTProtocol is Script {
             FraxOFTUpgradeable(proxyOft).setDelegate(delegate);
             Ownable(proxyOft).transferOwnership(delegate);
         }
+
+        /// @dev transfer ownership of ProxyAdmin
+        Ownable(proxyAdmin).transferOwnership(delegate);
     }
 
     function setEnforcedOptions() broadcastAs(configDeployerPK) public {
@@ -253,7 +256,7 @@ contract DeployFraxOFTProtocol is Script {
     function deployFraxOFTUpgradeablesAndProxies() broadcastAs(oftDeployerPK) public {
 
         // Proxy admin
-        proxyAdmin = address(new ProxyAdmin(delegate));
+        proxyAdmin = address(new ProxyAdmin(vm.addr(configDeployerPK)));
 
         /// @dev: follows deployment order of legacy OFTs found at https://etherscan.io/address/0xded884435f2db0169010b3c325e733df0038e51d
         // Deploy FXS

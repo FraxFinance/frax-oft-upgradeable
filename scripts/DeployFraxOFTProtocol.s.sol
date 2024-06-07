@@ -18,10 +18,9 @@ import { Constant } from "@fraxfinance/layerzero-v2-upgradeable/messagelib/test/
 TODO
 - confirm DVNs
 - Mode msig > delegate
-- Legacy chains
+- Existing chains
     - setProxyPeers()
     - setEnforcedOptions()
-    - setSendReceiveLibraries()
     - setDVNs()
 - Sam to setup frxETH, FPI with L0 mainnet adapter & legacies
 - Proxy EIDs
@@ -47,9 +46,9 @@ contract DeployFraxOFTProtocol is Script {
 
     uint256 public oftDeployerPK = vm.envUint("PK_OFT_DEPLOYER");
     uint256 public configDeployerPK = vm.envUint("PK_CONFIG_DEPLOYER");
-    address public delegate = vm.envAddress("DELEGATE");
 
     // TODO: load these dynamically in setUp based on chainId
+    address public delegate;
     address public endpoint;
     address public receiveLib302;
     address public sendLib302;
@@ -94,7 +93,7 @@ contract DeployFraxOFTProtocol is Script {
             // endpoint = Constants.Mainnet.L0_ENDPOINT; // TODO: may / may not vary
         } else if (chainId == 34443) {
             // mode
-            delegate = makeAddr("delegate"); // TODO
+            delegate = 0x6336CFA6eDBeC2A459d869031DB77fC2770Eaa66;
             endpoint = 0x1a44076050125825900e736c501f859c50fE728c;
             receiveLib302 = 0xc1B621b18187F74c8F6D52a6F709Dd2780C09821;
             sendLib302 = 0x2367325334447C5E1E0f1b3a6fB947b262F58312;
@@ -196,7 +195,7 @@ contract DeployFraxOFTProtocol is Script {
     }
 
     function setPriviledgedRoles() broadcastAs(configDeployerPK) public {
-        /// @dev transfer ownership of OFT and proxy
+        /// @dev transfer ownership of OFT
         for (uint256 i=0; i<proxyOfts.length; i++) {
             address proxyOft = proxyOfts[i];
             FraxOFTUpgradeable(proxyOft).setDelegate(delegate);
@@ -207,8 +206,8 @@ contract DeployFraxOFTProtocol is Script {
     function setEnforcedOptions() broadcastAs(configDeployerPK) public {
         // For each peer, default 
         // https://github.com/FraxFinance/LayerZero-v2-upgradeable/blob/e1470197e0cffe0d89dd9c776762c8fdcfc1e160/oapp/test/OFT.t.sol#L417
-        bytes memory optionsTypeOne = OptionsBuilder.newOptions().addExecutorLzReceiveOption(200000, 0);
-        bytes memory optionsTypeTwo = OptionsBuilder.newOptions().addExecutorLzReceiveOption(250000, 0);
+        bytes memory optionsTypeOne = OptionsBuilder.newOptions().addExecutorLzReceiveOption(200_000, 0);
+        bytes memory optionsTypeTwo = OptionsBuilder.newOptions().addExecutorLzReceiveOption(250_000, 0);
 
         // legacy eids
         for (uint256 e=0; e<legacyEids.length; e++) {
@@ -251,7 +250,7 @@ contract DeployFraxOFTProtocol is Script {
 
 
     // TODO: missing ecosystem tokens (FPI, etc.)
-    function deployFraxOFTUpgradeablesAndProxies() public {
+    function deployFraxOFTUpgradeablesAndProxies() broadcastAs(oftDeployerPK) public {
 
         // Proxy admin
         proxyAdmin = address(new ProxyAdmin(delegate));
@@ -289,7 +288,7 @@ contract DeployFraxOFTProtocol is Script {
     function deployFraxOFTUpgradeableAndProxy(
         string memory _name,
         string memory _symbol
-    ) public broadcastAs(oftDeployerPK) returns (address implementation, address proxy) {
+    ) public returns (address implementation, address proxy) {
         bytes memory bytecode = bytes.concat(
             abi.encodePacked(type(FraxOFTUpgradeable).creationCode),
             abi.encode(endpoint)

@@ -14,6 +14,7 @@ libs = [
     'node_modules/@layerzerolabs/toolbox-foundry/lib',
     'node_modules',
 ]
+fs_permissions = [{ access = "read", path = "./"}]
 
 remappings = [
     # Due to a misconfiguration of solidity-bytes-utils, an outdated version

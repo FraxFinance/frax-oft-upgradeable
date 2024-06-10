@@ -79,6 +79,10 @@ contract DeployFraxOFTProtocol is Script {
     uint256 public chainId;
     // string public rpc;
 
+    function version() public view returns (uint256, uint256, uint256) {
+        return (0, 1, 0);
+    }
+
     modifier broadcastAs(uint256 privateKey) {
         vm.startBroadcast(privateKey);
         _;

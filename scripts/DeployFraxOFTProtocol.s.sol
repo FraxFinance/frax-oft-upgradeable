@@ -302,14 +302,21 @@ contract DeployFraxOFTProtocol is Script {
                 revert(0, 0)
             }
         }
-        /// @dev: config deployer is temporary proxy admin until post-setup
+        /// @dev: config deployer is temporary OFT owner until setPriviledgedRoles()
         bytes memory initializeArgs = abi.encodeWithSelector(
             FraxOFTUpgradeable.initialize.selector,
             _name,
             _symbol,
             vm.addr(configDeployerPK)
         );
-        proxy = address(new TransparentUpgradeableProxy(implementation, proxyAdmin, initializeArgs));
+
+        /// @dev: do not initialize for pre-deterministic proxy address
+        proxy = address(new TransparentUpgradeableProxy(implementation, vm.addr(oftDeployerPK), ""));
+        TransparentUpgradeableProxy(payable(proxy)).upgradeToAndCall({
+            newImplementation: implementation,
+            data: initializeArgs
+        });
+        TransparentUpgradeableProxy(payable(proxy)).changeAdmin(proxyAdmin);
         proxyOfts.push(proxy);
 
         // State checks

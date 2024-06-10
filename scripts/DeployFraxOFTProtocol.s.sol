@@ -5,6 +5,7 @@ pragma solidity ^0.8.19;
 import { Script } from "forge-std/Script.sol";
 import "frax-template/src/Constants.sol";
 import { FraxOFTUpgradeable } from "contracts/FraxOFTUpgradeable.sol";
+import { ImplementationMock } from "contracts/mocks/ImplementationMock.sol";
 import { ProxyAdmin, TransparentUpgradeableProxy } from "@fraxfinance/layerzero-v2-upgradeable/messagelib/contracts/upgradeable/proxy/ProxyAdmin.sol";
 import { Ownable } from "@openzeppelin/contracts/access/Ownable.sol";
 import { EndpointV2 } from "@fraxfinance/layerzero-v2-upgradeable/protocol/contracts/EndpointV2.sol";
@@ -16,15 +17,12 @@ import { Constant } from "@fraxfinance/layerzero-v2-upgradeable/messagelib/test/
 
 /*
 TODO
-- confirm DVNs
-- Mode msig > delegate
 - Existing chains
     - setProxyPeers()
     - setEnforcedOptions()
     - setDVNs()
-- Sam to setup frxETH, FPI with L0 mainnet adapter & legacies
+- Setup frxETH, FPI with L0 mainnet adapter & legacies
 - Proxy EIDs
-- setup PKs
 
 Required DVNs:
 - L0
@@ -55,6 +53,9 @@ contract DeployFraxOFTProtocol is Script {
     // https://docs.layerzero.network/v2/developers/evm/technical-reference/dvn-addresses#layerzero-labs
     address public dvnHorizon;
     address public dvnL0;
+
+    // Mock implementation used to enable pre-determinsitic proxy creation
+    address public implementationMock;
 
     // Deployed proxies
     address public proxyAdmin;
@@ -126,7 +127,7 @@ contract DeployFraxOFTProtocol is Script {
         setPriviledgedRoles();
     }
 
-    function preDeployChecks() public {
+    function preDeployChecks() public view {
         // legacy EIDs
         for (uint256 e=0; e<legacyEids.length; e++) {
             require(
@@ -258,6 +259,9 @@ contract DeployFraxOFTProtocol is Script {
         // Proxy admin
         proxyAdmin = address(new ProxyAdmin(vm.addr(configDeployerPK)));
 
+        // Implementation mock
+        implementationMock = address(new ImplementationMock());
+
         /// @dev: follows deployment order of legacy OFTs found at https://etherscan.io/address/0xded884435f2db0169010b3c325e733df0038e51d
         // Deploy FXS
         (,fxsOft) = deployFraxOFTUpgradeableAndProxy({
@@ -310,8 +314,8 @@ contract DeployFraxOFTProtocol is Script {
             vm.addr(configDeployerPK)
         );
 
-        /// @dev: do not initialize for pre-deterministic proxy address
-        proxy = address(new TransparentUpgradeableProxy(implementation, vm.addr(oftDeployerPK), ""));
+        /// @dev: create pre-deterministic proxy address, then initialize with correct implementation
+        proxy = address(new TransparentUpgradeableProxy(implementationMock, vm.addr(oftDeployerPK), ""));
         TransparentUpgradeableProxy(payable(proxy)).upgradeToAndCall({
             newImplementation: implementation,
             data: initializeArgs

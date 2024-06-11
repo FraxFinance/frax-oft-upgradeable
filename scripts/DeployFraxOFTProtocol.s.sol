@@ -51,6 +51,7 @@ contract DeployFraxOFTProtocol is Script {
 
     /// @dev: required to be alphabetical to conform to https://book.getfoundry.sh/cheatcodes/parse-json
     struct L0Config {
+        string RPC;
         uint256 chainid;
         address delegate;
         address dvnL0;
@@ -64,6 +65,7 @@ contract DeployFraxOFTProtocol is Script {
     L0Config[] public proxyConfigs;
     L0Config[] public configs; // legacy & proxy configs
     L0Config public proxyConfig;
+    L0Config[] public proxyConfigArray; // length of 1 of proxyConfig
 
     // Mock implementation used to enable pre-determinsitic proxy creation
     address public implementationMock;
@@ -131,6 +133,7 @@ contract DeployFraxOFTProtocol is Script {
             L0Config memory config_ = proxyConfigs_[i];
             if (config_.chainid == chainId) {
                 proxyConfig = config_;
+                proxyConfigArray.push(config_);
             }
             proxyConfigs.push(config_);
             configs.push(config_);
@@ -140,26 +143,54 @@ contract DeployFraxOFTProtocol is Script {
 
     function run() external {
         deploySource();
-        deployDestinations();   
+        // setupDestinations();   
     }
 
     function deploySource() public {
         preDeployChecks();
         deployFraxOFTUpgradeablesAndProxies();
         postDeployChecks();
-        setLegacyPeers();
-        setProxyPeers();
-        setEnforcedOptions();
-        setDVNs();
+        setSourceLegacyPeers();
+        setSourceProxyPeers();
+        setSourceEnforcedOptions();
+        setSourceDVNs();
         setPriviledgedRoles();
     }
 
-    function deployDestinations() public {
-        // Start with Ethereum
-        // setProxyPeers()
-        // setEnforcedOptions()
-        // setDVNs()
-    }
+    // function setupDestinations() public {
+        
+
+    //     // setSourceLegacyPeers
+    //     for (uint256 i=0; i<legacyConfigs.length; i++) {
+    //         L0Config memory config = legacyConfigs[i];
+    //         // connect to RPC 
+
+    //         // call setPeer on legacyOft with Only source eid and all proxyOft
+
+    //     }
+    //     // setProxyPeers()
+    //     // setEnforcedOptions()
+    //     // setDVNs()
+    // }
+
+    // function setupLegacyDestinations() public {
+    //     for (uint256 i=0; i<legacyConfigs.length; i++) {
+    //         setupLegacyDestination(legacyConfigs[i]);
+    //     }
+    // }
+
+    // function setupLegacyDestination(L0Config memory _config) public {
+    //     // connect to rpc
+
+    //     // prank as msig
+
+    //     // set peers
+    //     setDestLegacyPeer();
+
+    //     // set enforcedOptions 
+    // }
+
+
 
     function preDeployChecks() public view {
         for (uint256 e=0; e<configs.length; e++) {
@@ -185,106 +216,57 @@ contract DeployFraxOFTProtocol is Script {
         require(proxyOfts.length == numOfts);
     }
 
-    function setDVNs() broadcastAs(configDeployerPK) public {
-        UlnConfig memory ulnConfig;
-        ulnConfig.requiredDVNCount = 2;
-        address[] memory requiredDVNs = new address[](2);
-
-        // sort in ascending order (as spec'd in UlnConfig)
-        if (uint160(proxyConfig.dvnHorizon) < uint160(proxyConfig.dvnL0)) {
-            requiredDVNs[0] = proxyConfig.dvnHorizon;
-            requiredDVNs[1] = proxyConfig.dvnL0;
-        } else {
-            requiredDVNs[0] = proxyConfig.dvnL0;
-            requiredDVNs[1] = proxyConfig.dvnHorizon;
-        }
-        ulnConfig.requiredDVNs = requiredDVNs;
-
-        // push proxyConfig
-        for (uint256 e=0; e<configs.length; e++) {
-            setConfigParams.push(
-                SetConfigParam({
-                    eid: uint32(configs[e].eid),
-                    configType: Constant.CONFIG_TYPE_ULN,
-                    config: abi.encode(ulnConfig)                    
-                })
-            );
-        }
-
-        // Submit txs to setup DVN on source chain
-        for (uint256 i=0; i<numOfts; i++) {
-            IMessageLibManager(proxyConfig.endpoint).setConfig({
-                _oapp: proxyOfts[i],
-                _lib: proxyConfig.receiveLib302,
-                _params: setConfigParams
-            });
-            IMessageLibManager(proxyConfig.endpoint).setConfig({
-                _oapp: proxyOfts[i],
-                _lib: proxyConfig.sendLib302,
-                _params: setConfigParams
-            });
-        }
+    function setSourceDVNs() public broadcastAs(configDeployerPK) {
+        setDVNs({
+            _connectedConfig: proxyConfig,
+            _connectedOfts: proxyOfts,
+            _configs: configs
+        });
     }
 
-    function setPriviledgedRoles() broadcastAs(configDeployerPK) public {
-        /// @dev transfer ownership of OFT
-        for (uint256 i=0; i<numOfts; i++) {
-            address proxyOft = proxyOfts[i];
-            FraxOFTUpgradeable(proxyOft).setDelegate(proxyConfig.delegate);
-            Ownable(proxyOft).transferOwnership(proxyConfig.delegate);
-        }
 
-        /// @dev transfer ownership of ProxyAdmin
-        Ownable(proxyAdmin).transferOwnership(proxyConfig.delegate);
-    }
-
-    function setEnforcedOptions() broadcastAs(configDeployerPK) public {
-        // For each peer, default 
-        // https://github.com/FraxFinance/LayerZero-v2-upgradeable/blob/e1470197e0cffe0d89dd9c776762c8fdcfc1e160/oapp/test/OFT.t.sol#L417
-        bytes memory optionsTypeOne = OptionsBuilder.newOptions().addExecutorLzReceiveOption(200_000, 0);
-        bytes memory optionsTypeTwo = OptionsBuilder.newOptions().addExecutorLzReceiveOption(250_000, 0);
-
-        for (uint256 e=0; e<configs.length; e++) {
-            uint32 eid = uint32(configs[e].eid);
-            // source and dest eid cannot be same
-            if (eid == uint32(proxyConfig.eid)) continue;
-
-            enforcedOptionsParams.push(EnforcedOptionParam(eid, 1, optionsTypeOne));
-            enforcedOptionsParams.push(EnforcedOptionParam(eid, 2, optionsTypeTwo));
-        }
-
+    function setSourceEnforcedOptions() broadcastAs(configDeployerPK) public {
         // TODO: this will break if proxyOFT addrs are not the pre-determined addrs verified in postDeployChecks()
-        for (uint256 i=0; i<numOfts; i++) {
-            FraxOFTUpgradeable(proxyOfts[i]).setEnforcedOptions(enforcedOptionsParams);
-        }
+        setEnforcedOptions({
+            _connectedOfts: proxyOfts,
+            _configs: configs
+        });
     }
+
 
     /// @dev legacy, non-upgradeable OFTs
-    function setLegacyPeers() public broadcastAs(configDeployerPK) {
-        for (uint256 i=0; i<numOfts; i++) {
-            address proxyOft = proxyOfts[i];
-            address legacyOft = legacyOfts[i];
-            for (uint256 e=0; e<legacyConfigs.length; e++) {
-                FraxOFTUpgradeable(proxyOft).setPeer(uint32(legacyConfigs[e].eid), addressToBytes32(legacyOft));
-            }
-        }
+    function setSourceLegacyPeers() public broadcastAs(configDeployerPK) {
+        setPeers({
+            _connectedOfts: proxyOfts,
+            _peerOfts: legacyOfts,
+            _configs: legacyConfigs
+        });
     }
 
     /// @dev Upgradeable OFTs maintaining the same address cross-chain.
-    function setProxyPeers() public broadcastAs(configDeployerPK) {
+    function setSourceProxyPeers() public broadcastAs(configDeployerPK) {
+        setPeers({
+            _connectedOfts: proxyOfts,
+            _peerOfts: proxyOfts,
+            _configs: proxyConfigs
+        });
+    }
+
+
+    function setDestLegacyPeer() public {
         for (uint256 i=0; i<numOfts; i++) {
-            address proxyOft = proxyOfts[i];
-            for (uint256 e=0; e<proxyConfigs.length; e++) {
-                uint256 eid = proxyConfigs[e].eid;
-
-                // cannot set self as peer
-                if (eid == proxyConfig.eid) continue;
-
-                FraxOFTUpgradeable(proxyOft).setPeer(uint32(eid), addressToBytes32(proxyOft));
-            }
+            address oft = legacyOfts[i];
+            address peer = proxyOfts[i];
+            FraxOFTUpgradeable(oft).setPeer(uint32(proxyConfig.eid), addressToBytes32(peer));
         }
     }
 
+    function setDestProxyPeer() public {
+        for (uint256 i=0; i<numOfts; i++) {
+            address oft = proxyOfts[i];
+            FraxOFTUpgradeable(oft).setPeer(uint32(proxyConfig.eid), addressToBytes32(oft));
+        }
+    }
 
     // TODO: missing ecosystem tokens (FPI, etc.)
     function deployFraxOFTUpgradeablesAndProxies() broadcastAs(oftDeployerPK) public {
@@ -319,8 +301,6 @@ contract DeployFraxOFTProtocol is Script {
             _name: "Frax",
             _symbol: "FRAX"
         });
-
-        // Deploy FPI
     }
 
     /// @notice Sourced from https://github.com/FraxFinance/LayerZero-v2-upgradeable/blob/e1470197e0cffe0d89dd9c776762c8fdcfc1e160/oapp/test/TestHelper.sol#L266
@@ -377,6 +357,112 @@ contract DeployFraxOFTProtocol is Script {
             FraxOFTUpgradeable(proxy).owner() == vm.addr(configDeployerPK),
             "OFT owner incorrect"
         );
+    }
+
+
+    function setPriviledgedRoles() broadcastAs(configDeployerPK) public {
+        /// @dev transfer ownership of OFT
+        for (uint256 i=0; i<numOfts; i++) {
+            address proxyOft = proxyOfts[i];
+            FraxOFTUpgradeable(proxyOft).setDelegate(proxyConfig.delegate);
+            Ownable(proxyOft).transferOwnership(proxyConfig.delegate);
+        }
+
+        /// @dev transfer ownership of ProxyAdmin
+        Ownable(proxyAdmin).transferOwnership(proxyConfig.delegate);
+    }
+
+    /// @dev _connectedOfts refers to the OFTs of the RPC we are currently connected to
+    function setPeers(
+        address[] memory _connectedOfts,
+        address[] memory _peerOfts,
+        L0Config[] memory _configs
+    ) public {
+        require(_connectedOfts.length == _peerOfts.length, "Must wire equal amount of source + dest addrs");
+        for (uint256 i=0; i<_connectedOfts.length; i++) {
+            address connectedOft = _connectedOfts[i];
+            address peerOft = _peerOfts[i];
+            for (uint256 c=0; c<_configs.length; c++) {
+                L0Config memory config = _configs[c];
+                
+                // cannot set self as peer
+                if (config.eid == proxyConfig.eid) continue;
+
+                FraxOFTUpgradeable(connectedOft).setPeer(uint32(config.eid), addressToBytes32(peerOft));
+            }
+        }
+    }
+
+    function setEnforcedOptions(
+        address[] memory _connectedOfts,
+        L0Config[] memory _configs
+    ) public {
+        // For each peer, default
+        // https://github.com/FraxFinance/LayerZero-v2-upgradeable/blob/e1470197e0cffe0d89dd9c776762c8fdcfc1e160/oapp/test/OFT.t.sol#L417
+        bytes memory optionsTypeOne = OptionsBuilder.newOptions().addExecutorLzReceiveOption(200_000, 0);
+        bytes memory optionsTypeTwo = OptionsBuilder.newOptions().addExecutorLzReceiveOption(250_000, 0);
+
+        for (uint256 e=0; e<_configs.length; e++) {
+            uint32 eid = uint32(_configs[e].eid);
+            // source and dest eid cannot be same
+            if (eid == uint32(proxyConfig.eid)) continue;
+
+            enforcedOptionsParams.push(EnforcedOptionParam(eid, 1, optionsTypeOne));
+            enforcedOptionsParams.push(EnforcedOptionParam(eid, 2, optionsTypeTwo));
+        }
+
+        for (uint256 i=0; i<_connectedOfts.length; i++) {
+            FraxOFTUpgradeable(_connectedOfts[i]).setEnforcedOptions(enforcedOptionsParams);
+        }
+    }
+
+    function setDVNs(
+        L0Config memory _connectedConfig,
+        address[] memory _connectedOfts,
+        L0Config[] memory _configs 
+    ) public {
+        UlnConfig memory ulnConfig;
+        ulnConfig.requiredDVNCount = 2;
+        address[] memory requiredDVNs = new address[](2);
+
+        // sort in ascending order (as spec'd in UlnConfig)
+        if (uint160(_connectedConfig.dvnHorizon) < uint160(_connectedConfig.dvnL0)) {
+            requiredDVNs[0] = _connectedConfig.dvnHorizon;
+            requiredDVNs[1] = _connectedConfig.dvnL0;
+        } else {
+            requiredDVNs[0] = _connectedConfig.dvnL0;
+            requiredDVNs[1] = _connectedConfig.dvnHorizon;
+        }
+        ulnConfig.requiredDVNs = requiredDVNs;
+
+        // push configs
+        for (uint256 e=0; e<_configs.length; e++) {
+            L0Config memory config = _configs[e];
+            // cannot set when source & dest cannot be same
+            if (_connectedConfig.eid == config.eid) continue;
+            setConfigParams.push(
+                SetConfigParam({
+                    eid: uint32(config.eid),
+                    configType: Constant.CONFIG_TYPE_ULN,
+                    config: abi.encode(ulnConfig)                    
+                })
+            );
+        }
+
+        // Submit txs to set DVN
+        for (uint256 i=0; i<_connectedOfts.length; i++) {
+            IMessageLibManager(_connectedConfig.endpoint).setConfig({
+                _oapp: _connectedOfts[i],
+                _lib: _connectedConfig.receiveLib302,
+                _params: setConfigParams
+            });
+            IMessageLibManager(_connectedConfig.endpoint).setConfig({
+                _oapp: _connectedOfts[i],
+                _lib: _connectedConfig.sendLib302,
+                _params: setConfigParams
+            });
+        }
+
     }
 
     function isStringEqual(string memory _a, string memory _b) internal pure returns (bool) {

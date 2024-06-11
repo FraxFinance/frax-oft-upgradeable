@@ -66,6 +66,7 @@ contract DeployFraxOFTProtocol is Script {
     }
     L0Config[] public legacyConfigs;
     L0Config[] public proxyConfigs;
+    L0Config[] public configs; // legacy & proxy configs
     L0Config public proxyConfig;
 
     // Mock implementation used to enable pre-determinsitic proxy creation
@@ -123,6 +124,7 @@ contract DeployFraxOFTProtocol is Script {
         for (uint256 i=0; i<legacyConfigs_.length; i++) {
             L0Config memory config_ = legacyConfigs_[i];
             legacyConfigs.push(config_);
+            configs.push(config_);
         }
 
         // proxy (active deployment loaded as proxyConfig)
@@ -133,6 +135,7 @@ contract DeployFraxOFTProtocol is Script {
                 proxyConfig = config_;
             }
             proxyConfigs.push(config_);
+            configs.push(config_);
         }
         require(proxyConfig.chainid != 0, "L0Config for source not loaded");
     }
@@ -160,20 +163,12 @@ contract DeployFraxOFTProtocol is Script {
     }
 
     function preDeployChecks() public view {
-        // legacy EIDs
-        for (uint256 e=0; e<legacyConfigs.length; e++) {
-            require(
-                IMessageLibManager(proxyConfig.endpoint).isSupportedEid(uint32(legacyConfigs[e].eid)),
-                "L0 team required to setup `defaultSendLibrary` and `defaultReceiveLibrary` for EID"
-            );
-        }
-        // proxy EIDs
-        for (uint256 e=0; e<proxyConfigs.length; e++) {
-            uint256 eid = proxyConfigs[e].eid;
+        for (uint256 e=0; e<configs.length; e++) {
+            uint256 eid = configs[e].eid;    
             // source and dest eid cannot be same
             if (eid == proxyConfig.eid) continue;
             require(
-                IMessageLibManager(proxyConfig.endpoint).isSupportedEid(uint32(eid)),
+                IMessageLibManager(proxyConfig.endpoint).isSupportedEid(uint32(configs[e].eid)),
                 "L0 team required to setup `defaultSendLibrary` and `defaultReceiveLibrary` for EID"
             );
         }
@@ -194,23 +189,13 @@ contract DeployFraxOFTProtocol is Script {
         }
         ulnConfig.requiredDVNs = requiredDVNs;
 
-        // push proxyConfig for legacy OFTs
-        for (uint256 e=0; e<legacyConfigs.length; e++) {
+        // push proxyConfig
+        for (uint256 e=0; e<configs.length; e++) {
             setConfigParams.push(
                 SetConfigParam({
-                    eid: uint32(legacyConfigs[e].eid),
+                    eid: uint32(configs[e].eid),
                     configType: Constant.CONFIG_TYPE_ULN,
                     config: abi.encode(ulnConfig)                    
-                })
-            );
-        }
-
-        for (uint256 e=0; e<proxyConfigs.length; e++) {
-            setConfigParams.push(
-                SetConfigParam({
-                    eid: uint32(proxyConfigs[e].eid),
-                    configType: Constant.CONFIG_TYPE_ULN,
-                    config: abi.encode(ulnConfig)
                 })
             );
         }
@@ -248,15 +233,11 @@ contract DeployFraxOFTProtocol is Script {
         bytes memory optionsTypeOne = OptionsBuilder.newOptions().addExecutorLzReceiveOption(200_000, 0);
         bytes memory optionsTypeTwo = OptionsBuilder.newOptions().addExecutorLzReceiveOption(250_000, 0);
 
-        // legacy eids
-        for (uint256 e=0; e<legacyConfigs.length; e++) {
-            uint32 eid = uint32(legacyConfigs[e].eid);
-            enforcedOptionsParams.push(EnforcedOptionParam(eid, 1, optionsTypeOne));
-            enforcedOptionsParams.push(EnforcedOptionParam(eid, 2, optionsTypeTwo));
-        }
+        for (uint256 e=0; e<configs.length; e++) {
+            uint32 eid = uint32(configs[e].eid);
+            // source and dest eid cannot be same
+            if (eid == uint32(proxyConfig.eid)) continue;
 
-        for (uint256 p=0; p<proxyConfigs.length; p++) {
-            uint32 eid = uint32(proxyConfigs[p].eid);
             enforcedOptionsParams.push(EnforcedOptionParam(eid, 1, optionsTypeOne));
             enforcedOptionsParams.push(EnforcedOptionParam(eid, 2, optionsTypeTwo));
         }

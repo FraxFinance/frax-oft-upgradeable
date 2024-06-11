@@ -5,10 +5,12 @@ pragma solidity ^0.8.19;
 import { Script } from "forge-std/Script.sol";
 import "forge-std/StdJson.sol";
 import "frax-template/src/Constants.sol";
+import {SerializedTx, SafeTxUtil} from "./SafeBatchSerialize.sol";
 import { FraxOFTUpgradeable } from "contracts/FraxOFTUpgradeable.sol";
 import { ImplementationMock } from "contracts/mocks/ImplementationMock.sol";
 import { ProxyAdmin, TransparentUpgradeableProxy } from "@fraxfinance/layerzero-v2-upgradeable/messagelib/contracts/upgradeable/proxy/ProxyAdmin.sol";
 import { Ownable } from "@openzeppelin/contracts/access/Ownable.sol";
+import { Strings } from "@openzeppelin/contracts/utils/Strings.sol";
 import { EndpointV2 } from "@fraxfinance/layerzero-v2-upgradeable/protocol/contracts/EndpointV2.sol";
 import { OptionsBuilder } from "@fraxfinance/layerzero-v2-upgradeable/oapp/contracts/oapp/libs/OptionsBuilder.sol";
 import { SetConfigParam, IMessageLibManager} from "@fraxfinance/layerzero-v2-upgradeable/protocol/contracts/interfaces/IMessageLibManager.sol";
@@ -18,14 +20,9 @@ import { Constant } from "@fraxfinance/layerzero-v2-upgradeable/messagelib/test/
 
 /*
 TODO
-- Msigs of legacy chains
-- Existing chains >
-    - setProxyPeers()
-    - setEnforcedOptions()
-    - setDVNs()
+- push txs to files
 - Setup frxETH, FPI with L0 mainnet adapter & legacies
 - Proxy EIDs
-- proxy oft adddrs
 
 Required DVNs:
 - L0
@@ -45,6 +42,7 @@ Mainnet Addresses
 contract DeployFraxOFTProtocol is Script {
     using OptionsBuilder for bytes;
     using stdJson for string;
+    using Strings for uint256;
 
     uint256 public oftDeployerPK = vm.envUint("PK_OFT_DEPLOYER");
     uint256 public configDeployerPK = vm.envUint("PK_CONFIG_DEPLOYER");
@@ -86,8 +84,9 @@ contract DeployFraxOFTProtocol is Script {
 
     SetConfigParam[] public setConfigParams;
 
+    SerializedTx[] serializedTxs;
+
     uint256 public chainId;
-    // string public rpc;
 
     function version() public pure returns (uint256, uint256, uint256) {
         return (0, 1, 1);
@@ -97,6 +96,25 @@ contract DeployFraxOFTProtocol is Script {
         vm.startBroadcast(privateKey);
         _;
         vm.stopBroadcast();
+    }
+
+
+    modifier simulateAndWriteTxs(L0Config memory _config) {
+        vm.createSelectFork(config.RPC);
+        chainId = config.chainid;
+        serializedTxs = new SerializedTx[](0);
+        vm.startPrank(config.delegate);
+        _;
+        vm.stopPrank();
+
+        // create filename and save
+        string memory root = vm.projectRoot();
+        root = string.concat(root, "/scripts/txs/");
+        string memory filename = string.concat(proxyConfig.chainid.toString(), "-");
+        filename = string.concat(filename, _config.chainid.toString());
+        filename = string.concat(filename, ".json");
+        
+        new SafeTxUtil().writeTxs(serializedTxs, string.concat(root,))
     }
 
     function setUp() external {
@@ -143,7 +161,7 @@ contract DeployFraxOFTProtocol is Script {
 
     function run() external {
         deploySource();
-        // setupDestinations(); 
+        setupDestinations(); 
     }
 
     function deploySource() public {
@@ -157,11 +175,60 @@ contract DeployFraxOFTProtocol is Script {
         setPriviledgedRoles();
     }
 
-    function setupLegacyDestinations() public {
-
+    function setupDestinations() public {
+        setupLegacyDestinations();
+        setupProxyDestinations();
     }
 
+    function setupLegacyDestinations() public {
+        for (uint256 i=0; i<legacyConfigs.length; i++) {
+            setupLegacyDestination(legacyConfigs[i]);
+        }
+    }
 
+    function setupLegacyDestination(L0Config memory _config) simulateAndWriteTxs(_config) {
+        setPeers({
+            _connectedOfts: legacyOfts,
+            _peerOfts: proxyOfts,
+            _configs: proxyConfigArray
+        });
+
+        setEnforcedOptions({
+            _connectedOfts: legacyOfts,
+            _configs: proxyConfigArray
+        })
+
+        setDVNs({
+            _connectedConfig: _config,
+            _connectedOfts: legacyOfts,
+            _configs: proxyConfigArray
+        });
+    }
+
+    function setupProxyDestinations() public {
+        for (uint256 i=0; i<proxyConfigs.length; i++) {
+            setupProxyDestination(proxyConfigs[i]);
+        }
+    }
+
+    function setupProxyDestination(L0Config memory _config) simulateAndWriteTxs(_config) {
+        setPeers({
+            _connectedOfts: proxyOfts,
+            _peerOfts: proxyOfts,
+            _configs: proxyConfigArray
+        });
+
+        setEnforcedOptions({
+            _connectedOfts: proxyOfts,
+            _configs: proxyConfigArray
+        });
+
+        setDVNs({
+            _connectedConfig: _config,
+            _connectedOfts: proxyOfts,
+            _conigs: proxyConfigArray
+        });
+    }
 
     function preDeployChecks() public view {
         for (uint256 e=0; e<configs.length; e++) {
@@ -221,22 +288,6 @@ contract DeployFraxOFTProtocol is Script {
             _peerOfts: proxyOfts,
             _configs: proxyConfigs
         });
-    }
-
-
-    function setDestLegacyPeer() public {
-        for (uint256 i=0; i<numOfts; i++) {
-            address oft = legacyOfts[i];
-            address peer = proxyOfts[i];
-            FraxOFTUpgradeable(oft).setPeer(uint32(proxyConfig.eid), addressToBytes32(peer));
-        }
-    }
-
-    function setDestProxyPeer() public {
-        for (uint256 i=0; i<numOfts; i++) {
-            address oft = proxyOfts[i];
-            FraxOFTUpgradeable(oft).setPeer(uint32(proxyConfig.eid), addressToBytes32(oft));
-        }
     }
 
     // TODO: missing ecosystem tokens (FPI, etc.)
@@ -359,7 +410,17 @@ contract DeployFraxOFTProtocol is Script {
                 // cannot set peer to self
                 if (chainId == proxyConfig.chainid && eid == proxyConfig.eid) continue;
 
-                FraxOFTUpgradeable(connectedOft).setPeer(eid, addressToBytes32(peerOft));
+                bytes memory data = abi.encodeCall(FraxOFTUpgradeable.setPeer, (eid, addressToBytes32(peerOft)));
+                (bool success, ) = connectedOft.call(data);
+                require(success, "Unable to setPeer");
+                serializedTxs.push(
+                    SerializedTx({
+                        name: "setPeer",
+                        to: connectedOft,
+                        value: 0,
+                        data: data
+                    })
+                );
             }
         }
     }
@@ -384,7 +445,18 @@ contract DeployFraxOFTProtocol is Script {
         }
 
         for (uint256 o=0; o<_connectedOfts.length; o++) {
-            FraxOFTUpgradeable(_connectedOfts[o]).setEnforcedOptions(enforcedOptionsParams);
+            address connectedOft = _connectedOfts[o];
+            bytes memory data = abi.encodeCall(FraxOFTUpgradeable.setEnforcedOptions, (enforcedOptionsParams));
+            (bool success, ) = connectedOft.call(data);
+            require(success, "Unable to setEnforcedOptions");
+            serializedTxs.push(
+                SerializedTx({
+                    name: "setEnforcedOptions",
+                    to: connectedOft,
+                    value: 0,
+                    data: data
+                })
+            );
         }
     }
 
@@ -425,16 +497,47 @@ contract DeployFraxOFTProtocol is Script {
 
         // Submit txs to set DVN
         for (uint256 o=0; o<_connectedOfts.length; o++) {
-            IMessageLibManager(_connectedConfig.endpoint).setConfig({
-                _oapp: _connectedOfts[o],
-                _lib: _connectedConfig.receiveLib302,
-                _params: setConfigParams
-            });
-            IMessageLibManager(_connectedConfig.endpoint).setConfig({
-                _oapp: _connectedOfts[o],
-                _lib: _connectedConfig.sendLib302,
-                _params: setConfigParams
-            });
+            address endpoint = _connectedConfig.endpoint;
+            
+            // receiveLib
+            bytes memory data = abi.encodeCall(
+                IMessageLibManager.setConfig,
+                (
+                    _connectedOfts[o],
+                    _connectedConfig.receiveLib302,
+                    setConfigParams
+                )
+            );
+            (bool success, ) = endpoint.call(data);
+            require(success, "Unable to setConfig for receiveLib");
+            serializedTxs.push(
+                SerializedTx({
+                    name: "setConfig for receiveLib",
+                    to: endpoint,
+                    value: 0,
+                    data: data
+                })
+            );
+
+            // sendLib
+            data = abi.encodeCall(
+                IMessageLibManager.setConfig,
+                (
+                    _connectedOfts[o],
+                    _connectedConfig.sendLib302,
+                    setConfigParams
+                )
+            );
+            (success, ) = endpoint.call(data);
+            require(success, "Unable to setConfig for sendLib");
+            serializedTxs.push(
+                SerializedTx({
+                    name: "setConfig for sendLib",
+                    to: endpoint,
+                    value: 0,
+                    data: data
+                })
+            );
         }
 
     }

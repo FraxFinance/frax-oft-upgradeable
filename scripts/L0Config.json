@@ -1,8 +1,20 @@
 {
     "Legacy": [
         {
+            "RPC": "https://rpc.frax.com",
+            "chainid": 252,
+            "delegate": "0xB1748C79709f4Ba2Dd82834B8c82D4a505003f27",
+            "dvnL0": "0xcCE466a522984415bC91338c232d98869193D46e",
+            "dvnHorizon": "0xDd7B5E1dB4AaFd5C8EC3b764eFB8ed265Aa5445B",
+            "eid": 30255,
+            "endpoint": "0x1a44076050125825900e736c501f859c50fE728c",
+            "receiveLib302": "0x8bC1e36F015b9902B54b1387A4d733cebc2f5A4e",
+            "sendLib302": "0x377530cdA84DFb2673bF4d145DCF0C4D7fdcB5b6"
+        },
+        {
+            "RPC": "https://ethereum-rpc.publicnode.com",
             "chainid": 1,
-            "delegate": "0x6336CFA6eDBeC2A459d869031DB77fC2770Eaa66",
+            "delegate": "0xB1748C79709f4Ba2Dd82834B8c82D4a505003f27",
             "dvnL0": "0x589dEDbD617e0CBcB916A9223F4d1300c294236b",
             "dvnHorizon": "0x380275805876Ff19055EA900CDb2B46a94ecF20D",
             "eid": 30101,
@@ -11,8 +23,9 @@
             "sendLib302": "0xbB2Ea70C9E858123480642Cf96acbcCE1372dCe1"
         },
         {
+            "RPC": "https://rpc.blast.io",
             "chainid": 81457,
-            "delegate": "0x6336CFA6eDBeC2A459d869031DB77fC2770Eaa66",
+            "delegate": "0x33A133020b2C2CD41a24F74033B11EC2fC0bF97a",
             "dvnL0": "0xc097ab8cd7b053326dfe9fb3e3a31a0cce3b526f",
             "dvnHorizon": "0x70BF42C69173d6e33b834f59630DAC592C70b369",
             "eid": 30243,
@@ -21,8 +34,9 @@
             "sendLib302": "0xc1B621b18187F74c8F6D52a6F709Dd2780C09821"
         },
         {
+            "RPC": "https://metis-mainnet.public.blastapi.io",
             "chainid": 1088,
-            "delegate": "0x6336CFA6eDBeC2A459d869031DB77fC2770Eaa66",
+            "delegate": "0xF4A4F32732F9B2fB84Ee28c58616946F3bF80F7d",
             "dvnL0": "0x32d4F92437454829b3Fe7BEBfeCE5D0523DEb475",
             "dvnHorizon": "0x7fe673201724925B5c477d4E1A4Bd3E954688cF5",
             "eid": 30151,
@@ -31,8 +45,9 @@
             "sendLib302": "0x63e39ccB510926d05a0ae7817c8f1CC61C5BdD6c"
         },
         {
+            "RPC": "https://mainnet.base.org",
             "chainid": 8453,
-            "delegate": "0x6336CFA6eDBeC2A459d869031DB77fC2770Eaa66",
+            "delegate": "0xCBfd4Ef00a8cf91Fd1e1Fe97dC05910772c15E53",
             "dvnL0": "0x9e059a54699a285714207b43B055483E78FAac25",
             "dvnHorizon": "0xa7b5189bcA84Cd304D8553977c7C614329750d99",
             "eid": 30184,
@@ -43,6 +58,7 @@
     ],
     "Proxy": [
         {
+            "RPC": "https://mainnet.mode.network/",
             "chainid": 34443,
             "delegate": "0x6336CFA6eDBeC2A459d869031DB77fC2770Eaa66",
             "dvnHorizon": "0xaCDe1f22EEAb249d3ca6Ba8805C8fEe9f52a16e7",

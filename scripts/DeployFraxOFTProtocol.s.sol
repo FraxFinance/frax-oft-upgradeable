@@ -74,6 +74,7 @@ contract DeployFraxOFTProtocol is Script {
     address public sFraxOft;
     address public sfrxEthOft;
     address public fraxOft;
+    uint256 public numOfts;
 
     // 1:1 match between these arrays for setting peers
     address[] public legacyOfts;
@@ -106,6 +107,7 @@ contract DeployFraxOFTProtocol is Script {
         legacyOfts.push(0xe4796cCB6bB5DE2290C417Ac337F2b66CA2E770E); // sFRAX
         legacyOfts.push(0x1f55a02A049033E3419a8E2975cF3F572F4e6E9A); // sfrxETH
         legacyOfts.push(0x909DBdE1eBE906Af95660033e478D59EFe831fED); // FRAX
+        numOfts = legacyOfts.length;
     }
 
     function loadJsonConfig() public {
@@ -180,7 +182,7 @@ contract DeployFraxOFTProtocol is Script {
         // require(sFraxOft == 0x2c6d5516a6d77478cf17997e8493e3b646715f4a);
         // require(sfrxETH == 0x6e992ac12bbf50f7922a1d61b57b1fd9c1697717);
         // require(fraxOft == 0xfe024ed7199f11a834744ffa2f8e189d1ae930a1);
-
+        require(proxyOfts.length == numOfts);
     }
 
     function setDVNs() broadcastAs(configDeployerPK) public {
@@ -210,7 +212,7 @@ contract DeployFraxOFTProtocol is Script {
         }
 
         // Submit txs to setup DVN on source chain
-        for (uint256 i=0; i<proxyOfts.length; i++) {
+        for (uint256 i=0; i<numOfts; i++) {
             IMessageLibManager(proxyConfig.endpoint).setConfig({
                 _oapp: proxyOfts[i],
                 _lib: proxyConfig.receiveLib302,
@@ -226,7 +228,7 @@ contract DeployFraxOFTProtocol is Script {
 
     function setPriviledgedRoles() broadcastAs(configDeployerPK) public {
         /// @dev transfer ownership of OFT
-        for (uint256 i=0; i<proxyOfts.length; i++) {
+        for (uint256 i=0; i<numOfts; i++) {
             address proxyOft = proxyOfts[i];
             FraxOFTUpgradeable(proxyOft).setDelegate(proxyConfig.delegate);
             Ownable(proxyOft).transferOwnership(proxyConfig.delegate);
@@ -251,14 +253,15 @@ contract DeployFraxOFTProtocol is Script {
             enforcedOptionsParams.push(EnforcedOptionParam(eid, 2, optionsTypeTwo));
         }
 
-        for (uint256 i=0; i<proxyOfts.length; i++) {
+        // TODO: this will break if proxyOFT addrs are not the pre-determined addrs verified in postDeployChecks()
+        for (uint256 i=0; i<numOfts; i++) {
             FraxOFTUpgradeable(proxyOfts[i]).setEnforcedOptions(enforcedOptionsParams);
         }
     }
 
     /// @dev legacy, non-upgradeable OFTs
     function setLegacyPeers() public broadcastAs(configDeployerPK) {
-        for (uint256 i=0; i<proxyOfts.length; i++) {
+        for (uint256 i=0; i<numOfts; i++) {
             address proxyOft = proxyOfts[i];
             address legacyOft = legacyOfts[i];
             for (uint256 e=0; e<legacyConfigs.length; e++) {
@@ -269,7 +272,7 @@ contract DeployFraxOFTProtocol is Script {
 
     /// @dev Upgradeable OFTs maintaining the same address cross-chain.
     function setProxyPeers() public broadcastAs(configDeployerPK) {
-        for (uint256 i=0; i<proxyOfts.length; i++) {
+        for (uint256 i=0; i<numOfts; i++) {
             address proxyOft = proxyOfts[i];
             for (uint256 e=0; e<proxyConfigs.length; e++) {
                 uint256 eid = proxyConfigs[e].eid;

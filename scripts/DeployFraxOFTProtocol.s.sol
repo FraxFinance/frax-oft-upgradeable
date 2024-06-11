@@ -18,11 +18,7 @@ import { Constant } from "@fraxfinance/layerzero-v2-upgradeable/messagelib/test/
 
 /*
 TODO
-- Msigs for existings chains
-    - Mainnet: 0xB1748C79709f4Ba2Dd82834B8c82D4a505003f27 
-    - Base: 
-    - Metis:
-    - Blast: 
+- Msigs of legacy chains
 - Existing chains >
     - setProxyPeers()
     - setEnforcedOptions()
@@ -91,7 +87,7 @@ contract DeployFraxOFTProtocol is Script {
     // string public rpc;
 
     function version() public pure returns (uint256, uint256, uint256) {
-        return (0, 1, 0);
+        return (0, 1, 1);
     }
 
     modifier broadcastAs(uint256 privateKey) {
@@ -148,6 +144,7 @@ contract DeployFraxOFTProtocol is Script {
     function deploySource() public {
         preDeployChecks();
         deployFraxOFTUpgradeablesAndProxies();
+        postDeployChecks();
         setLegacyPeers();
         setProxyPeers();
         setEnforcedOptions();
@@ -172,6 +169,18 @@ contract DeployFraxOFTProtocol is Script {
                 "L0 team required to setup `defaultSendLibrary` and `defaultReceiveLibrary` for EID"
             );
         }
+    }
+
+    function postDeployChecks() public view {
+        // Ensure OFTs are their expected pre-determined address.  If not, there's a chance the deployer nonce shifted,
+        // the EVM has differing logic, or we are not on an EVM compatable chain.
+        // TODO: support for non-evm addresses
+        // TODO: validate that differing OFT addrs does not impact assumed setup functions.
+        // require(fxsOft == 0x01a438c169d9f463577314f37a32c5fc9a8c4bf7);
+        // require(sFraxOft == 0x2c6d5516a6d77478cf17997e8493e3b646715f4a);
+        // require(sfrxETH == 0x6e992ac12bbf50f7922a1d61b57b1fd9c1697717);
+        // require(fraxOft == 0xfe024ed7199f11a834744ffa2f8e189d1ae930a1);
+
     }
 
     function setDVNs() broadcastAs(configDeployerPK) public {

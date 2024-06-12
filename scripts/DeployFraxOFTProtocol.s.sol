@@ -308,6 +308,8 @@ contract DeployFraxOFTProtocol is Script {
             _name: "Frax",
             _symbol: "FRAX"
         });
+
+        // Deploy FPI
     }
 
     /// @notice Sourced from https://github.com/FraxFinance/LayerZero-v2-upgradeable/blob/e1470197e0cffe0d89dd9c776762c8fdcfc1e160/oapp/test/TestHelper.sol#L266

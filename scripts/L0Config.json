@@ -1,17 +1,6 @@
 {
     "Legacy": [
         {
-            "RPC": "https://rpc.frax.com",
-            "chainid": 252,
-            "delegate": "0xB1748C79709f4Ba2Dd82834B8c82D4a505003f27",
-            "dvnL0": "0xcCE466a522984415bC91338c232d98869193D46e",
-            "dvnHorizon": "0xDd7B5E1dB4AaFd5C8EC3b764eFB8ed265Aa5445B",
-            "eid": 30255,
-            "endpoint": "0x1a44076050125825900e736c501f859c50fE728c",
-            "receiveLib302": "0x8bC1e36F015b9902B54b1387A4d733cebc2f5A4e",
-            "sendLib302": "0x377530cdA84DFb2673bF4d145DCF0C4D7fdcB5b6"
-        },
-        {
             "RPC": "https://ethereum-rpc.publicnode.com",
             "chainid": 1,
             "delegate": "0xB1748C79709f4Ba2Dd82834B8c82D4a505003f27",

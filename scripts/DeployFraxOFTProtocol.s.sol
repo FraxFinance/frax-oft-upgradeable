@@ -91,7 +91,7 @@ contract DeployFraxOFTProtocol is Script {
     uint256 public chainid;
 
     function version() public pure returns (uint256, uint256, uint256) {
-        return (0, 2, 0);
+        return (1, 0, 0);
     }
 
     modifier broadcastAs(uint256 privateKey) {
@@ -115,10 +115,10 @@ contract DeployFraxOFTProtocol is Script {
         filename = string.concat(filename, _config.chainid.toString());
         filename = string.concat(filename, ".json");
         
-        // new SafeTxUtil().writeTxs(serializedTxs, string.concat(root, filename));
-        // for (uint256 i=0; i<serializedTxs.length; i++) {
-        //     serializedTxs.pop();
-        // }
+        new SafeTxUtil().writeTxs(serializedTxs, string.concat(root, filename));
+        for (uint256 i=0; i<serializedTxs.length; i++) {
+            serializedTxs.pop();
+        }
     }
 
     function setUp() external {
@@ -268,10 +268,10 @@ contract DeployFraxOFTProtocol is Script {
         // the EVM has differing logic, or we are not on an EVM compatable chain.
         // TODO: support for non-evm addresses
         // TODO: validate that differing OFT addrs does not impact assumed setup functions.
-        // require(fxsOft == 0x01a438c169d9f463577314f37a32c5fc9a8c4bf7);
-        // require(sFraxOft == 0x2c6d5516a6d77478cf17997e8493e3b646715f4a);
-        // require(sfrxETH == 0x6e992ac12bbf50f7922a1d61b57b1fd9c1697717);
-        // require(fraxOft == 0xfe024ed7199f11a834744ffa2f8e189d1ae930a1);
+        // require(fxsOft == );
+        // require(sFraxOft == );
+        // require(sfrxETH == );
+        // require(fraxOft == );
         require(proxyOfts.length == numOfts);
     }
 
@@ -507,7 +507,7 @@ contract DeployFraxOFTProtocol is Script {
                 )
             );
             (bool success, ) = endpoint.call(data);
-            // require(success, "Unable to setConfig for receiveLib");
+            require(success, "Unable to setConfig for receiveLib");
             serializedTxs.push(
                 SerializedTx({
                     name: "setConfig for receiveLib",
@@ -527,7 +527,7 @@ contract DeployFraxOFTProtocol is Script {
                 )
             );
             (success, ) = endpoint.call(data);
-            // require(success, "Unable to setConfig for sendLib");
+            require(success, "Unable to setConfig for sendLib");
             serializedTxs.push(
                 SerializedTx({
                     name: "setConfig for sendLib",

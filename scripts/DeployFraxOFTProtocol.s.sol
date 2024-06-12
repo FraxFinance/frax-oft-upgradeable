@@ -115,10 +115,10 @@ contract DeployFraxOFTProtocol is Script {
         filename = string.concat(filename, _config.chainid.toString());
         filename = string.concat(filename, ".json");
         
-        new SafeTxUtil().writeTxs(serializedTxs, string.concat(root, filename));
-        for (uint256 i=0; i<serializedTxs.length; i++) {
-            serializedTxs.pop();
-        }
+        // new SafeTxUtil().writeTxs(serializedTxs, string.concat(root, filename));
+        // for (uint256 i=0; i<serializedTxs.length; i++) {
+        //     serializedTxs.pop();
+        // }
     }
 
     function setUp() external {
@@ -326,6 +326,10 @@ contract DeployFraxOFTProtocol is Script {
                 revert(0, 0)
             }
         }
+        /// @dev: create pre-deterministic proxy address, then initialize with correct implementation
+        bytes32 salt = keccak256(abi.encodePacked(_symbol));
+        proxy = address(new TransparentUpgradeableProxy{salt: salt}(implementationMock, vm.addr(oftDeployerPK), ""));
+
         /// @dev: proxyConfig deployer is temporary OFT owner until setPriviledgedRoles()
         bytes memory initializeArgs = abi.encodeWithSelector(
             FraxOFTUpgradeable.initialize.selector,
@@ -333,9 +337,6 @@ contract DeployFraxOFTProtocol is Script {
             _symbol,
             vm.addr(configDeployerPK)
         );
-
-        /// @dev: create pre-deterministic proxy address, then initialize with correct implementation
-        proxy = address(new TransparentUpgradeableProxy(implementationMock, vm.addr(oftDeployerPK), ""));
         TransparentUpgradeableProxy(payable(proxy)).upgradeToAndCall({
             newImplementation: implementation,
             data: initializeArgs

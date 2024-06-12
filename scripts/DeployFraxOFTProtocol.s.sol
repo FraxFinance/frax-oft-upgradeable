@@ -186,50 +186,40 @@ contract DeployFraxOFTProtocol is Script {
 
     function setupLegacyDestinations() public {
         for (uint256 i=0; i<legacyConfigs.length; i++) {
-            setupLegacyDestination(legacyConfigs[i]);
+            setupDestination({
+                _connectedConfig: legacyConfigs[i],
+                _connectedOfts: legacyOfts
+            });
         }
-    }
-
-    function setupLegacyDestination(L0Config memory _config) public simulateAndWriteTxs(_config) {
-        setPeers({
-            _connectedOfts: legacyOfts,
-            _peerOfts: proxyOfts,
-            _configs: proxyConfigArray
-        });
-
-        setEnforcedOptions({
-            _connectedOfts: legacyOfts,
-            _configs: proxyConfigArray
-        });
-
-        setDVNs({
-            _connectedConfig: _config,
-            _connectedOfts: legacyOfts,
-            _configs: proxyConfigArray
-        });
     }
 
     function setupProxyDestinations() public {
         for (uint256 i=0; i<proxyConfigs.length; i++) {
-            setupProxyDestination(proxyConfigs[i]);
+            setupDestination({
+                _connectedConfig: proxyConfigs[i],
+                _connectedOfts: proxyOfts
+            });
         }
     }
 
-    function setupProxyDestination(L0Config memory _config) public simulateAndWriteTxs(_config) {
+    function setupDestination(
+        L0Config memory _connectedConfig,
+        address[] memory _connectedOfts
+    ) public {
         setPeers({
-            _connectedOfts: proxyOfts,
+            _connectedOfts: _connectedOfts,
             _peerOfts: proxyOfts,
             _configs: proxyConfigArray
         });
 
         setEnforcedOptions({
-            _connectedOfts: proxyOfts,
+            _connectedOfts: _connectedOfts,
             _configs: proxyConfigArray
         });
 
         setDVNs({
-            _connectedConfig: _config,
-            _connectedOfts: proxyOfts,
+            _connectedConfig: _connectedConfig,
+            _connectedOfts: _connectedOfts,
             _configs: proxyConfigArray
         });
     }

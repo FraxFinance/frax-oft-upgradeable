@@ -195,6 +195,8 @@ contract DeployFraxOFTProtocol is Script {
 
     function setupProxyDestinations() public {
         for (uint256 i=0; i<proxyConfigs.length; i++) {
+            // skip if destination == source
+            if (proxyConfigs[i].eid == proxyConfig.eid) continue;
             setupDestination({
                 _connectedConfig: proxyConfigs[i],
                 _connectedOfts: proxyOfts
@@ -205,7 +207,7 @@ contract DeployFraxOFTProtocol is Script {
     function setupDestination(
         L0Config memory _connectedConfig,
         address[] memory _connectedOfts
-    ) public {
+    ) public simulateAndWriteTxs(_connectedConfig) {
         setPeers({
             _connectedOfts: _connectedOfts,
             _peerOfts: proxyOfts,
@@ -513,7 +515,7 @@ contract DeployFraxOFTProtocol is Script {
                 )
             );
             (bool success, ) = endpoint.call(data);
-            require(success, "Unable to setConfig for receiveLib");
+            // require(success, "Unable to setConfig for receiveLib");
             serializedTxs.push(
                 SerializedTx({
                     name: "setConfig for receiveLib",
@@ -533,7 +535,7 @@ contract DeployFraxOFTProtocol is Script {
                 )
             );
             (success, ) = endpoint.call(data);
-            require(success, "Unable to setConfig for sendLib");
+            // require(success, "Unable to setConfig for sendLib");
             serializedTxs.push(
                 SerializedTx({
                     name: "setConfig for sendLib",

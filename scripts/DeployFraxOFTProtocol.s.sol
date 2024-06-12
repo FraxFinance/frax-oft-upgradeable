@@ -165,6 +165,7 @@ contract DeployFraxOFTProtocol is Script {
 
     function run() external {
         deploySource();
+        setupSource();
         setupDestinations();
     }
 
@@ -172,11 +173,6 @@ contract DeployFraxOFTProtocol is Script {
         preDeployChecks();
         deployFraxOFTUpgradeablesAndProxies();
         postDeployChecks();
-        setSourceLegacyPeers();
-        setSourceProxyPeers();
-        setSourceEnforcedOptions();
-        setSourceDVNs();
-        setPriviledgedRoles();
     }
 
     function setupDestinations() public {
@@ -208,12 +204,6 @@ contract DeployFraxOFTProtocol is Script {
         L0Config memory _connectedConfig,
         address[] memory _connectedOfts
     ) public simulateAndWriteTxs(_connectedConfig) {
-        setPeers({
-            _connectedOfts: _connectedOfts,
-            _peerOfts: proxyOfts,
-            _configs: proxyConfigArray
-        });
-
         setEnforcedOptions({
             _connectedOfts: _connectedOfts,
             _configs: proxyConfigArray
@@ -224,6 +214,41 @@ contract DeployFraxOFTProtocol is Script {
             _connectedOfts: _connectedOfts,
             _configs: proxyConfigArray
         });
+
+        setPeers({
+            _connectedOfts: _connectedOfts,
+            _peerOfts: proxyOfts,
+            _configs: proxyConfigArray
+        });
+    }
+
+    function setupSource() public broadcastAs(configDeployerPK) {
+        // TODO: this will break if proxyOFT addrs are not the pre-determined addrs verified in postDeployChecks()
+        setEnforcedOptions({
+            _connectedOfts: proxyOfts,
+            _configs: configs
+        });
+
+        setDVNs({
+            _connectedConfig: proxyConfig,
+            _connectedOfts: proxyOfts,
+            _configs: configs
+        });
+
+        /// @dev legacy, non-upgradeable OFTs
+        setPeers({
+            _connectedOfts: proxyOfts,
+            _peerOfts: legacyOfts,
+            _configs: legacyConfigs
+        });
+        /// @dev Upgradeable OFTs maintaining the same address cross-chain.
+        setPeers({
+            _connectedOfts: proxyOfts,
+            _peerOfts: proxyOfts,
+            _configs: proxyConfigs
+        });
+
+        setPriviledgedRoles();
     }
 
     function preDeployChecks() public view {
@@ -248,42 +273,6 @@ contract DeployFraxOFTProtocol is Script {
         // require(sfrxETH == 0x6e992ac12bbf50f7922a1d61b57b1fd9c1697717);
         // require(fraxOft == 0xfe024ed7199f11a834744ffa2f8e189d1ae930a1);
         require(proxyOfts.length == numOfts);
-    }
-
-    function setSourceDVNs() public broadcastAs(configDeployerPK) {
-        setDVNs({
-            _connectedConfig: proxyConfig,
-            _connectedOfts: proxyOfts,
-            _configs: configs
-        });
-    }
-
-
-    function setSourceEnforcedOptions() broadcastAs(configDeployerPK) public {
-        // TODO: this will break if proxyOFT addrs are not the pre-determined addrs verified in postDeployChecks()
-        setEnforcedOptions({
-            _connectedOfts: proxyOfts,
-            _configs: configs
-        });
-    }
-
-
-    /// @dev legacy, non-upgradeable OFTs
-    function setSourceLegacyPeers() public broadcastAs(configDeployerPK) {
-        setPeers({
-            _connectedOfts: proxyOfts,
-            _peerOfts: legacyOfts,
-            _configs: legacyConfigs
-        });
-    }
-
-    /// @dev Upgradeable OFTs maintaining the same address cross-chain.
-    function setSourceProxyPeers() public broadcastAs(configDeployerPK) {
-        setPeers({
-            _connectedOfts: proxyOfts,
-            _peerOfts: proxyOfts,
-            _configs: proxyConfigs
-        });
     }
 
     // TODO: missing ecosystem tokens (FPI, etc.)
@@ -378,7 +367,7 @@ contract DeployFraxOFTProtocol is Script {
     }
 
 
-    function setPriviledgedRoles() broadcastAs(configDeployerPK) public {
+    function setPriviledgedRoles() public {
         /// @dev transfer ownership of OFT
         for (uint256 o=0; o<numOfts; o++) {
             address proxyOft = proxyOfts[o];

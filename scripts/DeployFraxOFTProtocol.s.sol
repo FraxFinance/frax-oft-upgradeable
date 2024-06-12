@@ -15,8 +15,10 @@ import { EndpointV2 } from "@fraxfinance/layerzero-v2-upgradeable/protocol/contr
 import { OptionsBuilder } from "@fraxfinance/layerzero-v2-upgradeable/oapp/contracts/oapp/libs/OptionsBuilder.sol";
 import { SetConfigParam, IMessageLibManager} from "@fraxfinance/layerzero-v2-upgradeable/protocol/contracts/interfaces/IMessageLibManager.sol";
 import { UlnConfig } from "@fraxfinance/layerzero-v2-upgradeable/messagelib/contracts/uln/UlnBase.sol";
-import { EnforcedOptionParam } from "@fraxfinance/layerzero-v2-upgradeable/oapp/contracts/oapp/interfaces/IOAppOptionsType3.sol";
+import { EnforcedOptionParam, IOAppOptionsType3 } from "@fraxfinance/layerzero-v2-upgradeable/oapp/contracts/oapp/interfaces/IOAppOptionsType3.sol";
 import { Constant } from "@fraxfinance/layerzero-v2-upgradeable/messagelib/test/util/Constant.sol";
+
+import { IOAppCore } from "@fraxfinance/layerzero-v2-upgradeable/oapp/contracts/oapp/interfaces/IOAppCore.sol";
 
 /*
 TODO
@@ -86,10 +88,10 @@ contract DeployFraxOFTProtocol is Script {
 
     SerializedTx[] serializedTxs;
 
-    uint256 public chainId;
+    uint256 public chainid;
 
     function version() public pure returns (uint256, uint256, uint256) {
-        return (0, 1, 1);
+        return (0, 2, 0);
     }
 
     modifier broadcastAs(uint256 privateKey) {
@@ -100,10 +102,9 @@ contract DeployFraxOFTProtocol is Script {
 
 
     modifier simulateAndWriteTxs(L0Config memory _config) {
-        vm.createSelectFork(config.RPC);
-        chainId = config.chainid;
-        serializedTxs = new SerializedTx[](0);
-        vm.startPrank(config.delegate);
+        vm.createSelectFork(_config.RPC);
+        chainid = _config.chainid;
+        vm.startPrank(_config.delegate);
         _;
         vm.stopPrank();
 
@@ -114,12 +115,15 @@ contract DeployFraxOFTProtocol is Script {
         filename = string.concat(filename, _config.chainid.toString());
         filename = string.concat(filename, ".json");
         
-        new SafeTxUtil().writeTxs(serializedTxs, string.concat(root,))
+        new SafeTxUtil().writeTxs(serializedTxs, string.concat(root, filename));
+        for (uint256 i=0; i<serializedTxs.length; i++) {
+            serializedTxs.pop();
+        }
     }
 
     function setUp() external {
         // Set constants based on deployment chain id
-        chainId = block.chainid;
+        chainid = block.chainid;
         loadJsonConfig();
 
         /// @dev: this array maintains the same token order as proxyOfts and the addrs are confirmed on eth mainnet.
@@ -149,7 +153,7 @@ contract DeployFraxOFTProtocol is Script {
         L0Config[] memory proxyConfigs_ = abi.decode(json.parseRaw(".Proxy"), (L0Config[]));
         for (uint256 i=0; i<proxyConfigs_.length; i++) {
             L0Config memory config_ = proxyConfigs_[i];
-            if (config_.chainid == chainId) {
+            if (config_.chainid == chainid) {
                 proxyConfig = config_;
                 proxyConfigArray.push(config_);
             }
@@ -161,7 +165,7 @@ contract DeployFraxOFTProtocol is Script {
 
     function run() external {
         deploySource();
-        setupDestinations(); 
+        setupDestinations();
     }
 
     function deploySource() public {
@@ -186,7 +190,7 @@ contract DeployFraxOFTProtocol is Script {
         }
     }
 
-    function setupLegacyDestination(L0Config memory _config) simulateAndWriteTxs(_config) {
+    function setupLegacyDestination(L0Config memory _config) public simulateAndWriteTxs(_config) {
         setPeers({
             _connectedOfts: legacyOfts,
             _peerOfts: proxyOfts,
@@ -196,7 +200,7 @@ contract DeployFraxOFTProtocol is Script {
         setEnforcedOptions({
             _connectedOfts: legacyOfts,
             _configs: proxyConfigArray
-        })
+        });
 
         setDVNs({
             _connectedConfig: _config,
@@ -211,7 +215,7 @@ contract DeployFraxOFTProtocol is Script {
         }
     }
 
-    function setupProxyDestination(L0Config memory _config) simulateAndWriteTxs(_config) {
+    function setupProxyDestination(L0Config memory _config) public simulateAndWriteTxs(_config) {
         setPeers({
             _connectedOfts: proxyOfts,
             _peerOfts: proxyOfts,
@@ -226,7 +230,7 @@ contract DeployFraxOFTProtocol is Script {
         setDVNs({
             _connectedConfig: _config,
             _connectedOfts: proxyOfts,
-            _conigs: proxyConfigArray
+            _configs: proxyConfigArray
         });
     }
 
@@ -408,9 +412,14 @@ contract DeployFraxOFTProtocol is Script {
                 uint32 eid = uint32(_configs[c].eid);
 
                 // cannot set peer to self
-                if (chainId == proxyConfig.chainid && eid == proxyConfig.eid) continue;
+                if (chainid == proxyConfig.chainid && eid == proxyConfig.eid) continue;
 
-                bytes memory data = abi.encodeCall(FraxOFTUpgradeable.setPeer, (eid, addressToBytes32(peerOft)));
+                bytes memory data = abi.encodeCall(
+                    IOAppCore.setPeer,
+                    (
+                        eid, addressToBytes32(peerOft)
+                    )
+                );
                 (bool success, ) = connectedOft.call(data);
                 require(success, "Unable to setPeer");
                 serializedTxs.push(
@@ -438,7 +447,7 @@ contract DeployFraxOFTProtocol is Script {
             uint32 eid = uint32(_configs[c].eid);
 
             // cannot set enforced options to self
-            if (chainId == proxyConfig.chainid && eid == proxyConfig.eid) continue;
+            if (chainid == proxyConfig.chainid && eid == proxyConfig.eid) continue;
 
             enforcedOptionsParams.push(EnforcedOptionParam(eid, 1, optionsTypeOne));
             enforcedOptionsParams.push(EnforcedOptionParam(eid, 2, optionsTypeTwo));
@@ -446,7 +455,12 @@ contract DeployFraxOFTProtocol is Script {
 
         for (uint256 o=0; o<_connectedOfts.length; o++) {
             address connectedOft = _connectedOfts[o];
-            bytes memory data = abi.encodeCall(FraxOFTUpgradeable.setEnforcedOptions, (enforcedOptionsParams));
+            bytes memory data = abi.encodeCall(
+                IOAppOptionsType3.setEnforcedOptions,
+                (
+                    enforcedOptionsParams
+                )
+            );
             (bool success, ) = connectedOft.call(data);
             require(success, "Unable to setEnforcedOptions");
             serializedTxs.push(
@@ -484,7 +498,7 @@ contract DeployFraxOFTProtocol is Script {
             uint32 eid = uint32(_configs[c].eid);
 
             // cannot set enforced options to self
-            if (chainId == proxyConfig.chainid && eid == proxyConfig.eid) continue;
+            if (chainid == proxyConfig.chainid && eid == proxyConfig.eid) continue;
 
             setConfigParams.push(
                 SetConfigParam({

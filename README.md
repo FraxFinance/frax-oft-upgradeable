@@ -35,6 +35,28 @@ Contract verification status:
 Response: `NOTOK`
 Details: `Error: contract does not exist`
 
+Fixed:
+this contract was verified directly using input Json standard file.
+when you run the command to verify using foundry.
+med-amine-MacBook-Pro:frax-oft-upgradeable midmoussi$ forge verify-contract 0x90a706775489d190256d0c721fc6ea3df64904d0 \
+contracts/FraxOFTUpgradeable.sol:FraxOFTUpgradeable \
+  --chain-id 34443 \
+  --verifier sourcify
+  --verifier-url https://explorer.mode.network/api\?
+Start verifying contract `0x90a706775489D190256D0C721fC6eA3Df64904d0` deployed on mode
+
+Submitting verification for [FraxOFTUpgradeable] "0x90a706775489D190256D0C721fC6eA3Df64904d0".
+Submitting verification for [FraxOFTUpgradeable] "0x90a706775489D190256D0C721fC6eA3Df64904d0".
+Submitting verification for [FraxOFTUpgradeable] "0x90a706775489D190256D0C721fC6eA3Df64904d0".
+Submitting verification for [FraxOFTUpgradeable] "0x90a706775489D190256D0C721fC6eA3Df64904d0".
+Submitting verification for [FraxOFTUpgradeable] "0x90a706775489D190256D0C721fC6eA3Df64904d0".
+Submitting verification for [FraxOFTUpgradeable] "0x90a706775489D190256D0C721fC6eA3Df64904d0".
+Error: 
+Sourcify verification request for address (0x90a706775489D190256D0C721fC6eA3Df64904d0) failed with status code 500 Internal Server Error
+Details: {
+  "error": "The contract 0x90a706775489D190256D0C721fC6eA3Df64904d0 on chainId 34443 is already partially verified. The provided new source code also yielded a partial match and will not be stored unless it's a full match"
+}
+
 
 
 carter@laptop:~/Documents/frax/frax-oft-upgradeable$ forge verify-contract --rpc-url $MODE_RPC_URL --constructor-args 0x0000000000000000000000006336CFA6eDBeC2A459d869031DB77fC2770Eaa66 --verifier-url 'https://api.routescan.io/v2/network/mainnet/evm/34443/etherscan' --etherscan-api-key "verifyContract" --chain-id 34443 0xb65c2079dfed58b7a6e472c0d6971605023ec6a9 node_modules/@fraxfinance/layerzero-v2-upgradeable/messagelib/contracts/upgradeable/proxy/ProxyAdmin.sol:ProxyAdmin
@@ -44,6 +66,17 @@ Failed to get standard json input
 
 Context:
 - cannot resolve file at "/home/carter/Documents/frax/frax-oft-upgradeable/node_modules/@fraxfinance/layerzero-v2-upgradeable/messagelib/contracts/upgradeable/proxy/ProxyAdmin.sol"
+
+Fixed :
+med-amine-MacBook-Pro:frax-oft-upgradeable midmoussi$ forge verify-contract 0xb65c2079dfed58b7a6e472c0d6971605023ec6a9 \
+node_modules/@fraxfinance/layerzero-v2-upgradeable/messagelib/contracts/upgradeable/proxy/ProxyAdmin.sol:ProxyAdmin \
+  --chain-id 34443 \
+  --verifier sourcify
+  --verifier-url https://explorer.mode.network/api\?
+Start verifying contract `0xb65c2079dfed58B7a6E472c0d6971605023ec6A9` deployed on mode
+
+Submitting verification for [ProxyAdmin] "0xb65c2079dfed58B7a6E472c0d6971605023ec6A9".
+The recompiled contract partially matches the deployed version
 
 
 ```

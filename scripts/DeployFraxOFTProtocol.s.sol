@@ -328,9 +328,8 @@ contract DeployFraxOFTProtocol is Script {
                 revert(0, 0)
             }
         }
-        /// @dev: create pre-deterministic proxy address, then initialize with correct implementation
-        bytes32 salt = keccak256(abi.encodePacked(_symbol));
-        proxy = address(new TransparentUpgradeableProxy{salt: salt}(implementationMock, vm.addr(oftDeployerPK), ""));
+        /// @dev: create semi-pre-deterministic proxy address, then initialize with correct implementation
+        proxy = address(new TransparentUpgradeableProxy(implementationMock, vm.addr(oftDeployerPK), ""));
 
         /// @dev: proxyConfig deployer is temporary OFT owner until setPriviledgedRoles()
         bytes memory initializeArgs = abi.encodeWithSelector(

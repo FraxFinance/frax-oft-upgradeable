@@ -1,0 +1,3 @@
+# OPERATIONS
+## 2024.06.14
+- Deploy Mode: FRAX, sFRAX, sfrxETH, FXS

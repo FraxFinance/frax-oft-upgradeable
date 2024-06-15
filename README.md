@@ -56,7 +56,22 @@
     - `Proxy`: `0x64445f0aecc51e94ad52d8ac56b7190e764e561a`
 
 
+## New Chain Deployment
+- Ensure `PK_OFT_DEPLOYER` and `PK_CONFIG_DEPLOYER` are the private keys for `0x9C9dD956b413cdBD81690c9394a6B4D22afe6745` and `0x0990be6dB8c785FBbF9deD8bAEc612A10CaE814b, respectively.
+- Modify `.env` `RPC_URL` to the new chain RPC
+- Add an item to `scripts/L0Config.json:Proxy` with the new chain details (incorrect data will cause the script to fail).
+- `source .env && forge script scripts/DeployFraxOFTProtocol.s.sol --broadcast --slow`
+- Manually verify each contract on the deployed chain (TODO: add to script cmd).
+- Modify `scripts/tx/{SOURCE_CHAIN_ID}-{DESTINATION_CHAIN_ID}.json` values to strings so that:
 ```
+"operation": "0",
+...
+"value": "0"
+```
+TODO: automatically save as strings.
+
+- Submit each newly crafted json to the respective `DESTINATION_CHAIN_ID` msig.
+
 carter@laptop:~/Documents/frax/frax-oft-upgradeable$ forge verify-contract --rpc-url $MODE_RPC_URL --constructor-args $(cast abi-encode "constructor(address)" 0x1a44076050125825900e736c501f859c50fE728c) --verifier-url 'https://api.routescan.io/v2/network/mainnet/evm/34443/etherscan' --etherscan-api-key "verifyContract" --chain-id 34443 0x90a706775489D190256D0C721fC6eA3Df64904d0 contracts/FraxOFTUpgradeable.sol:FraxOFTUpgradeable --watch
 Start verifying contract `0x90a706775489D190256D0C721fC6eA3Df64904d0` deployed on mode
 

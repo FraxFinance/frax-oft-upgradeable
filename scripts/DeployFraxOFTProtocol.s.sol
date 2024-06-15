@@ -102,6 +102,9 @@ contract DeployFraxOFTProtocol is Script {
 
 
     modifier simulateAndWriteTxs(L0Config memory _config) {
+        // Clear out any previously serialized txs
+        delete serializedTxs;
+
         vm.createSelectFork(_config.RPC);
         chainid = _config.chainid;
         vm.startPrank(_config.delegate);
@@ -116,9 +119,6 @@ contract DeployFraxOFTProtocol is Script {
         filename = string.concat(filename, ".json");
         
         new SafeTxUtil().writeTxs(serializedTxs, string.concat(root, filename));
-        for (uint256 i=0; i<serializedTxs.length; i++) {
-            serializedTxs.pop();
-        }
     }
 
     function setUp() external {

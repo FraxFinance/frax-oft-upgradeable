@@ -37,7 +37,7 @@ contract SafeTxUtil is Script {
                 "value",
                 Strings.toString(txs[i].value)
             );
-            vm.serializeInt(transaction, "operation", 0);
+            vm.serializeString(transaction, "operation", "0");
             string memory serializedTx = vm.serializeBytes(
                 transaction,
                 "data",

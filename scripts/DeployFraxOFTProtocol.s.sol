@@ -91,7 +91,7 @@ contract DeployFraxOFTProtocol is Script {
     uint256 public chainid;
 
     function version() public pure returns (uint256, uint256, uint256) {
-        return (1, 0, 0);
+        return (1, 0, 1);
     }
 
     modifier broadcastAs(uint256 privateKey) {

@@ -1,7 +1,7 @@
 {
-  "name": "@layerzerolabs/oft-example",
-  "version": "0.2.6",
-  "private": true,
+  "name": "@frax-oft-upgradeable",
+  "version": "1.0.1",
+  "private": false,
   "license": "MIT",
   "scripts": {
     "clean": "rm -rf artifacts cache out",
@@ -24,8 +24,10 @@
   "devDependencies": {
     "@babel/core": "^7.23.9",
     "@fraxfinance/layerzero-v2-upgradeable": "github:fraxfinance/LayerZero-v2-upgradeable",
+    "@layerzerolabs/lz-evm-messagelib-v2": "~2.3.21",
     "@layerzerolabs/lz-evm-oapp-v2": "~2.3.19",
     "@layerzerolabs/lz-evm-protocol-v2": "~2.3.3",
+    "@layerzerolabs/toolbox-foundry": "~0.1.5",
     "@openzeppelin/contracts": "^4.8.1",
     "@openzeppelin/contracts-upgradeable": "^4.8.1",
     "@rushstack/eslint-patch": "^1.7.0",
@@ -62,10 +64,5 @@
     "@nomicfoundation/edr": "0.3.5",
     "ethers": "^5.7.2",
     "hardhat-deploy": "^0.12.1"
-  },
-  "dependencies": {
-    "@layerzerolabs/lz-evm-messagelib-v2": "^2.3.21",
-    "@layerzerolabs/toolbox-foundry": "^0.1.5",
-    "frax-template": "github:fraxfinance/frax-template"
   }
 }

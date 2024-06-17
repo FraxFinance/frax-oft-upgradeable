@@ -113,7 +113,7 @@ contract DeployFraxOFTProtocol is Script {
 
         // create filename and save
         string memory root = vm.projectRoot();
-        root = string.concat(root, "/scripts/txs/");
+        root = string.concat(root, "/scripts/DeployFraxOFTProtocol/txs/");
         string memory filename = string.concat(proxyConfig.chainid.toString(), "-");
         filename = string.concat(filename, _config.chainid.toString());
         filename = string.concat(filename, ".json");

@@ -16,7 +16,62 @@
 
 <p align="center">Template project for getting started with LayerZero's <code>OFT</code> contract development.</p>
 
+## Contracts & Addresses
+### Admin
+- `ProxyAdmin`: `0x223a681fc5c5522c85c96157c0efa18cd6c5405c`
+- Msigs
+  - `Ethereum`: `0xB1748C79709f4Ba2Dd82834B8c82D4a505003f27`
+  - `Blast`: `0x33A133020b2C2CD41a24F74033B11EC2fC0bF97a`
+  - `Metis`: `0xF4A4F32732F9B2fB84Ee28c58616946F3bF80F7d`
+  - `Base`: `0xCBfd4Ef00a8cf91Fd1e1Fe97dC05910772c15E53`
+  - `Mode`: `0x6336CFA6eDBeC2A459d869031DB77fC2770Eaa66`
+
+
+### Legacy (non-upgradeable) OFTs
+- Chain: `Ethereum`, `Metis`, `Blast`, `Base`
+- Chain to convert from native token into OFT: Ethereum
+- Admin: Chain-respective msig
+- OFTs
+  - `FRAX`: `0x909DBdE1eBE906Af95660033e478D59EFe831fED`
+  - `sFRAX`: `0xe4796cCB6bB5DE2290C417Ac337F2b66CA2E770E`
+  - `sfrxETH`: `0x1f55a02A049033E3419a8E2975cF3F572F4e6E9A`
+  - `FXS`: `0x23432452B720C80553458496D4D9d7C5003280d0`
+
+### Proxy (upgradeable) OFTs
+- Chain: Mode, TBD
+- Contract to interact with: `Proxy`
+- Admin: `ProxyAdmin` (owned by chain-respective msig)
+- OFTs
+  - `FRAX`
+    - `Implementation`: `0x6a678cefca10d5bbe4638d27c671ce7d56865037`
+    - `Proxy`: `0x80eede496655fb9047dd39d9f418d5483ed600df`
+  - `sFRAX`
+    - `Implementation`: `0x7feda252881b9c6166b387d3d11d1bdfc076d5cb`
+    - `Proxy`: `0x5bff88ca1442c2496f7e475e9e7786383bc070c0`
+  - `sfrxETH`
+    - `Implementation`: `0xade2b968674724ce009576b5c1e4a7d69f365d37`
+    - `Proxy`: `0x3ec3849c33291a9ef4c5db86de593eb4a37fde45 `
+  - `FXS`
+    - `Implementation`: `0x0b72af03b18861f894e4f184032e95c260796825`
+    - `Proxy`: `0x64445f0aecc51e94ad52d8ac56b7190e764e561a`
+
+
+## New Chain Deployment
+- Ensure `PK_OFT_DEPLOYER` and `PK_CONFIG_DEPLOYER` are the private keys for `0x9C9dD956b413cdBD81690c9394a6B4D22afe6745` and `0x0990be6dB8c785FBbF9deD8bAEc612A10CaE814b, respectively.
+- Modify `.env` `RPC_URL` to the new chain RPC
+- Add an item to `scripts/L0Config.json:Proxy` with the new chain details (incorrect data will cause the script to fail).
+- `source .env && forge script scripts/DeployFraxOFTProtocol.s.sol --broadcast --slow`
+- Manually verify each contract on the deployed chain (TODO: add to script cmd).
+- Modify `scripts/tx/{SOURCE_CHAIN_ID}-{DESTINATION_CHAIN_ID}.json` values to strings so that:
 ```
+"operation": "0",
+...
+"value": "0"
+```
+TODO: automatically save as strings.
+
+- Submit each newly crafted json to the respective `DESTINATION_CHAIN_ID` msig.
+
 carter@laptop:~/Documents/frax/frax-oft-upgradeable$ forge verify-contract --rpc-url $MODE_RPC_URL --constructor-args $(cast abi-encode "constructor(address)" 0x1a44076050125825900e736c501f859c50fE728c) --verifier-url 'https://api.routescan.io/v2/network/mainnet/evm/34443/etherscan' --etherscan-api-key "verifyContract" --chain-id 34443 0x90a706775489D190256D0C721fC6eA3Df64904d0 contracts/FraxOFTUpgradeable.sol:FraxOFTUpgradeable --watch
 Start verifying contract `0x90a706775489D190256D0C721fC6eA3Df64904d0` deployed on mode
 

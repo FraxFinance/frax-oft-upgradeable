@@ -91,7 +91,7 @@ contract DeployFraxOFTProtocol is Script {
     uint256 public chainid;
 
     function version() public pure returns (uint256, uint256, uint256) {
-        return (1, 0, 0);
+        return (1, 0, 1);
     }
 
     modifier broadcastAs(uint256 privateKey) {
@@ -102,6 +102,9 @@ contract DeployFraxOFTProtocol is Script {
 
 
     modifier simulateAndWriteTxs(L0Config memory _config) {
+        // Clear out any previously serialized txs
+        delete serializedTxs;
+
         vm.createSelectFork(_config.RPC);
         chainid = _config.chainid;
         vm.startPrank(_config.delegate);
@@ -116,9 +119,6 @@ contract DeployFraxOFTProtocol is Script {
         filename = string.concat(filename, ".json");
         
         new SafeTxUtil().writeTxs(serializedTxs, string.concat(root, filename));
-        for (uint256 i=0; i<serializedTxs.length; i++) {
-            serializedTxs.pop();
-        }
     }
 
     function setUp() external {
@@ -268,10 +268,10 @@ contract DeployFraxOFTProtocol is Script {
         // the EVM has differing logic, or we are not on an EVM compatable chain.
         // TODO: support for non-evm addresses
         // TODO: validate that differing OFT addrs does not impact assumed setup functions.
-        // require(fxsOft == );
-        // require(sFraxOft == );
-        // require(sfrxETH == );
-        // require(fraxOft == );
+        require(fxsOft == 0x64445f0aecc51e94ad52d8ac56b7190e764e561a);
+        require(sFraxOft == 0x5bff88ca1442c2496f7e475e9e7786383bc070c0);
+        require(sfrxETH == 0x3ec3849c33291a9ef4c5db86de593eb4a37fde45);
+        require(fraxOft == 0x80eede496655fb9047dd39d9f418d5483ed600df);
         require(proxyOfts.length == numOfts);
     }
 
@@ -328,9 +328,8 @@ contract DeployFraxOFTProtocol is Script {
                 revert(0, 0)
             }
         }
-        /// @dev: create pre-deterministic proxy address, then initialize with correct implementation
-        bytes32 salt = keccak256(abi.encodePacked(_symbol));
-        proxy = address(new TransparentUpgradeableProxy{salt: salt}(implementationMock, vm.addr(oftDeployerPK), ""));
+        /// @dev: create semi-pre-deterministic proxy address, then initialize with correct implementation
+        proxy = address(new TransparentUpgradeableProxy(implementationMock, vm.addr(oftDeployerPK), ""));
 
         /// @dev: proxyConfig deployer is temporary OFT owner until setPriviledgedRoles()
         bytes memory initializeArgs = abi.encodeWithSelector(

@@ -5,7 +5,7 @@ pragma solidity ^0.8.19;
 import { Script } from "forge-std/Script.sol";
 import "forge-std/StdJson.sol";
 import "frax-template/src/Constants.sol";
-import {SerializedTx, SafeTxUtil} from "./SafeBatchSerialize.sol";
+import {SerializedTx, SafeTxUtil} from "../SafeBatchSerialize.sol";
 import { FraxOFTUpgradeable } from "contracts/FraxOFTUpgradeable.sol";
 import { ImplementationMock } from "contracts/mocks/ImplementationMock.sol";
 import { ProxyAdmin, TransparentUpgradeableProxy } from "@fraxfinance/layerzero-v2-upgradeable/messagelib/contracts/upgradeable/proxy/ProxyAdmin.sol";
@@ -268,10 +268,10 @@ contract DeployFraxOFTProtocol is Script {
         // the EVM has differing logic, or we are not on an EVM compatable chain.
         // TODO: support for non-evm addresses
         // TODO: validate that differing OFT addrs does not impact assumed setup functions.
-        require(fxsOft == 0x64445f0aecc51e94ad52d8ac56b7190e764e561a);
-        require(sFraxOft == 0x5bff88ca1442c2496f7e475e9e7786383bc070c0);
-        require(sfrxETH == 0x3ec3849c33291a9ef4c5db86de593eb4a37fde45);
-        require(fraxOft == 0x80eede496655fb9047dd39d9f418d5483ed600df);
+        require(fxsOft == 0x64445f0aecC51E94aD52d8AC56b7190e764E561a);
+        require(sFraxOft == 0x5Bff88cA1442c2496f7E475E9e7786383Bc070c0);
+        require(sfrxEthOft == 0x3Ec3849C33291a9eF4c5dB86De593EB4A37fDe45);
+        require(fraxOft == 0x80Eede496655FB9047dd39d9f418d5483ED600df);
         require(proxyOfts.length == numOfts);
     }
 

@@ -19,12 +19,12 @@
 ## Contracts & Addresses
 ### Admin
 - `ProxyAdmin`: `0x223a681fc5c5522c85c96157c0efa18cd6c5405c`
-- Msigs
-  - `Ethereum`: `0xB1748C79709f4Ba2Dd82834B8c82D4a505003f27`
-  - `Blast`: `0x33A133020b2C2CD41a24F74033B11EC2fC0bF97a`
-  - `Metis`: `0xF4A4F32732F9B2fB84Ee28c58616946F3bF80F7d`
-  - `Base`: `0xCBfd4Ef00a8cf91Fd1e1Fe97dC05910772c15E53`
-  - `Mode`: `0x6336CFA6eDBeC2A459d869031DB77fC2770Eaa66`
+- Msigs (links to gnosis safe)
+  - [`Ethereum`](https://app.safe.global/home?safe=eth:0xB1748C79709f4Ba2Dd82834B8c82D4a505003f27)
+  - [`Blast`](https://blast-safe.io/home?safe=blast:0x33A133020b2C2CD41a24F74033B11EC2fC0bF97a)
+  - [`Metis`](https://metissafe.tech/home?safe=metis-andromeda:0xF4A4F32732F9B2fB84Ee28c58616946F3bF80F7d)
+  - [`Base`](https://app.safe.global/home?safe=base:0xCBfd4Ef00a8cf91Fd1e1Fe97dC05910772c15E53)
+  - [`Mode`](https://safe.optimism.io/home?safe=mode:0x6336CFA6eDBeC2A459d869031DB77fC2770Eaa66)
 
 
 ### Legacy (non-upgradeable) OFTs

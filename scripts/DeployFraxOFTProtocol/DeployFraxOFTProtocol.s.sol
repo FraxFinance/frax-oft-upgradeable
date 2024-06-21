@@ -22,22 +22,9 @@ import { IOAppCore } from "@fraxfinance/layerzero-v2-upgradeable/oapp/contracts/
 
 /*
 TODO
-- push txs to files
 - Setup frxETH, FPI with L0 mainnet adapter & legacies
-- Proxy EIDs
-
-Required DVNs:
-- L0
-- Horizon
-- example: https://explorer.metis.io/tx/0x465d4dac4e7bc8cb9c8be8908aac5bdc00b4bc64988f82c1e46c10b3c93829e5/eventlog
-
-Mainnet Addresses
-- FXSOFTAdapter:        0x23432452B720C80553458496D4D9d7C5003280d0
-- sFRAXOFTAdapter:      0xe4796cCB6bB5DE2290C417Ac337F2b66CA2E770E
-- sfrxETHOFTAdapter:    0x1f55a02A049033E3419a8E2975cF3F572F4e6E9A
-- FRAXOFTAdapter:       0x909DBdE1eBE906Af95660033e478D59EFe831fED
-    > Has no TVL / txs
-    > I have not confirmed DVNs
+- Automatically verify contracts
+- Deployment on non-evm / non-pre-deterministic chains
 */
 
 

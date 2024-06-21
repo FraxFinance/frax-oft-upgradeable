@@ -91,7 +91,7 @@ contract DeployFraxOFTProtocol is Script {
     uint256 public chainid;
 
     function version() public pure returns (uint256, uint256, uint256) {
-        return (1, 0, 1);
+        return (1, 0, 2);
     }
 
     modifier broadcastAs(uint256 privateKey) {
@@ -102,7 +102,9 @@ contract DeployFraxOFTProtocol is Script {
 
 
     modifier simulateAndWriteTxs(L0Config memory _config) {
-        // Clear out any previously serialized txs
+        // Clear out arrays
+        delete enforcedOptionsParams;
+        delete setConfigParams;
         delete serializedTxs;
 
         vm.createSelectFork(_config.RPC);
@@ -164,8 +166,12 @@ contract DeployFraxOFTProtocol is Script {
     }
 
     function run() external {
-        deploySource();
-        setupSource();
+        // deploySource();
+        // setupSource();
+        proxyOfts.push(0x64445f0aecC51E94aD52d8AC56b7190e764E561a);
+        proxyOfts.push(0x5Bff88cA1442c2496f7E475E9e7786383Bc070c0);
+        proxyOfts.push(0x3Ec3849C33291a9eF4c5dB86De593EB4A37fDe45);
+        proxyOfts.push(0x80Eede496655FB9047dd39d9f418d5483ED600df);
         setupDestinations();
     }
 

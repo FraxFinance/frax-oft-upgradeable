@@ -44,8 +44,8 @@ contract BaseL0Script is Script {
     L0Config[] public legacyConfigs;
     L0Config[] public proxyConfigs;
     L0Config[] public configs; // legacy & proxy configs
-    L0Config public proxyConfig;
-    L0Config[] public proxyConfigArray; // length of 1 of proxyConfig
+    L0Config public activeConfig; // config of actively-connected chain
+    L0Config[] public activeConfigArray; // length of 1 of activeConfig
 
     // Mock implementation used to enable pre-determinsitic proxy creation
     address public implementationMock;
@@ -97,7 +97,7 @@ contract BaseL0Script is Script {
         // create filename and save
         string memory root = vm.projectRoot();
         root = string.concat(root, path);
-        string memory filename = string.concat(proxyConfig.chainid.toString(), "-");
+        string memory filename = string.concat(activeConfig.chainid.toString(), "-");
         filename = string.concat(filename, _config.chainid.toString());
         filename = string.concat(filename, ".json");
         
@@ -135,22 +135,27 @@ contract BaseL0Script is Script {
         L0Config[] memory legacyConfigs_ = abi.decode(json.parseRaw(".Legacy"), (L0Config[]));
         for (uint256 i=0; i<legacyConfigs_.length; i++) {
             L0Config memory config_ = legacyConfigs_[i];
+            if (config_.chainid == chainid) {
+                activeConfig = config_;
+                activeConfigArray.push(config_);
+            }
             legacyConfigs.push(config_);
             configs.push(config_);
         }
 
-        // proxy (active deployment loaded as proxyConfig)
+        // proxy (active deployment loaded as activeConfig)
         L0Config[] memory proxyConfigs_ = abi.decode(json.parseRaw(".Proxy"), (L0Config[]));
         for (uint256 i=0; i<proxyConfigs_.length; i++) {
             L0Config memory config_ = proxyConfigs_[i];
             if (config_.chainid == chainid) {
-                proxyConfig = config_;
-                proxyConfigArray.push(config_);
+                activeConfig = config_;
+                activeConfigArray.push(config_);
             }
             proxyConfigs.push(config_);
             configs.push(config_);
         }
-        require(proxyConfig.chainid != 0, "L0Config for source not loaded");
+        require(activeConfig.chainid != 0, "L0Config for source not loaded");
+        require(activeConfigArray.length == 1, "ActiveConfigArray does not equal 1");
     }
 
     function isStringEqual(string memory _a, string memory _b) public pure returns (bool) {

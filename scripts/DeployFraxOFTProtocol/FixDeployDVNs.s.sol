@@ -6,9 +6,9 @@ import "./DeployFraxOFTProtocol.s.sol";
 /// @dev creates 34443 files with set DVNs for all chains- 
 
 /*
-Goal: change _configs from proxyConfigArray to all configs as setupSource uses configs.
+Goal: change _configs from activeConfigArray to all configs as setupSource uses configs.
 ie: through non-removal of old arrays (https://github.com/FraxFinance/frax-oft-upgradeable/pull/11),
-  the prior DVN configurations were overwritten in setupSource() with invalid proxyConfigArray DVN addrs.
+  the prior DVN configurations were overwritten in setupSource() with invalid activeConfigArray DVN addrs.
 */
 
 contract FixDeployDVNs is DeployFraxOFTProtocol {
@@ -58,7 +58,7 @@ contract FixDeployDVNs is DeployFraxOFTProtocol {
     ) public override simulateAndWriteTxs(_connectedConfig) {
         // setEnforcedOptions({
         //     _connectedOfts: _connectedOfts,
-        //     _configs: proxyConfigArray
+        //     _configs: activeConfigArray
         // });
 
         setDVNs({

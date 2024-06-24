@@ -38,23 +38,13 @@
   - `FXS`: `0x23432452B720C80553458496D4D9d7C5003280d0`
 
 ### Proxy (upgradeable) OFTs
-- Chain: Mode, TBD
-- Contract to interact with: `Proxy`
+- Chain: Mode, Sei
 - Admin: `ProxyAdmin` (owned by chain-respective msig)
 - OFTs
-  - `FRAX`
-    - `Implementation`: `0x6a678cefca10d5bbe4638d27c671ce7d56865037`
-    - `Proxy`: `0x80eede496655fb9047dd39d9f418d5483ed600df`
-  - `sFRAX`
-    - `Implementation`: `0x7feda252881b9c6166b387d3d11d1bdfc076d5cb`
-    - `Proxy`: `0x5bff88ca1442c2496f7e475e9e7786383bc070c0`
-  - `sfrxETH`
-    - `Implementation`: `0xade2b968674724ce009576b5c1e4a7d69f365d37`
-    - `Proxy`: `0x3ec3849c33291a9ef4c5db86de593eb4a37fde45 `
-  - `FXS`
-    - `Implementation`: `0x0b72af03b18861f894e4f184032e95c260796825`
-    - `Proxy`: `0x64445f0aecc51e94ad52d8ac56b7190e764e561a`
-
+  - `FRAX`: `0x80eede496655fb9047dd39d9f418d5483ed600df`
+  - `sFRAX`: `0x5bff88ca1442c2496f7e475e9e7786383bc070c0`
+  - `sfrxETH`: `0x3ec3849c33291a9ef4c5db86de593eb4a37fde45`
+  - `FXS`: `0x64445f0aecc51e94ad52d8ac56b7190e764e561a`
 
 ## New Chain Deployment
 - Ensure `PK_OFT_DEPLOYER` and `PK_CONFIG_DEPLOYER` are the private keys for `0x9C9dD956b413cdBD81690c9394a6B4D22afe6745` and `0x0990be6dB8c785FBbF9deD8bAEc612A10CaE814b, respectively.

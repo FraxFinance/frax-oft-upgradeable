@@ -11,15 +11,16 @@ import { ImplementationMock } from "contracts/mocks/ImplementationMock.sol";
 
 import { Ownable } from "@openzeppelin/contracts/access/Ownable.sol";
 import { Strings } from "@openzeppelin/contracts/utils/Strings.sol";
+import { IERC20 } from "@openzeppelin/contracts/token/ERC20/IERC20.sol";
 
-import { MessagingParams, MessagingReceipt, MessagingFee, Origin } from "@fraxfinance/layerzero-v2-upgradeable/protocol/contracts/interfaces/ILayerZeroEndpointV2.sol";
+import { MessagingParams, MessagingReceipt, Origin } from "@fraxfinance/layerzero-v2-upgradeable/protocol/contracts/interfaces/ILayerZeroEndpointV2.sol";
 import { EndpointV2 } from "@fraxfinance/layerzero-v2-upgradeable/protocol/contracts/EndpointV2.sol";
 import { SetConfigParam, IMessageLibManager} from "@fraxfinance/layerzero-v2-upgradeable/protocol/contracts/interfaces/IMessageLibManager.sol";
 
 import { OptionsBuilder } from "@fraxfinance/layerzero-v2-upgradeable/oapp/contracts/oapp/libs/OptionsBuilder.sol";
 import { EnforcedOptionParam, IOAppOptionsType3 } from "@fraxfinance/layerzero-v2-upgradeable/oapp/contracts/oapp/interfaces/IOAppOptionsType3.sol";
 import { IOAppCore } from "@fraxfinance/layerzero-v2-upgradeable/oapp/contracts/oapp/interfaces/IOAppCore.sol";
-import { OFTReceipt } from "@fraxfinance/layerzero-v2-upgradeable/oapp/contracts/oft/interfaces/IOFT.sol";
+import { SendParam, OFTReceipt, MessagingFee, IOFT } from "@fraxfinance/layerzero-v2-upgradeable/oapp/contracts/oft/interfaces/IOFT.sol";
 
 import { ProxyAdmin, TransparentUpgradeableProxy } from "@fraxfinance/layerzero-v2-upgradeable/messagelib/contracts/upgradeable/proxy/ProxyAdmin.sol";
 import { UlnConfig } from "@fraxfinance/layerzero-v2-upgradeable/messagelib/contracts/uln/UlnBase.sol";
@@ -121,7 +122,7 @@ contract BaseL0Script is Script {
         legacyOfts.push(0x23432452B720C80553458496D4D9d7C5003280d0); // fxs
         legacyOfts.push(0xe4796cCB6bB5DE2290C417Ac337F2b66CA2E770E); // sFRAX
         legacyOfts.push(0x1f55a02A049033E3419a8E2975cF3F572F4e6E9A); // sfrxETH
-        legacyOfts.push(0x909DBdE1eBE906Af95660033e478D59EFe831fED); // FRAX
+        // legacyOfts.push(0x909DBdE1eBE906Af95660033e478D59EFe831fED); // FRAX
         numOfts = legacyOfts.length;
 
         // aray of semi-pre-determined upgradeable OFTs
@@ -152,16 +153,16 @@ contract BaseL0Script is Script {
         }
 
         // proxy (active deployment loaded as activeConfig)
-        L0Config[] memory proxyConfigs_ = abi.decode(json.parseRaw(".Proxy"), (L0Config[]));
-        for (uint256 i=0; i<proxyConfigs_.length; i++) {
-            L0Config memory config_ = proxyConfigs_[i];
-            if (config_.chainid == chainid) {
-                activeConfig = config_;
-                activeConfigArray.push(config_);
-            }
-            proxyConfigs.push(config_);
-            configs.push(config_);
-        }
+        // L0Config[] memory proxyConfigs_ = abi.decode(json.parseRaw(".Proxy"), (L0Config[]));
+        // for (uint256 i=0; i<proxyConfigs_.length; i++) {
+        //     L0Config memory config_ = proxyConfigs_[i];
+        //     if (config_.chainid == chainid) {
+        //         activeConfig = config_;
+        //         activeConfigArray.push(config_);
+        //     }
+        //     proxyConfigs.push(config_);
+        //     configs.push(config_);
+        // }
         require(activeConfig.chainid != 0, "L0Config for source not loaded");
         require(activeConfigArray.length == 1, "ActiveConfigArray does not equal 1");
     }

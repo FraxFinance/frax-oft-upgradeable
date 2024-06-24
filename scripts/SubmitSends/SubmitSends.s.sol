@@ -42,28 +42,27 @@ contract SubmitSends is BaseL0Script {
         L0Config memory _connectedConfig,
         address _connectedOft
     ) public {
-        uint256 amount = 1e12;
+        uint256 amount = 1e15;
         require(
             IERC20(_connectedOft).balanceOf(vm.addr(senderDeployerPK)) > amount * 6,
             "Not enough token balance"
         );
-        bytes memory options = OptionsBuilder.newOptions().addExecutorLzReceiveOption(200_000, 0);
+        // bytes memory options = OptionsBuilder.newOptions().addExecutorLzReceiveOption(300_000, 0);
+        bytes memory options = OptionsBuilder.newOptions();
         SendParam memory sendParam = SendParam({
-                dstEid: _connectedConfig.eid,
+                dstEid: uint32(_connectedConfig.eid),
                 to: addressToBytes32(vm.addr(senderDeployerPK)),
                 amountLD: amount,
                 minAmountLD: amount,
                 extraOptions: options,
                 composeMsg: '',
-                oftCmd: '',
+                oftCmd: ''
         });
-        MessagingFee memory fee = FraxOFTUpgradeable(_connectedOft).quoteSend(sendParam, false);
-        MessagingReceipt memory msgReceipt;
-        OFTReceipt memory oftReceipt;
-        (msgReceipt, oftReceipt) = FraxOFTUpgradeable(_connectedOft).send{value: fee.nativeFee}({
-            _sendParam: sendParam,
-            _fee: fee,
-            _refundAddress: payable(vm.addr(senderDeployerPK))
-        });
+        MessagingFee memory fee = IOFT(_connectedOft).quoteSend(sendParam, false);
+        IOFT(_connectedOft).send{value: fee.nativeFee}(
+            sendParam,
+            fee,
+            payable(vm.addr(senderDeployerPK))
+        );
     }
 }

@@ -22,22 +22,9 @@ import { IOAppCore } from "@fraxfinance/layerzero-v2-upgradeable/oapp/contracts/
 
 /*
 TODO
-- push txs to files
 - Setup frxETH, FPI with L0 mainnet adapter & legacies
-- Proxy EIDs
-
-Required DVNs:
-- L0
-- Horizon
-- example: https://explorer.metis.io/tx/0x465d4dac4e7bc8cb9c8be8908aac5bdc00b4bc64988f82c1e46c10b3c93829e5/eventlog
-
-Mainnet Addresses
-- FXSOFTAdapter:        0x23432452B720C80553458496D4D9d7C5003280d0
-- sFRAXOFTAdapter:      0xe4796cCB6bB5DE2290C417Ac337F2b66CA2E770E
-- sfrxETHOFTAdapter:    0x1f55a02A049033E3419a8E2975cF3F572F4e6E9A
-- FRAXOFTAdapter:       0x909DBdE1eBE906Af95660033e478D59EFe831fED
-    > Has no TVL / txs
-    > I have not confirmed DVNs
+- Automatically verify contracts
+- Deployment on non-evm / non-pre-deterministic chains
 */
 
 
@@ -90,8 +77,8 @@ contract DeployFraxOFTProtocol is Script {
 
     uint256 public chainid;
 
-    function version() public pure returns (uint256, uint256, uint256) {
-        return (1, 0, 1);
+    function version() public virtual pure returns (uint256, uint256, uint256) {
+        return (1, 0, 2);
     }
 
     modifier broadcastAs(uint256 privateKey) {
@@ -101,8 +88,10 @@ contract DeployFraxOFTProtocol is Script {
     }
 
 
-    modifier simulateAndWriteTxs(L0Config memory _config) {
-        // Clear out any previously serialized txs
+    modifier simulateAndWriteTxs(L0Config memory _config) virtual {
+        // Clear out arrays
+        delete enforcedOptionsParams;
+        delete setConfigParams;
         delete serializedTxs;
 
         vm.createSelectFork(_config.RPC);
@@ -121,7 +110,7 @@ contract DeployFraxOFTProtocol is Script {
         new SafeTxUtil().writeTxs(serializedTxs, string.concat(root, filename));
     }
 
-    function setUp() external {
+    function setUp() public virtual {
         // Set constants based on deployment chain id
         chainid = block.chainid;
         loadJsonConfig();
@@ -134,7 +123,7 @@ contract DeployFraxOFTProtocol is Script {
         numOfts = legacyOfts.length;
     }
 
-    function loadJsonConfig() public {
+    function loadJsonConfig() public virtual {
         string memory root = vm.projectRoot();
         string memory path = string.concat(root, "/scripts/L0Config.json");
         string memory json = vm.readFile(path);
@@ -163,24 +152,24 @@ contract DeployFraxOFTProtocol is Script {
         require(proxyConfig.chainid != 0, "L0Config for source not loaded");
     }
 
-    function run() external {
+    function run() public virtual {
         deploySource();
         setupSource();
         setupDestinations();
     }
 
-    function deploySource() public {
+    function deploySource() public virtual {
         preDeployChecks();
         deployFraxOFTUpgradeablesAndProxies();
         postDeployChecks();
     }
 
-    function setupDestinations() public {
+    function setupDestinations() public virtual {
         setupLegacyDestinations();
         setupProxyDestinations();
     }
 
-    function setupLegacyDestinations() public {
+    function setupLegacyDestinations() public virtual {
         for (uint256 i=0; i<legacyConfigs.length; i++) {
             setupDestination({
                 _connectedConfig: legacyConfigs[i],
@@ -189,7 +178,7 @@ contract DeployFraxOFTProtocol is Script {
         }
     }
 
-    function setupProxyDestinations() public {
+    function setupProxyDestinations() public virtual {
         for (uint256 i=0; i<proxyConfigs.length; i++) {
             // skip if destination == source
             if (proxyConfigs[i].eid == proxyConfig.eid) continue;
@@ -203,7 +192,7 @@ contract DeployFraxOFTProtocol is Script {
     function setupDestination(
         L0Config memory _connectedConfig,
         address[] memory _connectedOfts
-    ) public simulateAndWriteTxs(_connectedConfig) {
+    ) public virtual simulateAndWriteTxs(_connectedConfig) {
         setEnforcedOptions({
             _connectedOfts: _connectedOfts,
             _configs: proxyConfigArray
@@ -222,7 +211,7 @@ contract DeployFraxOFTProtocol is Script {
         });
     }
 
-    function setupSource() public broadcastAs(configDeployerPK) {
+    function setupSource() public virtual broadcastAs(configDeployerPK) {
         // TODO: this will break if proxyOFT addrs are not the pre-determined addrs verified in postDeployChecks()
         setEnforcedOptions({
             _connectedOfts: proxyOfts,
@@ -251,7 +240,7 @@ contract DeployFraxOFTProtocol is Script {
         setPriviledgedRoles();
     }
 
-    function preDeployChecks() public view {
+    function preDeployChecks() public virtual view {
         for (uint256 e=0; e<configs.length; e++) {
             uint256 eid = configs[e].eid;    
             // source and dest eid cannot be same
@@ -263,7 +252,7 @@ contract DeployFraxOFTProtocol is Script {
         }
     }
 
-    function postDeployChecks() public view {
+    function postDeployChecks() public virtual view {
         // Ensure OFTs are their expected pre-determined address.  If not, there's a chance the deployer nonce shifted,
         // the EVM has differing logic, or we are not on an EVM compatable chain.
         // TODO: support for non-evm addresses
@@ -276,7 +265,7 @@ contract DeployFraxOFTProtocol is Script {
     }
 
     // TODO: missing ecosystem tokens (FPI, etc.)
-    function deployFraxOFTUpgradeablesAndProxies() broadcastAs(oftDeployerPK) public {
+    function deployFraxOFTUpgradeablesAndProxies() broadcastAs(oftDeployerPK) public virtual {
 
         // Proxy admin
         proxyAdmin = address(new ProxyAdmin(vm.addr(configDeployerPK)));
@@ -317,7 +306,7 @@ contract DeployFraxOFTProtocol is Script {
     function deployFraxOFTUpgradeableAndProxy(
         string memory _name,
         string memory _symbol
-    ) public returns (address implementation, address proxy) {
+    ) public virtual returns (address implementation, address proxy) {
         bytes memory bytecode = bytes.concat(
             abi.encodePacked(type(FraxOFTUpgradeable).creationCode),
             abi.encode(proxyConfig.endpoint)
@@ -369,7 +358,7 @@ contract DeployFraxOFTProtocol is Script {
     }
 
 
-    function setPriviledgedRoles() public {
+    function setPriviledgedRoles() public virtual {
         /// @dev transfer ownership of OFT
         for (uint256 o=0; o<numOfts; o++) {
             address proxyOft = proxyOfts[o];
@@ -386,7 +375,7 @@ contract DeployFraxOFTProtocol is Script {
         address[] memory _connectedOfts,
         address[] memory _peerOfts,
         L0Config[] memory _configs
-    ) public {
+    ) public virtual {
         require(_connectedOfts.length == _peerOfts.length, "Must wire equal amount of source + dest addrs");
         for (uint256 o=0; o<_connectedOfts.length; o++) {
             address connectedOft = _connectedOfts[o];
@@ -420,7 +409,7 @@ contract DeployFraxOFTProtocol is Script {
     function setEnforcedOptions(
         address[] memory _connectedOfts,
         L0Config[] memory _configs
-    ) public {
+    ) public virtual {
         // For each peer, default
         // https://github.com/FraxFinance/LayerZero-v2-upgradeable/blob/e1470197e0cffe0d89dd9c776762c8fdcfc1e160/oapp/test/OFT.t.sol#L417
         bytes memory optionsTypeOne = OptionsBuilder.newOptions().addExecutorLzReceiveOption(200_000, 0);
@@ -461,7 +450,7 @@ contract DeployFraxOFTProtocol is Script {
         L0Config memory _connectedConfig,
         address[] memory _connectedOfts,
         L0Config[] memory _configs 
-    ) public {
+    ) public virtual {
         UlnConfig memory ulnConfig;
         ulnConfig.requiredDVNCount = 2;
         address[] memory requiredDVNs = new address[](2);

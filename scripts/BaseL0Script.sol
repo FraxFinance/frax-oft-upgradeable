@@ -4,20 +4,26 @@ pragma solidity ^0.8.19;
 import { Script } from "forge-std/Script.sol";
 import "forge-std/StdJson.sol";
 import "frax-template/src/Constants.sol";
+
 import { SerializedTx, SafeTxUtil } from "scripts/SafeBatchSerialize.sol";
 import { FraxOFTUpgradeable } from "contracts/FraxOFTUpgradeable.sol";
 import { ImplementationMock } from "contracts/mocks/ImplementationMock.sol";
-import { ProxyAdmin, TransparentUpgradeableProxy } from "@fraxfinance/layerzero-v2-upgradeable/messagelib/contracts/upgradeable/proxy/ProxyAdmin.sol";
+
 import { Ownable } from "@openzeppelin/contracts/access/Ownable.sol";
 import { Strings } from "@openzeppelin/contracts/utils/Strings.sol";
-import { EndpointV2 } from "@fraxfinance/layerzero-v2-upgradeable/protocol/contracts/EndpointV2.sol";
-import { OptionsBuilder } from "@fraxfinance/layerzero-v2-upgradeable/oapp/contracts/oapp/libs/OptionsBuilder.sol";
-import { SetConfigParam, IMessageLibManager} from "@fraxfinance/layerzero-v2-upgradeable/protocol/contracts/interfaces/IMessageLibManager.sol";
-import { UlnConfig } from "@fraxfinance/layerzero-v2-upgradeable/messagelib/contracts/uln/UlnBase.sol";
-import { EnforcedOptionParam, IOAppOptionsType3 } from "@fraxfinance/layerzero-v2-upgradeable/oapp/contracts/oapp/interfaces/IOAppOptionsType3.sol";
-import { Constant } from "@fraxfinance/layerzero-v2-upgradeable/messagelib/test/util/Constant.sol";
 
+import { MessagingParams, MessagingReceipt, MessagingFee, Origin } from "@fraxfinance/layerzero-v2-upgradeable/protocol/contracts/interfaces/ILayerZeroEndpointV2.sol";
+import { EndpointV2 } from "@fraxfinance/layerzero-v2-upgradeable/protocol/contracts/EndpointV2.sol";
+import { SetConfigParam, IMessageLibManager} from "@fraxfinance/layerzero-v2-upgradeable/protocol/contracts/interfaces/IMessageLibManager.sol";
+
+import { OptionsBuilder } from "@fraxfinance/layerzero-v2-upgradeable/oapp/contracts/oapp/libs/OptionsBuilder.sol";
+import { EnforcedOptionParam, IOAppOptionsType3 } from "@fraxfinance/layerzero-v2-upgradeable/oapp/contracts/oapp/interfaces/IOAppOptionsType3.sol";
 import { IOAppCore } from "@fraxfinance/layerzero-v2-upgradeable/oapp/contracts/oapp/interfaces/IOAppCore.sol";
+import { OFTReceipt } from "@fraxfinance/layerzero-v2-upgradeable/oapp/contracts/oft/interfaces/IOFT.sol";
+
+import { ProxyAdmin, TransparentUpgradeableProxy } from "@fraxfinance/layerzero-v2-upgradeable/messagelib/contracts/upgradeable/proxy/ProxyAdmin.sol";
+import { UlnConfig } from "@fraxfinance/layerzero-v2-upgradeable/messagelib/contracts/uln/UlnBase.sol";
+import { Constant } from "@fraxfinance/layerzero-v2-upgradeable/messagelib/test/util/Constant.sol";
     
 contract BaseL0Script is Script {
 
@@ -44,8 +50,9 @@ contract BaseL0Script is Script {
     L0Config[] public legacyConfigs;
     L0Config[] public proxyConfigs;
     L0Config[] public configs; // legacy & proxy configs
-    L0Config public activeConfig; // config of actively-connected chain
+    L0Config public activeConfig; // config of actively-connected (broadcasting) chain
     L0Config[] public activeConfigArray; // length of 1 of activeConfig
+    bool public activeLegacy; // true if we're broadcasting to legacy chain
 
     // Mock implementation used to enable pre-determinsitic proxy creation
     address public implementationMock;
@@ -138,6 +145,7 @@ contract BaseL0Script is Script {
             if (config_.chainid == chainid) {
                 activeConfig = config_;
                 activeConfigArray.push(config_);
+                activeLegacy = true;
             }
             legacyConfigs.push(config_);
             configs.push(config_);

@@ -1,7 +1,7 @@
 // SPDX-License-Identifier: ISC
 pragma solidity ^0.8.19;
 
-import "./DeployFraxOFTProtocol.s.sol";
+import "../DeployFraxOFTProtocol/DeployFraxOFTProtocol.s.sol";
 
 /// @dev creates 34443 files with set DVNs for all chains- 
 

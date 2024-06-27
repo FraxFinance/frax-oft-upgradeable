@@ -37,6 +37,9 @@
   - `sfrxETH`: `0x1f55a02A049033E3419a8E2975cF3F572F4e6E9A`
   - `FXS`: `0x23432452B720C80553458496D4D9d7C5003280d0`
 
+### TODO
+Mode => Sei
+
 ### Proxy (upgradeable) OFTs
 - Chain: Mode, Sei
 - Admin: `ProxyAdmin` (owned by chain-respective msig)
@@ -61,37 +64,6 @@
 TODO: automatically save as strings.
 
 - Submit each newly crafted json to the respective `DESTINATION_CHAIN_ID` msig.
-
-carter@laptop:~/Documents/frax/frax-oft-upgradeable$ forge verify-contract --rpc-url $MODE_RPC_URL --constructor-args $(cast abi-encode "constructor(address)" 0x1a44076050125825900e736c501f859c50fE728c) --verifier-url 'https://api.routescan.io/v2/network/mainnet/evm/34443/etherscan' --etherscan-api-key "verifyContract" --chain-id 34443 0x90a706775489D190256D0C721fC6eA3Df64904d0 contracts/FraxOFTUpgradeable.sol:FraxOFTUpgradeable --watch
-Start verifying contract `0x90a706775489D190256D0C721fC6eA3Df64904d0` deployed on mode
-
-Submitting verification for [contracts/FraxOFTUpgradeable.sol:FraxOFTUpgradeable] 0x90a706775489D190256D0C721fC6eA3Df64904d0.
-Submitted contract for verification:
-	Response: `OK`
-	GUID: `fdbc2830-068c-5ab7-8814-76ed815b7cdc`
-	URL: https://explorer.mode.network/address/0x90a706775489d190256d0c721fc6ea3df64904d0
-Contract verification status:
-Response: `NOTOK`
-Details: `Pending in queue`
-Contract verification status:
-Response: `NOTOK`
-Details: `Pending in queue`
-Contract verification status:
-Response: `NOTOK`
-Details: `Error: contract does not exist`
-
-
-
-carter@laptop:~/Documents/frax/frax-oft-upgradeable$ forge verify-contract --rpc-url $MODE_RPC_URL --constructor-args 0x0000000000000000000000006336CFA6eDBeC2A459d869031DB77fC2770Eaa66 --verifier-url 'https://api.routescan.io/v2/network/mainnet/evm/34443/etherscan' --etherscan-api-key "verifyContract" --chain-id 34443 0xb65c2079dfed58b7a6e472c0d6971605023ec6a9 node_modules/@fraxfinance/layerzero-v2-upgradeable/messagelib/contracts/upgradeable/proxy/ProxyAdmin.sol:ProxyAdmin
-Start verifying contract `0xb65c2079dfed58B7a6E472c0d6971605023ec6A9` deployed on mode
-Error: 
-Failed to get standard json input
-
-Context:
-- cannot resolve file at "/home/carter/Documents/frax/frax-oft-upgradeable/node_modules/@fraxfinance/layerzero-v2-upgradeable/messagelib/contracts/upgradeable/proxy/ProxyAdmin.sol"
-
-
-```
 
 ## 1) Developing Contracts
 

@@ -41,10 +41,11 @@ contract SubmitSends is BaseL0Script {
     function submitSend(
         L0Config memory _connectedConfig,
         address _connectedOft
-    ) public {
-        uint256 amount = 1e15;
+    ) public broadcastAs(senderDeployerPK) {
+        uint256 amount = 1e14;
+        address oftToken = IOFT(_connectedOft).token();
         require(
-            IERC20(_connectedOft).balanceOf(vm.addr(senderDeployerPK)) > amount * 6,
+            IERC20(oftToken).balanceOf(vm.addr(senderDeployerPK)) > amount * 6,
             "Not enough token balance"
         );
         // bytes memory options = OptionsBuilder.newOptions().addExecutorLzReceiveOption(300_000, 0);

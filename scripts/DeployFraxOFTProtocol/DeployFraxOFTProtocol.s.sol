@@ -16,11 +16,11 @@ contract DeployFraxOFTProtocol is BaseL0Script {
     using stdJson for string;
     using Strings for uint256;
 
-    function version() public virtual pure returns (uint256, uint256, uint256) {
-        return (1, 0, 3);
+    function version() public virtual override pure returns (uint256, uint256, uint256) {
+        return (1, 0, 4);
     }
 
-    function setUp() public override {
+    function setUp() public virtual override {
         super.setUp();
     }
 
@@ -204,6 +204,7 @@ contract DeployFraxOFTProtocol is BaseL0Script {
             data: initializeArgs
         });
         TransparentUpgradeableProxy(payable(proxy)).changeAdmin(proxyAdmin);
+        // TODO: this is already set in BaseL0Script- duplicate 
         proxyOfts.push(proxy);
 
         // State checks
@@ -232,7 +233,8 @@ contract DeployFraxOFTProtocol is BaseL0Script {
 
     function setPriviledgedRoles() public virtual {
         /// @dev transfer ownership of OFT
-        for (uint256 o=0; o<numOfts; o++) {
+        // TODO: fix loop to correct length
+        for (uint256 o=0; o<proxyOfts.length; o++) {
             address proxyOft = proxyOfts[o];
             FraxOFTUpgradeable(proxyOft).setDelegate(activeConfig.delegate);
             Ownable(proxyOft).transferOwnership(activeConfig.delegate);
@@ -328,12 +330,12 @@ contract DeployFraxOFTProtocol is BaseL0Script {
         address[] memory requiredDVNs = new address[](2);
 
         // sort in ascending order (as spec'd in UlnConfig)
-        if (uint160(_connectedConfig.dvnHorizon) < uint160(_connectedConfig.dvnL0)) {
-            requiredDVNs[0] = _connectedConfig.dvnHorizon;
-            requiredDVNs[1] = _connectedConfig.dvnL0;
+        if (uint160(_connectedConfig.dvn1) < uint160(_connectedConfig.dvn2)) {
+            requiredDVNs[0] = _connectedConfig.dvn1;
+            requiredDVNs[1] = _connectedConfig.dvn2;
         } else {
-            requiredDVNs[0] = _connectedConfig.dvnL0;
-            requiredDVNs[1] = _connectedConfig.dvnHorizon;
+            requiredDVNs[0] = _connectedConfig.dvn2;
+            requiredDVNs[1] = _connectedConfig.dvn1;
         }
         ulnConfig.requiredDVNs = requiredDVNs;
 

@@ -79,7 +79,7 @@ contract BaseL0Script is Script {
     uint256 public chainid;
 
     function version() public virtual pure returns (uint256, uint256, uint256) {
-        return (1, 0, 0);
+        return (1, 0, 1);
     }
 
     modifier broadcastAs(uint256 privateKey) {
@@ -90,9 +90,8 @@ contract BaseL0Script is Script {
 
 
     modifier simulateAndWriteTxs(
-        L0Config memory _config,
-        string memory path
-    ) {
+        L0Config memory _config
+    ) virtual {
         // Clear out any previously serialized txs
         delete serializedTxs;
 
@@ -104,7 +103,7 @@ contract BaseL0Script is Script {
 
         // create filename and save
         string memory root = vm.projectRoot();
-        root = string.concat(root, path);
+        root = string.concat(root, '/scripts/DeployFraxOFTProtocol/txs/');
         string memory filename = string.concat(activeConfig.chainid.toString(), "-");
         filename = string.concat(filename, _config.chainid.toString());
         filename = string.concat(filename, ".json");

@@ -1,24 +1,7 @@
 // SPDX-License-Identifier: ISC
 pragma solidity ^0.8.19;
 
-// TODO: package names under same base dir
-import { Script } from "forge-std/Script.sol";
-import "forge-std/StdJson.sol";
-import "frax-template/src/Constants.sol";
-import {SerializedTx, SafeTxUtil} from "../SafeBatchSerialize.sol";
-import { FraxOFTUpgradeable } from "contracts/FraxOFTUpgradeable.sol";
-import { ImplementationMock } from "contracts/mocks/ImplementationMock.sol";
-import { ProxyAdmin, TransparentUpgradeableProxy } from "@fraxfinance/layerzero-v2-upgradeable/messagelib/contracts/upgradeable/proxy/ProxyAdmin.sol";
-import { Ownable } from "@openzeppelin/contracts/access/Ownable.sol";
-import { Strings } from "@openzeppelin/contracts/utils/Strings.sol";
-import { EndpointV2 } from "@fraxfinance/layerzero-v2-upgradeable/protocol/contracts/EndpointV2.sol";
-import { OptionsBuilder } from "@fraxfinance/layerzero-v2-upgradeable/oapp/contracts/oapp/libs/OptionsBuilder.sol";
-import { SetConfigParam, IMessageLibManager} from "@fraxfinance/layerzero-v2-upgradeable/protocol/contracts/interfaces/IMessageLibManager.sol";
-import { UlnConfig } from "@fraxfinance/layerzero-v2-upgradeable/messagelib/contracts/uln/UlnBase.sol";
-import { EnforcedOptionParam, IOAppOptionsType3 } from "@fraxfinance/layerzero-v2-upgradeable/oapp/contracts/oapp/interfaces/IOAppOptionsType3.sol";
-import { Constant } from "@fraxfinance/layerzero-v2-upgradeable/messagelib/test/util/Constant.sol";
-
-import { IOAppCore } from "@fraxfinance/layerzero-v2-upgradeable/oapp/contracts/oapp/interfaces/IOAppCore.sol";
+import "../BaseL0Script.sol";
 
 /*
 TODO
@@ -28,128 +11,17 @@ TODO
 */
 
 
-contract DeployFraxOFTProtocol is Script {
+contract DeployFraxOFTProtocol is BaseL0Script {
     using OptionsBuilder for bytes;
     using stdJson for string;
     using Strings for uint256;
 
-    uint256 public oftDeployerPK = vm.envUint("PK_OFT_DEPLOYER");
-    uint256 public configDeployerPK = vm.envUint("PK_CONFIG_DEPLOYER");
-
-    /// @dev: required to be alphabetical to conform to https://book.getfoundry.sh/cheatcodes/parse-json
-    struct L0Config {
-        string RPC;
-        uint256 chainid;
-        address delegate;
-        address dvnL0;
-        address dvnHorizon;
-        uint256 eid;
-        address endpoint;
-        address receiveLib302;
-        address sendLib302;
-    }
-    L0Config[] public legacyConfigs;
-    L0Config[] public proxyConfigs;
-    L0Config[] public configs; // legacy & proxy configs
-    L0Config public proxyConfig;
-    L0Config[] public proxyConfigArray; // length of 1 of proxyConfig
-
-    // Mock implementation used to enable pre-determinsitic proxy creation
-    address public implementationMock;
-
-    // Deployed proxies
-    address public proxyAdmin;
-    address public fxsOft;
-    address public sFraxOft;
-    address public sfrxEthOft;
-    address public fraxOft;
-    uint256 public numOfts;
-
-    // 1:1 match between these arrays for setting peers
-    address[] public legacyOfts;
-    address[] public proxyOfts;
-
-    EnforcedOptionParam[] public enforcedOptionsParams;
-
-    SetConfigParam[] public setConfigParams;
-
-    SerializedTx[] serializedTxs;
-
-    uint256 public chainid;
-
     function version() public virtual pure returns (uint256, uint256, uint256) {
-        return (1, 0, 2);
+        return (1, 0, 3);
     }
 
-    modifier broadcastAs(uint256 privateKey) {
-        vm.startBroadcast(privateKey);
-        _;
-        vm.stopBroadcast();
-    }
-
-
-    modifier simulateAndWriteTxs(L0Config memory _config) virtual {
-        // Clear out arrays
-        delete enforcedOptionsParams;
-        delete setConfigParams;
-        delete serializedTxs;
-
-        vm.createSelectFork(_config.RPC);
-        chainid = _config.chainid;
-        vm.startPrank(_config.delegate);
-        _;
-        vm.stopPrank();
-
-        // create filename and save
-        string memory root = vm.projectRoot();
-        root = string.concat(root, "/scripts/DeployFraxOFTProtocol/txs/");
-        string memory filename = string.concat(proxyConfig.chainid.toString(), "-");
-        filename = string.concat(filename, _config.chainid.toString());
-        filename = string.concat(filename, ".json");
-        
-        new SafeTxUtil().writeTxs(serializedTxs, string.concat(root, filename));
-    }
-
-    function setUp() public virtual {
-        // Set constants based on deployment chain id
-        chainid = block.chainid;
-        loadJsonConfig();
-
-        /// @dev: this array maintains the same token order as proxyOfts and the addrs are confirmed on eth mainnet.
-        legacyOfts.push(0x23432452B720C80553458496D4D9d7C5003280d0); // fxs
-        legacyOfts.push(0xe4796cCB6bB5DE2290C417Ac337F2b66CA2E770E); // sFRAX
-        legacyOfts.push(0x1f55a02A049033E3419a8E2975cF3F572F4e6E9A); // sfrxETH
-        legacyOfts.push(0x909DBdE1eBE906Af95660033e478D59EFe831fED); // FRAX
-        numOfts = legacyOfts.length;
-    }
-
-    function loadJsonConfig() public virtual {
-        string memory root = vm.projectRoot();
-        string memory path = string.concat(root, "/scripts/L0Config.json");
-        string memory json = vm.readFile(path);
-        
-        // load and write to persistent storage
-
-        // legacy
-        L0Config[] memory legacyConfigs_ = abi.decode(json.parseRaw(".Legacy"), (L0Config[]));
-        for (uint256 i=0; i<legacyConfigs_.length; i++) {
-            L0Config memory config_ = legacyConfigs_[i];
-            legacyConfigs.push(config_);
-            configs.push(config_);
-        }
-
-        // proxy (active deployment loaded as proxyConfig)
-        L0Config[] memory proxyConfigs_ = abi.decode(json.parseRaw(".Proxy"), (L0Config[]));
-        for (uint256 i=0; i<proxyConfigs_.length; i++) {
-            L0Config memory config_ = proxyConfigs_[i];
-            if (config_.chainid == chainid) {
-                proxyConfig = config_;
-                proxyConfigArray.push(config_);
-            }
-            proxyConfigs.push(config_);
-            configs.push(config_);
-        }
-        require(proxyConfig.chainid != 0, "L0Config for source not loaded");
+    function setUp() public override {
+        super.setUp();
     }
 
     function run() public virtual {
@@ -181,7 +53,7 @@ contract DeployFraxOFTProtocol is Script {
     function setupProxyDestinations() public virtual {
         for (uint256 i=0; i<proxyConfigs.length; i++) {
             // skip if destination == source
-            if (proxyConfigs[i].eid == proxyConfig.eid) continue;
+            if (proxyConfigs[i].eid == activeConfig.eid) continue;
             setupDestination({
                 _connectedConfig: proxyConfigs[i],
                 _connectedOfts: proxyOfts
@@ -195,19 +67,19 @@ contract DeployFraxOFTProtocol is Script {
     ) public virtual simulateAndWriteTxs(_connectedConfig) {
         setEnforcedOptions({
             _connectedOfts: _connectedOfts,
-            _configs: proxyConfigArray
+            _configs: activeConfigArray
         });
 
         setDVNs({
             _connectedConfig: _connectedConfig,
             _connectedOfts: _connectedOfts,
-            _configs: proxyConfigArray
+            _configs: activeConfigArray
         });
 
         setPeers({
             _connectedOfts: _connectedOfts,
             _peerOfts: proxyOfts,
-            _configs: proxyConfigArray
+            _configs: activeConfigArray
         });
     }
 
@@ -219,7 +91,7 @@ contract DeployFraxOFTProtocol is Script {
         });
 
         setDVNs({
-            _connectedConfig: proxyConfig,
+            _connectedConfig: activeConfig,
             _connectedOfts: proxyOfts,
             _configs: configs
         });
@@ -244,9 +116,9 @@ contract DeployFraxOFTProtocol is Script {
         for (uint256 e=0; e<configs.length; e++) {
             uint256 eid = configs[e].eid;    
             // source and dest eid cannot be same
-            if (eid == proxyConfig.eid) continue;
+            if (eid == activeConfig.eid) continue;
             require(
-                IMessageLibManager(proxyConfig.endpoint).isSupportedEid(uint32(configs[e].eid)),
+                IMessageLibManager(activeConfig.endpoint).isSupportedEid(uint32(configs[e].eid)),
                 "L0 team required to setup `defaultSendLibrary` and `defaultReceiveLibrary` for EID"
             );
         }
@@ -309,7 +181,7 @@ contract DeployFraxOFTProtocol is Script {
     ) public virtual returns (address implementation, address proxy) {
         bytes memory bytecode = bytes.concat(
             abi.encodePacked(type(FraxOFTUpgradeable).creationCode),
-            abi.encode(proxyConfig.endpoint)
+            abi.encode(activeConfig.endpoint)
         );
         assembly {
             implementation := create(0, add(bytecode, 0x20), mload(bytecode))
@@ -320,7 +192,7 @@ contract DeployFraxOFTProtocol is Script {
         /// @dev: create semi-pre-deterministic proxy address, then initialize with correct implementation
         proxy = address(new TransparentUpgradeableProxy(implementationMock, vm.addr(oftDeployerPK), ""));
 
-        /// @dev: proxyConfig deployer is temporary OFT owner until setPriviledgedRoles()
+        /// @dev: activeConfig deployer is temporary OFT owner until setPriviledgedRoles()
         bytes memory initializeArgs = abi.encodeWithSelector(
             FraxOFTUpgradeable.initialize.selector,
             _name,
@@ -344,11 +216,11 @@ contract DeployFraxOFTProtocol is Script {
             "OFT symbol incorrect"
         );
         require(
-            address(FraxOFTUpgradeable(proxy).endpoint()) == proxyConfig.endpoint,
+            address(FraxOFTUpgradeable(proxy).endpoint()) == activeConfig.endpoint,
             "OFT endpoint incorrect"
         );
         require(
-            EndpointV2(proxyConfig.endpoint).delegates(proxy) == vm.addr(configDeployerPK),
+            EndpointV2(activeConfig.endpoint).delegates(proxy) == vm.addr(configDeployerPK),
             "Endpoint delegate incorrect"
         );
         require(
@@ -362,12 +234,12 @@ contract DeployFraxOFTProtocol is Script {
         /// @dev transfer ownership of OFT
         for (uint256 o=0; o<numOfts; o++) {
             address proxyOft = proxyOfts[o];
-            FraxOFTUpgradeable(proxyOft).setDelegate(proxyConfig.delegate);
-            Ownable(proxyOft).transferOwnership(proxyConfig.delegate);
+            FraxOFTUpgradeable(proxyOft).setDelegate(activeConfig.delegate);
+            Ownable(proxyOft).transferOwnership(activeConfig.delegate);
         }
 
         /// @dev transfer ownership of ProxyAdmin
-        Ownable(proxyAdmin).transferOwnership(proxyConfig.delegate);
+        Ownable(proxyAdmin).transferOwnership(activeConfig.delegate);
     }
 
     /// @dev _connectedOfts refers to the OFTs of the RPC we are currently connected to
@@ -384,7 +256,7 @@ contract DeployFraxOFTProtocol is Script {
                 uint32 eid = uint32(_configs[c].eid);
 
                 // cannot set peer to self
-                if (chainid == proxyConfig.chainid && eid == proxyConfig.eid) continue;
+                if (chainid == activeConfig.chainid && eid == activeConfig.eid) continue;
 
                 bytes memory data = abi.encodeCall(
                     IOAppCore.setPeer,
@@ -419,7 +291,7 @@ contract DeployFraxOFTProtocol is Script {
             uint32 eid = uint32(_configs[c].eid);
 
             // cannot set enforced options to self
-            if (chainid == proxyConfig.chainid && eid == proxyConfig.eid) continue;
+            if (chainid == activeConfig.chainid && eid == activeConfig.eid) continue;
 
             enforcedOptionsParams.push(EnforcedOptionParam(eid, 1, optionsTypeOne));
             enforcedOptionsParams.push(EnforcedOptionParam(eid, 2, optionsTypeTwo));
@@ -470,7 +342,7 @@ contract DeployFraxOFTProtocol is Script {
             uint32 eid = uint32(_configs[c].eid);
 
             // cannot set enforced options to self
-            if (chainid == proxyConfig.chainid && eid == proxyConfig.eid) continue;
+            if (chainid == activeConfig.chainid && eid == activeConfig.eid) continue;
 
             setConfigParams.push(
                 SetConfigParam({
@@ -525,14 +397,5 @@ contract DeployFraxOFTProtocol is Script {
                 })
             );
         }
-
-    }
-
-    function isStringEqual(string memory _a, string memory _b) internal pure returns (bool) {
-        return keccak256(abi.encodePacked(_a)) == keccak256(abi.encodePacked(_b));
-    }
-
-    function addressToBytes32(address _addr) internal pure returns (bytes32) {
-        return bytes32(uint256(uint160(_addr)));
     }
 }

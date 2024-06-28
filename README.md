@@ -37,24 +37,17 @@
   - `sfrxETH`: `0x1f55a02A049033E3419a8E2975cF3F572F4e6E9A`
   - `FXS`: `0x23432452B720C80553458496D4D9d7C5003280d0`
 
+### TODO
+Mode => Sei
+
 ### Proxy (upgradeable) OFTs
-- Chain: Mode, TBD
-- Contract to interact with: `Proxy`
+- Chain: Mode, Sei
 - Admin: `ProxyAdmin` (owned by chain-respective msig)
 - OFTs
-  - `FRAX`
-    - `Implementation`: `0x6a678cefca10d5bbe4638d27c671ce7d56865037`
-    - `Proxy`: `0x80eede496655fb9047dd39d9f418d5483ed600df`
-  - `sFRAX`
-    - `Implementation`: `0x7feda252881b9c6166b387d3d11d1bdfc076d5cb`
-    - `Proxy`: `0x5bff88ca1442c2496f7e475e9e7786383bc070c0`
-  - `sfrxETH`
-    - `Implementation`: `0xade2b968674724ce009576b5c1e4a7d69f365d37`
-    - `Proxy`: `0x3ec3849c33291a9ef4c5db86de593eb4a37fde45 `
-  - `FXS`
-    - `Implementation`: `0x0b72af03b18861f894e4f184032e95c260796825`
-    - `Proxy`: `0x64445f0aecc51e94ad52d8ac56b7190e764e561a`
-
+  - `FRAX`: `0x80eede496655fb9047dd39d9f418d5483ed600df`
+  - `sFRAX`: `0x5bff88ca1442c2496f7e475e9e7786383bc070c0`
+  - `sfrxETH`: `0x3ec3849c33291a9ef4c5db86de593eb4a37fde45`
+  - `FXS`: `0x64445f0aecc51e94ad52d8ac56b7190e764e561a`
 
 ## New Chain Deployment
 - Ensure `PK_OFT_DEPLOYER` and `PK_CONFIG_DEPLOYER` are the private keys for `0x9C9dD956b413cdBD81690c9394a6B4D22afe6745` and `0x0990be6dB8c785FBbF9deD8bAEc612A10CaE814b, respectively.
@@ -71,37 +64,6 @@
 TODO: automatically save as strings.
 
 - Submit each newly crafted json to the respective `DESTINATION_CHAIN_ID` msig.
-
-carter@laptop:~/Documents/frax/frax-oft-upgradeable$ forge verify-contract --rpc-url $MODE_RPC_URL --constructor-args $(cast abi-encode "constructor(address)" 0x1a44076050125825900e736c501f859c50fE728c) --verifier-url 'https://api.routescan.io/v2/network/mainnet/evm/34443/etherscan' --etherscan-api-key "verifyContract" --chain-id 34443 0x90a706775489D190256D0C721fC6eA3Df64904d0 contracts/FraxOFTUpgradeable.sol:FraxOFTUpgradeable --watch
-Start verifying contract `0x90a706775489D190256D0C721fC6eA3Df64904d0` deployed on mode
-
-Submitting verification for [contracts/FraxOFTUpgradeable.sol:FraxOFTUpgradeable] 0x90a706775489D190256D0C721fC6eA3Df64904d0.
-Submitted contract for verification:
-	Response: `OK`
-	GUID: `fdbc2830-068c-5ab7-8814-76ed815b7cdc`
-	URL: https://explorer.mode.network/address/0x90a706775489d190256d0c721fc6ea3df64904d0
-Contract verification status:
-Response: `NOTOK`
-Details: `Pending in queue`
-Contract verification status:
-Response: `NOTOK`
-Details: `Pending in queue`
-Contract verification status:
-Response: `NOTOK`
-Details: `Error: contract does not exist`
-
-
-
-carter@laptop:~/Documents/frax/frax-oft-upgradeable$ forge verify-contract --rpc-url $MODE_RPC_URL --constructor-args 0x0000000000000000000000006336CFA6eDBeC2A459d869031DB77fC2770Eaa66 --verifier-url 'https://api.routescan.io/v2/network/mainnet/evm/34443/etherscan' --etherscan-api-key "verifyContract" --chain-id 34443 0xb65c2079dfed58b7a6e472c0d6971605023ec6a9 node_modules/@fraxfinance/layerzero-v2-upgradeable/messagelib/contracts/upgradeable/proxy/ProxyAdmin.sol:ProxyAdmin
-Start verifying contract `0xb65c2079dfed58B7a6E472c0d6971605023ec6A9` deployed on mode
-Error: 
-Failed to get standard json input
-
-Context:
-- cannot resolve file at "/home/carter/Documents/frax/frax-oft-upgradeable/node_modules/@fraxfinance/layerzero-v2-upgradeable/messagelib/contracts/upgradeable/proxy/ProxyAdmin.sol"
-
-
-```
 
 ## 1) Developing Contracts
 

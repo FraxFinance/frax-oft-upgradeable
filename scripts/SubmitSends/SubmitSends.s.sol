@@ -42,7 +42,7 @@ contract SubmitSends is BaseL0Script {
         L0Config memory _connectedConfig,
         address _connectedOft
     ) public broadcastAs(senderDeployerPK) {
-        uint256 amount = 1e14;
+        uint256 amount = 1e13;
         address oftToken = IOFT(_connectedOft).token();
         require(
             IERC20(oftToken).balanceOf(vm.addr(senderDeployerPK)) > amount * 6,

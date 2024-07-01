@@ -47,7 +47,7 @@
     ],
     "Proxy": [
         {
-            "RPC": "https://blastapi.io/chains/mode",
+            "RPC": "https://mainnet.mode.network/",
             "chainid": 34443,
             "delegate": "0x6336CFA6eDBeC2A459d869031DB77fC2770Eaa66",
             "dvn1": "0xce8358bc28dd8296Ce8cAF1CD2b44787abd65887",

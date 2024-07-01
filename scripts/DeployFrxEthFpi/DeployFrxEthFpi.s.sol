@@ -18,7 +18,7 @@ contract DeployFrxEThFpis is DeployFraxOFTProtocol {
     using Strings for uint256;
 
     function version() public virtual override pure returns (uint256, uint256, uint256) {
-        return (1, 0, 0);
+        return (1, 0, 1);
     }
 
     /// @dev override to alter file save location
@@ -70,16 +70,18 @@ contract DeployFrxEThFpis is DeployFraxOFTProtocol {
         proxyAdmin = 0x223a681fc5c5522c85C96157c0efA18cd6c5405c;
 
         // Deploy frxETH
-        deployFraxOFTUpgradeableAndProxy({
+        (, address proxy) = deployFraxOFTUpgradeableAndProxy({
             _name: "Frax Ether",
             _symbol: "frxETH"
         });
+        require(proxy == 0x43eDD7f3831b08FE70B7555ddD373C8bF65a9050, "frxETH address wrong");
 
         // deploy FPI
-        deployFraxOFTUpgradeableAndProxy({
+        (, proxy) = deployFraxOFTUpgradeableAndProxy({
             _name: "Frax Price Index",
             _symbol: "FPI"
         });
+        require(proxy == 0xEed9DE5E41b53D1C8fAB8AAB4b0e446F828c1483, "FPI address wrong");
     }
 
     /// @dev override as the proxyAdmin ownership is already properly set

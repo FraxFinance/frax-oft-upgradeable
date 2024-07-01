@@ -21,3 +21,13 @@
     - Blast => Mode (FRAX, sFRAX, sfrxETH, FXS)
     - Metis => (Mode, Blast) (FRAX, sFRAX, sfrxETH, FXS)
     - Mode => (Ethereum, Base, Blast, Metis) (FRAX, sFRAX, sfrxETH, FXS)
+
+# 2024.06.28
+- `DeployFrxEthFpi()`
+    - Deploy Mode: frxETH, FPI
+    - Destinations: Ethereum, Base, Blast, Metis
+
+# 2024.07.01
+- `DeployFrxEthFpi()`
+    - Deploy Sei: frxEth, FPI
+    - Destinations: Ethereum, Base, Blast, Metis

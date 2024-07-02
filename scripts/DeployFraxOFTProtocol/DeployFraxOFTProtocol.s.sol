@@ -17,7 +17,7 @@ contract DeployFraxOFTProtocol is BaseL0Script {
     using Strings for uint256;
 
     function version() public virtual override pure returns (uint256, uint256, uint256) {
-        return (1, 0, 4);
+        return (1, 0, 5);
     }
 
     function setUp() public virtual override {
@@ -129,14 +129,15 @@ contract DeployFraxOFTProtocol is BaseL0Script {
         // the EVM has differing logic, or we are not on an EVM compatable chain.
         // TODO: support for non-evm addresses
         // TODO: validate that differing OFT addrs does not impact assumed setup functions.
-        require(fxsOft == 0x64445f0aecC51E94aD52d8AC56b7190e764E561a);
-        require(sFraxOft == 0x5Bff88cA1442c2496f7E475E9e7786383Bc070c0);
-        require(sfrxEthOft == 0x3Ec3849C33291a9eF4c5dB86De593EB4A37fDe45);
-        require(fraxOft == 0x80Eede496655FB9047dd39d9f418d5483ED600df);
-        require(proxyOfts.length == numOfts);
+        require(fxsOft == expectedProxyOfts[0], "Invalid FXS OFT");
+        require(sFraxOft == expectedProxyOfts[1], "Invalid sFRAX OFT");
+        require(sfrxEthOft == expectedProxyOfts[2], "Invalid sfrxETH OFT");
+        require(fraxOft == expectedProxyOfts[3], "Invalid FRAX OFT");
+        require(frxEthOft == expectedProxyOfts[4], "Invalid frxETH OFT");
+        require(fpiOft == expectedProxyOfts[5], "Invalid FPI OFT");
+        require(proxyOfts.length == numOfts, "OFT array lengths different");
     }
 
-    // TODO: missing ecosystem tokens (FPI, etc.)
     function deployFraxOFTUpgradeablesAndProxies() broadcastAs(oftDeployerPK) public virtual {
 
         // Proxy admin
@@ -158,7 +159,7 @@ contract DeployFraxOFTProtocol is BaseL0Script {
             _symbol: "sFRAX"
         });
 
-        // sfrxETH
+        // Deploy sfrxETH
         (,sfrxEthOft) = deployFraxOFTUpgradeableAndProxy({
             _name: "Staked Frax Ether",
             _symbol: "sfrxETH"
@@ -170,7 +171,17 @@ contract DeployFraxOFTProtocol is BaseL0Script {
             _symbol: "FRAX"
         });
 
+        // Deploy frxETH
+        (,frxEthOft) = deployFraxOFTUpgradeableAndProxy({
+            _name: "Frax Ether",
+            _symbol: "frxETH"
+        });
+
         // Deploy FPI
+        (,fpiOft) = deployFraxOFTUpgradeableAndProxy({
+            _name: "Frax Price Index",
+            _symbol: "FPI"
+        });
     }
 
     /// @notice Sourced from https://github.com/FraxFinance/LayerZero-v2-upgradeable/blob/e1470197e0cffe0d89dd9c776762c8fdcfc1e160/oapp/test/TestHelper.sol#L266

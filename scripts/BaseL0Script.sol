@@ -41,8 +41,8 @@ contract BaseL0Script is Script {
         string RPC;
         uint256 chainid;
         address delegate;
-        address dvn1;
-        address dvn2;
+        address dvnHorizen;
+        address dvnL0;
         uint256 eid;
         address endpoint;
         address receiveLib302;

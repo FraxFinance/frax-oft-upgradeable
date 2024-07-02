@@ -8,6 +8,10 @@ contract SubmitSends is BaseL0Script {
     using stdJson for string;
     using Strings for uint256;
 
+    function version() public pure override returns (uint256, uint256, uint256) {
+        return (1, 0, 1);
+    }
+
     function setUp() public override {
         super.setUp();
     }
@@ -42,12 +46,18 @@ contract SubmitSends is BaseL0Script {
         L0Config memory _connectedConfig,
         address _connectedOft
     ) public broadcastAs(senderDeployerPK) {
-        uint256 amount = 1e13;
+        uint256 amount = 1e14;
         address oftToken = IOFT(_connectedOft).token();
         require(
             IERC20(oftToken).balanceOf(vm.addr(senderDeployerPK)) > amount * 6,
             "Not enough token balance"
         );
+
+        uint256 allowance = IERC20(oftToken).allowance(vm.addr(senderDeployerPK), _connectedOft);
+        if (allowance < amount) {
+            IERC20(oftToken).approve(_connectedOft, type(uint256).max);
+        }
+
         // bytes memory options = OptionsBuilder.newOptions().addExecutorLzReceiveOption(300_000, 0);
         bytes memory options = OptionsBuilder.newOptions();
         SendParam memory sendParam = SendParam({

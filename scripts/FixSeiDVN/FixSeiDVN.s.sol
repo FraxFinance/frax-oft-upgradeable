@@ -4,7 +4,8 @@ pragma solidity ^0.8.19;
 import "../DeployFraxOFTProtocol/DeployFraxOFTProtocol.s.sol";
 
 /*
-Goal: modify the Sei configured DVNs to use the Horizen DVN instead of the Nethermind DVN
+Goal: modify the Sei configured DVNs to use the Horizen DVN (0x87048402c32632b7c4d0a892d82bc1160e8b2393)
+instead of the Nethermind DVN (0xd24972c11f91c1bb9eaee97ec96bb9c33cf7af24)
 
 */
 

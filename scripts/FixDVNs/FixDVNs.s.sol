@@ -4,12 +4,10 @@ pragma solidity ^0.8.19;
 import "../DeployFraxOFTProtocol/DeployFraxOFTProtocol.s.sol";
 
 /*
-Goal: modify the Sei configured DVNs to use the Horizen DVN (0x87048402c32632b7c4d0a892d82bc1160e8b2393)
-instead of the Nethermind DVN (0xd24972c11f91c1bb9eaee97ec96bb9c33cf7af24)
-
+Re-set the DVNs of a chain based on the L0Config
 */
 
-contract FixSeiDVN is DeployFraxOFTProtocol {
+contract FixDVNs is DeployFraxOFTProtocol {
     using OptionsBuilder for bytes;
     using stdJson for string;
     using Strings for uint256;
@@ -29,7 +27,7 @@ contract FixSeiDVN is DeployFraxOFTProtocol {
 
         // create filename and save
         string memory root = vm.projectRoot();
-        root = string.concat(root, "/scripts/FixSeiDVN/txs/");
+        root = string.concat(root, "/scripts/FixDVNs/txs/");
         string memory filename = string.concat(_config.chainid.toString(), "-fixed.json");
         string memory filepath = string.concat(root, filename);
         new SafeTxUtil().writeTxs(serializedTxs, filepath);
@@ -45,7 +43,7 @@ contract FixSeiDVN is DeployFraxOFTProtocol {
         // setupDestinations();
     }
 
-    /// @dev simulating the Sei delegate to create the new DVN txs
+    /// @dev simulating the active config delegate to create the new DVN txs
     function setupSource() public override simulateAndWriteTxs(activeConfig) {
         // // TODO: this will break if proxyOFT addrs are not the pre-determined addrs verified in postDeployChecks()
         // setEnforcedOptions({

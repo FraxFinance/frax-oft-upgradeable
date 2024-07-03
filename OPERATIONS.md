@@ -31,3 +31,10 @@
 - `DeployFrxEthFpi()`
     - Deploy Sei: frxEth, FPI
     - Destinations: Ethereum, Base, Blast, Metis
+
+# 2024.07.02
+- `FixDVNs()`
+    - modify the Sei configured DVNs to use the Horizen DVN instead of the Nethermind DVN
+
+# 2024.07.03
+

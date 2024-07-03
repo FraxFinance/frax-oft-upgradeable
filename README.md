@@ -25,6 +25,7 @@
   - [`Metis`](https://metissafe.tech/home?safe=metis-andromeda:0xF4A4F32732F9B2fB84Ee28c58616946F3bF80F7d)
   - [`Base`](https://app.safe.global/home?safe=base:0xCBfd4Ef00a8cf91Fd1e1Fe97dC05910772c15E53)
   - [`Mode`](https://safe.optimism.io/home?safe=mode:0x6336CFA6eDBeC2A459d869031DB77fC2770Eaa66)
+  - [`Sei`](https://sei-safe.protofire.io/home?safe=sei:0x0357D02fc95320b990322d3ff69204c3D251171b)
 
 
 ### Legacy (non-upgradeable) OFTs
@@ -39,9 +40,6 @@
   - `frxETH` : `0xF010a7c8877043681D59AD125EbF575633505942`
   - `FPI`: `0xE41228a455700cAF09E551805A8aB37caa39D08c`
 
-### TODO
-Mode => Sei
-
 ### Proxy (upgradeable) OFTs
 - Chain: Mode, Sei
 - Admin: `ProxyAdmin` (owned by chain-respective msig)
@@ -52,6 +50,11 @@ Mode => Sei
   - `FXS`: `0x64445f0aecc51e94ad52d8ac56b7190e764e561a`
   - `frxETH`: `0x43eDD7f3831b08FE70B7555ddD373C8bF65a9050`
   - `FPI` : `0xEed9DE5E41b53D1C8fAB8AAB4b0e446F828c1483`
+
+### TODO
+- Mode => Sei (all six assets)
+- Sei
+  - Send to, from Sei
 
 ## New Chain Deployment
 - Ensure `PK_OFT_DEPLOYER` and `PK_CONFIG_DEPLOYER` are the private keys for `0x9C9dD956b413cdBD81690c9394a6B4D22afe6745` and `0x0990be6dB8c785FBbF9deD8bAEc612A10CaE814b, respectively.

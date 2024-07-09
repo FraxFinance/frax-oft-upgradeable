@@ -330,12 +330,12 @@ contract DeployFraxOFTProtocol is BaseL0Script {
         address[] memory requiredDVNs = new address[](2);
 
         // sort in ascending order (as spec'd in UlnConfig)
-        if (uint160(_connectedConfig.dvn1) < uint160(_connectedConfig.dvn2)) {
-            requiredDVNs[0] = _connectedConfig.dvn1;
-            requiredDVNs[1] = _connectedConfig.dvn2;
+        if (uint160(_connectedConfig.dvnHorizen) < uint160(_connectedConfig.dvnL0)) {
+            requiredDVNs[0] = _connectedConfig.dvnHorizen;
+            requiredDVNs[1] = _connectedConfig.dvnL0;
         } else {
-            requiredDVNs[0] = _connectedConfig.dvn2;
-            requiredDVNs[1] = _connectedConfig.dvn1;
+            requiredDVNs[0] = _connectedConfig.dvnL0;
+            requiredDVNs[1] = _connectedConfig.dvnHorizen;
         }
         ulnConfig.requiredDVNs = requiredDVNs;
 

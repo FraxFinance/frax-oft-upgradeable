@@ -5,9 +5,9 @@ import "../BaseL0Script.sol";
 
 /*
 TODO
-- Setup frxETH, FPI with L0 mainnet adapter & legacies
 - Automatically verify contracts
 - Deployment on non-evm / non-pre-deterministic chains
+    - Would need to modify from expectedProxyOFTs to proxyOFTs
 */
 
 
@@ -17,7 +17,7 @@ contract DeployFraxOFTProtocol is BaseL0Script {
     using Strings for uint256;
 
     function version() public virtual override pure returns (uint256, uint256, uint256) {
-        return (1, 0, 5);
+        return (1, 0, 6);
     }
 
     function setUp() public virtual override {
@@ -56,7 +56,7 @@ contract DeployFraxOFTProtocol is BaseL0Script {
             if (proxyConfigs[i].eid == activeConfig.eid) continue;
             setupDestination({
                 _connectedConfig: proxyConfigs[i],
-                _connectedOfts: proxyOfts
+                _connectedOfts: expectedProxyOfts
             });
         }
     }
@@ -78,7 +78,7 @@ contract DeployFraxOFTProtocol is BaseL0Script {
 
         setPeers({
             _connectedOfts: _connectedOfts,
-            _peerOfts: proxyOfts,
+            _peerOfts: expectedProxyOfts,
             _configs: activeConfigArray
         });
     }
@@ -86,26 +86,26 @@ contract DeployFraxOFTProtocol is BaseL0Script {
     function setupSource() public virtual broadcastAs(configDeployerPK) {
         // TODO: this will break if proxyOFT addrs are not the pre-determined addrs verified in postDeployChecks()
         setEnforcedOptions({
-            _connectedOfts: proxyOfts,
+            _connectedOfts: expectedProxyOfts,
             _configs: configs
         });
 
         setDVNs({
             _connectedConfig: activeConfig,
-            _connectedOfts: proxyOfts,
+            _connectedOfts: expectedProxyOfts,
             _configs: configs
         });
 
         /// @dev legacy, non-upgradeable OFTs
         setPeers({
-            _connectedOfts: proxyOfts,
+            _connectedOfts: expectedProxyOfts,
             _peerOfts: legacyOfts,
             _configs: legacyConfigs
         });
         /// @dev Upgradeable OFTs maintaining the same address cross-chain.
         setPeers({
-            _connectedOfts: proxyOfts,
-            _peerOfts: proxyOfts,
+            _connectedOfts: expectedProxyOfts,
+            _peerOfts: expectedProxyOfts,
             _configs: proxyConfigs
         });
 
@@ -140,13 +140,13 @@ contract DeployFraxOFTProtocol is BaseL0Script {
 
     function deployFraxOFTUpgradeablesAndProxies() broadcastAs(oftDeployerPK) public virtual {
 
-        // Proxy admin
+        // Proxy admin (0x223a681fc5c5522c85C96157c0efA18cd6c5405c)
         proxyAdmin = address(new ProxyAdmin(vm.addr(configDeployerPK)));
 
-        // Implementation mock
+        // Implementation mock (0x8f1B9c1fd67136D525E14D96Efb3887a33f16250)
         implementationMock = address(new ImplementationMock());
 
-        /// @dev: follows deployment order of legacy OFTs found at https://etherscan.io/address/0xded884435f2db0169010b3c325e733df0038e51d
+        // / @dev: follows deployment order of legacy OFTs found at https://etherscan.io/address/0xded884435f2db0169010b3c325e733df0038e51d
         // Deploy FXS
         (,fxsOft) = deployFraxOFTUpgradeableAndProxy({
             _name: "Frax Share",
@@ -215,7 +215,7 @@ contract DeployFraxOFTProtocol is BaseL0Script {
             data: initializeArgs
         });
         TransparentUpgradeableProxy(payable(proxy)).changeAdmin(proxyAdmin);
-        // TODO: this is already set in BaseL0Script- duplicate 
+        // TODO: will need to look at these instead of expectedProxyOFTs if the deployed addrs are different than expected
         proxyOfts.push(proxy);
 
         // State checks
@@ -245,8 +245,8 @@ contract DeployFraxOFTProtocol is BaseL0Script {
     function setPriviledgedRoles() public virtual {
         /// @dev transfer ownership of OFT
         // TODO: fix loop to correct length
-        for (uint256 o=0; o<proxyOfts.length; o++) {
-            address proxyOft = proxyOfts[o];
+        for (uint256 o=0; o<expectedProxyOfts.length; o++) {
+            address proxyOft = expectedProxyOfts[o];
             FraxOFTUpgradeable(proxyOft).setDelegate(activeConfig.delegate);
             Ownable(proxyOft).transferOwnership(activeConfig.delegate);
         }

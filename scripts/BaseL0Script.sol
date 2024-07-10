@@ -167,6 +167,7 @@ contract BaseL0Script is Script {
             if (config_.chainid == chainid) {
                 activeConfig = config_;
                 activeConfigArray.push(config_);
+                activeLegacy = false;
             }
             proxyConfigs.push(config_);
             configs.push(config_);

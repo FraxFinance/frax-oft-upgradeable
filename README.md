@@ -26,7 +26,7 @@
   - [`Base`](https://app.safe.global/home?safe=base:0xCBfd4Ef00a8cf91Fd1e1Fe97dC05910772c15E53)
   - [`Mode`](https://safe.optimism.io/home?safe=mode:0x6336CFA6eDBeC2A459d869031DB77fC2770Eaa66)
   - [`Sei`](https://sei-safe.protofire.io/home?safe=sei:0x0357D02fc95320b990322d3ff69204c3D251171b)
-
+  - [`Fraxtal`](https://safe.mainnet.frax.com/home?safe=fraxtal:0x5f25218ed9474b721d6a38c115107428E832fA2E)
 
 ### Legacy (non-upgradeable) OFTs
 - Chain: `Ethereum`, `Metis`, `Blast`, `Base`
@@ -41,7 +41,7 @@
   - `FPI`: `0xE41228a455700cAF09E551805A8aB37caa39D08c`
 
 ### Proxy (upgradeable) OFTs
-- Chain: Mode, Sei
+- Chain: `Mode`, `Sei`, `Fraxtal`
 - Admin: `ProxyAdmin` (owned by chain-respective msig)
 - OFTs
   - `FRAX`: `0x80eede496655fb9047dd39d9f418d5483ed600df`

@@ -64,10 +64,13 @@ contract BaseL0Script is Script {
     address public sFraxOft;
     address public sfrxEthOft;
     address public fraxOft;
+    address public frxEthOft;
+    address public fpiOft;
     uint256 public numOfts;
 
     // 1:1 match between these arrays for setting peers
     address[] public legacyOfts;
+    address[] public expectedProxyOfts; // to assert against proxyOfts
     address[] public proxyOfts;
 
     EnforcedOptionParam[] public enforcedOptionsParams;
@@ -79,7 +82,7 @@ contract BaseL0Script is Script {
     uint256 public chainid;
 
     function version() public virtual pure returns (uint256, uint256, uint256) {
-        return (1, 0, 1);
+        return (1, 0, 2);
     }
 
     modifier broadcastAs(uint256 privateKey) {
@@ -92,7 +95,9 @@ contract BaseL0Script is Script {
     modifier simulateAndWriteTxs(
         L0Config memory _config
     ) virtual {
-        // Clear out any previously serialized txs
+        // Clear out any previous txs
+        delete enforcedOptionsParams;
+        delete setConfigParams;
         delete serializedTxs;
 
         vm.createSelectFork(_config.RPC);
@@ -122,13 +127,17 @@ contract BaseL0Script is Script {
         legacyOfts.push(0xe4796cCB6bB5DE2290C417Ac337F2b66CA2E770E); // sFRAX
         legacyOfts.push(0x1f55a02A049033E3419a8E2975cF3F572F4e6E9A); // sfrxETH
         legacyOfts.push(0x909DBdE1eBE906Af95660033e478D59EFe831fED); // FRAX
+        legacyOfts.push(0xF010a7c8877043681D59AD125EbF575633505942); // frxETH
+        legacyOfts.push(0xE41228a455700cAF09E551805A8aB37caa39D08c); // FPI
         numOfts = legacyOfts.length;
 
         // aray of semi-pre-determined upgradeable OFTs
-        proxyOfts.push(0x64445f0aecC51E94aD52d8AC56b7190e764E561a); // fxs
-        proxyOfts.push(0x5Bff88cA1442c2496f7E475E9e7786383Bc070c0); // sFRAX
-        proxyOfts.push(0x3Ec3849C33291a9eF4c5dB86De593EB4A37fDe45); // sfrxETH
-        proxyOfts.push(0x80Eede496655FB9047dd39d9f418d5483ED600df); // FRAX
+        expectedProxyOfts.push(0x64445f0aecC51E94aD52d8AC56b7190e764E561a); // fxs
+        expectedProxyOfts.push(0x5Bff88cA1442c2496f7E475E9e7786383Bc070c0); // sFRAX
+        expectedProxyOfts.push(0x3Ec3849C33291a9eF4c5dB86De593EB4A37fDe45); // sfrxETH
+        expectedProxyOfts.push(0x80Eede496655FB9047dd39d9f418d5483ED600df); // FRAX
+        expectedProxyOfts.push(0x43eDD7f3831b08FE70B7555ddD373C8bF65a9050); // frxETH
+        expectedProxyOfts.push(0xEed9DE5E41b53D1C8fAB8AAB4b0e446F828c1483); // FPI
     }
 
     function loadJsonConfig() public {
@@ -158,6 +167,7 @@ contract BaseL0Script is Script {
             if (config_.chainid == chainid) {
                 activeConfig = config_;
                 activeConfigArray.push(config_);
+                activeLegacy = false;
             }
             proxyConfigs.push(config_);
             configs.push(config_);

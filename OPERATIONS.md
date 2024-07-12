@@ -37,4 +37,10 @@
     - modify the Sei configured DVNs to use the Horizen DVN instead of the Nethermind DVN
 
 # 2024.07.03
+- `FixDVNs()`
+    - Fix Mode => Sei DVN
 
+# 2024.07.09
+- `DeployFraxOFTProtocol()`
+    - Deploy Fraxtal: FRAX, sFRAX, frxETH, sfrxETH, FXS, FPI
+    - Destinations: Ethereum, Base, Blast, Metis, Mode, Sei

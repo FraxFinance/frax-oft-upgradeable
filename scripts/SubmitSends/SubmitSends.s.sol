@@ -9,7 +9,7 @@ contract SubmitSends is BaseL0Script {
     using Strings for uint256;
 
     function version() public pure override returns (uint256, uint256, uint256) {
-        return (1, 0, 1);
+        return (1, 1, 0);
     }
 
     function setUp() public override {

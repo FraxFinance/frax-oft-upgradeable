@@ -82,7 +82,7 @@ contract BaseL0Script is Script {
     uint256 public chainid;
 
     function version() public virtual pure returns (uint256, uint256, uint256) {
-        return (1, 0, 2);
+        return (1, 1, 0);
     }
 
     modifier broadcastAs(uint256 privateKey) {

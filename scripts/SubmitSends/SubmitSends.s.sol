@@ -9,7 +9,7 @@ contract SubmitSends is BaseL0Script {
     using Strings for uint256;
 
     function version() public pure override returns (uint256, uint256, uint256) {
-        return (1, 1, 0);
+        return (1, 1, 1);
     }
 
     function setUp() public override {
@@ -23,7 +23,7 @@ contract SubmitSends is BaseL0Script {
     function submitSends() public {
         activeLegacy ? 
             submitSends(legacyOfts) :
-            submitSends(proxyOfts);
+            submitSends(expectedProxyOfts);
     }
 
     function submitSends(

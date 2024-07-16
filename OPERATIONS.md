@@ -44,3 +44,8 @@
 - `DeployFraxOFTProtocol()`
     - Deploy Fraxtal: FRAX, sFRAX, frxETH, sfrxETH, FXS, FPI
     - Destinations: Ethereum, Base, Blast, Metis, Mode, Sei
+
+# 2024.07.16
+- `DeployFraxOFTProtocol()`
+    - Deploy xlayer: FRAX, sFRAX, frxETH, sfrxETH, FXS, FPI
+    - Destinations: Ethereum, Base, Blast, Metis, Mode, Sei, Fraxtal

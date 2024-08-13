@@ -27,6 +27,7 @@
   - [`Mode`](https://safe.optimism.io/home?safe=mode:0x6336CFA6eDBeC2A459d869031DB77fC2770Eaa66)
   - [`Sei`](https://sei-safe.protofire.io/home?safe=sei:0x0357D02fc95320b990322d3ff69204c3D251171b)
   - [`Fraxtal`](https://safe.mainnet.frax.com/home?safe=fraxtal:0x5f25218ed9474b721d6a38c115107428E832fA2E)
+  - [`Solana`](https://app.squads.so/squads/FSRTW4KPGifKL8yKcZ8mfoR9mKtAjwZiTHbHwgix8AQo/home)
 
 ### Legacy (non-upgradeable) OFTs
 - Chain: `Ethereum`, `Metis`, `Blast`, `Base`
@@ -51,10 +52,17 @@
   - `frxETH`: `0x43eDD7f3831b08FE70B7555ddD373C8bF65a9050`
   - `FPI` : `0xEed9DE5E41b53D1C8fAB8AAB4b0e446F828c1483`
 
-### TODO
-- Mode => Sei (all six assets)
-- Sei
-  - Send to, from Sei
+### Solana Proxy (upgradeable) OFTs
+- Chain: `Solana`
+- Admin: [Chain-respective msig](https://app.squads.so/squads/FSRTW4KPGifKL8yKcZ8mfoR9mKtAjwZiTHbHwgix8AQo/home)
+- OFTs
+  - `FRAX`: `TODO`
+  - `sFRAX`: `TODO`
+  - `sfrxETH`: `TODO`
+  - `FXS`: `TODO`
+  - `frxETH`: `TODO`
+  - `FPI` : `TODO`
+
 
 ## New Chain Deployment
 - Ensure `PK_OFT_DEPLOYER` and `PK_CONFIG_DEPLOYER` are the private keys for `0x9C9dD956b413cdBD81690c9394a6B4D22afe6745` and `0x0990be6dB8c785FBbF9deD8bAEc612A10CaE814b, respectively.

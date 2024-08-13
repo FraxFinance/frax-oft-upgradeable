@@ -27,6 +27,7 @@
   - [`Mode`](https://safe.optimism.io/home?safe=mode:0x6336CFA6eDBeC2A459d869031DB77fC2770Eaa66)
   - [`Sei`](https://sei-safe.protofire.io/home?safe=sei:0x0357D02fc95320b990322d3ff69204c3D251171b)
   - [`Fraxtal`](https://safe.mainnet.frax.com/home?safe=fraxtal:0x5f25218ed9474b721d6a38c115107428E832fA2E)
+  - [`X-Layer`](https://app.safe.global/home?safe=xlayer:0xe7Cc52f0C86f4FAB6630f1E26167B487fbF66a61)
   - [`Solana`](https://app.squads.so/squads/FSRTW4KPGifKL8yKcZ8mfoR9mKtAjwZiTHbHwgix8AQo/home)
 
 ### Legacy (non-upgradeable) OFTs
@@ -42,7 +43,7 @@
   - `FPI`: `0xE41228a455700cAF09E551805A8aB37caa39D08c`
 
 ### Proxy (upgradeable) OFTs
-- Chain: `Mode`, `Sei`, `Fraxtal`
+- Chain: `Mode`, `Sei`, `Fraxtal`, `X-Layer`
 - Admin: `ProxyAdmin` (owned by chain-respective msig)
 - OFTs
   - `FRAX`: `0x80eede496655fb9047dd39d9f418d5483ed600df`

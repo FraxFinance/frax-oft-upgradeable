@@ -80,6 +80,7 @@ contract BaseL0Script is Script {
     SerializedTx[] serializedTxs;
 
     uint256 public chainid;
+    string public json;
 
     function version() public virtual pure returns (uint256, uint256, uint256) {
         return (1, 1, 0);
@@ -143,7 +144,7 @@ contract BaseL0Script is Script {
     function loadJsonConfig() public {
         string memory root = vm.projectRoot();
         string memory path = string.concat(root, "/scripts/L0Config.json");
-        string memory json = vm.readFile(path);
+        json = vm.readFile(path);
         
         // load and write to persistent storage
 

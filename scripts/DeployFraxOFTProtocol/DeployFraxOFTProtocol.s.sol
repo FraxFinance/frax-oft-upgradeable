@@ -298,7 +298,7 @@ contract DeployFraxOFTProtocol is BaseL0Script {
         // For each peer, default
         // https://github.com/FraxFinance/LayerZero-v2-upgradeable/blob/e1470197e0cffe0d89dd9c776762c8fdcfc1e160/oapp/test/OFT.t.sol#L417
         bytes memory optionsTypeOne = OptionsBuilder.newOptions().addExecutorLzReceiveOption(200_000, 0);
-        bytes memory optionsTypeTwo = OptionsBuilder.newOptions().addExecutorLzReceiveOption(250_000, 0);
+        bytes memory optionsTypeTwo = OptionsBuilder.newOptions().addExecutorLzReceiveOption(250_000, 0).addExecutorComposeOption();
 
         for (uint256 c=0; c<_configs.length; c++) {            
             uint32 eid = uint32(_configs[c].eid);
@@ -337,7 +337,7 @@ contract DeployFraxOFTProtocol is BaseL0Script {
         L0Config[] memory _configs 
     ) public virtual {
         UlnConfig memory ulnConfig;
-        ulnConfig.requiredDVNCount = 2;
+        ulnConfig.requiredDVNCount = 2;8
         address[] memory requiredDVNs = new address[](2);
 
         // sort in ascending order (as spec'd in UlnConfig)

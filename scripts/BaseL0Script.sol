@@ -4,6 +4,7 @@ pragma solidity ^0.8.19;
 import { Script } from "forge-std/Script.sol";
 import "forge-std/StdJson.sol";
 import "frax-template/src/Constants.sol";
+import { console } from "frax-std/FraxTest.sol";
 
 import { SerializedTx, SafeTxUtil } from "scripts/SafeBatchSerialize.sol";
 import { FraxOFTUpgradeable } from "contracts/FraxOFTUpgradeable.sol";
@@ -83,7 +84,7 @@ contract BaseL0Script is Script {
     string public json;
 
     function version() public virtual pure returns (uint256, uint256, uint256) {
-        return (1, 1, 0);
+        return (1, 1, 1);
     }
 
     modifier broadcastAs(uint256 privateKey) {
@@ -141,7 +142,7 @@ contract BaseL0Script is Script {
         expectedProxyOfts.push(0xEed9DE5E41b53D1C8fAB8AAB4b0e446F828c1483); // FPI
     }
 
-    function loadJsonConfig() public {
+    function loadJsonConfig() public virtual {
         string memory root = vm.projectRoot();
         string memory path = string.concat(root, "/scripts/L0Config.json");
         json = vm.readFile(path);

@@ -16,6 +16,45 @@ contract SetupSolana is DeployFraxOFTProtocol {
     using stdJson for string;
     using Strings for uint256;
 
+    bytes32[] solanaPeers;
+
+    /// @dev comments out requirements at end and setting of activeConfig
+    function loadJsonConfig() public override {
+        string memory root = vm.projectRoot();
+        string memory path = string.concat(root, "/scripts/L0Config.json");
+        json = vm.readFile(path);
+        
+        // load and write to persistent storage
+
+        // legacy
+        L0Config[] memory legacyConfigs_ = abi.decode(json.parseRaw(".Legacy"), (L0Config[]));
+        for (uint256 i=0; i<legacyConfigs_.length; i++) {
+            L0Config memory config_ = legacyConfigs_[i];
+            // if (config_.chainid == chainid) {
+            //     activeConfig = config_;
+            //     activeConfigArray.push(config_);
+            //     activeLegacy = true;
+            // }
+            legacyConfigs.push(config_);
+            configs.push(config_);
+        }
+
+        // proxy (active deployment loaded as activeConfig)
+        L0Config[] memory proxyConfigs_ = abi.decode(json.parseRaw(".Proxy"), (L0Config[]));
+        for (uint256 i=0; i<proxyConfigs_.length; i++) {
+            L0Config memory config_ = proxyConfigs_[i];
+            // if (config_.chainid == chainid) {
+            //     activeConfig = config_;
+            //     activeConfigArray.push(config_);
+            //     activeLegacy = false;
+            // }
+            proxyConfigs.push(config_);
+            configs.push(config_);
+        }
+        // require(activeConfig.chainid != 0, "L0Config for source not loaded");
+        // require(activeConfigArray.length == 1, "ActiveConfigArray does not equal 1");
+    }
+
     /// @dev override to alter file save location
     modifier simulateAndWriteTxs(L0Config memory _config) override {
         // Clear out arrays
@@ -42,9 +81,17 @@ contract SetupSolana is DeployFraxOFTProtocol {
         super.setUp();
 
         // Load solana as the activeConfig
-        L0Config[] memory nonEvmConfigs = abi.decode(json.parseRaw(".Legacy"), (L0Config[]));
+        L0Config[] memory nonEvmConfigs = abi.decode(json.parseRaw(".Non-EVM"), (L0Config[]));
         activeConfig = nonEvmConfigs[0];
         activeConfigArray.push(nonEvmConfigs[0]);
+
+        // push bytes32 token addrs in the same order as deployFraxOFTUpgradeblesAndProxies()
+        solanaPeers.push(0x656d91ab3d464c05cd1345ce21c78e36140a36491e102fbb08c58af73aafe89b); // frax
+        solanaPeers.push(0x206fdd7d0be90d8ff93f6f7f4bd4d8b42ca8977317da0b7d2861299e3c589dd8); // sFrax
+        solanaPeers.push(0x6a7942e4eb4938d5490d8187183d01123f515025f4244670aff7f8ecd2250d50); // sfrxEth
+        solanaPeers.push(0x402e86d1cfd2cde4fac63aa8d9892eca6d3c0e08e8335622124332a95df6c10c); // fxs
+        solanaPeers.push(0x94791ba0aae2b57460c63d36346392d849b22f39fd3eafad5bc82d01e352dde6); // frxEth
+        solanaPeers.push(0x9876880bee04a9020e619b1be124ee307e03ca94bab4f32a7a22cfd2ccee3927); // fpi
     }
 
     function run() public override {
@@ -53,6 +100,7 @@ contract SetupSolana is DeployFraxOFTProtocol {
         setupDestinations();
     }
 
+    /// @dev modified setPeers `_peerOfts`
     function setupDestination(
         L0Config memory _connectedConfig,
         address[] memory _connectedOfts
@@ -65,24 +113,25 @@ contract SetupSolana is DeployFraxOFTProtocol {
         setDVNs({
             _connectedConfig: _connectedConfig,
             _connectedOfts: _connectedOfts,
-            _configs: configs
+            _configs: activeConfigArray
         });
 
         setPeers({
             _connectedOfts: _connectedOfts,
-            _peerOfts: proxyOfts,
-            _configs: configs
+            _peerOfts: solanaPeers,
+            _configs: activeConfigArray
         });
+    }
 
-    /// @dev additional option added to optionsType2
+    /// @dev modified optionsTypes
     function setEnforcedOptions(
         address[] memory _connectedOfts,
         L0Config[] memory _configs
     ) public override {
         // For each peer, default
         // https://github.com/FraxFinance/LayerZero-v2-upgradeable/blob/e1470197e0cffe0d89dd9c776762c8fdcfc1e160/oapp/test/OFT.t.sol#L417
-        bytes memory optionsTypeOne = OptionsBuilder.newOptions().addExecutorLzReceiveOption(200_000, 0);
-        bytes memory optionsTypeTwo = OptionsBuilder.newOptions().addExecutorLzReceiveOption(250_000, 0).addExecutorComposeOption(0, 0, 0);
+        bytes memory optionsTypeOne = OptionsBuilder.newOptions().addExecutorLzReceiveOption(200_000, 2_500_000);
+        bytes memory optionsTypeTwo = OptionsBuilder.newOptions().addExecutorLzReceiveOption(200_000, 2_500_000);
 
         for (uint256 c=0; c<_configs.length; c++) {            
             uint32 eid = uint32(_configs[c].eid);
@@ -114,5 +163,40 @@ contract SetupSolana is DeployFraxOFTProtocol {
             );
         }
     }
+
+    /// @dev _peerOfts modified from address to bytes32
+    function setPeers(
+        address[] memory _connectedOfts,
+        bytes32[] memory _peerOfts,
+        L0Config[] memory _configs
+    ) public virtual {
+        require(_connectedOfts.length == _peerOfts.length, "Must wire equal amount of source + dest addrs");
+        for (uint256 o=0; o<_connectedOfts.length; o++) {
+            address connectedOft = _connectedOfts[o];
+            bytes32 peerOft = _peerOfts[o];
+            for (uint256 c=0; c<_configs.length; c++) {
+                uint32 eid = uint32(_configs[c].eid);
+
+                // cannot set peer to self
+                if (chainid == activeConfig.chainid && eid == activeConfig.eid) continue;
+
+                bytes memory data = abi.encodeCall(
+                    IOAppCore.setPeer,
+                    (
+                        eid, peerOft
+                    )
+                );
+                (bool success, ) = connectedOft.call(data);
+                require(success, "Unable to setPeer");
+                serializedTxs.push(
+                    SerializedTx({
+                        name: "setPeer",
+                        to: connectedOft,
+                        value: 0,
+                        data: data
+                    })
+                );
+            }
+        }
     }
 }

@@ -13,15 +13,9 @@ importers:
 
   .:
     dependencies:
-      '@layerzerolabs/lz-evm-messagelib-v2':
-        specifier: ^2.3.21
-        version: 2.3.21(@axelar-network/axelar-gmp-sdk-solidity@5.9.0)(@chainlink/contracts-ccip@0.7.6(bufferutil@4.0.8)(ethers@5.7.2(bufferutil@4.0.8)(utf-8-validate@5.0.10))(utf-8-validate@5.0.10))(@eth-optimism/contracts@0.6.0(bufferutil@4.0.8)(ethers@5.7.2(bufferutil@4.0.8)(utf-8-validate@5.0.10))(utf-8-validate@5.0.10))(@layerzerolabs/lz-evm-protocol-v2@2.3.19(@openzeppelin/contracts-upgradeable@4.9.6)(@openzeppelin/contracts@4.9.6)(hardhat-deploy@0.12.4(bufferutil@4.0.8)(utf-8-validate@5.0.10))(solidity-bytes-utils@0.8.2))(@layerzerolabs/lz-evm-v1-0.7@2.3.19(@openzeppelin/contracts-upgradeable@4.9.6)(@openzeppelin/contracts@4.9.6)(hardhat-deploy@0.12.4(bufferutil@4.0.8)(utf-8-validate@5.0.10)))(@openzeppelin/contracts-upgradeable@4.9.6)(@openzeppelin/contracts@4.9.6)(hardhat-deploy@0.12.4(bufferutil@4.0.8)(utf-8-validate@5.0.10))(solidity-bytes-utils@0.8.2)
-      '@layerzerolabs/toolbox-foundry':
-        specifier: ^0.1.5
-        version: 0.1.5
-      frax-template:
-        specifier: github:fraxfinance/frax-template
-        version: https://codeload.github.com/fraxfinance/frax-template/tar.gz/459f0f0b9cc2e493a306719699ed9658f9e21513(bufferutil@4.0.8)(enquirer@2.4.1)(ethers@5.7.2(bufferutil@4.0.8)(utf-8-validate@5.0.10))(utf-8-validate@5.0.10)
+      '@layerzerolabs/lz-v2-utilities':
+        specifier: ^2.3.38
+        version: 2.3.38
     devDependencies:
       '@babel/core':
         specifier: ^7.23.9
@@ -29,12 +23,18 @@ importers:
       '@fraxfinance/layerzero-v2-upgradeable':
         specifier: github:fraxfinance/LayerZero-v2-upgradeable
         version: https://codeload.github.com/fraxfinance/LayerZero-v2-upgradeable/tar.gz/e1470197e0cffe0d89dd9c776762c8fdcfc1e160
+      '@layerzerolabs/lz-evm-messagelib-v2':
+        specifier: ~2.3.21
+        version: 2.3.21(@axelar-network/axelar-gmp-sdk-solidity@5.9.0)(@chainlink/contracts-ccip@0.7.6(bufferutil@4.0.8)(ethers@5.7.2(bufferutil@4.0.8)(utf-8-validate@5.0.10))(utf-8-validate@5.0.10))(@eth-optimism/contracts@0.6.0(bufferutil@4.0.8)(ethers@5.7.2(bufferutil@4.0.8)(utf-8-validate@5.0.10))(utf-8-validate@5.0.10))(@layerzerolabs/lz-evm-protocol-v2@2.3.19(@openzeppelin/contracts-upgradeable@4.9.6)(@openzeppelin/contracts@4.9.6)(hardhat-deploy@0.12.4(bufferutil@4.0.8)(utf-8-validate@5.0.10))(solidity-bytes-utils@0.8.2))(@layerzerolabs/lz-evm-v1-0.7@2.3.19(@openzeppelin/contracts-upgradeable@4.9.6)(@openzeppelin/contracts@4.9.6)(hardhat-deploy@0.12.4(bufferutil@4.0.8)(utf-8-validate@5.0.10)))(@openzeppelin/contracts-upgradeable@4.9.6)(@openzeppelin/contracts@4.9.6)(hardhat-deploy@0.12.4(bufferutil@4.0.8)(utf-8-validate@5.0.10))(solidity-bytes-utils@0.8.2)
       '@layerzerolabs/lz-evm-oapp-v2':
         specifier: ~2.3.19
         version: 2.3.19(@layerzerolabs/lz-evm-messagelib-v2@2.3.21(@axelar-network/axelar-gmp-sdk-solidity@5.9.0)(@chainlink/contracts-ccip@0.7.6(bufferutil@4.0.8)(ethers@5.7.2(bufferutil@4.0.8)(utf-8-validate@5.0.10))(utf-8-validate@5.0.10))(@eth-optimism/contracts@0.6.0(bufferutil@4.0.8)(ethers@5.7.2(bufferutil@4.0.8)(utf-8-validate@5.0.10))(utf-8-validate@5.0.10))(@layerzerolabs/lz-evm-protocol-v2@2.3.19(@openzeppelin/contracts-upgradeable@4.9.6)(@openzeppelin/contracts@4.9.6)(hardhat-deploy@0.12.4(bufferutil@4.0.8)(utf-8-validate@5.0.10))(solidity-bytes-utils@0.8.2))(@layerzerolabs/lz-evm-v1-0.7@2.3.19(@openzeppelin/contracts-upgradeable@4.9.6)(@openzeppelin/contracts@4.9.6)(hardhat-deploy@0.12.4(bufferutil@4.0.8)(utf-8-validate@5.0.10)))(@openzeppelin/contracts-upgradeable@4.9.6)(@openzeppelin/contracts@4.9.6)(hardhat-deploy@0.12.4(bufferutil@4.0.8)(utf-8-validate@5.0.10))(solidity-bytes-utils@0.8.2))(@layerzerolabs/lz-evm-protocol-v2@2.3.19(@openzeppelin/contracts-upgradeable@4.9.6)(@openzeppelin/contracts@4.9.6)(hardhat-deploy@0.12.4(bufferutil@4.0.8)(utf-8-validate@5.0.10))(solidity-bytes-utils@0.8.2))(@layerzerolabs/lz-evm-v1-0.7@2.3.19(@openzeppelin/contracts-upgradeable@4.9.6)(@openzeppelin/contracts@4.9.6)(hardhat-deploy@0.12.4(bufferutil@4.0.8)(utf-8-validate@5.0.10)))(@openzeppelin/contracts-upgradeable@4.9.6)(@openzeppelin/contracts@4.9.6)(hardhat-deploy@0.12.4(bufferutil@4.0.8)(utf-8-validate@5.0.10))(solidity-bytes-utils@0.8.2)
       '@layerzerolabs/lz-evm-protocol-v2':
         specifier: ~2.3.3
         version: 2.3.19(@openzeppelin/contracts-upgradeable@4.9.6)(@openzeppelin/contracts@4.9.6)(hardhat-deploy@0.12.4(bufferutil@4.0.8)(utf-8-validate@5.0.10))(solidity-bytes-utils@0.8.2)
+      '@layerzerolabs/toolbox-foundry':
+        specifier: ~0.1.5
+        version: 0.1.5
       '@openzeppelin/contracts':
         specifier: ^4.8.1
         version: 4.9.6
@@ -68,6 +68,9 @@ importers:
       frax-standard-solidity:
         specifier: github:FraxFinance/frax-standard-solidity
         version: https://codeload.github.com/FraxFinance/frax-standard-solidity/tar.gz/d770d812f8f5b87cb23e5c6bb422362fb885e6b0(bufferutil@4.0.8)(enquirer@2.4.1)(ethers@5.7.2(bufferutil@4.0.8)(utf-8-validate@5.0.10))(utf-8-validate@5.0.10)
+      frax-template:
+        specifier: github:FraxFinance/frax-template
+        version: https://codeload.github.com/FraxFinance/frax-template/tar.gz/35e950a3eb5ab6b2ec75c50d6bd492a2b32df1c8(bufferutil@4.0.8)(enquirer@2.4.1)(ethers@5.7.2(bufferutil@4.0.8)(utf-8-validate@5.0.10))(utf-8-validate@5.0.10)
       hardhat:
         specifier: ^2.22.3
         version: 2.22.4(bufferutil@4.0.8)(ts-node@10.9.2(@types/node@18.18.14)(typescript@5.4.5))(typescript@5.4.5)(utf-8-validate@5.0.10)
@@ -344,6 +347,7 @@ packages:
   '@humanwhocodes/config-array@0.11.14':
     resolution: {integrity: sha512-3T8LkOmg45BV5FICb15QQMsyUSWrQ8AygVfC7ZG32zOalnqrilm018ZVCw0eapXux8FtA33q8PSRSstjee3jSg==}
     engines: {node: '>=10.10.0'}
+    deprecated: Use @eslint/config-array instead
 
   '@humanwhocodes/module-importer@1.0.1':
     resolution: {integrity: sha512-bxveV4V8v5Yb4ncFTT3rPSgZBOpCkjfK0y4oVVVJwIuDVBRMDXrPyXRL988i5ap9m9bnyEEjWfm5WkBmtffLfA==}
@@ -351,6 +355,7 @@ packages:
 
   '@humanwhocodes/object-schema@2.0.3':
     resolution: {integrity: sha512-93zYdMES/c1D69yZiKDBj0V24vqNzB/koF26KPaagAfd3P/4gUlh3Dys5ogAK+Exi9QyzlD8x/08Zt7wIKcDcA==}
+    deprecated: Use @eslint/object-schema instead
 
   '@jridgewell/gen-mapping@0.3.5':
     resolution: {integrity: sha512-IzL8ZoEDIBRWEzlCcRhOaCupYyN5gdIK+Q6fbFdPDg6HqX6jpkItn7DFIpW9LQzXG6Df9sA7+OKnq0qlz/GaQg==}
@@ -415,6 +420,9 @@ packages:
       '@openzeppelin/contracts': 3.4.2-solc-0.7 || ^3.4.2 || ^4.0.0 || ^5.0.0
       '@openzeppelin/contracts-upgradeable': 3.4.2-solc-0.7 || ^3.4.2 || ^4.0.0 || ^5.0.0
       hardhat-deploy: ^0.12.1
+
+  '@layerzerolabs/lz-v2-utilities@2.3.38':
+    resolution: {integrity: sha512-azpVYt930XsCybuMVY5SFSWCgcOLkU5Trnvi/4L5w0AsTpCWJ7NsxKbI3diSdKSepaHQDgQ1khv135KXarukYw==}
 
   '@layerzerolabs/toolbox-foundry@0.1.5':
     resolution: {integrity: sha512-Ucg11Sn3Zy7IWjDfl2RMNSZUbMkllxsd+hHc72uKVMZ64I7jEfI1j1hUbZE47g/k9cc4OH+nd7lVhLbX9A+19Q==}
@@ -877,6 +885,9 @@ packages:
   base-x@3.0.9:
     resolution: {integrity: sha512-H7JU6iBHTal1gp56aKoaa//YUxEaAOUiydvrV/pILqIHXTtqxSkATOnDA2u+jZ/61sD+L/412+7kzXRtWukhpQ==}
 
+  base-x@4.0.0:
+    resolution: {integrity: sha512-FuwxlW4H5kh37X/oW59pwTzzTKRzfrrQwhmyspRM7swOEZcHtDZSCt45U6oKgtuFE+WYPblePMVIPR4RZrh/hw==}
+
   bech32@1.1.4:
     resolution: {integrity: sha512-s0IrSOzLlbvX7yp4WBfPITzpAU8sqQcpsmwXDiKwrG4r491vwCO/XpejasRNl0piBMe/DvP4Tz0mIS/X1DPJBQ==}
 
@@ -923,6 +934,9 @@ packages:
 
   bs58@4.0.1:
     resolution: {integrity: sha512-Ok3Wdf5vOIlBrgCvTq96gBkJw+JUEzdBgyaza5HLtPm7yTHkjRy8+JzNyHF7BHa0bNWOQIp3m5YF0nnFcOIKLw==}
+
+  bs58@5.0.0:
+    resolution: {integrity: sha512-r+ihvQJvahgYT50JD05dyJNKlmmSlMoOGwn1lCcEzanPglg7TxYjioQUYehQ9mAR/+hOSd2jRc/Z2y5UxBymvQ==}
 
   bs58check@2.1.2:
     resolution: {integrity: sha512-0TS1jicxdU09dwJMNZtVAfzPi6Q6QeN0pM1Fkzrjn+XYHvzMKPU3pHVpva+769iNVSfIYWf7LJ6WR+BuuMf8cA==}
@@ -1388,12 +1402,16 @@ packages:
   fp-ts@1.19.3:
     resolution: {integrity: sha512-H5KQDspykdHuztLTg+ajGN0Z2qUjcEf3Ybxc6hLt0k7/zPkn29XnKnxlBPyW2XIddWrGaJBzBl4VLYOtk39yZg==}
 
+  frax-standard-solidity@https://codeload.github.com/FraxFinance/frax-standard-solidity/tar.gz/c951978a3fbcbcfe9ed65c9e99e420facdee772f:
+    resolution: {tarball: https://codeload.github.com/FraxFinance/frax-standard-solidity/tar.gz/c951978a3fbcbcfe9ed65c9e99e420facdee772f}
+    version: 1.0.0
+
   frax-standard-solidity@https://codeload.github.com/FraxFinance/frax-standard-solidity/tar.gz/d770d812f8f5b87cb23e5c6bb422362fb885e6b0:
     resolution: {tarball: https://codeload.github.com/FraxFinance/frax-standard-solidity/tar.gz/d770d812f8f5b87cb23e5c6bb422362fb885e6b0}
     version: 1.0.0
 
-  frax-template@https://codeload.github.com/fraxfinance/frax-template/tar.gz/459f0f0b9cc2e493a306719699ed9658f9e21513:
-    resolution: {tarball: https://codeload.github.com/fraxfinance/frax-template/tar.gz/459f0f0b9cc2e493a306719699ed9658f9e21513}
+  frax-template@https://codeload.github.com/FraxFinance/frax-template/tar.gz/35e950a3eb5ab6b2ec75c50d6bd492a2b32df1c8:
+    resolution: {tarball: https://codeload.github.com/FraxFinance/frax-template/tar.gz/35e950a3eb5ab6b2ec75c50d6bd492a2b32df1c8}
     version: 1.3.0
 
   fs-extra@0.30.0:
@@ -2333,6 +2351,9 @@ packages:
   text-table@0.2.0:
     resolution: {integrity: sha512-N+8UisAXDGk8PFXP4HAzVR9nbfmVJ3zYLAWiTIoqC5v5isinhr+r5uaO8+7r3BMfuNIufIsA7RdpVgacC2cSpw==}
 
+  tiny-invariant@1.3.3:
+    resolution: {integrity: sha512-+FbBPE1o9QAYvviau/qC5SE3caw21q3xkvWKBtja5vgqOWIHHJ3ioaq1VPfn/Szqctz2bU/oYeKd9/z5BL+PVg==}
+
   tmp@0.0.33:
     resolution: {integrity: sha512-jRCJlojKnZ3addtTOjdIqoRuPEKBvNXcGYqzO6zWZX8KfKEpnGY5jfggJQ3EjKuu8D4bJRr0y+cYJFmYbImXGw==}
     engines: {node: '>=0.6.0'}
@@ -3110,6 +3131,17 @@ snapshots:
       '@openzeppelin/contracts-upgradeable': 4.9.6
       hardhat-deploy: 0.12.4(bufferutil@4.0.8)(utf-8-validate@5.0.10)
 
+  '@layerzerolabs/lz-v2-utilities@2.3.38':
+    dependencies:
+      '@ethersproject/abi': 5.7.0
+      '@ethersproject/address': 5.7.0
+      '@ethersproject/bignumber': 5.7.0
+      '@ethersproject/bytes': 5.7.0
+      '@ethersproject/keccak256': 5.7.0
+      '@ethersproject/solidity': 5.7.0
+      bs58: 5.0.0
+      tiny-invariant: 1.3.3
+
   '@layerzerolabs/toolbox-foundry@0.1.5': {}
 
   '@metamask/eth-sig-util@4.0.1':
@@ -3538,6 +3570,8 @@ snapshots:
     dependencies:
       safe-buffer: 5.2.1
 
+  base-x@4.0.0: {}
+
   bech32@1.1.4: {}
 
   binary-extensions@2.3.0: {}
@@ -3595,6 +3629,10 @@ snapshots:
   bs58@4.0.1:
     dependencies:
       base-x: 3.0.9
+
+  bs58@5.0.0:
+    dependencies:
+      base-x: 4.0.0
 
   bs58check@2.1.2:
     dependencies:
@@ -4191,6 +4229,39 @@ snapshots:
 
   fp-ts@1.19.3: {}
 
+  frax-standard-solidity@https://codeload.github.com/FraxFinance/frax-standard-solidity/tar.gz/c951978a3fbcbcfe9ed65c9e99e420facdee772f(bufferutil@4.0.8)(enquirer@2.4.1)(ethers@5.7.2(bufferutil@4.0.8)(utf-8-validate@5.0.10))(utf-8-validate@5.0.10):
+    dependencies:
+      '@chainlink/contracts': 0.6.1(bufferutil@4.0.8)(ethers@5.7.2(bufferutil@4.0.8)(utf-8-validate@5.0.10))(utf-8-validate@5.0.10)
+      '@openzeppelin/contracts': 5.0.2
+      '@types/fs-extra': 11.0.4
+      '@types/node': 18.19.33
+      change-case: 4.1.2
+      commander: 10.0.1
+      date-fns: 2.30.0
+      ds-test: https://codeload.github.com/dapphub/ds-test/tar.gz/e282159d5170298eb2455a6c05280ab5a73a4ef0
+      forge-std: https://codeload.github.com/foundry-rs/forge-std/tar.gz/e8a047e3f40f13fa37af6fe14e6e06283d9a060e
+      fs-extra: 11.2.0
+      husky: 8.0.3
+      lint-staged: 13.3.0(enquirer@2.4.1)
+      prettier: 3.2.5
+      prettier-plugin-solidity: 1.3.1(prettier@3.2.5)
+      solc: 0.8.26
+      solhint: 3.6.2(typescript@5.4.5)
+      solhint-plugin-prettier: 0.1.0(prettier-plugin-solidity@1.3.1(prettier@3.2.5))(prettier@3.2.5)
+      solidity-bytes-utils: 0.8.2
+      toml: 3.0.0
+      ts-node: 10.9.2(@types/node@18.19.33)(typescript@5.4.5)
+      typescript: 5.4.5
+    transitivePeerDependencies:
+      - '@swc/core'
+      - '@swc/wasm'
+      - bufferutil
+      - debug
+      - enquirer
+      - ethers
+      - supports-color
+      - utf-8-validate
+
   frax-standard-solidity@https://codeload.github.com/FraxFinance/frax-standard-solidity/tar.gz/d770d812f8f5b87cb23e5c6bb422362fb885e6b0(bufferutil@4.0.8)(enquirer@2.4.1)(ethers@5.7.2(bufferutil@4.0.8)(utf-8-validate@5.0.10))(utf-8-validate@5.0.10):
     dependencies:
       '@chainlink/contracts': 0.6.1(bufferutil@4.0.8)(ethers@5.7.2(bufferutil@4.0.8)(utf-8-validate@5.0.10))(utf-8-validate@5.0.10)
@@ -4224,11 +4295,11 @@ snapshots:
       - supports-color
       - utf-8-validate
 
-  frax-template@https://codeload.github.com/fraxfinance/frax-template/tar.gz/459f0f0b9cc2e493a306719699ed9658f9e21513(bufferutil@4.0.8)(enquirer@2.4.1)(ethers@5.7.2(bufferutil@4.0.8)(utf-8-validate@5.0.10))(utf-8-validate@5.0.10):
+  frax-template@https://codeload.github.com/FraxFinance/frax-template/tar.gz/35e950a3eb5ab6b2ec75c50d6bd492a2b32df1c8(bufferutil@4.0.8)(enquirer@2.4.1)(ethers@5.7.2(bufferutil@4.0.8)(utf-8-validate@5.0.10))(utf-8-validate@5.0.10):
     dependencies:
       ds-test: https://codeload.github.com/dapphub/ds-test/tar.gz/e282159d5170298eb2455a6c05280ab5a73a4ef0
       forge-std: https://codeload.github.com/foundry-rs/forge-std/tar.gz/e8a047e3f40f13fa37af6fe14e6e06283d9a060e
-      frax-standard-solidity: https://codeload.github.com/FraxFinance/frax-standard-solidity/tar.gz/d770d812f8f5b87cb23e5c6bb422362fb885e6b0(bufferutil@4.0.8)(enquirer@2.4.1)(ethers@5.7.2(bufferutil@4.0.8)(utf-8-validate@5.0.10))(utf-8-validate@5.0.10)
+      frax-standard-solidity: https://codeload.github.com/FraxFinance/frax-standard-solidity/tar.gz/c951978a3fbcbcfe9ed65c9e99e420facdee772f(bufferutil@4.0.8)(enquirer@2.4.1)(ethers@5.7.2(bufferutil@4.0.8)(utf-8-validate@5.0.10))(utf-8-validate@5.0.10)
       solidity-bytes-utils: https://codeload.github.com/GNSPS/solidity-bytes-utils/tar.gz/df88556cbbc267b33a787a3a6eaa32fd7247b589
     transitivePeerDependencies:
       - '@swc/core'
@@ -5301,6 +5372,8 @@ snapshots:
       strip-ansi: 6.0.1
 
   text-table@0.2.0: {}
+
+  tiny-invariant@1.3.3: {}
 
   tmp@0.0.33:
     dependencies:

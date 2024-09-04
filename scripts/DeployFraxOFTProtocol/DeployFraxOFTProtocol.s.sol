@@ -17,7 +17,7 @@ contract DeployFraxOFTProtocol is BaseL0Script {
     using Strings for uint256;
 
     function version() public virtual override pure returns (uint256, uint256, uint256) {
-        return (1, 1, 0);
+        return (1, 1, 1);
     }
 
     function setUp() public virtual override {
@@ -56,7 +56,7 @@ contract DeployFraxOFTProtocol is BaseL0Script {
             if (proxyConfigs[i].eid == activeConfig.eid) continue;
             setupDestination({
                 _connectedConfig: proxyConfigs[i],
-                _connectedOfts: expectedProxyOfts
+                _connectedOfts: proxyOfts
             });
         }
     }
@@ -78,7 +78,7 @@ contract DeployFraxOFTProtocol is BaseL0Script {
 
         setPeers({
             _connectedOfts: _connectedOfts,
-            _peerOfts: expectedProxyOfts,
+            _peerOfts: proxyOfts,
             _configs: activeConfigArray
         });
     }
@@ -86,26 +86,26 @@ contract DeployFraxOFTProtocol is BaseL0Script {
     function setupSource() public virtual broadcastAs(configDeployerPK) {
         // TODO: this will break if proxyOFT addrs are not the pre-determined addrs verified in postDeployChecks()
         setEnforcedOptions({
-            _connectedOfts: expectedProxyOfts,
+            _connectedOfts: proxyOfts,
             _configs: configs
         });
 
         setDVNs({
             _connectedConfig: activeConfig,
-            _connectedOfts: expectedProxyOfts,
+            _connectedOfts: proxyOfts,
             _configs: configs
         });
 
         /// @dev legacy, non-upgradeable OFTs
         setPeers({
-            _connectedOfts: expectedProxyOfts,
+            _connectedOfts: proxyOfts,
             _peerOfts: legacyOfts,
             _configs: legacyConfigs
         });
         /// @dev Upgradeable OFTs maintaining the same address cross-chain.
         setPeers({
-            _connectedOfts: expectedProxyOfts,
-            _peerOfts: expectedProxyOfts,
+            _connectedOfts: proxyOfts,
+            _peerOfts: proxyOfts,
             _configs: proxyConfigs
         });
 
@@ -177,8 +177,16 @@ contract DeployFraxOFTProtocol is BaseL0Script {
             _symbol: "frxETH"
         });
 
-        // Deploy FPI
-        (,fpiOft) = deployFraxOFTUpgradeableAndProxy({
+        // Deploy broken FPI
+        deployFraxOFTUpgradeableAndProxy({
+            _name: "Mock Frax Price Index",
+            _symbol: "Mock FPI"
+        });
+        // pop off pushed proxy addr as it's the broken FPI
+        proxyOfts.pop();
+
+        // Deploy correct FPI
+        deployFraxOFTUpgradeableAndProxy({
             _name: "Frax Price Index",
             _symbol: "FPI"
         });

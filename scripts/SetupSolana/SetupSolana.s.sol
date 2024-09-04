@@ -86,10 +86,10 @@ contract SetupSolana is DeployFraxOFTProtocol {
         activeConfigArray.push(nonEvmConfigs[0]);
 
         // push bytes32 token addrs in the same order as deployFraxOFTUpgradeblesAndProxies()
-        solanaPeers.push(0x656d91ab3d464c05cd1345ce21c78e36140a36491e102fbb08c58af73aafe89b); // frax
+        solanaPeers.push(0x402e86d1cfd2cde4fac63aa8d9892eca6d3c0e08e8335622124332a95df6c10c); // fxs
         solanaPeers.push(0x206fdd7d0be90d8ff93f6f7f4bd4d8b42ca8977317da0b7d2861299e3c589dd8); // sFrax
         solanaPeers.push(0x6a7942e4eb4938d5490d8187183d01123f515025f4244670aff7f8ecd2250d50); // sfrxEth
-        solanaPeers.push(0x402e86d1cfd2cde4fac63aa8d9892eca6d3c0e08e8335622124332a95df6c10c); // fxs
+        solanaPeers.push(0x656d91ab3d464c05cd1345ce21c78e36140a36491e102fbb08c58af73aafe89b); // frax
         solanaPeers.push(0x94791ba0aae2b57460c63d36346392d849b22f39fd3eafad5bc82d01e352dde6); // frxEth
         solanaPeers.push(0x9876880bee04a9020e619b1be124ee307e03ca94bab4f32a7a22cfd2ccee3927); // fpi
     }

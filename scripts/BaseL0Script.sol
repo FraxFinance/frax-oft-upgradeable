@@ -4,6 +4,7 @@ pragma solidity ^0.8.19;
 import { Script } from "forge-std/Script.sol";
 import "forge-std/StdJson.sol";
 import "frax-template/src/Constants.sol";
+import { console } from "frax-std/FraxTest.sol";
 
 import { SerializedTx, SafeTxUtil } from "scripts/SafeBatchSerialize.sol";
 import { FraxOFTUpgradeable } from "contracts/FraxOFTUpgradeable.sol";
@@ -80,9 +81,10 @@ contract BaseL0Script is Script {
     SerializedTx[] serializedTxs;
 
     uint256 public chainid;
+    string public json;
 
     function version() public virtual pure returns (uint256, uint256, uint256) {
-        return (1, 1, 0);
+        return (1, 1, 1);
     }
 
     modifier broadcastAs(uint256 privateKey) {
@@ -128,7 +130,7 @@ contract BaseL0Script is Script {
         legacyOfts.push(0x1f55a02A049033E3419a8E2975cF3F572F4e6E9A); // sfrxETH
         legacyOfts.push(0x909DBdE1eBE906Af95660033e478D59EFe831fED); // FRAX
         legacyOfts.push(0xF010a7c8877043681D59AD125EbF575633505942); // frxETH
-        legacyOfts.push(0xE41228a455700cAF09E551805A8aB37caa39D08c); // FPI
+        legacyOfts.push(0x6Eca253b102D41B6B69AC815B9CC6bD47eF1979d); // FPI
         numOfts = legacyOfts.length;
 
         // aray of semi-pre-determined upgradeable OFTs
@@ -137,13 +139,13 @@ contract BaseL0Script is Script {
         expectedProxyOfts.push(0x3Ec3849C33291a9eF4c5dB86De593EB4A37fDe45); // sfrxETH
         expectedProxyOfts.push(0x80Eede496655FB9047dd39d9f418d5483ED600df); // FRAX
         expectedProxyOfts.push(0x43eDD7f3831b08FE70B7555ddD373C8bF65a9050); // frxETH
-        expectedProxyOfts.push(0xEed9DE5E41b53D1C8fAB8AAB4b0e446F828c1483); // FPI
+        expectedProxyOfts.push(0x90581eCa9469D8D7F5D3B60f4715027aDFCf7927); // FPI
     }
 
     function loadJsonConfig() public {
         string memory root = vm.projectRoot();
         string memory path = string.concat(root, "/scripts/L0Config.json");
-        string memory json = vm.readFile(path);
+        json = vm.readFile(path);
         
         // load and write to persistent storage
 

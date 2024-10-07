@@ -1,5 +1,5 @@
 {
-    "dev-note": "One-to-one mapping with L0Config.json#Non-EVM",
+    "dev-note": "One-to-one mapping with L0Config.json#Non-EVM, keys sorted alphabetically",
     "Peers": [
         {
             "fpi": "0x9876880bee04a9020e619b1be124ee307e03ca94bab4f32a7a22cfd2ccee3927",

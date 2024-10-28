@@ -84,7 +84,7 @@ contract BaseL0Script is Script {
     string public json;
 
     function version() public virtual pure returns (uint256, uint256, uint256) {
-        return (1, 1, 1);
+        return (1, 1, 2);
     }
 
     modifier broadcastAs(uint256 privateKey) {
@@ -142,7 +142,7 @@ contract BaseL0Script is Script {
         expectedProxyOfts.push(0x90581eCa9469D8D7F5D3B60f4715027aDFCf7927); // FPI
     }
 
-    function loadJsonConfig() public {
+    function loadJsonConfig() public virtual {
         string memory root = vm.projectRoot();
         string memory path = string.concat(root, "/scripts/L0Config.json");
         json = vm.readFile(path);

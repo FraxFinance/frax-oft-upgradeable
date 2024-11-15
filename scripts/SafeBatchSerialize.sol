@@ -24,7 +24,7 @@ contract SafeTxUtil is Script {
         vm.serializeUint(json, "chainId", block.chainid);
         vm.serializeUint(json, "createdAt", block.timestamp * 1000);
 
-        string memory serializedTxs = "[";
+        string memory serializedTxs = [";
         for (uint i = 0; i < txs.length; i++) {
             if (i != 0) {
                 serializedTxs = string.concat(serializedTxs, ",");
@@ -46,7 +46,7 @@ contract SafeTxUtil is Script {
 
             serializedTxs = string.concat(serializedTxs, serializedTx);
         }
-        serializedTxs = string.concat(serializedTxs, "]");
+        serializedTxs = string.concat(serializedTxs, "]);
 
         string memory meta = "meta";
         vm.serializeString(meta, "name", "Transactions Batch");

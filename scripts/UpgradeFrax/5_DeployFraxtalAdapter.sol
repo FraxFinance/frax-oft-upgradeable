@@ -2,27 +2,22 @@
 pragma solidity ^0.8.22;
 
 import "../DeployFraxOFTProtocol/DeployFraxOFTProtocol.s.sol";
-import { OFTUpgradeableMock } from "contracts/mocks/OFTUpgradeableMock.sol";
+import { FraxOFTAdapterUpgradeable } from "contracts/FraxOFTAdapterUpgradeable.sol";
 
-/// @dev deploy upgradeable mock OFTs and mint lockbox supply to the fraxtal msig
-// forge script scripts/UpgradeFrax/2_DeployMockOFT.s.sol --rpc-url rpc.frax.com
-contract DeployMockOFT is DeployFraxOFTProtocol {
+/// @dev Deploy the frxUSD and sfrxUSD adapters
+contract DeployFraxtalAdapterOFT is DeployFraxOFTProtocol {
     using OptionsBuilder for bytes;
     using stdJson for string;
     using Strings for uint256;
 
-    uint256 initialFraxSupply = 1; // TODO
-    uint256 initialSFraxSupply = 1; // TODO
-    address deployer = 0xb0E1650A9760e0f383174af042091fc544b8356f;
+    address[] public oldProxyOfts;
+    address public frxUsd = 0xFc00000000000000000000000000000000000001;
+    address public sfrxUsd = 0xfc00000000000000000000000000000000000008;
 
-    /// @dev override to only use FRAX, sFRAX as peer
-    function setUp() public virtual override {
-        chainid = block.chainid;
-        loadJsonConfig();
-
-        delete legacyOfts;
-        legacyOfts.push(0x909DBdE1eBE906Af95660033e478D59EFe831fED); // FRAX
-        legacyOfts.push(0x1f55a02A049033E3419a8E2975cF3F572F4e6E9A); // sFRAX
+    /// @dev setup oldProxyOfts to point new adapter proxy OFTs to
+    constructor() {
+        oldProxyOfts.push(0x80Eede496655FB9047dd39d9f418d5483ED600df); // FRAX
+        oldProxyOfts.push(0x5Bff88cA1442c2496f7E475E9e7786383Bc070c0); // sFRAX
     }
 
     /// @dev override to alter file save location
@@ -41,7 +36,7 @@ contract DeployMockOFT is DeployFraxOFTProtocol {
         // create filename and save
         string memory root = vm.projectRoot();
         root = string.concat(root, "/scripts/UpgradeFrax/txs/");
-        string memory filename = string.concat("1_DeployMockOFT-", activeConfig.chainid.toString());
+        string memory filename = string.concat("5_DeployFraxtalAdapter-", activeConfig.chainid.toString());
         filename = string.concat(filename, "-");
         filename = string.concat(filename, _config.chainid.toString());
         filename = string.concat(filename, ".json");
@@ -49,17 +44,33 @@ contract DeployMockOFT is DeployFraxOFTProtocol {
         new SafeTxUtil().writeTxs(serializedTxs, string.concat(root, filename));
     }
 
-    /// @dev only setup Ethereum destination
-    function setupDestinations() public override {
-        for (uint256 i=0; i<legacyConfigs.length; i++) {
-            L0Config memory connectedConfig = legacyConfigs[i];
-            if (connectedConfig.chainid == 1) {
-                setupDestination({
-                    _connectedConfig: connectedConfig,
-                    _connectedOfts: legacyOfts
-                });
-            }
-        }
+    /// @dev skip setting legacy OFTs, config with oldProxyOfts
+    function setupSource() public virtual broadcastAs(configDeployerPK) {
+        // setEnforcedOptions({
+        //     _connectedOfts: proxyOfts,
+        //     _configs: configs
+        // });
+
+        // setDVNs({
+        //     _connectedConfig: activeConfig,
+        //     _connectedOfts: proxyOfts,
+        //     _configs: configs
+        // });
+
+        // setPeers({
+        //     _connectedOfts: proxyOfts,
+        //     _peerOfts: legacyOfts,
+        //     _configs: legacyConfigs
+        // });
+
+        setPeers({
+            _connectedOfts: proxyOfts,
+            _peerOfts: oldProxyOfts,
+            // _peerOfts: proxyOfts,
+            _configs: proxyConfigs
+        });
+
+        setPriviledgedRoles();
     }
 
     /// @dev simple checks override
@@ -68,7 +79,7 @@ contract DeployMockOFT is DeployFraxOFTProtocol {
         require(sFraxOft != address(0));
     }
 
-    /// @dev only deploy the mock FRAX and sFRAX
+    /// @dev only deploy the FRAX and sFRAX adapters
     function deployFraxOFTUpgradeablesAndProxies() broadcastAs(oftDeployerPK) public override {
         // already deployed
         proxyAdmin = 0x223a681fc5c5522c85C96157c0efA18cd6c5405c;
@@ -76,29 +87,30 @@ contract DeployMockOFT is DeployFraxOFTProtocol {
 
         // deploy frax
         (, fraxOft) = deployFraxOFTUpgradeableAndProxy({
-            _name: "Mock Frax",
-            _symbol: "mFRAX",
-            _initialSupply: initialFraxSupply
+            _name: "Frax USD",
+            _symbol: "frxUSD",
+            _token: frxUsd
         });
 
         // deploy sFrax
         (, sFraxOft) = deployFraxOFTUpgradeableAndProxy({
-            _name: "Mock sFrax",
-            _symbol: "msFrax",
-            _initialSupply: initialSFraxSupply
+            _name: "Staked Frax USD",
+            _symbol: "sfrxUSD",
+            _token: sfrxUsd
         });
     }
 
-    /// @dev override the bytecode to the mock contract and mint to the deployer
+    /// @dev override the bytecode to the OFTAdapter and init
    function deployFraxOFTUpgradeableAndProxy(
         string memory _name,
         string memory _symbol,
-        uint256 _initialSupply
+        address _token
     ) public returns (address implementation, address proxy) {
         /// @dev override here
         bytes memory bytecode = bytes.concat(
-            abi.encodePacked(type(OFTUpgradeableMock).creationCode),
-            abi.encode(activeConfig.endpoint)
+            abi.encodePacked(type(FraxOFTAdapterUpgradeable).creationCode),
+            // abi.encode(activeConfig.endpoint)
+            abi.encode(_token, activeConfig.endpoint);
         );
         assembly {
             implementation := create(0, add(bytecode, 0x20), mload(bytecode))
@@ -108,20 +120,17 @@ contract DeployMockOFT is DeployFraxOFTProtocol {
         }
         proxy = address(new TransparentUpgradeableProxy(implementationMock, vm.addr(oftDeployerPK), ""));
 
+        /// @dev override
         bytes memory initializeArgs = abi.encodeWithSelector(
             FraxOFTUpgradeable.initialize.selector,
-            _name,
-            _symbol,
+            // _name,
+            // _symbol,
             vm.addr(configDeployerPK)
         );
         TransparentUpgradeableProxy(payable(proxy)).upgradeToAndCall({
             newImplementation: implementation,
             data: initializeArgs
         });
-
-        /// @dev mint supply to msig
-        OFTUpgradeableMock(address(proxy)).mint(activeConfig.delegate, _initialSupply);
-        
         TransparentUpgradeableProxy(payable(proxy)).changeAdmin(proxyAdmin);
         proxyOfts.push(proxy);
 
@@ -148,11 +157,11 @@ contract DeployMockOFT is DeployFraxOFTProtocol {
         );
     }
 
-    /// @dev proxy admin already deployed - do not transfer ownership. Set delegate to deployer 
+    /// @dev proxy admin already deployed - do not transfer ownership
     function setPriviledgedRoles() public override {
         for (uint256 o=0; o<proxyOfts.length; o++) {
             address proxyOft = proxyOfts[o];
-            FraxOFTUpgradeable(proxyOft).setDelegate(deployer);
+            FraxOFTUpgradeable(proxyOft).setDelegate(activeConfig.delegate);
             Ownable(proxyOft).transferOwnership(activeConfig.delegate);
         }
 

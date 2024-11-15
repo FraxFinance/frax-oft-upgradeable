@@ -3,10 +3,9 @@ pragma solidity ^0.8.22;
 
 import "../DeployFraxOFTProtocol/DeployFraxOFTProtocol.s.sol";
 
-/// @dev On ethereum, reset the peers of FRAX / sFRAX to prevent bridging.  Additionally, reset the peers of FRAX / sFRAX
-///        on destination chains to prevent bridging
-// forge script scripts/UpgradeFrax/1_DisconnectEthereumPeer.s.sol --rpc-url https://ethereum-rpc.publicnode.com
-contract DisconnectEthereumPeer is DeployFraxOFTProtocol {
+/// @dev reconnect Ethereum peer to destination chains
+// forge script scripts/UpgradeFrax/3_ReconnectEthereumPeer.s.sol --rpc-url https://ethereum-rpc.publicnode.com
+contract ReconnectEthereumPeer is DeployFraxOFTProtocol {
     using stdJson for string;
     using Strings for uint256;
 
@@ -26,7 +25,7 @@ contract DisconnectEthereumPeer is DeployFraxOFTProtocol {
         // create filename and save
         string memory root = vm.projectRoot();
         root = string.concat(root, "/scripts/UpgradeFrax/txs/");
-        string memory filename = string.concat("1_DisconnectEthereumPeer-", activeConfig.chainid.toString());
+        string memory filename = string.concat("3_ReconnectEthereumPeer-", activeConfig.chainid.toString());
         filename = string.concat(filename, "-");
         filename = string.concat(filename, _config.chainid.toString());
         filename = string.concat(filename, ".json");
@@ -35,7 +34,7 @@ contract DisconnectEthereumPeer is DeployFraxOFTProtocol {
     }
 
 
-    /// @dev skip deployment, set oft addrs to only FRAX/sFRAX
+    /// @dev skip deployment, set oft addrs to only FRAX/sFRAX, only setup destinations
     function run() public override {
         delete legacyOfts;
         legacyOfts.push(0x909DBdE1eBE906Af95660033e478D59EFe831fED); // FRAX
@@ -47,10 +46,10 @@ contract DisconnectEthereumPeer is DeployFraxOFTProtocol {
 
         // deploySource();
         setupSource();
-        setupDestinations();
+        // setupDestinations();
     }
 
-    /// @dev only set peers with legacy OFTs, simulate instead of broadcast
+    /// @dev only set peers, simulate instead of broadcast as we're publishing msig txs
     function setupSource() public override simulateAndWriteTxs(activeConfig) {
         // setEnforcedOptions({
         //     _connectedOfts: proxyOfts,
@@ -64,15 +63,13 @@ contract DisconnectEthereumPeer is DeployFraxOFTProtocol {
         // });
 
         setPeers({
-            // _connectedOfts: proxyOfts,
-            _connectedOfts: legacyOfts,
+            _connectedOfts: proxyOfts,
             _peerOfts: legacyOfts,
             _configs: legacyConfigs
         });
 
         setPeers({
-            // _connectedOfts: proxyOfts,
-            _connectedOfts: legacyOfts,
+            _connectedOfts: proxyOfts,
             _peerOfts: proxyOfts,
             _configs: proxyConfigs
         });
@@ -101,42 +98,5 @@ contract DisconnectEthereumPeer is DeployFraxOFTProtocol {
             _peerOfts: proxyOfts,
             _configs: activeConfigArray
         });
-    }
-
-    /// @dev override peer address to address(0)
-    function setPeers(
-        address[] memory _connectedOfts,
-        address[] memory _peerOfts,
-        L0Config[] memory _configs
-    ) public override {
-        require(_connectedOfts.length == _peerOfts.length, "Must wire equal amount of source + dest addrs");
-        for (uint256 o=0; o<_connectedOfts.length; o++) {
-            address connectedOft = _connectedOfts[o];
-            address peerOft = _peerOfts[o];
-            for (uint256 c=0; c<_configs.length; c++) {
-                uint32 eid = uint32(_configs[c].eid);
-
-                // cannot set peer to self
-                if (chainid == activeConfig.chainid && eid == activeConfig.eid) continue;
-
-                bytes memory data = abi.encodeCall(
-                    IOAppCore.setPeer,
-                    (
-                        // eid, addressToBytes32(peerOft)
-                        eid, addressToBytes32(address(0))
-                    )
-                );
-                (bool success, ) = connectedOft.call(data);
-                require(success, "Unable to setPeer");
-                serializedTxs.push(
-                    SerializedTx({
-                        name: "setPeer",
-                        to: connectedOft,
-                        value: 0,
-                        data: data
-                    })
-                );
-            }
-        }
     }
 }

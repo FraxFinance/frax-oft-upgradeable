@@ -2,13 +2,32 @@
 pragma solidity ^0.8.22;
 
 import "../DeployFraxOFTProtocol/DeployFraxOFTProtocol.s.sol";
+import { OFTUpgradeableMock } from "contracts/mocks/OFTUpgradeableMock.sol";
 
-/// @dev On ethereum, reset the peers of FRAX / sFRAX to prevent bridging.  Additionally, reset the peers of FRAX / sFRAX
-///        on destination chains to prevent bridging
-// forge script scripts/UpgradeFrax/1_DisconnectEthereumPeer.s.sol --rpc-url https://ethereum-rpc.publicnode.com
-contract DisconnectEthereumPeer is DeployFraxOFTProtocol {
+/// @dev deploy upgradeable mock OFTs and mint lockbox supply to the fraxtal msig
+// forge script scripts/UpgradeFrax/4_DisconnectMockOFT.s.sol --rpc-url https://ethereum-rpc.publicnode.com
+contract DisconnectMockOFT is DeployFraxOFTProtocol {
+    using OptionsBuilder for bytes;
     using stdJson for string;
     using Strings for uint256;
+
+    address deployer = 0xb0E1650A9760e0f383174af042091fc544b8356f;
+    address fraxMockOft = address(0); // TODO
+    address sFraxMockOft = address(0); // TODO
+
+    /// @dev override to only use FRAX, sFRAX as peer. Set the mock addresses as proxy (destination) addresses
+    function setUp() public virtual override {
+        chainid = block.chainid;
+        loadJsonConfig();
+
+        delete legacyOfts;
+        legacyOfts.push(0x909DBdE1eBE906Af95660033e478D59EFe831fED); // FRAX
+        legacyOfts.push(0x1f55a02A049033E3419a8E2975cF3F572F4e6E9A); // sFRAX
+
+        delete proxyOfts;
+        proxyOfts.push(fraxMockOft);
+        proxyOfts.push(sFraxMockOft);
+    }
 
     /// @dev override to alter file save location
     modifier simulateAndWriteTxs(L0Config memory _config) override {
@@ -26,7 +45,7 @@ contract DisconnectEthereumPeer is DeployFraxOFTProtocol {
         // create filename and save
         string memory root = vm.projectRoot();
         root = string.concat(root, "/scripts/UpgradeFrax/txs/");
-        string memory filename = string.concat("1_DisconnectEthereumPeer-", activeConfig.chainid.toString());
+        string memory filename = string.concat("4_DisconnectMockOFT-", activeConfig.chainid.toString());
         filename = string.concat(filename, "-");
         filename = string.concat(filename, _config.chainid.toString());
         filename = string.concat(filename, ".json");
@@ -34,24 +53,15 @@ contract DisconnectEthereumPeer is DeployFraxOFTProtocol {
         new SafeTxUtil().writeTxs(serializedTxs, string.concat(root, filename));
     }
 
-
-    /// @dev skip deployment, set oft addrs to only FRAX/sFRAX
+    /// @dev skip deployment and destination setting- only setup ethereum peers
     function run() public override {
-        delete legacyOfts;
-        legacyOfts.push(0x909DBdE1eBE906Af95660033e478D59EFe831fED); // FRAX
-        legacyOfts.push(0x1f55a02A049033E3419a8E2975cF3F572F4e6E9A); // sFRAX
-
-        delete proxyOfts;
-        proxyOfts.push(0x80Eede496655FB9047dd39d9f418d5483ED600df); // FRAX
-        proxyOfts.push(0x5Bff88cA1442c2496f7E475E9e7786383Bc070c0); // sFRAX
-
         // deploySource();
         setupSource();
-        setupDestinations();
+        // setupDestinations();
     }
 
-    /// @dev only set peers with legacy OFTs, simulate instead of broadcast
-    function setupSource() public override simulateAndWriteTxs(activeConfig) {
+    /// @dev Remove the fraxtal peer
+        function setupSource() public override simulateAndWriteTxs(activeConfig) {
         // setEnforcedOptions({
         //     _connectedOfts: proxyOfts,
         //     _configs: configs
@@ -63,12 +73,11 @@ contract DisconnectEthereumPeer is DeployFraxOFTProtocol {
         //     _configs: configs
         // });
 
-        setPeers({
-            // _connectedOfts: proxyOfts,
-            _connectedOfts: legacyOfts,
-            _peerOfts: legacyOfts,
-            _configs: legacyConfigs
-        });
+        // setPeers({
+        //     _connectedOfts: proxyOfts,
+        //     _peerOfts: legacyOfts,
+        //     _configs: legacyConfigs
+        // });
 
         setPeers({
             // _connectedOfts: proxyOfts,
@@ -80,30 +89,7 @@ contract DisconnectEthereumPeer is DeployFraxOFTProtocol {
         // setPriviledgedRoles();
     }
 
-    /// @dev only set peers
-    function setupDestination(
-        L0Config memory _connectedConfig,
-        address[] memory _connectedOfts
-    ) public override simulateAndWriteTxs(_connectedConfig) {
-        // setEnforcedOptions({
-        //     _connectedOfts: _connectedOfts,
-        //     _configs: activeConfigArray
-        // });
-
-        // setDVNs({
-        //     _connectedConfig: _connectedConfig,
-        //     _connectedOfts: _connectedOfts,
-        //     _configs: activeConfigArray
-        // });
-
-        setPeers({
-            _connectedOfts: _connectedOfts,
-            _peerOfts: proxyOfts,
-            _configs: activeConfigArray
-        });
-    }
-
-    /// @dev override peer address to address(0)
+    /// @dev override solely fraxtal peer address with address(0)
     function setPeers(
         address[] memory _connectedOfts,
         address[] memory _peerOfts,
@@ -118,6 +104,9 @@ contract DisconnectEthereumPeer is DeployFraxOFTProtocol {
 
                 // cannot set peer to self
                 if (chainid == activeConfig.chainid && eid == activeConfig.eid) continue;
+                
+                /// @dev skip if not fraxtal eid
+                if (eid != uint32(30255)) continue;
 
                 bytes memory data = abi.encodeCall(
                     IOAppCore.setPeer,

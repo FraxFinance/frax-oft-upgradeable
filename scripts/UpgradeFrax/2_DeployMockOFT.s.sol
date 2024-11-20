@@ -5,7 +5,7 @@ import "../DeployFraxOFTProtocol/DeployFraxOFTProtocol.s.sol";
 import { OFTUpgradeableMock } from "contracts/mocks/OFTUpgradeableMock.sol";
 
 /// @dev deploy upgradeable mock OFTs and mint lockbox supply to the fraxtal msig
-// forge script scripts/UpgradeFrax/2_DeployMockOFT.s.sol --rpc-url rpc.frax.com
+// forge script scripts/UpgradeFrax/2_DeployMockOFT.s.sol --rpc-url https://rpc.frax.com
 contract DeployMockOFT is DeployFraxOFTProtocol {
     using OptionsBuilder for bytes;
     using stdJson for string;
@@ -41,9 +41,7 @@ contract DeployMockOFT is DeployFraxOFTProtocol {
         // create filename and save
         string memory root = vm.projectRoot();
         root = string.concat(root, "/scripts/UpgradeFrax/txs/");
-        string memory filename = string.concat("1_DeployMockOFT-", activeConfig.chainid.toString());
-        filename = string.concat(filename, "-");
-        filename = string.concat(filename, _config.chainid.toString());
+        string memory filename = string.concat("2_DeployMockOFT-", _config.chainid.toString());
         filename = string.concat(filename, ".json");
 
         new SafeTxUtil().writeTxs(serializedTxs, string.concat(root, filename));
@@ -68,8 +66,8 @@ contract DeployMockOFT is DeployFraxOFTProtocol {
         require(sFraxOft != address(0));
     }
 
-    /// @dev only deploy the mock FRAX and sFRAX
-    function deployFraxOFTUpgradeablesAndProxies() broadcastAs(oftDeployerPK) public override {
+    /// @dev only deploy the mock FRAX and sFRAX, as config deployer to maintain semi-deterministic-ness of the deployer nonce
+    function deployFraxOFTUpgradeablesAndProxies() /* broadcastAs(oftDeployerPK) */ broadcastAs(configDeployerPK) public override {
         // already deployed
         proxyAdmin = 0x223a681fc5c5522c85C96157c0efA18cd6c5405c;
         implementationMock = 0x8f1B9c1fd67136D525E14D96Efb3887a33f16250;
@@ -89,7 +87,7 @@ contract DeployMockOFT is DeployFraxOFTProtocol {
         });
     }
 
-    /// @dev override the bytecode to the mock contract and mint to the deployer
+    /// @dev override the bytecode to the mock contract and mint to the msig
    function deployFraxOFTUpgradeableAndProxy(
         string memory _name,
         string memory _symbol,
@@ -106,7 +104,9 @@ contract DeployMockOFT is DeployFraxOFTProtocol {
                 revert(0, 0)
             }
         }
-        proxy = address(new TransparentUpgradeableProxy(implementationMock, vm.addr(oftDeployerPK), ""));
+
+        /// @dev override to configDeployerPK
+        proxy = address(new TransparentUpgradeableProxy(implementationMock, /* vm.addr(oftDeployerPK) */ vm.addr(configDeployerPK), ""));
 
         bytes memory initializeArgs = abi.encodeWithSelector(
             FraxOFTUpgradeable.initialize.selector,
@@ -119,11 +119,11 @@ contract DeployMockOFT is DeployFraxOFTProtocol {
             data: initializeArgs
         });
 
-        /// @dev mint supply to msig
-        OFTUpgradeableMock(address(proxy)).mint(activeConfig.delegate, _initialSupply);
-        
         TransparentUpgradeableProxy(payable(proxy)).changeAdmin(proxyAdmin);
         proxyOfts.push(proxy);
+
+        /// @dev mint initial circulating supply
+        OFTUpgradeableMock(proxy).mintInitialSupply(activeConfig.delegate, _initialSupply);
 
         // State checks
         require(
@@ -148,12 +148,12 @@ contract DeployMockOFT is DeployFraxOFTProtocol {
         );
     }
 
-    /// @dev proxy admin already deployed - do not transfer ownership. Set delegate to deployer 
+    /// @dev do nothing
     function setPriviledgedRoles() public override {
         for (uint256 o=0; o<proxyOfts.length; o++) {
             address proxyOft = proxyOfts[o];
-            FraxOFTUpgradeable(proxyOft).setDelegate(deployer);
-            Ownable(proxyOft).transferOwnership(activeConfig.delegate);
+            // FraxOFTUpgradeable(proxyOft).setDelegate(deployer);
+            // Ownable(proxyOft).transferOwnership(activeConfig.delegate);
         }
 
         // Ownable(proxyAdmin).transferOwnership(activeConfig.delegate);

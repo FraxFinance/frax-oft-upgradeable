@@ -26,9 +26,7 @@ contract DisconnectEthereumPeer is DeployFraxOFTProtocol {
         // create filename and save
         string memory root = vm.projectRoot();
         root = string.concat(root, "/scripts/UpgradeFrax/txs/");
-        string memory filename = string.concat("1_DisconnectEthereumPeer-", activeConfig.chainid.toString());
-        filename = string.concat(filename, "-");
-        filename = string.concat(filename, _config.chainid.toString());
+        string memory filename = string.concat("1_DisconnectEthereumPeer-", _config.chainid.toString());
         filename = string.concat(filename, ".json");
 
         new SafeTxUtil().writeTxs(serializedTxs, string.concat(root, filename));

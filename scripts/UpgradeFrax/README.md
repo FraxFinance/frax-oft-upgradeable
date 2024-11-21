@@ -30,10 +30,13 @@ Deploy frxUSD/sfrxUSD lockboxes on Fraxtal. These lockboxes will be connected to
 #### 5. Add liquidity to lockboxes
 Frax team to add the respective FRAX/sFRAX liquidity to the frxUSD/sfrxUSD lockboxes.
 
-#### 6. Manage FRAX/sFRAX peer conections
+#### 6. Upgrade Proxy OFT Metadata
+Upgrade the FRAX/sFRAX proxy OFT name, symbols.
+
+#### 7. Manage FRAX/sFRAX peer conections
 - On Ethereum lockboxes, remove the peer connection to Fraxtal (m)FRAX/(m)sFRAX and to proxy OFTs
 - On Proxy OFTs, remove peer connection to Ethereum lockbox and legacy OFTS
 - On Legacy OFTs, remove peer connection to proxy OFTs. Maintain peer connection to Ethereum lockbox & legacy OFTs to enable exit liquidity. 
 
-#### 7. Unblock new outbound messages
+#### 8. Unblock new outbound messages
 Bridging resumes as expected.

@@ -4,7 +4,11 @@ pragma solidity ^0.8.22;
 import "../DeployFraxOFTProtocol/DeployFraxOFTProtocol.s.sol";
 import { FraxOFTAdapterUpgradeable } from "contracts/FraxOFTAdapterUpgradeable.sol";
 
-/// @dev Deploy the frxUSD and sfrxUSD adapters
+/// @dev Deploy the frxUSD and sfrxUSD adapters, connect them to Mode, sei, x-layer
+/*
+source .env && forge script scripts/UpgradeFrax/5_DeployFraxtalAdapter.s.sol --rpc-url https://rpc.frax.com \
+    --verifier-url $FRAXSCAN_API_URL --etherscan-api-key $FRAXSCAN_API_KEY
+*/
 contract DeployFraxtalAdapterOFT is DeployFraxOFTProtocol {
     using OptionsBuilder for bytes;
     using stdJson for string;
@@ -15,6 +19,7 @@ contract DeployFraxtalAdapterOFT is DeployFraxOFTProtocol {
     address public sfrxUsd = 0xfc00000000000000000000000000000000000008;
 
     /// @dev setup oldProxyOfts to point new adapter proxy OFTs to
+    /// @dev note that proxyOfts will within this contract point to the adapters
     constructor() {
         oldProxyOfts.push(0x80Eede496655FB9047dd39d9f418d5483ED600df); // FRAX
         oldProxyOfts.push(0x5Bff88cA1442c2496f7E475E9e7786383Bc070c0); // sFRAX
@@ -36,26 +41,24 @@ contract DeployFraxtalAdapterOFT is DeployFraxOFTProtocol {
         // create filename and save
         string memory root = vm.projectRoot();
         root = string.concat(root, "/scripts/UpgradeFrax/txs/");
-        string memory filename = string.concat("5_DeployFraxtalAdapter-", activeConfig.chainid.toString());
-        filename = string.concat(filename, "-");
-        filename = string.concat(filename, _config.chainid.toString());
+        string memory filename = string.concat("5_DeployFraxtalAdapter-", _config.chainid.toString());
         filename = string.concat(filename, ".json");
 
         new SafeTxUtil().writeTxs(serializedTxs, string.concat(root, filename));
     }
 
     /// @dev skip setting legacy OFTs, config with oldProxyOfts
-    function setupSource() public virtual broadcastAs(configDeployerPK) {
-        // setEnforcedOptions({
-        //     _connectedOfts: proxyOfts,
-        //     _configs: configs
-        // });
+    function setupSource() public override broadcastAs(configDeployerPK) {
+        setEnforcedOptions({
+            _connectedOfts: proxyOfts,
+            _configs: configs
+        });
 
-        // setDVNs({
-        //     _connectedConfig: activeConfig,
-        //     _connectedOfts: proxyOfts,
-        //     _configs: configs
-        // });
+        setDVNs({
+            _connectedConfig: activeConfig,
+            _connectedOfts: proxyOfts,
+            _configs: configs
+        });
 
         // setPeers({
         //     _connectedOfts: proxyOfts,
@@ -72,6 +75,37 @@ contract DeployFraxtalAdapterOFT is DeployFraxOFTProtocol {
 
         setPriviledgedRoles();
     }
+    
+    /// @dev only setup proxy destinations
+    function setupDestinations() public override {
+        // setupLegacyDestinations();
+        setupProxyDestinations();
+    }
+
+    /// @dev set the peer config to the new contracts (enforced options, dvns already set for chain)
+    function setupDestination(
+        L0Config memory _connectedConfig,
+        address[] memory _connectedOfts
+    ) public override simulateAndWriteTxs(_connectedConfig) {
+        // setEnforcedOptions({
+        //     _connectedOfts: _connectedOfts,
+        //     _configs: activeConfigArray
+        // });
+
+        // setDVNs({
+        //     _connectedConfig: _connectedConfig,
+        //     _connectedOfts: _connectedOfts,
+        //     _configs: activeConfigArray
+        // });
+
+        setPeers({
+            // _connectedOfts: _connectedOfts,
+            _connectedOfts: oldProxyOfts,
+            _peerOfts: proxyOfts,
+            _configs: activeConfigArray
+        });
+    }
+
 
     /// @dev simple checks override
     function postDeployChecks() public override view {
@@ -79,8 +113,8 @@ contract DeployFraxtalAdapterOFT is DeployFraxOFTProtocol {
         require(sFraxOft != address(0));
     }
 
-    /// @dev only deploy the FRAX and sFRAX adapters
-    function deployFraxOFTUpgradeablesAndProxies() broadcastAs(oftDeployerPK) public override {
+    /// @dev only deploy the FRAX and sFRAX adapters, as config deployer to maintain semi-determinstic-ness of oftDeployerPK
+    function deployFraxOFTUpgradeablesAndProxies() /* broadcastAs(oftDeployerPK) */ broadcastAs(configDeployerPK) public override {
         // already deployed
         proxyAdmin = 0x223a681fc5c5522c85C96157c0efA18cd6c5405c;
         implementationMock = 0x8f1B9c1fd67136D525E14D96Efb3887a33f16250;
@@ -110,7 +144,7 @@ contract DeployFraxtalAdapterOFT is DeployFraxOFTProtocol {
         bytes memory bytecode = bytes.concat(
             abi.encodePacked(type(FraxOFTAdapterUpgradeable).creationCode),
             // abi.encode(activeConfig.endpoint)
-            abi.encode(_token, activeConfig.endpoint);
+            abi.encode(_token, activeConfig.endpoint)
         );
         assembly {
             implementation := create(0, add(bytecode, 0x20), mload(bytecode))
@@ -118,11 +152,12 @@ contract DeployFraxtalAdapterOFT is DeployFraxOFTProtocol {
                 revert(0, 0)
             }
         }
-        proxy = address(new TransparentUpgradeableProxy(implementationMock, vm.addr(oftDeployerPK), ""));
+        /// @dev as we're deploying from the config addr, set as the owner
+        proxy = address(new TransparentUpgradeableProxy(implementationMock, /* vm.addr(oftDeployerPK) */ vm.addr(configDeployerPK) , ""));
 
         /// @dev override
         bytes memory initializeArgs = abi.encodeWithSelector(
-            FraxOFTUpgradeable.initialize.selector,
+            FraxOFTAdapterUpgradeable.initialize.selector,
             // _name,
             // _symbol,
             vm.addr(configDeployerPK)
@@ -135,14 +170,14 @@ contract DeployFraxtalAdapterOFT is DeployFraxOFTProtocol {
         proxyOfts.push(proxy);
 
         // State checks
-        require(
-            isStringEqual(FraxOFTUpgradeable(proxy).name(), _name),
-            "OFT name incorrect"
-        );
-        require(
-            isStringEqual(FraxOFTUpgradeable(proxy).symbol(), _symbol),
-            "OFT symbol incorrect"
-        );
+        // require(
+        //     isStringEqual(FraxOFTUpgradeable(proxy).name(), _name),
+        //     "OFT name incorrect"
+        // );
+        // require(
+        //     isStringEqual(FraxOFTUpgradeable(proxy).symbol(), _symbol),
+        //     "OFT symbol incorrect"
+        // );
         require(
             address(FraxOFTUpgradeable(proxy).endpoint()) == activeConfig.endpoint,
             "OFT endpoint incorrect"

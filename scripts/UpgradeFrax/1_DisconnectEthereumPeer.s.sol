@@ -101,7 +101,7 @@ contract DisconnectEthereumPeer is DeployFraxOFTProtocol {
         });
     }
 
-    /// @dev override peer address to address(0)
+    /// @dev override peer address to address(0) and allow writing to active chain
     function setPeers(
         address[] memory _connectedOfts,
         address[] memory _peerOfts,
@@ -114,8 +114,9 @@ contract DisconnectEthereumPeer is DeployFraxOFTProtocol {
             for (uint256 c=0; c<_configs.length; c++) {
                 uint32 eid = uint32(_configs[c].eid);
 
+                /// @dev comment out
                 // cannot set peer to self
-                if (chainid == activeConfig.chainid && eid == activeConfig.eid) continue;
+                // if (chainid == activeConfig.chainid && eid == activeConfig.eid) continue;
 
                 bytes memory data = abi.encodeCall(
                     IOAppCore.setPeer,

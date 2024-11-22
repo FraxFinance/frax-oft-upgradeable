@@ -11,8 +11,8 @@ contract DeployMockOFT is DeployFraxOFTProtocol {
     using stdJson for string;
     using Strings for uint256;
 
-    uint256 initialFraxSupply = 1; // TODO
-    uint256 initialSFraxSupply = 1; // TODO
+    uint256 initialFraxSupply = 1_000_000.123e18; // TODO
+    uint256 initialSFraxSupply = 1_400_000.55e18; // TODO
     address deployer = 0xb0E1650A9760e0f383174af042091fc544b8356f;
 
     /// @dev override to only use FRAX, sFRAX as peer

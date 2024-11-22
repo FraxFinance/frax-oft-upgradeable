@@ -3,6 +3,7 @@ pragma solidity ^0.8.22;
 
 import "../DeployFraxOFTProtocol/DeployFraxOFTProtocol.s.sol";
 import { FraxOFTAdapterUpgradeable } from "contracts/FraxOFTAdapterUpgradeable.sol";
+import { IMessageLibManager } from "@fraxfinance/layerzero-v2-upgradeable/protocol/contracts/interfaces/IMessageLibManager.sol";
 
 /// @dev Deploy the frxUSD and sfrxUSD adapters, connect them to Mode, sei, x-layer
 /*
@@ -47,7 +48,7 @@ contract DeployFraxtalAdapterOFT is DeployFraxOFTProtocol {
         new SafeTxUtil().writeTxs(serializedTxs, string.concat(root, filename));
     }
 
-    /// @dev skip setting legacy OFTs, config with oldProxyOfts
+    /// @dev skip setting legacy OFTs, config with oldProxyOfts, set send recieve lib
     function setupSource() public override broadcastAs(configDeployerPK) {
         setEnforcedOptions({
             _connectedOfts: proxyOfts,
@@ -73,7 +74,55 @@ contract DeployFraxtalAdapterOFT is DeployFraxOFTProtocol {
             _configs: proxyConfigs
         });
 
+        setSendReceiveLibs({
+            _connectedConfig: activeConfig,
+            _connectedOfts: proxyOfts,
+            _configs: proxyConfigs
+        });
+
         setPriviledgedRoles();
+    }
+
+    function setSendReceiveLibs(
+        L0Config memory _connectedConfig,
+        address[] memory _connectedOfts,
+        L0Config[] memory _configs
+    ) public {
+        // For each connected oft
+        for (uint256 o=0; o<_connectedOfts.length; o++) {
+            // set the sendReceive library per chain
+            for (uint256 c=0; c<_configs.length; c++) {
+                setSendReceiveLib({
+                    _connectedConfig: _connectedConfig,
+                    _connectedOft: _connectedOfts[o],
+                    _config: _configs[c]
+                });
+            }
+        }
+    }
+
+    function setSendReceiveLib(
+        L0Config memory _connectedConfig,
+        address _connectedOft,
+        L0Config memory _config
+    ) public {
+        // skip setting libs for self
+        if (_connectedConfig.eid == _config.eid) return;
+        
+        // set sendLib to default
+        IMessageLibManager(_connectedConfig.endpoint).setSendLibrary({
+            _oapp: _connectedOft,
+            _eid: uint32(_config.eid),
+            _newLib: _connectedConfig.sendLib302
+        });
+
+        // set receiveLib to default
+        IMessageLibManager(_connectedConfig.endpoint).setReceiveLibrary({
+            _oapp: _connectedOft,
+            _eid: uint32(_config.eid),
+            _newLib: _connectedConfig.receiveLib302,
+            _gracePeriod: 0
+        });
     }
     
     /// @dev only setup proxy destinations

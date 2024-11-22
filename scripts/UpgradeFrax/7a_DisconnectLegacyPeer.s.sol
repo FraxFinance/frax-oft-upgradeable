@@ -3,10 +3,9 @@ pragma solidity ^0.8.22;
 
 import "../DeployFraxOFTProtocol/DeployFraxOFTProtocol.s.sol";
 
-/// @dev On ethereum, reset the peers of FRAX / sFRAX to prevent bridging.  Additionally, reset the peers of FRAX / sFRAX
-///        on destination chains to prevent bridging
-// forge script scripts/UpgradeFrax/1_DisconnectEthereumPeer.s.sol --rpc-url https://ethereum-rpc.publicnode.com
-contract DisconnectEthereumPeer is DeployFraxOFTProtocol {
+/// @dev On all legacy chains, remove proxy peers
+// forge script scripts/UpgradeFrax/7a_DisconnectLegacyOFT.s.sol --rpc-url https://rpc.frax.com
+contract DisconnectLegacyOFT is DeployFraxOFTProtocol {
     using stdJson for string;
     using Strings for uint256;
 
@@ -26,56 +25,25 @@ contract DisconnectEthereumPeer is DeployFraxOFTProtocol {
         // create filename and save
         string memory root = vm.projectRoot();
         root = string.concat(root, "/scripts/UpgradeFrax/txs/");
-        string memory filename = string.concat("1_DisconnectEthereumPeer-", _config.chainid.toString());
+        string memory filename = string.concat("7a_DisconnectLegacyOFT-", _config.chainid.toString());
         filename = string.concat(filename, ".json");
 
         new SafeTxUtil().writeTxs(serializedTxs, string.concat(root, filename));
     }
-
-
-    /// @dev skip deployment, set oft addrs to only FRAX/sFRAX
+    
     function run() public override {
         delete legacyOfts;
         legacyOfts.push(0x909DBdE1eBE906Af95660033e478D59EFe831fED); // FRAX
         legacyOfts.push(0x1f55a02A049033E3419a8E2975cF3F572F4e6E9A); // sFRAX
 
-        delete proxyOfts;
-        proxyOfts.push(0x80Eede496655FB9047dd39d9f418d5483ED600df); // FRAX
-        proxyOfts.push(0x5Bff88cA1442c2496f7E475E9e7786383Bc070c0); // sFRAX
-
         // deploySource();
-        setupSource();
+        // setupSource();
         setupDestinations();
     }
 
-    /// @dev only set peers with legacy OFTs, simulate instead of broadcast
-    function setupSource() public override simulateAndWriteTxs(activeConfig) {
-        // setEnforcedOptions({
-        //     _connectedOfts: proxyOfts,
-        //     _configs: configs
-        // });
-
-        // setDVNs({
-        //     _connectedConfig: activeConfig,
-        //     _connectedOfts: proxyOfts,
-        //     _configs: configs
-        // });
-
-        setPeers({
-            // _connectedOfts: proxyOfts,
-            _connectedOfts: legacyOfts,
-            _peerOfts: legacyOfts,
-            _configs: legacyConfigs
-        });
-
-        setPeers({
-            // _connectedOfts: proxyOfts,
-            _connectedOfts: legacyOfts,
-            _peerOfts: proxyOfts,
-            _configs: proxyConfigs
-        });
-
-        // setPriviledgedRoles();
+    function setupDestinations() public override {
+        setupLegacyDestinations();
+        // setupProxyDestinations();
     }
 
     /// @dev only set peers
@@ -96,8 +64,9 @@ contract DisconnectEthereumPeer is DeployFraxOFTProtocol {
 
         setPeers({
             _connectedOfts: _connectedOfts,
-            _peerOfts: proxyOfts,
-            _configs: activeConfigArray
+            _peerOfts: legacyOfts, // overrides to address(0)
+            // _configs: activeConfigArray
+            _configs: proxyConfigs
         });
     }
 
@@ -114,9 +83,8 @@ contract DisconnectEthereumPeer is DeployFraxOFTProtocol {
             for (uint256 c=0; c<_configs.length; c++) {
                 uint32 eid = uint32(_configs[c].eid);
 
-                /// @dev comment out
                 // cannot set peer to self
-                // if (chainid == activeConfig.chainid && eid == activeConfig.eid) continue;
+                if (chainid == activeConfig.chainid && eid == activeConfig.eid) continue;
 
                 bytes memory data = abi.encodeCall(
                     IOAppCore.setPeer,

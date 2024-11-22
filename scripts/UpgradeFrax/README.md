@@ -17,7 +17,9 @@ FRAX and sFRAX are due for an upgrade.  These tokens will now be frxUSD and sfrx
 Prevent new messages from being sent to other chains.  Allow already-sent messages to finish delivery & execution.
 
 #### 2. Deploy Mock OFT
-- Deploy a FRAX/sFRAX "mock" OFT on Fraxtal with an initial supply of the lockbox (minus legacy circulating supply) to remove from the Ethereum lockbox.
+- Deploy a FRAX/sFRAX "mock" OFT on Fraxtal with an initial supply of the lockbox (minus legacy/fraxtal circulating supply) to remove from the Ethereum lockbox.
+    - Initial FRAX: [Lockbox](https://etherscan.io/token/0x853d955acef822db058eb8505911ed77f175b99e?a=0x909DBdE1eBE906Af95660033e478D59EFe831fED) - [base](https://basescan.org/token/0x909DBdE1eBE906Af95660033e478D59EFe831fED)
+    - Initial sFRAX: [Lockbox](https://etherscan.io/token/0xa663b02cf0a4b149d2ad41910cb81e23e1c41c32?a=0xe4796cCB6bB5DE2290C417Ac337F2b66CA2E770E) - [Metis](https://explorer.metis.io/token/0xe4796cCB6bB5DE2290C417Ac337F2b66CA2E770E) - [Blast](https://blastscan.io/token/0xe4796cCB6bB5DE2290C417Ac337F2b66CA2E770E) - [Base](https://basescan.org/token/0xe4796cCB6bB5DE2290C417Ac337F2b66CA2E770E)
 - Mint the supply to the Frax team msig.
 - Set the Ethereum peer to the (m)FRAX/(m)sFRAX.  From this, bridging (m)FRAX to Ethereum will unlock the respective FRAX on Ethereum.
 

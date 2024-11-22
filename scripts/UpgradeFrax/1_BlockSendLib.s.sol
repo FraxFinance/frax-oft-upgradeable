@@ -58,6 +58,8 @@ contract BlockSendLib is DeployFraxOFTProtocol {
         }
         // set for proxy chains
         for (uint256 c=0; c<proxyConfigs.length; c++) {
+            // skip blocking for fraxtal- keep open to send mock OFT
+            if (proxyConfigs[c].chainid == 252) continue;
             setSendLib(proxyOfts, proxyConfigs[c]);
         }
     }

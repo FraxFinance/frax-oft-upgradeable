@@ -5,7 +5,7 @@ import "../DeployFraxOFTProtocol/DeployFraxOFTProtocol.s.sol";
 
 /// @dev On all legacy chains, remove proxy peers
 // forge script scripts/UpgradeFrax/7a_DisconnectLegacyOFT.s.sol --rpc-url https://rpc.frax.com
-contract DisconnectLegacyOFT is DeployFraxOFTProtocol {
+contract DisconnectLegacyPeer is DeployFraxOFTProtocol {
     using stdJson for string;
     using Strings for uint256;
 

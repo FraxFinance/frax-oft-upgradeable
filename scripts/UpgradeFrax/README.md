@@ -26,8 +26,8 @@ Prevent new messages from being sent to other chains.  Allow already-sent messag
 #### 3. Remove lockbox liquidity
 From the team msig, send the (m)FRAX/(m)sFRAX to the Ethereum team msig, removing liquidity from the lockbox.
 
-#### 4. Deploy Fraxtal lockboxes
-Deploy frxUSD/sfrxUSD lockboxes on Fraxtal. These lockboxes will be connected to the upgradeable OFTs.
+#### 4. Upgrade Fraxtal OFTs to lockboxes
+Deploy frxUSD/sfrxUSD lockboxes implementations on Fraxtal and upgrade the Fraxtal OFT proxies to point to the new implementations.
 
 #### 5. Add liquidity to lockboxes
 Frax team to add the respective FRAX/sFRAX liquidity to the frxUSD/sfrxUSD lockboxes.

@@ -17,12 +17,16 @@ contract UpgradeOFTMetadata is DeployFraxOFTProtocol {
     using stdJson for string;
     using Strings for uint256;
 
-    address public proxyAdmin_ = 0x223a681fc5c5522c85C96157c0efA18cd6c5405c;
-    address public frxUsdProxy = 0x80Eede496655FB9047dd39d9f418d5483ED600df;
-    address public sfrxUsdProxy = 0x5Bff88cA1442c2496f7E475E9e7786383Bc070c0;
-    // TODO: (7) can be executed with (8) if we uncomment out deployImplementations() within run()
+    // TODO: THESE CHANGE PER CHAIN
     address public frxUsdImplementation = 0x9D0FEe988A8134Db109c587DB047761904A34B5b;
     address public sfrxUsdImplementation = 0xD09F0B6B4b76D5832BfE911793437f5b4c143100;
+
+    constructor() {
+        /// @dev declared in BaseL0Script.sol, already deployed
+        proxyAdmin = 0x223a681fc5c5522c85C96157c0efA18cd6c5405c;
+        fraxOft = 0x80Eede496655FB9047dd39d9f418d5483ED600df;
+        sFraxOft = 0x5Bff88cA1442c2496f7E475E9e7786383Bc070c0;
+    }
 
     /// @dev override to alter file save location
     modifier simulateAndWriteTxs(L0Config memory _config) override {
@@ -47,19 +51,18 @@ contract UpgradeOFTMetadata is DeployFraxOFTProtocol {
     }
 
     function run() public override {
-        // deployImplementations();
         upgradeOfts();
     }
 
     function upgradeOfts() public simulateAndWriteTxs(activeConfig) {
         upgradeOft({
-            _oft: frxUsdProxy,
+            _oft: fraxOft,
             _implementation: frxUsdImplementation,
             _name: "Frax USD",
             _symbol: "frxUSD"
         });
         upgradeOft({
-            _oft: sfrxUsdProxy,
+            _oft: sFraxOft,
             _implementation: sfrxUsdImplementation,
             _name: "Staked Frax USD",
             _symbol: "sfrxUSD"
@@ -75,21 +78,20 @@ contract UpgradeOFTMetadata is DeployFraxOFTProtocol {
         uint256 supplyBefore = IERC20(_oft).totalSupply();
         require(supplyBefore > 0, "Supply before == 0");
 
-        bytes memory upgradeAndCall = abi.encodeCall(
-            ProxyAdmin.upgradeAndCall,
+        bytes memory upgrade = abi.encodeCall(
+            ProxyAdmin.upgrade,
             (
                 TransparentUpgradeableProxy(payable(_oft)),
-                _implementation,
-                abi.encodeWithSignature("name()") // simple func call to prevent fallback call
+                _implementation
             )
         );
-        (bool success, ) = proxyAdmin_.call(upgradeAndCall);
+        (bool success, ) = proxyAdmin.call(upgrade);
         require(success, "Unable to upgrade proxy");
 
         // state checks
         require(supplyBefore == IERC20(_oft).totalSupply(), "total supply changed");
-        require(uint256(keccak256(abi.encodePacked(_name))) == uint256(keccak256(abi.encodePacked(IERC20Metadata(_oft).name()))), "name not changed");
-        require(uint256(keccak256(abi.encodePacked(_symbol))) == uint256(keccak256(abi.encodePacked(IERC20Metadata(_oft).symbol()))), "symbol not changed");
+        require(isStringEqual(_name, IERC20Metadata(_oft).name()), "name not changed");
+        require(isStringEqual(_symbol, IERC20Metadata(_oft).symbol()), "symbol not changed");
 
         // make sure contract cannot be re-initialized
         bytes memory initialize = abi.encodeCall(
@@ -103,10 +105,10 @@ contract UpgradeOFTMetadata is DeployFraxOFTProtocol {
 
         serializedTxs.push(
             SerializedTx({
-                name: "upgradeAndCall",
-                to: proxyAdmin_,
+                name: "upgrade",
+                to: proxyAdmin,
                 value: 0,
-                data: upgradeAndCall
+                data: upgrade
             })
         );
     }

@@ -5,7 +5,7 @@ import "../DeployFraxOFTProtocol/DeployFraxOFTProtocol.s.sol";
 
 /// @dev On proxy OFTs, remove peer connection to legacy chains
 // forge script scripts/UpgradeFrax/7b_DisconnectProxyOFT.s.sol --rpc-url https://ethereum-rpc.publicnode.com
-contract ReconnectEthereumPeer is DeployFraxOFTProtocol {
+contract DisconnectProxyPeer is DeployFraxOFTProtocol {
     using stdJson for string;
     using Strings for uint256;
 

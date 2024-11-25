@@ -54,10 +54,7 @@ contract SetSendReceiveLib is DeployFraxOFTProtocol {
         }
         // For proxy chains, unblock proxy paths
         for (uint256 c=0; c<proxyConfigs.length; c++) {
-            // skip setting lib for old fraxtal lockbox
-            L0Config memory config = proxyConfigs[c];
-            if (config.eid == 30255) continue;
-            setLib(proxyOfts, proxyConfigs, config);
+            setLib(proxyOfts, proxyConfigs, proxyConfigs[c]);
         }
     }
 

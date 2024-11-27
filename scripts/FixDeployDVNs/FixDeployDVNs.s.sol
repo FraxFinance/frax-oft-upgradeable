@@ -6,9 +6,9 @@ import "../DeployFraxOFTProtocol/DeployFraxOFTProtocol.s.sol";
 /// @dev creates 34443 files with set DVNs for all chains- 
 
 /*
-Goal: change _configs from activeConfigArray to all configs as setupSource uses configs.
+Goal: change _configs from broadcastConfigArray to all configs as setupSource uses configs.
 ie: through non-removal of old arrays (https://github.com/FraxFinance/frax-oft-upgradeable/pull/11),
-  the prior DVN configurations were overwritten in setupSource() with invalid activeConfigArray DVN addrs.
+  the prior DVN configurations were overwritten in setupSource() with invalid broadcastConfigArray DVN addrs.
 */
 
 contract FixDeployDVNs is DeployFraxOFTProtocol {
@@ -16,27 +16,18 @@ contract FixDeployDVNs is DeployFraxOFTProtocol {
     using stdJson for string;
     using Strings for uint256;
 
-    /// @dev override to alter file save location
-    modifier simulateAndWriteTxs(L0Config memory _config) override {
-        // Clear out arrays
-        delete enforcedOptionsParams;
-        delete setConfigParams;
-        delete serializedTxs;
-
-        vm.createSelectFork(_config.RPC);
-        chainid = _config.chainid;
-        vm.startPrank(_config.delegate);
-        _;
-        vm.stopPrank();
-
-        // create filename and save
-        string memory root = vm.projectRoot();
-        root = string.concat(root, "/scripts/DeployFraxOFTProtocol/txs/FixDeployDVNs/");
-        string memory filename = string.concat(_config.chainid.toString(), "-fixed.json");
-        
-        new SafeTxUtil().writeTxs(serializedTxs, string.concat(root, filename));
+    function version() public virtual override pure returns (uint256, uint256, uint256) {
+        return (1, 0, 1);
     }
 
+    /// @dev override to alter file save location
+    function filename() public view override returns (string memory) {
+        string memory root = vm.projectRoot();
+        root = string.concat(root, "/scripts/DeployFraxOFTProtocol/txs/FixDeployDVNs/");
+        string memory name = string.concat(simulateConfig.chainid.toString(), "-fixed.json");
+
+        return string.concat(root, name);
+    }
 
     function setUp() public override {
         super.setUp();
@@ -58,7 +49,7 @@ contract FixDeployDVNs is DeployFraxOFTProtocol {
     ) public override simulateAndWriteTxs(_connectedConfig) {
         // setEnforcedOptions({
         //     _connectedOfts: _connectedOfts,
-        //     _configs: activeConfigArray
+        //     _configs: broadcastConfigArray
         // });
 
         setDVNs({

@@ -13,7 +13,7 @@ contract FixDVNs is DeployFraxOFTProtocol {
     using Strings for uint256;
 
     function version() public virtual override pure returns (uint256, uint256, uint256) {
-        return (1, 0, 1);
+        return (1, 0, 2);
     }
 
     /// @dev override to alter file save location
@@ -46,7 +46,7 @@ contract FixDVNs is DeployFraxOFTProtocol {
         setDVNs({
             _connectedConfig: broadcastConfig,
             _connectedOfts: proxyOfts,
-            _configs: configs
+            _configs: evmConfigs
         });
 
         // /// @dev legacy, non-upgradeable OFTs

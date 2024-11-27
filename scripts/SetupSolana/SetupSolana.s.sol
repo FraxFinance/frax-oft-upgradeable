@@ -19,7 +19,7 @@ contract SetupSolana is DeployFraxOFTProtocol {
     bytes32[] solanaPeers;
 
     function version() public virtual override pure returns (uint256, uint256, uint256) {
-        return (1, 0, 1);
+        return (1, 0, 2);
     }
 
     /// @dev comments out requirements at end and setting of broadcastConfig
@@ -40,7 +40,8 @@ contract SetupSolana is DeployFraxOFTProtocol {
             //     activeLegacy = true;
             // }
             legacyConfigs.push(config_);
-            configs.push(config_);
+            evmConfigs.push(config_);
+            allConfigs.push(config_);
         }
 
         // proxy (active deployment loaded as broadcastConfig)
@@ -53,7 +54,8 @@ contract SetupSolana is DeployFraxOFTProtocol {
             //     activeLegacy = false;
             // }
             proxyConfigs.push(config_);
-            configs.push(config_);
+            evmConfigs.push(config_);
+            allConfigs.push(config_);
         }
         // require(broadcastConfig.chainid != 0, "L0Config for source not loaded");
         // require(broadcastConfigArray.length == 1, "broadcastConfigArray does not equal 1");
@@ -119,7 +121,7 @@ contract SetupSolana is DeployFraxOFTProtocol {
     function setEnforcedOptions(
         address[] memory _connectedOfts,
         L0Config[] memory _configs
-    ) public override {
+    ) public {
         // For each peer, default
         // https://github.com/FraxFinance/LayerZero-v2-upgradeable/blob/e1470197e0cffe0d89dd9c776762c8fdcfc1e160/oapp/test/OFT.t.sol#L417
         bytes memory optionsTypeOne = OptionsBuilder.newOptions().addExecutorLzReceiveOption(200_000, 2_500_000);
@@ -131,8 +133,8 @@ contract SetupSolana is DeployFraxOFTProtocol {
             // cannot set enforced options to self
             if (block.chainid == _configs[c].chainid) continue;
 
-            enforcedOptionsParams.push(EnforcedOptionParam(eid, 1, optionsTypeOne));
-            enforcedOptionsParams.push(EnforcedOptionParam(eid, 2, optionsTypeTwo));
+            enforcedOptionParams.push(EnforcedOptionParam(eid, 1, optionsTypeOne));
+            enforcedOptionParams.push(EnforcedOptionParam(eid, 2, optionsTypeTwo));
         }
 
         for (uint256 o=0; o<_connectedOfts.length; o++) {
@@ -140,7 +142,7 @@ contract SetupSolana is DeployFraxOFTProtocol {
             bytes memory data = abi.encodeCall(
                 IOAppOptionsType3.setEnforcedOptions,
                 (
-                    enforcedOptionsParams
+                    enforcedOptionParams
                 )
             );
             (bool success, ) = connectedOft.call(data);

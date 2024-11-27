@@ -29,13 +29,13 @@ contract SubmitSends is BaseL0Script {
     function submitSends(
         address[] memory _connectedOfts
     ) public {
-        for (uint256 c=0; c<configs.length; c++) {
+        for (uint256 c=0; c<allConfigs.length; c++) {
             // Do not send if the target chain == active chain
-            if (configs[c].chainid == broadcastConfig.chainid) {
+            if (allConfigs[c].chainid == broadcastConfig.chainid) {
                 continue;
             }
             for (uint256 o=0; o<_connectedOfts.length; o++) {
-                submitSend(configs[c], _connectedOfts[o]);
+                submitSend(allConfigs[c], _connectedOfts[o]);
             }
         }
     }

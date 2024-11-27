@@ -51,11 +51,24 @@ contract BaseL0Script is Script {
     }
     L0Config[] public legacyConfigs;
     L0Config[] public proxyConfigs;
-    L0Config[] public configs; // legacy & proxy configs
+    L0Config[] public evmConfigs;
+    L0Config[] public nonEvmConfigs;
+    L0Config[] public allConfigs; // legacy, proxy, and non-evm allConfigs
     L0Config public broadcastConfig; // config of actively-connected (broadcasting) chain
     L0Config public simulateConfig;  // Config of the simulated chain
     L0Config[] public broadcastConfigArray; // length of 1 of broadcastConfig
-    bool public activeLegacy; // true if we're broadcasting to legacy chain
+    bool public activeLegacy; // true if we're broadcasting to legacy chain (setup by L0 team)
+
+    /// @dev alphabetical order as json is read in by keys alphabetically.
+    struct NonEvmPeer {
+        bytes32 fpi;
+        bytes32 frax;
+        bytes32 frxEth;
+        bytes32 fxs;
+        bytes32 sFrax;
+        bytes32 sFrxEth;
+    }
+    bytes32[][] public nonEvmPeersArrays;
 
     // Mock implementation used to enable pre-determinsitic proxy creation
     address public implementationMock;
@@ -73,9 +86,9 @@ contract BaseL0Script is Script {
     // 1:1 match between these arrays for setting peers
     address[] public legacyOfts;
     address[] public expectedProxyOfts; // to assert against proxyOfts
-    address[] public proxyOfts;
+    address[] public proxyOfts; // the OFTs deployed through `DeployFraxOFTProtocol.s.sol`
 
-    EnforcedOptionParam[] public enforcedOptionsParams;
+    EnforcedOptionParam[] public enforcedOptionParams;
 
     SetConfigParam[] public setConfigParams;
 
@@ -84,7 +97,7 @@ contract BaseL0Script is Script {
     string public json;
 
     function version() public virtual pure returns (uint256, uint256, uint256) {
-        return (1, 1, 3);
+        return (1, 2, 0);
     }
 
     modifier broadcastAs(uint256 privateKey) {
@@ -97,7 +110,7 @@ contract BaseL0Script is Script {
         L0Config memory _simulateConfig
     ) virtual {
         // Clear out any previous txs
-        delete enforcedOptionsParams;
+        delete enforcedOptionParams;
         delete setConfigParams;
         delete serializedTxs;
 
@@ -148,10 +161,11 @@ contract BaseL0Script is Script {
 
     function loadJsonConfig() public virtual {
         string memory root = vm.projectRoot();
+        
+        // L0Config.json
+
         string memory path = string.concat(root, "/scripts/L0Config.json");
         json = vm.readFile(path);
-        
-        // load and write to persistent storage
 
         // legacy
         L0Config[] memory legacyConfigs_ = abi.decode(json.parseRaw(".Legacy"), (L0Config[]));
@@ -163,7 +177,8 @@ contract BaseL0Script is Script {
                 activeLegacy = true;
             }
             legacyConfigs.push(config_);
-            configs.push(config_);
+            allConfigs.push(config_);
+            evmConfigs.push(config_);
         }
 
         // proxy (active deployment loaded as broadcastConfig)
@@ -176,10 +191,39 @@ contract BaseL0Script is Script {
                 activeLegacy = false;
             }
             proxyConfigs.push(config_);
-            configs.push(config_);
+            allConfigs.push(config_);
+            evmConfigs.push(config_);
         }
-        require(broadcastConfig.chainid != 0, "L0Config not set for broadcastConfig");
-        require(broadcastConfigArray.length == 1, "broadcastConfigArray does not equal 1");
+
+        // Non-EVM allConfigs
+        /// @dev as foundry cannot deploy to non-evm, a non-evm chain will never be the active/connected chain
+        L0Config[] memory nonEvmConfigs_ = abi.decode(json.parseRaw(".Non-EVM"), (L0Config[]));
+        for (uint256 i=0; i<nonEvmConfigs_.length; i++) {
+            L0Config memory config_ = nonEvmConfigs_[i];
+            nonEvmConfigs.push(config_);
+            allConfigs.push(config_);
+        }
+
+        // NonEvmPeers.json
+
+        path = string.concat(root, "/scripts/NonEvmPeers.json");
+        json = vm.readFile(path);
+
+        NonEvmPeer[] memory nonEvmPeers = abi.decode(json.parseRaw(".Peers"), (NonEvmPeer[]));
+        
+        // As json has to be ordered alphabetically, sort the peer addresses in the order of OFT deployment
+        for (uint256 i=0; i<nonEvmPeers.length; i++) {
+            NonEvmPeer memory peer = nonEvmPeers[i];
+            bytes32[] memory peerArray = new bytes32[](6);
+            peerArray[0] = peer.fxs;
+            peerArray[1] = peer.sFrax;
+            peerArray[2] = peer.sFrxEth;
+            peerArray[3] = peer.frax;
+            peerArray[4] = peer.frxEth;
+            peerArray[5] = peer.fpi;
+
+            nonEvmPeersArrays.push(peerArray);
+        }
     }
 
     function isStringEqual(string memory _a, string memory _b) public pure returns (bool) {

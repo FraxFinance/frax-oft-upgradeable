@@ -18,30 +18,18 @@ contract DeployFrxEThFpis is DeployFraxOFTProtocol {
     using Strings for uint256;
 
     function version() public virtual override pure returns (uint256, uint256, uint256) {
-        return (1, 0, 1);
+        return (1, 0, 2);
     }
 
     /// @dev override to alter file save location
-    modifier simulateAndWriteTxs(L0Config memory _config) override {
-        // Clear out arrays
-        delete enforcedOptionsParams;
-        delete setConfigParams;
-        delete serializedTxs;
-
-        vm.createSelectFork(_config.RPC);
-        chainid = _config.chainid;
-        vm.startPrank(_config.delegate);
-        _;
-        vm.stopPrank();
-
-        // create filename and save
+    function filename() public view override returns (string memory) {
         string memory root = vm.projectRoot();
         root = string.concat(root, "/scripts/DeployFrxEthFpi/txs/");
-        string memory filename = string.concat(activeConfig.chainid.toString(), "-");
-        filename = string.concat(filename, _config.chainid.toString());
-        filename = string.concat(filename, ".json");
+        string memory name = string.concat(broadcastConfig.chainid.toString(), "-");
+        name = string.concat(name, simulateConfig.chainid.toString());
+        name = string.concat(name, ".json");
 
-        new SafeTxUtil().writeTxs(serializedTxs, string.concat(root, filename));
+        return string.concat(root, name);
     }
 
 
@@ -88,12 +76,12 @@ contract DeployFrxEThFpis is DeployFraxOFTProtocol {
     function setPriviledgedRoles() public virtual override {
         for (uint256 o=0; o<proxyOfts.length; o++) {
             address proxyOft = proxyOfts[o];
-            FraxOFTUpgradeable(proxyOft).setDelegate(activeConfig.delegate);
-            Ownable(proxyOft).transferOwnership(activeConfig.delegate);
+            FraxOFTUpgradeable(proxyOft).setDelegate(broadcastConfig.delegate);
+            Ownable(proxyOft).transferOwnership(broadcastConfig.delegate);
         }
 
         /// @dev transfer ownership of ProxyAdmin
-        // Ownable(proxyAdmin).transferOwnership(activeConfig.delegate);
+        // Ownable(proxyAdmin).transferOwnership(broadcastConfig.delegate);
     }
 
 }

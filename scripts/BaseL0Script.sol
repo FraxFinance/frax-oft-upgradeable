@@ -52,8 +52,9 @@ contract BaseL0Script is Script {
     L0Config[] public legacyConfigs;
     L0Config[] public proxyConfigs;
     L0Config[] public configs; // legacy & proxy configs
-    L0Config public activeConfig; // config of actively-connected (broadcasting) chain
-    L0Config[] public activeConfigArray; // length of 1 of activeConfig
+    L0Config public broadcastConfig; // config of actively-connected (broadcasting) chain
+    L0Config public simulateConfig;  // Config of the simulated chain
+    L0Config[] public broadcastConfigArray; // length of 1 of broadcastConfig
     bool public activeLegacy; // true if we're broadcasting to legacy chain
 
     // Mock implementation used to enable pre-determinsitic proxy creation
@@ -78,13 +79,12 @@ contract BaseL0Script is Script {
 
     SetConfigParam[] public setConfigParams;
 
-    SerializedTx[] serializedTxs;
+    SerializedTx[] public serializedTxs;
 
-    uint256 public chainid;
     string public json;
 
     function version() public virtual pure returns (uint256, uint256, uint256) {
-        return (1, 1, 2);
+        return (1, 1, 3);
     }
 
     modifier broadcastAs(uint256 privateKey) {
@@ -93,35 +93,39 @@ contract BaseL0Script is Script {
         vm.stopBroadcast();
     }
 
-
     modifier simulateAndWriteTxs(
-        L0Config memory _config
+        L0Config memory _simulateConfig
     ) virtual {
         // Clear out any previous txs
         delete enforcedOptionsParams;
         delete setConfigParams;
         delete serializedTxs;
 
-        vm.createSelectFork(_config.RPC);
-        chainid = _config.chainid;
-        vm.startPrank(_config.delegate);
+        // store for later referencing
+        simulateConfig = _simulateConfig;
+
+        // Simulate fork as delegate (aka msig) as we're crafting txs within the modified function
+        vm.createSelectFork(_simulateConfig.RPC);
+        vm.startPrank(_simulateConfig.delegate);
         _;
         vm.stopPrank();
 
-        // create filename and save
-        string memory root = vm.projectRoot();
-        root = string.concat(root, '/scripts/DeployFraxOFTProtocol/txs/');
-        string memory filename = string.concat(activeConfig.chainid.toString(), "-");
-        filename = string.concat(filename, _config.chainid.toString());
-        filename = string.concat(filename, ".json");
-        
-        new SafeTxUtil().writeTxs(serializedTxs, string.concat(root, filename));
+        // serialized txs were pushed within the modified function- write to storage
+        new SafeTxUtil().writeTxs(serializedTxs, filename());
     }
 
+    function filename() public view virtual returns (string memory) {
+        string memory root = vm.projectRoot();
+        root = string.concat(root, '/scripts/DeployFraxOFTProtocol/txs/');
+
+        string memory name = string.concat(broadcastConfig.chainid.toString(), "-");
+        name = string.concat(name, simulateConfig.chainid.toString());
+        name = string.concat(name, ".json");
+        return string.concat(root, name);
+    }
 
     function setUp() public virtual {
         // Set constants based on deployment chain id
-        chainid = block.chainid;
         loadJsonConfig();
 
         /// @dev: this array maintains the same token order as proxyOfts and the addrs are confirmed on eth mainnet, blast, base, and metis.
@@ -153,29 +157,29 @@ contract BaseL0Script is Script {
         L0Config[] memory legacyConfigs_ = abi.decode(json.parseRaw(".Legacy"), (L0Config[]));
         for (uint256 i=0; i<legacyConfigs_.length; i++) {
             L0Config memory config_ = legacyConfigs_[i];
-            if (config_.chainid == chainid) {
-                activeConfig = config_;
-                activeConfigArray.push(config_);
+            if (config_.chainid == block.chainid) {
+                broadcastConfig = config_;
+                broadcastConfigArray.push(config_);
                 activeLegacy = true;
             }
             legacyConfigs.push(config_);
             configs.push(config_);
         }
 
-        // proxy (active deployment loaded as activeConfig)
+        // proxy (active deployment loaded as broadcastConfig)
         L0Config[] memory proxyConfigs_ = abi.decode(json.parseRaw(".Proxy"), (L0Config[]));
         for (uint256 i=0; i<proxyConfigs_.length; i++) {
             L0Config memory config_ = proxyConfigs_[i];
-            if (config_.chainid == chainid) {
-                activeConfig = config_;
-                activeConfigArray.push(config_);
+            if (config_.chainid == block.chainid) {
+                broadcastConfig = config_;
+                broadcastConfigArray.push(config_);
                 activeLegacy = false;
             }
             proxyConfigs.push(config_);
             configs.push(config_);
         }
-        require(activeConfig.chainid != 0, "L0Config for source not loaded");
-        require(activeConfigArray.length == 1, "ActiveConfigArray does not equal 1");
+        require(broadcastConfig.chainid != 0, "L0Config not set for broadcastConfig");
+        require(broadcastConfigArray.length == 1, "broadcastConfigArray does not equal 1");
     }
 
     function isStringEqual(string memory _a, string memory _b) public pure returns (bool) {

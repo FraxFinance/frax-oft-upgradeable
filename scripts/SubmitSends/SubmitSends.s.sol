@@ -9,7 +9,7 @@ contract SubmitSends is BaseL0Script {
     using Strings for uint256;
 
     function version() public pure override returns (uint256, uint256, uint256) {
-        return (1, 1, 1);
+        return (1, 1, 2);
     }
 
     function setUp() public override {
@@ -31,7 +31,7 @@ contract SubmitSends is BaseL0Script {
     ) public {
         for (uint256 c=0; c<configs.length; c++) {
             // Do not send if the target chain == active chain
-            if (configs[c].chainid == activeConfig.chainid) {
+            if (configs[c].chainid == broadcastConfig.chainid) {
                 continue;
             }
             for (uint256 o=0; o<_connectedOfts.length; o++) {

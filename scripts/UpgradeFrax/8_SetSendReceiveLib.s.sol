@@ -12,27 +12,14 @@ contract SetSendReceiveLib is DeployFraxOFTProtocol {
     using Strings for uint256;
 
     /// @dev override to alter file save location
-    modifier simulateAndWriteTxs(L0Config memory _config) override {
-        // Clear out arrays
-        delete enforcedOptionsParams;
-        delete setConfigParams;
-        delete serializedTxs;
-
-        vm.createSelectFork(_config.RPC);
-        chainid = _config.chainid;
-        vm.startPrank(_config.delegate);
-        _;
-        vm.stopPrank();
-
-        // create filename and save
+    function filename() public view override returns (string memory) {
         string memory root = vm.projectRoot();
         root = string.concat(root, "/scripts/UpgradeFrax/txs/");
-        string memory filename = string.concat("8_SetSendReceiveLib-", _config.chainid.toString());
-        filename = string.concat(filename, ".json");
+        string memory name = string.concat("8_SetSendReceiveLib-", simulateConfig.chainid.toString());
+        name = string.concat(name, ".json");
 
-        new SafeTxUtil().writeTxs(serializedTxs, string.concat(root, filename));
+        return string.concat(root, name);
     }
-
 
     /// @dev skip deployment, set oft addrs to only FRAX/sFRAX
     function run() public override {

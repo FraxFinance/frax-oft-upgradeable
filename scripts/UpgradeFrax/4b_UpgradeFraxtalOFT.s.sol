@@ -25,25 +25,13 @@ contract UpgradeFraxtalOFT is DeployFraxOFTProtocol {
     }
 
     /// @dev override to alter file save location
-    modifier simulateAndWriteTxs(L0Config memory _config) override {
-        // Clear out arrays
-        delete enforcedOptionsParams;
-        delete setConfigParams;
-        delete serializedTxs;
-
-        vm.createSelectFork(_config.RPC);
-        chainid = _config.chainid;
-        vm.startPrank(_config.delegate);
-        _;
-        vm.stopPrank();
-
-        // create filename and save
+    function filename() public view override returns (string memory) {
         string memory root = vm.projectRoot();
         root = string.concat(root, "/scripts/UpgradeFrax/txs/");
-        string memory filename = string.concat("4b_UpgradeFraxtalOFT-", _config.chainid.toString());
-        filename = string.concat(filename, ".json");
+        string memory name = string.concat("4b_UpgradeFraxtalOFT-", broadcastConfig.chainid.toString());
+        name = string.concat(name, ".json");
 
-        new SafeTxUtil().writeTxs(serializedTxs, string.concat(root, filename));
+        return string.concat(root, name);
     }
 
     function run() public override {
@@ -52,7 +40,7 @@ contract UpgradeFraxtalOFT is DeployFraxOFTProtocol {
 
     /// @dev Deploy the FRAX and sFRAX adapter implementations,
     /// upgrade OFT to adapter through ProxyAdmin as delegate (txs must be pranked and crafted for msig execution)
-    function upgradeOfts() simulateAndWriteTxs(activeConfig) public {
+    function upgradeOfts() simulateAndWriteTxs(broadcastConfig) public {
 
         // upgrade frax
         upgradeOft({
@@ -107,11 +95,11 @@ contract UpgradeFraxtalOFT is DeployFraxOFTProtocol {
 
         // Ensure state remains / new token view is added
         require(
-            address(FraxOFTUpgradeable(_oft).endpoint()) == activeConfig.endpoint,
+            address(FraxOFTUpgradeable(_oft).endpoint()) == broadcastConfig.endpoint,
             "OFT endpoint incorrect"
         );
         require(
-            FraxOFTUpgradeable(_oft).owner() == activeConfig.delegate,
+            FraxOFTUpgradeable(_oft).owner() == broadcastConfig.delegate,
             "OFT owner incorrect"
         );
         require(

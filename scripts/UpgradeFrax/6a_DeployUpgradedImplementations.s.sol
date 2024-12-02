@@ -9,9 +9,9 @@ import {SFrxUSDOFTUpgradeable} from "contracts/frxUsd/SFrxUSDOFTUpgradeable.sol"
 
 /// @dev craft tx to upgrade the FRAX / sFRAX OFT with the new name & symbol
 // TODO: add etherscan / verifier links
-/// @dev forge script scripts/UpgradeFrax/7_UpgradeOFTMetadata.s.sol --rpc-url https://xlayerrpc.okx.com
-/// @dev forge script scripts/UpgradeFrax/7_UpgradeOFTMetadata.s.sol --rpc-url https://mainnet.mode.network
-/// @dev forge script scripts/UpgradeFrax/7_UpgradeOFTMetadata.s.sol --rpc-url https://twilight-crimson-grass.sei-pacific.quiknode.pro/1fe7cb5c6950df0f3ebceead37f8eefdf41ddbe9
+/// @dev forge script scripts/UpgradeFrax/6a_DeployUpgradedImplementations.s.sol --rpc-url https://xlayerrpc.okx.com --broadcast
+/// @dev forge script scripts/UpgradeFrax/6a_DeployUpgradedImplementations.s.sol --rpc-url https://mainnet.mode.network --broadcast
+/// @dev forge script scripts/UpgradeFrax/6a_DeployUpgradedImplementations.s.sol --rpc-url https://twilight-crimson-grass.sei-pacific.quiknode.pro/1fe7cb5c6950df0f3ebceead37f8eefdf41ddbe9 --legacy --broadcast
 contract DeployUpgradedImplementations is DeployFraxOFTProtocol {
     using stdJson for string;
     using Strings for uint256;
@@ -28,7 +28,7 @@ contract DeployUpgradedImplementations is DeployFraxOFTProtocol {
         // Deploy frxUSD
         bytes memory bytecode = bytes.concat(
             abi.encodePacked(type(FrxUSDOFTUpgradeable).creationCode),
-            abi.encode(activeConfig.endpoint)
+            abi.encode(broadcastConfig.endpoint)
         );
         address implementation;
         assembly {
@@ -43,7 +43,7 @@ contract DeployUpgradedImplementations is DeployFraxOFTProtocol {
         // deploy sfrxUSD
         bytecode = bytes.concat(
             abi.encodePacked(type(SFrxUSDOFTUpgradeable).creationCode),
-            abi.encode(activeConfig.endpoint)
+            abi.encode(broadcastConfig.endpoint)
         );
         assembly {
             implementation := create(0, add(bytecode, 0x20), mload(bytecode))

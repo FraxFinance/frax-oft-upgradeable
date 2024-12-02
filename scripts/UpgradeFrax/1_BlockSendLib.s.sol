@@ -16,27 +16,14 @@ contract BlockSendLib is DeployFraxOFTProtocol {
     using Strings for uint256;
 
     /// @dev override to alter file save location
-    modifier simulateAndWriteTxs(L0Config memory _config) override {
-        // Clear out arrays
-        delete enforcedOptionsParams;
-        delete setConfigParams;
-        delete serializedTxs;
-
-        vm.createSelectFork(_config.RPC);
-        chainid = _config.chainid;
-        vm.startPrank(_config.delegate);
-        _;
-        vm.stopPrank();
-
-        // create filename and save
+    function filename() public view override returns (string memory) {
         string memory root = vm.projectRoot();
         root = string.concat(root, "/scripts/UpgradeFrax/txs/");
-        string memory filename = string.concat("1_BlockSendLib-", _config.chainid.toString());
-        filename = string.concat(filename, ".json");
+        string memory name = string.concat("1_BlockSendLib-", simulateConfig.chainid.toString());
+        name = string.concat(name, ".json");
 
-        new SafeTxUtil().writeTxs(serializedTxs, string.concat(root, filename));
+        return string.concat(root, name);
     }
-
 
     /// @dev skip deployment, set oft addrs to only FRAX/sFRAX
     function run() public override {
@@ -76,8 +63,8 @@ contract BlockSendLib is DeployFraxOFTProtocol {
             address connectedOft = _connectedOfts[o];
             
             // For each destination
-            for (uint256 c=0; c<configs.length; c++) {
-                uint32 eid = uint32(configs[c].eid);
+            for (uint256 c=0; c<evmConfigs.length; c++) {
+                uint32 eid = uint32(evmConfigs[c].eid);
 
                 // skip setting sendLib for self
                 if (_config.eid == eid) continue;

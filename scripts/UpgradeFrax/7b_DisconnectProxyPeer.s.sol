@@ -4,33 +4,20 @@ pragma solidity ^0.8.22;
 import "../DeployFraxOFTProtocol/DeployFraxOFTProtocol.s.sol";
 
 /// @dev On proxy OFTs, remove peer connection to legacy chains
-// forge script scripts/UpgradeFrax/7b_DisconnectProxyOFT.s.sol --rpc-url https://ethereum-rpc.publicnode.com
+// forge script scripts/UpgradeFrax/7b_DisconnectProxyPeer.s.sol --rpc-url https://ethereum-rpc.publicnode.com
 contract DisconnectProxyPeer is DeployFraxOFTProtocol {
     using stdJson for string;
     using Strings for uint256;
 
     /// @dev override to alter file save location
-    modifier simulateAndWriteTxs(L0Config memory _config) override {
-        // Clear out arrays
-        delete enforcedOptionsParams;
-        delete setConfigParams;
-        delete serializedTxs;
-
-        vm.createSelectFork(_config.RPC);
-        chainid = _config.chainid;
-        vm.startPrank(_config.delegate);
-        _;
-        vm.stopPrank();
-
-        // create filename and save
+    function filename() public view override returns (string memory) {
         string memory root = vm.projectRoot();
         root = string.concat(root, "/scripts/UpgradeFrax/txs/");
-        string memory filename = string.concat("7b_DisconnectProxyOFT-", _config.chainid.toString());
-        filename = string.concat(filename, ".json");
+        string memory name = string.concat("7b_DisconnectProxyPeer-", simulateConfig.chainid.toString());
+        name = string.concat(name, ".json");
 
-        new SafeTxUtil().writeTxs(serializedTxs, string.concat(root, filename));
+        return string.concat(root, name);
     }
-
 
     /// @dev skip deployment, disconnect proxy peer connections
     function run() public override {
@@ -53,59 +40,49 @@ contract DisconnectProxyPeer is DeployFraxOFTProtocol {
         L0Config memory _connectedConfig,
         address[] memory _connectedOfts
     ) public override simulateAndWriteTxs(_connectedConfig) {
-        // setEnforcedOptions({
+        // setEvmEnforcedOptions({
         //     _connectedOfts: _connectedOfts,
-        //     _configs: activeConfigArray
+        //     _configs: broadcastConfigArray
         // });
+
+        setEvmPeers({
+            _connectedOfts: _connectedOfts,
+            _peerOfts: proxyOfts, // overrides to address(0)
+            // _configs: broadcastConfigArray 
+            _configs: legacyConfigs
+        });
 
         // setDVNs({
         //     _connectedConfig: _connectedConfig,
         //     _connectedOfts: _connectedOfts,
-        //     _configs: activeConfigArray
+        //     _configs: broadcastConfigArray
         // });
-
-        setPeers({
-            _connectedOfts: _connectedOfts,
-            _peerOfts: proxyOfts,
-            // _configs: activeConfigArray
-            _configs: legacyConfigs
-        });
     }
 
-    /// @dev override peer address to address(0)
-    function setPeers(
-        address[] memory _connectedOfts,
-        address[] memory _peerOfts,
-        L0Config[] memory _configs
+    /// @dev override peer address to address(0) and allow writing to active chain
+    function setPeer(
+        L0Config memory _config,
+        address _connectedOft,
+        bytes32 _peerOftAsBytes32
     ) public override {
-        require(_connectedOfts.length == _peerOfts.length, "Must wire equal amount of source + dest addrs");
-        for (uint256 o=0; o<_connectedOfts.length; o++) {
-            address connectedOft = _connectedOfts[o];
-            address peerOft = _peerOfts[o];
-            for (uint256 c=0; c<_configs.length; c++) {
-                uint32 eid = uint32(_configs[c].eid);
+        // cannot set peer to self
+        if (block.chainid == _config.chainid) return;
 
-                // cannot set peer to self
-                if (chainid == activeConfig.chainid && eid == activeConfig.eid) continue;
-
-                bytes memory data = abi.encodeCall(
-                    IOAppCore.setPeer,
-                    (
-                        // eid, addressToBytes32(peerOft)
-                        eid, addressToBytes32(address(0))
-                    )
-                );
-                (bool success, ) = connectedOft.call(data);
-                require(success, "Unable to setPeer");
-                serializedTxs.push(
-                    SerializedTx({
-                        name: "setPeer",
-                        to: connectedOft,
-                        value: 0,
-                        data: data
-                    })
-                );
-            }
-        }
+        bytes memory data = abi.encodeCall(
+            IOAppCore.setPeer,
+            (
+                uint32(_config.eid), /* _peerOftAsBytes32 */ addressToBytes32(address(0))
+            )
+        );
+        (bool success, ) = _connectedOft.call(data);
+        require(success, "Unable to setPeer");
+        serializedTxs.push(
+            SerializedTx({
+                name: "setPeer",
+                to: _connectedOft,
+                value: 0,
+                data: data
+            })
+        );
     }
 }

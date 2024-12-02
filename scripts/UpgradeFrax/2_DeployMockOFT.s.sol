@@ -5,7 +5,7 @@ import "../DeployFraxOFTProtocol/DeployFraxOFTProtocol.s.sol";
 import { OFTUpgradeableMock } from "contracts/mocks/OFTUpgradeableMock.sol";
 
 /// @dev deploy upgradeable mock OFTs and mint lockbox supply to the fraxtal msig
-// forge script scripts/UpgradeFrax/2_DeployMockOFT.s.sol --rpc-url https://rpc.frax.com
+// forge script scripts/UpgradeFrax/2_DeployMockOFT.s.sol --rpc-url https://rpc.frax.com --broadcast
 contract DeployMockOFT is DeployFraxOFTProtocol {
     using OptionsBuilder for bytes;
     using stdJson for string;
@@ -17,7 +17,6 @@ contract DeployMockOFT is DeployFraxOFTProtocol {
 
     /// @dev override to only use FRAX, sFRAX as peer
     function setUp() public virtual override {
-        chainid = block.chainid;
         loadJsonConfig();
 
         delete legacyOfts;
@@ -26,25 +25,28 @@ contract DeployMockOFT is DeployFraxOFTProtocol {
     }
 
     /// @dev override to alter file save location
-    modifier simulateAndWriteTxs(L0Config memory _config) override {
-        // Clear out arrays
-        delete enforcedOptionsParams;
-        delete setConfigParams;
-        delete serializedTxs;
-
-        vm.createSelectFork(_config.RPC);
-        chainid = _config.chainid;
-        vm.startPrank(_config.delegate);
-        _;
-        vm.stopPrank();
-
-        // create filename and save
+    function filename() public view override returns (string memory) {
         string memory root = vm.projectRoot();
         root = string.concat(root, "/scripts/UpgradeFrax/txs/");
-        string memory filename = string.concat("2_DeployMockOFT-", _config.chainid.toString());
-        filename = string.concat(filename, ".json");
+        string memory name = string.concat("2_DeployMockOFT-", simulateConfig.chainid.toString());
+        name = string.concat(name, ".json");
 
-        new SafeTxUtil().writeTxs(serializedTxs, string.concat(root, filename));
+        return string.concat(root, name);
+    }
+
+    /// @dev override to skip setting up solana
+    function setupSource() public override broadcastAs(configDeployerPK) {
+        /// @dev set enforced options / peers separately
+        setupEvms();
+        // setupNonEvms();
+
+        setDVNs({
+            _connectedConfig: broadcastConfig,
+            _connectedOfts: proxyOfts,
+            _configs: allConfigs
+        });
+
+        setPriviledgedRoles();
     }
 
     /// @dev only setup Ethereum destination
@@ -96,7 +98,7 @@ contract DeployMockOFT is DeployFraxOFTProtocol {
         /// @dev override here
         bytes memory bytecode = bytes.concat(
             abi.encodePacked(type(OFTUpgradeableMock).creationCode),
-            abi.encode(activeConfig.endpoint)
+            abi.encode(broadcastConfig.endpoint)
         );
         assembly {
             implementation := create(0, add(bytecode, 0x20), mload(bytecode))
@@ -123,7 +125,7 @@ contract DeployMockOFT is DeployFraxOFTProtocol {
         proxyOfts.push(proxy);
 
         /// @dev mint initial circulating supply
-        OFTUpgradeableMock(proxy).mintInitialSupply(activeConfig.delegate, _initialSupply);
+        OFTUpgradeableMock(proxy).mintInitialSupply(broadcastConfig.delegate, _initialSupply);
 
         // State checks
         require(
@@ -135,11 +137,11 @@ contract DeployMockOFT is DeployFraxOFTProtocol {
             "OFT symbol incorrect"
         );
         require(
-            address(FraxOFTUpgradeable(proxy).endpoint()) == activeConfig.endpoint,
+            address(FraxOFTUpgradeable(proxy).endpoint()) == broadcastConfig.endpoint,
             "OFT endpoint incorrect"
         );
         require(
-            EndpointV2(activeConfig.endpoint).delegates(proxy) == vm.addr(configDeployerPK),
+            EndpointV2(broadcastConfig.endpoint).delegates(proxy) == vm.addr(configDeployerPK),
             "Endpoint delegate incorrect"
         );
         require(
@@ -153,9 +155,9 @@ contract DeployMockOFT is DeployFraxOFTProtocol {
         for (uint256 o=0; o<proxyOfts.length; o++) {
             address proxyOft = proxyOfts[o];
             // FraxOFTUpgradeable(proxyOft).setDelegate(deployer);
-            // Ownable(proxyOft).transferOwnership(activeConfig.delegate);
+            // Ownable(proxyOft).transferOwnership(broadcastConfig.delegate);
         }
 
-        // Ownable(proxyAdmin).transferOwnership(activeConfig.delegate);
+        // Ownable(proxyAdmin).transferOwnership(broadcastConfig.delegate);
     }
 }

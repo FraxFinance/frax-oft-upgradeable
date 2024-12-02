@@ -10,51 +10,53 @@ import {SFrxUSDOFTUpgradeable} from "contracts/frxUsd/SFrxUSDOFTUpgradeable.sol"
 
 /// @dev craft tx to upgrade the FRAX / sFRAX OFT with the new name & symbol
 // TODO: add etherscan / verifier links
-/// @dev forge script scripts/UpgradeFrax/8_UpgradeOFTMetadata.s.sol --rpc-url https://xlayerrpc.okx.com
-/// @dev forge script scripts/UpgradeFrax/8_UpgradeOFTMetadata.s.sol --rpc-url https://mainnet.mode.network
-/// @dev forge script scripts/UpgradeFrax/8_UpgradeOFTMetadata.s.sol --rpc-url https://twilight-crimson-grass.sei-pacific.quiknode.pro/1fe7cb5c6950df0f3ebceead37f8eefdf41ddbe9
+/// @dev forge script scripts/UpgradeFrax/6b_UpgradeOFTMetadata.s.sol --rpc-url https://xlayerrpc.okx.com
+/// @dev forge script scripts/UpgradeFrax/6b_UpgradeOFTMetadata.s.sol --rpc-url https://mainnet.mode.network
+/// @dev forge script scripts/UpgradeFrax/6b_UpgradeOFTMetadata.s.sol --rpc-url https://twilight-crimson-grass.sei-pacific.quiknode.pro/1fe7cb5c6950df0f3ebceead37f8eefdf41ddbe9
 contract UpgradeOFTMetadata is DeployFraxOFTProtocol {
     using stdJson for string;
     using Strings for uint256;
 
-    // TODO: THESE CHANGE PER CHAIN
-    address public frxUsdImplementation = 0x9D0FEe988A8134Db109c587DB047761904A34B5b;
-    address public sfrxUsdImplementation = 0xD09F0B6B4b76D5832BfE911793437f5b4c143100;
+    /// @dev these change per chain
+    address public frxUsdImplementation;
+    address public sfrxUsdImplementation;
 
     constructor() {
         /// @dev declared in BaseL0Script.sol, already deployed
         proxyAdmin = 0x223a681fc5c5522c85C96157c0efA18cd6c5405c;
         fraxOft = 0x80Eede496655FB9047dd39d9f418d5483ED600df;
         sFraxOft = 0x5Bff88cA1442c2496f7E475E9e7786383Bc070c0;
+
+        if (block.chainid == 34443) {
+            // mode
+            frxUsdImplementation = 0x83a3581c22C143a574B584af583DE3D6d3A2fD50;
+            sfrxUsdImplementation = 0x09EE6975fEff1Ba02d7FEA060Dd196c58e2e4c9E;
+        } else if (block.chainid == 1329) {
+            // sei
+            frxUsdImplementation = 0x9735Eef5e5D7fA1BC5a7956C7439d15D5E658601;
+            sfrxUsdImplementation = 0x493f17254f8A6cF7B4346a9d6927148521B03680;
+        } else {
+            // xlayer
+            frxUsdImplementation = 0x9D0FEe988A8134Db109c587DB047761904A34B5b;
+            sfrxUsdImplementation = 0xD09F0B6B4b76D5832BfE911793437f5b4c143100;
+        }
     }
 
     /// @dev override to alter file save location
-    modifier simulateAndWriteTxs(L0Config memory _config) override {
-        // Clear out arrays
-        delete enforcedOptionsParams;
-        delete setConfigParams;
-        delete serializedTxs;
-
-        vm.createSelectFork(_config.RPC);
-        chainid = _config.chainid;
-        vm.startPrank(_config.delegate);
-        _;
-        vm.stopPrank();
-
-        // create filename and save
+    function filename() public view override returns (string memory) {
         string memory root = vm.projectRoot();
         root = string.concat(root, "/scripts/UpgradeFrax/txs/");
-        string memory filename = string.concat("8_UpgradeOFTMetadata-", _config.chainid.toString());
-        filename = string.concat(filename, ".json");
+        string memory name = string.concat("6b_UpgradeOFTMetadata-", broadcastConfig.chainid.toString());
+        name = string.concat(name, ".json");
 
-        new SafeTxUtil().writeTxs(serializedTxs, string.concat(root, filename));
+        return string.concat(root, name);
     }
 
     function run() public override {
         upgradeOfts();
     }
 
-    function upgradeOfts() public simulateAndWriteTxs(activeConfig) {
+    function upgradeOfts() public simulateAndWriteTxs(broadcastConfig) {
         upgradeOft({
             _oft: fraxOft,
             _implementation: frxUsdImplementation,

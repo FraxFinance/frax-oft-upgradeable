@@ -6,10 +6,7 @@ import "../BaseL0Script.sol";
 /*
 TODO
 - Automatically verify contracts
-- Deployment on non-evm / non-pre-deterministic chains
-    - Would need to modify from expectedProxyOFTs to proxyOFTs
 */
-
 
 contract DeployFraxOFTProtocol is BaseL0Script {
     using OptionsBuilder for bytes;

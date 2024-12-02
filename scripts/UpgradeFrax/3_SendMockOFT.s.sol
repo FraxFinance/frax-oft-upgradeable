@@ -13,38 +13,26 @@ contract SendMockOFT is DeployFraxOFTProtocol {
     address public ethMsig = 0xB1748C79709f4Ba2Dd82834B8c82D4a505003f27;
 
     /// @dev override to alter file save location
-    modifier simulateAndWriteTxs(L0Config memory _config) override {
-        // Clear out arrays
-        delete enforcedOptionsParams;
-        delete setConfigParams;
-        delete serializedTxs;
-
-        vm.createSelectFork(_config.RPC);
-        chainid = _config.chainid;
-        vm.startPrank(_config.delegate);
-        _;
-        vm.stopPrank();
-
-        // create filename and save
+    function filename() public view override returns (string memory) {
         string memory root = vm.projectRoot();
         root = string.concat(root, "/scripts/UpgradeFrax/txs/");
-        string memory filename = string.concat("3_SendMockOFT-", _config.chainid.toString());
-        filename = string.concat(filename, ".json");
+        string memory name = string.concat("3_SendMockOFT-", broadcastConfig.chainid.toString());
+        name = string.concat(name, ".json");
 
-        new SafeTxUtil().writeTxs(serializedTxs, string.concat(root, filename));
+        return string.concat(root, name);
     }
 
     function run() public override {
         submitSends();
     }
 
-    function submitSends() public simulateAndWriteTxs(activeConfig) {
+    function submitSends() public simulateAndWriteTxs(broadcastConfig) {
         submitSend(mFraxOft);
         submitSend(mSFraxOft);
     }
 
     function submitSend(address _oft) public {
-        uint256 amount = IERC20(_oft).balanceOf(activeConfig.delegate);
+        uint256 amount = IERC20(_oft).balanceOf(broadcastConfig.delegate);
 
         bytes memory options = OptionsBuilder.newOptions();
         SendParam memory sendParam = SendParam({
@@ -60,7 +48,7 @@ contract SendMockOFT is DeployFraxOFTProtocol {
         bytes memory data = abi.encodeCall(
             IOFT.send,
             (
-                sendParam, fee, activeConfig.delegate
+                sendParam, fee, broadcastConfig.delegate
             )
         );
         (bool success, ) = _oft.call{value: fee.nativeFee}(data);

@@ -17,7 +17,7 @@ contract DeployFraxOFTProtocol is BaseL0Script {
     using Strings for uint256;
 
     function version() public virtual override pure returns (uint256, uint256, uint256) {
-        return (1, 1, 1);
+        return (1, 2, 0);
     }
 
     function setUp() public virtual override {
@@ -53,7 +53,7 @@ contract DeployFraxOFTProtocol is BaseL0Script {
     function setupProxyDestinations() public virtual {
         for (uint256 i=0; i<proxyConfigs.length; i++) {
             // skip if destination == source
-            if (proxyConfigs[i].eid == activeConfig.eid) continue;
+            if (proxyConfigs[i].eid == broadcastConfig.eid) continue;
             setupDestination({
                 _connectedConfig: proxyConfigs[i],
                 _connectedOfts: proxyOfts
@@ -65,60 +65,79 @@ contract DeployFraxOFTProtocol is BaseL0Script {
         L0Config memory _connectedConfig,
         address[] memory _connectedOfts
     ) public virtual simulateAndWriteTxs(_connectedConfig) {
-        setEnforcedOptions({
+        setEvmEnforcedOptions({
             _connectedOfts: _connectedOfts,
-            _configs: activeConfigArray
+            _configs: broadcastConfigArray
+        });
+
+        setEvmPeers({
+            _connectedOfts: _connectedOfts,
+            _peerOfts: proxyOfts,
+            _configs: broadcastConfigArray 
         });
 
         setDVNs({
             _connectedConfig: _connectedConfig,
             _connectedOfts: _connectedOfts,
-            _configs: activeConfigArray
-        });
-
-        setPeers({
-            _connectedOfts: _connectedOfts,
-            _peerOfts: proxyOfts,
-            _configs: activeConfigArray
+            _configs: broadcastConfigArray
         });
     }
 
     function setupSource() public virtual broadcastAs(configDeployerPK) {
-        // TODO: this will break if proxyOFT addrs are not the pre-determined addrs verified in postDeployChecks()
-        setEnforcedOptions({
-            _connectedOfts: proxyOfts,
-            _configs: configs
-        });
+        /// @dev set enforced options / peers separately
+        setupEvms();
+        setupNonEvms();
 
         setDVNs({
-            _connectedConfig: activeConfig,
+            _connectedConfig: broadcastConfig,
             _connectedOfts: proxyOfts,
-            _configs: configs
-        });
-
-        /// @dev legacy, non-upgradeable OFTs
-        setPeers({
-            _connectedOfts: proxyOfts,
-            _peerOfts: legacyOfts,
-            _configs: legacyConfigs
-        });
-        /// @dev Upgradeable OFTs maintaining the same address cross-chain.
-        setPeers({
-            _connectedOfts: proxyOfts,
-            _peerOfts: proxyOfts,
-            _configs: proxyConfigs
+            _configs: allConfigs
         });
 
         setPriviledgedRoles();
     }
 
+    function setupEvms() public virtual {
+        setEvmEnforcedOptions({
+            _connectedOfts: proxyOfts,
+            _configs: evmConfigs
+        });
+
+        /// @dev legacy, non-upgradeable OFTs
+        setEvmPeers({
+            _connectedOfts: proxyOfts,
+            _peerOfts: legacyOfts,
+            _configs: legacyConfigs
+        });
+        /// @dev Upgradeable OFTs maintaining the same address cross-chain.
+        setEvmPeers({
+            _connectedOfts: proxyOfts,
+            _peerOfts: proxyOfts,
+            _configs: proxyConfigs
+        });
+    }
+
+    function setupNonEvms() public virtual {
+        require(proxyOfts.length == 6, "Error: non-evm setup will be incorrect");
+
+        setSolanaEnforcedOptions({
+            _connectedOfts: proxyOfts
+        });
+        
+        /// @dev: additional enforced options for non-evms set here
+
+        setNonEvmPeers({
+            _connectedOfts: proxyOfts
+        });
+    }
+
     function preDeployChecks() public virtual view {
-        for (uint256 e=0; e<configs.length; e++) {
-            uint256 eid = configs[e].eid;    
+        for (uint256 e=0; e<allConfigs.length; e++) {
+            uint256 eid = allConfigs[e].eid;    
             // source and dest eid cannot be same
-            if (eid == activeConfig.eid) continue;
+            if (eid == broadcastConfig.eid) continue;
             require(
-                IMessageLibManager(activeConfig.endpoint).isSupportedEid(uint32(configs[e].eid)),
+                IMessageLibManager(broadcastConfig.endpoint).isSupportedEid(uint32(allConfigs[e].eid)),
                 "L0 team required to setup `defaultSendLibrary` and `defaultReceiveLibrary` for EID"
             );
         }
@@ -200,7 +219,7 @@ contract DeployFraxOFTProtocol is BaseL0Script {
     ) public virtual returns (address implementation, address proxy) {
         bytes memory bytecode = bytes.concat(
             abi.encodePacked(type(FraxOFTUpgradeable).creationCode),
-            abi.encode(activeConfig.endpoint)
+            abi.encode(broadcastConfig.endpoint)
         );
         assembly {
             implementation := create(0, add(bytecode, 0x20), mload(bytecode))
@@ -211,7 +230,7 @@ contract DeployFraxOFTProtocol is BaseL0Script {
         /// @dev: create semi-pre-deterministic proxy address, then initialize with correct implementation
         proxy = address(new TransparentUpgradeableProxy(implementationMock, vm.addr(oftDeployerPK), ""));
 
-        /// @dev: activeConfig deployer is temporary OFT owner until setPriviledgedRoles()
+        /// @dev: broadcastConfig deployer is temporary OFT owner until setPriviledgedRoles()
         bytes memory initializeArgs = abi.encodeWithSelector(
             FraxOFTUpgradeable.initialize.selector,
             _name,
@@ -236,11 +255,11 @@ contract DeployFraxOFTProtocol is BaseL0Script {
             "OFT symbol incorrect"
         );
         require(
-            address(FraxOFTUpgradeable(proxy).endpoint()) == activeConfig.endpoint,
+            address(FraxOFTUpgradeable(proxy).endpoint()) == broadcastConfig.endpoint,
             "OFT endpoint incorrect"
         );
         require(
-            EndpointV2(activeConfig.endpoint).delegates(proxy) == vm.addr(configDeployerPK),
+            EndpointV2(broadcastConfig.endpoint).delegates(proxy) == vm.addr(configDeployerPK),
             "Endpoint delegate incorrect"
         );
         require(
@@ -255,51 +274,78 @@ contract DeployFraxOFTProtocol is BaseL0Script {
         // TODO: fix loop to correct length
         for (uint256 o=0; o<expectedProxyOfts.length; o++) {
             address proxyOft = expectedProxyOfts[o];
-            FraxOFTUpgradeable(proxyOft).setDelegate(activeConfig.delegate);
-            Ownable(proxyOft).transferOwnership(activeConfig.delegate);
+            FraxOFTUpgradeable(proxyOft).setDelegate(broadcastConfig.delegate);
+            Ownable(proxyOft).transferOwnership(broadcastConfig.delegate);
         }
 
         /// @dev transfer ownership of ProxyAdmin
-        Ownable(proxyAdmin).transferOwnership(activeConfig.delegate);
+        Ownable(proxyAdmin).transferOwnership(broadcastConfig.delegate);
     }
 
     /// @dev _connectedOfts refers to the OFTs of the RPC we are currently connected to
-    function setPeers(
+    function setEvmPeers(
         address[] memory _connectedOfts,
         address[] memory _peerOfts,
         L0Config[] memory _configs
     ) public virtual {
         require(_connectedOfts.length == _peerOfts.length, "Must wire equal amount of source + dest addrs");
+        // For each OFT
         for (uint256 o=0; o<_connectedOfts.length; o++) {
-            address connectedOft = _connectedOfts[o];
-            address peerOft = _peerOfts[o];
+            // Set the config per chain
             for (uint256 c=0; c<_configs.length; c++) {
-                uint32 eid = uint32(_configs[c].eid);
-
-                // cannot set peer to self
-                if (chainid == activeConfig.chainid && eid == activeConfig.eid) continue;
-
-                bytes memory data = abi.encodeCall(
-                    IOAppCore.setPeer,
-                    (
-                        eid, addressToBytes32(peerOft)
-                    )
-                );
-                (bool success, ) = connectedOft.call(data);
-                require(success, "Unable to setPeer");
-                serializedTxs.push(
-                    SerializedTx({
-                        name: "setPeer",
-                        to: connectedOft,
-                        value: 0,
-                        data: data
-                    })
-                );
+                setPeer({
+                    _config: _configs[c],
+                    _connectedOft: _connectedOfts[o],
+                    _peerOftAsBytes32: addressToBytes32(_peerOfts[o])
+                });
             }
         }
     }
 
-    function setEnforcedOptions(
+    /// @dev Non-evm OFTs require their own unique peer address
+    function setNonEvmPeers(
+        address[] memory _connectedOfts
+    ) public virtual {
+        // Set the peer per OFT
+        for (uint256 o=0; o<_connectedOfts.length; o++) {
+            // For each non-evm
+            for (uint256 c=0; c<nonEvmPeersArrays.length; c++) {
+                setPeer({
+                    _config: broadcastConfig,
+                    _connectedOft: _connectedOfts[o],
+                    _peerOftAsBytes32: nonEvmPeersArrays[c][o]
+                });
+            }
+        }
+    }
+
+    function setPeer(
+        L0Config memory _config,
+        address _connectedOft,
+        bytes32 _peerOftAsBytes32
+    ) public virtual {
+        // cannot set peer to self
+        if (block.chainid == _config.chainid) return;
+
+        bytes memory data = abi.encodeCall(
+            IOAppCore.setPeer,
+            (
+                uint32(_config.eid), _peerOftAsBytes32
+            )
+        );
+        (bool success, ) = _connectedOft.call(data);
+        require(success, "Unable to setPeer");
+        serializedTxs.push(
+            SerializedTx({
+                name: "setPeer",
+                to: _connectedOft,
+                value: 0,
+                data: data
+            })
+        );
+    }
+
+    function setEvmEnforcedOptions(
         address[] memory _connectedOfts,
         L0Config[] memory _configs
     ) public virtual {
@@ -308,35 +354,75 @@ contract DeployFraxOFTProtocol is BaseL0Script {
         bytes memory optionsTypeOne = OptionsBuilder.newOptions().addExecutorLzReceiveOption(200_000, 0);
         bytes memory optionsTypeTwo = OptionsBuilder.newOptions().addExecutorLzReceiveOption(250_000, 0);
 
+        setEnforcedOptions({
+            _connectedOfts: _connectedOfts,
+            _configs: _configs,
+            _optionsTypeOne: optionsTypeOne,
+            _optionsTypeTwo: optionsTypeTwo
+        });
+    }
+
+    function setSolanaEnforcedOptions(
+        address[] memory _connectedOfts
+    ) public virtual {
+        bytes memory optionsTypeOne = OptionsBuilder.newOptions().addExecutorLzReceiveOption(200_000, 2_500_000);
+        bytes memory optionsTypeTwo = OptionsBuilder.newOptions().addExecutorLzReceiveOption(200_000, 2_500_000);
+
+        L0Config[] memory configs = new L0Config[](1);
+        configs[0] = nonEvmConfigs[0]; // mapped to solana
+
+        setEnforcedOptions({
+            _connectedOfts: _connectedOfts,
+            _configs: configs,
+            _optionsTypeOne: optionsTypeOne,
+            _optionsTypeTwo: optionsTypeTwo
+        });
+    }
+
+    function setEnforcedOptions(
+        address[] memory _connectedOfts,
+        L0Config[] memory _configs,
+        bytes memory _optionsTypeOne,
+        bytes memory _optionsTypeTwo
+    ) public virtual {
+        // clear out any pre-existing enforced options params
+        delete enforcedOptionParams;
+
+        // Build enforced options for each chain
         for (uint256 c=0; c<_configs.length; c++) {            
-            uint32 eid = uint32(_configs[c].eid);
-
             // cannot set enforced options to self
-            if (chainid == activeConfig.chainid && eid == activeConfig.eid) continue;
+            if (block.chainid == _configs[c].chainid) continue;
 
-            enforcedOptionsParams.push(EnforcedOptionParam(eid, 1, optionsTypeOne));
-            enforcedOptionsParams.push(EnforcedOptionParam(eid, 2, optionsTypeTwo));
+            enforcedOptionParams.push(EnforcedOptionParam(uint32(_configs[c].eid), 1, _optionsTypeOne));
+            enforcedOptionParams.push(EnforcedOptionParam(uint32(_configs[c].eid), 2, _optionsTypeTwo));
         }
 
         for (uint256 o=0; o<_connectedOfts.length; o++) {
-            address connectedOft = _connectedOfts[o];
-            bytes memory data = abi.encodeCall(
-                IOAppOptionsType3.setEnforcedOptions,
-                (
-                    enforcedOptionsParams
-                )
-            );
-            (bool success, ) = connectedOft.call(data);
-            require(success, "Unable to setEnforcedOptions");
-            serializedTxs.push(
-                SerializedTx({
-                    name: "setEnforcedOptions",
-                    to: connectedOft,
-                    value: 0,
-                    data: data
-                })
-            );
+            setEnforcedOption({
+                _connectedOft: _connectedOfts[o]
+            });
         }
+    }
+
+    function setEnforcedOption(
+        address _connectedOft
+    ) public {
+        bytes memory data = abi.encodeCall(
+            IOAppOptionsType3.setEnforcedOptions,
+            (
+                enforcedOptionParams
+            )
+        );
+        (bool success, ) = _connectedOft.call(data);
+        require(success, "Unable to setEnforcedOptions");
+        serializedTxs.push(
+            SerializedTx({
+                name: "setEnforcedOptions",
+                to: _connectedOft,
+                value: 0,
+                data: data
+            })
+        );
     }
 
     function setDVNs(
@@ -358,16 +444,14 @@ contract DeployFraxOFTProtocol is BaseL0Script {
         }
         ulnConfig.requiredDVNs = requiredDVNs;
 
-        // push configs
+        // push allConfigs
         for (uint256 c=0; c<_configs.length; c++) {
-            uint32 eid = uint32(_configs[c].eid);
-
             // cannot set enforced options to self
-            if (chainid == activeConfig.chainid && eid == activeConfig.eid) continue;
+            if (block.chainid == _configs[c].chainid) continue;
 
             setConfigParams.push(
                 SetConfigParam({
-                    eid: eid,
+                    eid: uint32(_configs[c].eid),
                     configType: Constant.CONFIG_TYPE_ULN,
                     config: abi.encode(ulnConfig)                    
                 })

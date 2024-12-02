@@ -80,6 +80,33 @@
   - OFT Config: `BG9oPj76NRPbj1e1GbL4imnqo9VD7W2ukpnRFSWtq5CA`
     - As bytes32: `0x9876880bee04a9020e619b1be124ee307e03ca94bab4f32a7a22cfd2ccee3927`
 
+### Solana
+- Admin: Chain-respective msig
+- `FRAX`
+  - SPL Token: B4Ds2fCbxjSiVLNyGQd44htvvNuVxzdoJSxNsRv3nxpE
+  - OFT Config: 7pw5h3gc4LQCGPdq9qsqCdBDt6vtyk5CWjL9spsjp7Sa
+    - As bytes32: 0x656d91ab3d464c05cd1345ce21c78e36140a36491e102fbb08c58af73aafe89b
+- `sFrax`
+  - SPL Token: DnVyztLHnDyTqL3xfPYF9Uqpgrhcxphn6e31sVAwtg6K
+  - OFT Config: 3BcysJF4fQx86fVTDTBGNpZyRpeMyTF8XsuvPHJQuP3V
+    - As bytes32: 0x206fdd7d0be90d8ff93f6f7f4bd4d8b42ca8977317da0b7d2861299e3c589dd8
+- `sfrxETH`
+  - SPL Token: 6iHW2j5dvW8EiEVSXqQFjm7c5xNd4MdYuXLrW3eQ1UYw
+  - OFT Config: 8AdTghMT8yyNpWrTuPoDjrtXW7t1YEZgLVjWDftWfCxo
+    - As bytes32: 0x6a7942e4eb4938d5490d8187183d01123f515025f4244670aff7f8ecd2250d50
+- `FXS`
+  - SPL Token: 8QRvtWw4XYQW7UqTiGhzyWZkhCqSwZDA5qjRWDotSZ4e
+  - OFT Config: 5KYEyuA1cAdnZFj4i6zUjTEre4s7snacyXbkTmNqLjJs
+    - As bytes32: 0x402e86d1cfd2cde4fac63aa8d9892eca6d3c0e08e8335622124332a95df6c10c
+- `frxETH`
+  - SPL Token: CuXHLCxCcyPkmbemPxh7PAWedfFffeL82b6VPJmonTaa
+  - OFT Config: AzaSy9yr44e4bnWNdrNkxmye1kEYmbbgGfY8a3ZqzuMf
+    - As bytes32: 0x94791ba0aae2b57460c63d36346392d849b22f39fd3eafad5bc82d01e352dde6
+- `FPI`
+  - SPL Token: FqRC7vNLS3ubbhtdqNSz8Q5ei8VdUxF6H6eoXQLHxihr
+  - OFT Config: BG9oPj76NRPbj1e1GbL4imnqo9VD7W2ukpnRFSWtq5CA
+    - As bytes32: 0x9876880bee04a9020e619b1be124ee307e03ca94bab4f32a7a22cfd2ccee3927
+
 ## New Chain Deployment
 - Ensure `PK_OFT_DEPLOYER` and `PK_CONFIG_DEPLOYER` are the private keys for `0x9C9dD956b413cdBD81690c9394a6B4D22afe6745` and `0x0990be6dB8c785FBbF9deD8bAEc612A10CaE814b`, respectively.
 - Modify `.env` `RPC_URL` to the new chain RPC

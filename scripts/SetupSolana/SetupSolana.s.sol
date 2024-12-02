@@ -6,9 +6,9 @@ import "../DeployFraxOFTProtocol/DeployFraxOFTProtocol.s.sol";
 /// @dev creates 34443 files with set DVNs for all chains- 
 
 /*
-Goal: change _configs from activeConfigArray to all configs as setupSource uses configs.
+Goal: change _configs from broadcastConfigArray to all configs as setupSource uses configs.
 ie: through non-removal of old arrays (https://github.com/FraxFinance/frax-oft-upgradeable/pull/11),
-  the prior DVN configurations were overwritten in setupSource() with invalid activeConfigArray DVN addrs.
+  the prior DVN configurations were overwritten in setupSource() with invalid broadcastConfigArray DVN addrs.
 */
 
 contract SetupSolana is DeployFraxOFTProtocol {
@@ -18,7 +18,11 @@ contract SetupSolana is DeployFraxOFTProtocol {
 
     bytes32[] solanaPeers;
 
-    /// @dev comments out requirements at end and setting of activeConfig
+    function version() public virtual override pure returns (uint256, uint256, uint256) {
+        return (1, 0, 2);
+    }
+
+    /// @dev comments out requirements at end and setting of broadcastConfig
     function loadJsonConfig() public override {
         string memory root = vm.projectRoot();
         string memory path = string.concat(root, "/scripts/L0Config.json");
@@ -31,59 +35,49 @@ contract SetupSolana is DeployFraxOFTProtocol {
         for (uint256 i=0; i<legacyConfigs_.length; i++) {
             L0Config memory config_ = legacyConfigs_[i];
             // if (config_.chainid == chainid) {
-            //     activeConfig = config_;
-            //     activeConfigArray.push(config_);
+            //     broadcastConfig = config_;
+            //     broadcastConfigArray.push(config_);
             //     activeLegacy = true;
             // }
             legacyConfigs.push(config_);
-            configs.push(config_);
+            evmConfigs.push(config_);
+            allConfigs.push(config_);
         }
 
-        // proxy (active deployment loaded as activeConfig)
+        // proxy (active deployment loaded as broadcastConfig)
         L0Config[] memory proxyConfigs_ = abi.decode(json.parseRaw(".Proxy"), (L0Config[]));
         for (uint256 i=0; i<proxyConfigs_.length; i++) {
             L0Config memory config_ = proxyConfigs_[i];
             // if (config_.chainid == chainid) {
-            //     activeConfig = config_;
-            //     activeConfigArray.push(config_);
+            //     broadcastConfig = config_;
+            //     broadcastConfigArray.push(config_);
             //     activeLegacy = false;
             // }
             proxyConfigs.push(config_);
-            configs.push(config_);
+            evmConfigs.push(config_);
+            allConfigs.push(config_);
         }
-        // require(activeConfig.chainid != 0, "L0Config for source not loaded");
-        // require(activeConfigArray.length == 1, "ActiveConfigArray does not equal 1");
+        // require(broadcastConfig.chainid != 0, "L0Config for source not loaded");
+        // require(broadcastConfigArray.length == 1, "broadcastConfigArray does not equal 1");
     }
 
     /// @dev override to alter file save location
-    modifier simulateAndWriteTxs(L0Config memory _config) override {
-        // Clear out arrays
-        delete enforcedOptionsParams;
-        delete setConfigParams;
-        delete serializedTxs;
-
-        vm.createSelectFork(_config.RPC);
-        chainid = _config.chainid;
-        vm.startPrank(_config.delegate);
-        _;
-        vm.stopPrank();
-
-        // create filename and save
+    function filename() public view override returns (string memory) {
         string memory root = vm.projectRoot();
         root = string.concat(root, "/scripts/SetupSolana/txs/");
-        string memory filename = string.concat(_config.chainid.toString(), ".json");
-        
-        new SafeTxUtil().writeTxs(serializedTxs, string.concat(root, filename));
+        string memory name = string.concat(simulateConfig.chainid.toString(), ".json");
+
+        return string.concat(root, name);
     }
 
 
     function setUp() public override {
         super.setUp();
 
-        // Load solana as the activeConfig
+        // Load solana as the broadcastConfig
         L0Config[] memory nonEvmConfigs = abi.decode(json.parseRaw(".Non-EVM"), (L0Config[]));
-        activeConfig = nonEvmConfigs[0];
-        activeConfigArray.push(nonEvmConfigs[0]);
+        broadcastConfig = nonEvmConfigs[0];
+        broadcastConfigArray.push(nonEvmConfigs[0]);
 
         // push bytes32 token addrs in the same order as deployFraxOFTUpgradeblesAndProxies()
         solanaPeers.push(0x402e86d1cfd2cde4fac63aa8d9892eca6d3c0e08e8335622124332a95df6c10c); // fxs
@@ -107,19 +101,19 @@ contract SetupSolana is DeployFraxOFTProtocol {
     ) public override simulateAndWriteTxs(_connectedConfig) {
         setEnforcedOptions({
             _connectedOfts: _connectedOfts,
-            _configs: activeConfigArray
+            _configs: broadcastConfigArray
         });
 
         setDVNs({
             _connectedConfig: _connectedConfig,
             _connectedOfts: _connectedOfts,
-            _configs: activeConfigArray
+            _configs: broadcastConfigArray
         });
 
         setPeers({
             _connectedOfts: _connectedOfts,
             _peerOfts: solanaPeers,
-            _configs: activeConfigArray
+            _configs: broadcastConfigArray
         });
     }
 
@@ -127,7 +121,7 @@ contract SetupSolana is DeployFraxOFTProtocol {
     function setEnforcedOptions(
         address[] memory _connectedOfts,
         L0Config[] memory _configs
-    ) public override {
+    ) public {
         // For each peer, default
         // https://github.com/FraxFinance/LayerZero-v2-upgradeable/blob/e1470197e0cffe0d89dd9c776762c8fdcfc1e160/oapp/test/OFT.t.sol#L417
         bytes memory optionsTypeOne = OptionsBuilder.newOptions().addExecutorLzReceiveOption(200_000, 2_500_000);
@@ -137,10 +131,10 @@ contract SetupSolana is DeployFraxOFTProtocol {
             uint32 eid = uint32(_configs[c].eid);
 
             // cannot set enforced options to self
-            if (chainid == activeConfig.chainid && eid == activeConfig.eid) continue;
+            if (block.chainid == _configs[c].chainid) continue;
 
-            enforcedOptionsParams.push(EnforcedOptionParam(eid, 1, optionsTypeOne));
-            enforcedOptionsParams.push(EnforcedOptionParam(eid, 2, optionsTypeTwo));
+            enforcedOptionParams.push(EnforcedOptionParam(eid, 1, optionsTypeOne));
+            enforcedOptionParams.push(EnforcedOptionParam(eid, 2, optionsTypeTwo));
         }
 
         for (uint256 o=0; o<_connectedOfts.length; o++) {
@@ -148,7 +142,7 @@ contract SetupSolana is DeployFraxOFTProtocol {
             bytes memory data = abi.encodeCall(
                 IOAppOptionsType3.setEnforcedOptions,
                 (
-                    enforcedOptionsParams
+                    enforcedOptionParams
                 )
             );
             (bool success, ) = connectedOft.call(data);
@@ -178,7 +172,7 @@ contract SetupSolana is DeployFraxOFTProtocol {
                 uint32 eid = uint32(_configs[c].eid);
 
                 // cannot set peer to self
-                if (chainid == activeConfig.chainid && eid == activeConfig.eid) continue;
+                if (block.chainid == _configs[c].chainid) continue;
 
                 bytes memory data = abi.encodeCall(
                     IOAppCore.setPeer,

@@ -8,6 +8,7 @@ import { console } from "frax-std/FraxTest.sol";
 
 import { SerializedTx, SafeTxUtil } from "scripts/SafeBatchSerialize.sol";
 import { FraxOFTUpgradeable } from "contracts/FraxOFTUpgradeable.sol";
+import { FraxProxyAdmin } from "contracts/FraxProxyAdmin.sol";
 import { ImplementationMock } from "contracts/mocks/ImplementationMock.sol";
 
 import { Ownable } from "@openzeppelin/contracts/access/Ownable.sol";
@@ -97,7 +98,7 @@ contract BaseL0Script is Script {
     string public json;
 
     function version() public virtual pure returns (uint256, uint256, uint256) {
-        return (1, 2, 0);
+        return (1, 2, 1);
     }
 
     modifier broadcastAs(uint256 privateKey) {

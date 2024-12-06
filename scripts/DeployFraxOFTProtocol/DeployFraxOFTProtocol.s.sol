@@ -17,7 +17,7 @@ contract DeployFraxOFTProtocol is BaseL0Script {
     using Strings for uint256;
 
     function version() public virtual override pure returns (uint256, uint256, uint256) {
-        return (1, 2, 0);
+        return (1, 2, 1);
     }
 
     function setUp() public virtual override {
@@ -37,17 +37,7 @@ contract DeployFraxOFTProtocol is BaseL0Script {
     }
 
     function setupDestinations() public virtual {
-        setupLegacyDestinations();
         setupProxyDestinations();
-    }
-
-    function setupLegacyDestinations() public virtual {
-        for (uint256 i=0; i<legacyConfigs.length; i++) {
-            setupDestination({
-                _connectedConfig: legacyConfigs[i],
-                _connectedOfts: legacyOfts
-            });
-        }
     }
 
     function setupProxyDestinations() public virtual {
@@ -103,12 +93,6 @@ contract DeployFraxOFTProtocol is BaseL0Script {
             _configs: evmConfigs
         });
 
-        /// @dev legacy, non-upgradeable OFTs
-        setEvmPeers({
-            _connectedOfts: proxyOfts,
-            _peerOfts: legacyOfts,
-            _configs: legacyConfigs
-        });
         /// @dev Upgradeable OFTs maintaining the same address cross-chain.
         setEvmPeers({
             _connectedOfts: proxyOfts,
@@ -160,7 +144,7 @@ contract DeployFraxOFTProtocol is BaseL0Script {
     function deployFraxOFTUpgradeablesAndProxies() broadcastAs(oftDeployerPK) public virtual {
 
         // Proxy admin (0x223a681fc5c5522c85C96157c0efA18cd6c5405c)
-        proxyAdmin = address(new ProxyAdmin(vm.addr(configDeployerPK)));
+        proxyAdmin = address(new FraxProxyAdmin(vm.addr(configDeployerPK)));
 
         // Implementation mock (0x8f1B9c1fd67136D525E14D96Efb3887a33f16250)
         implementationMock = address(new ImplementationMock());

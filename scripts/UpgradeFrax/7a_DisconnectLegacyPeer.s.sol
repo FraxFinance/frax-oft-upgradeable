@@ -22,7 +22,7 @@ contract DisconnectLegacyPeer is DeployFraxOFTProtocol {
     function run() public override {
         delete legacyOfts;
         legacyOfts.push(0x909DBdE1eBE906Af95660033e478D59EFe831fED); // FRAX
-        legacyOfts.push(0x1f55a02A049033E3419a8E2975cF3F572F4e6E9A); // sFRAX
+        legacyOfts.push(0xe4796cCB6bB5DE2290C417Ac337F2b66CA2E770E); // sFRAX
 
         // deploySource();
         // setupSource();
@@ -63,7 +63,7 @@ contract DisconnectLegacyPeer is DeployFraxOFTProtocol {
     function setPeer(
         L0Config memory _config,
         address _connectedOft,
-        bytes32 _peerOftAsBytes32
+        bytes32 /* _peerOftAsBytes32 */
     ) public override {
         // cannot set peer to self
         if (block.chainid == _config.chainid) return;

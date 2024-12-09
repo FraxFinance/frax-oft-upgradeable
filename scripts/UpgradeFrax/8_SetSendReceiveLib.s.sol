@@ -25,7 +25,7 @@ contract SetSendReceiveLib is DeployFraxOFTProtocol {
     function run() public override {
         delete legacyOfts;
         legacyOfts.push(0x909DBdE1eBE906Af95660033e478D59EFe831fED); // FRAX
-        legacyOfts.push(0x1f55a02A049033E3419a8E2975cF3F572F4e6E9A); // sFRAX
+        legacyOfts.push(0xe4796cCB6bB5DE2290C417Ac337F2b66CA2E770E); // sFRAX
 
         delete proxyOfts;
         proxyOfts.push(0x80Eede496655FB9047dd39d9f418d5483ED600df); // FRAX

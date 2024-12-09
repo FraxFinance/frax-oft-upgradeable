@@ -13,7 +13,12 @@ contract DeployMockOFT is DeployFraxOFTProtocol {
 
     uint256 initialFraxSupply = 1_000_000.123e18; // TODO
     uint256 initialSFraxSupply = 1_400_000.55e18; // TODO
-    address deployer = 0xb0E1650A9760e0f383174af042091fc544b8356f;
+
+    constructor() {
+        // already deployed
+        proxyAdmin = 0x223a681fc5c5522c85C96157c0efA18cd6c5405c;
+        implementationMock = 0x8f1B9c1fd67136D525E14D96Efb3887a33f16250;
+    }
 
     /// @dev override to only use FRAX, sFRAX as peer
     function setUp() public virtual override {
@@ -21,7 +26,7 @@ contract DeployMockOFT is DeployFraxOFTProtocol {
 
         delete legacyOfts;
         legacyOfts.push(0x909DBdE1eBE906Af95660033e478D59EFe831fED); // FRAX
-        legacyOfts.push(0x1f55a02A049033E3419a8E2975cF3F572F4e6E9A); // sFRAX
+        legacyOfts.push(0xe4796cCB6bB5DE2290C417Ac337F2b66CA2E770E); // sFRAX
     }
 
     /// @dev override to alter file save location
@@ -34,7 +39,7 @@ contract DeployMockOFT is DeployFraxOFTProtocol {
         return string.concat(root, name);
     }
 
-    /// @dev override to skip setting up solana
+    /// @dev override to skip setting up solana, privileded roles
     function setupSource() public override broadcastAs(configDeployerPK) {
         /// @dev set enforced options / peers separately
         setupEvms();
@@ -46,7 +51,7 @@ contract DeployMockOFT is DeployFraxOFTProtocol {
             _configs: allConfigs
         });
 
-        setPriviledgedRoles();
+        // setPriviledgedRoles();
     }
 
     /// @dev only setup Ethereum destination
@@ -70,9 +75,6 @@ contract DeployMockOFT is DeployFraxOFTProtocol {
 
     /// @dev only deploy the mock FRAX and sFRAX, as config deployer to maintain semi-deterministic-ness of the deployer nonce
     function deployFraxOFTUpgradeablesAndProxies() /* broadcastAs(oftDeployerPK) */ broadcastAs(configDeployerPK) public override {
-        // already deployed
-        proxyAdmin = 0x223a681fc5c5522c85C96157c0efA18cd6c5405c;
-        implementationMock = 0x8f1B9c1fd67136D525E14D96Efb3887a33f16250;
 
         // deploy frax
         (, fraxOft) = deployFraxOFTUpgradeableAndProxy({
@@ -148,16 +150,5 @@ contract DeployMockOFT is DeployFraxOFTProtocol {
             FraxOFTUpgradeable(proxy).owner() == vm.addr(configDeployerPK),
             "OFT owner incorrect"
         );
-    }
-
-    /// @dev do nothing
-    function setPriviledgedRoles() public override {
-        for (uint256 o=0; o<proxyOfts.length; o++) {
-            address proxyOft = proxyOfts[o];
-            // FraxOFTUpgradeable(proxyOft).setDelegate(deployer);
-            // Ownable(proxyOft).transferOwnership(broadcastConfig.delegate);
-        }
-
-        // Ownable(proxyAdmin).transferOwnership(broadcastConfig.delegate);
     }
 }

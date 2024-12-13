@@ -98,7 +98,7 @@ contract BaseL0Script is Script {
     string public json;
 
     function version() public virtual pure returns (uint256, uint256, uint256) {
-        return (1, 2, 1);
+        return (1, 2, 2);
     }
 
     modifier broadcastAs(uint256 privateKey) {

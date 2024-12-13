@@ -17,7 +17,7 @@ contract DeployFraxOFTProtocol is BaseL0Script {
     using Strings for uint256;
 
     function version() public virtual override pure returns (uint256, uint256, uint256) {
-        return (1, 2, 0);
+        return (1, 2, 1);
     }
 
     function setUp() public virtual override {
@@ -149,9 +149,9 @@ contract DeployFraxOFTProtocol is BaseL0Script {
         // TODO: support for non-evm addresses
         // TODO: validate that differing OFT addrs does not impact assumed setup functions.
         require(fxsOft == expectedProxyOfts[0], "Invalid FXS OFT");
-        require(sFraxOft == expectedProxyOfts[1], "Invalid sFRAX OFT");
+        require(sfrxUsdOft == expectedProxyOfts[1], "Invalid sFRAX OFT");
         require(sfrxEthOft == expectedProxyOfts[2], "Invalid sfrxETH OFT");
-        require(fraxOft == expectedProxyOfts[3], "Invalid FRAX OFT");
+        require(frxUsdOft == expectedProxyOfts[3], "Invalid FRAX OFT");
         require(frxEthOft == expectedProxyOfts[4], "Invalid frxETH OFT");
         require(fpiOft == expectedProxyOfts[5], "Invalid FPI OFT");
         require(proxyOfts.length == numOfts, "OFT array lengths different");
@@ -172,10 +172,10 @@ contract DeployFraxOFTProtocol is BaseL0Script {
             _symbol: "FXS"
         });
 
-        // Deploy sFRAX
-        (,sFraxOft) = deployFraxOFTUpgradeableAndProxy({
-            _name: "Staked Frax",
-            _symbol: "sFRAX"
+        // Deploy sfrxUSD
+        (,sfrxUsdOft) = deployFraxOFTUpgradeableAndProxy({
+            _name: "Staked Frax USD",
+            _symbol: "sfrxUSD"
         });
 
         // Deploy sfrxETH
@@ -184,10 +184,10 @@ contract DeployFraxOFTProtocol is BaseL0Script {
             _symbol: "sfrxETH"
         });
 
-        // Deploy FRAX
-        (,fraxOft) = deployFraxOFTUpgradeableAndProxy({
-            _name: "Frax",
-            _symbol: "FRAX"
+        // Deploy frxUSD
+        (,frxUsdOft) = deployFraxOFTUpgradeableAndProxy({
+            _name: "Frax USD",
+            _symbol: "frxUSD"
         });
 
         // Deploy frxETH

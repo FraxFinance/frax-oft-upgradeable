@@ -41,15 +41,6 @@ contract DeployFraxOFTProtocol is BaseL0Script {
         setupProxyDestinations();
     }
 
-    function setupLegacyDestinations() public virtual {
-        for (uint256 i=0; i<legacyConfigs.length; i++) {
-            setupDestination({
-                _connectedConfig: legacyConfigs[i],
-                _connectedOfts: legacyOfts
-            });
-        }
-    }
-
     function setupProxyDestinations() public virtual {
         for (uint256 i=0; i<proxyConfigs.length; i++) {
             // skip if destination == source
@@ -59,6 +50,10 @@ contract DeployFraxOFTProtocol is BaseL0Script {
                 _connectedOfts: proxyOfts
             });
         }
+    }
+
+    function setupLegacyDestinations() public pure {
+        // DEPRECATED
     }
 
     function setupDestination(
@@ -88,7 +83,14 @@ contract DeployFraxOFTProtocol is BaseL0Script {
         setupEvms();
         setupNonEvms();
 
+        /// @dev configures legacy configs as well
         setDVNs({
+            _connectedConfig: broadcastConfig,
+            _connectedOfts: proxyOfts,
+            _configs: allConfigs
+        });
+
+        setLibs({
             _connectedConfig: broadcastConfig,
             _connectedOfts: proxyOfts,
             _configs: allConfigs
@@ -103,12 +105,6 @@ contract DeployFraxOFTProtocol is BaseL0Script {
             _configs: evmConfigs
         });
 
-        /// @dev legacy, non-upgradeable OFTs
-        setEvmPeers({
-            _connectedOfts: proxyOfts,
-            _peerOfts: legacyOfts,
-            _configs: legacyConfigs
-        });
         /// @dev Upgradeable OFTs maintaining the same address cross-chain.
         setEvmPeers({
             _connectedOfts: proxyOfts,
@@ -160,7 +156,7 @@ contract DeployFraxOFTProtocol is BaseL0Script {
     function deployFraxOFTUpgradeablesAndProxies() broadcastAs(oftDeployerPK) public virtual {
 
         // Proxy admin (0x223a681fc5c5522c85C96157c0efA18cd6c5405c)
-        proxyAdmin = address(new ProxyAdmin(vm.addr(configDeployerPK)));
+        proxyAdmin = address(new FraxProxyAdmin(vm.addr(configDeployerPK)));
 
         // Implementation mock (0x8f1B9c1fd67136D525E14D96Efb3887a33f16250)
         implementationMock = address(new ImplementationMock());
@@ -502,5 +498,68 @@ contract DeployFraxOFTProtocol is BaseL0Script {
                 })
             );
         }
+    }
+
+    function setLibs(
+        L0Config memory _connectedConfig,
+        address[] memory _connectedOfts,
+        L0Config[] memory _configs 
+    ) public virtual {
+        // for each oft
+        for (uint256 o=0; o < _connectedOfts.length; o++) {
+            // for each destination
+            for (uint256 c=0; c < _configs.length; c++) {
+                setLib({
+                    _connectedConfig: _connectedConfig,
+                    _connectedOft: _connectedOfts[o],
+                    _config: _configs[c]
+                });
+            }
+        }
+    }
+
+    function setLib(
+        L0Config memory _connectedConfig,
+        address _connectedOft,
+        L0Config memory _config
+    ) public virtual {
+        // skip if the connected and target are the same
+        if (_connectedConfig.eid == _config.eid) return;
+
+        // set sendLib to default
+        bytes memory data = abi.encodeCall(
+            IMessageLibManager.setSendLibrary,
+            (
+                _connectedOft, uint32(_config.eid), _connectedConfig.sendLib302
+            )
+        );
+        (bool success,) = _connectedConfig.endpoint.call(data);
+        require(success, "Unable to call setSendLibrary");
+        serializedTxs.push(
+            SerializedTx({
+                name: "setSendLibrary",
+                to: _connectedConfig.endpoint,
+                value: 0,
+                data: data
+            })
+        );
+
+        // set receiveLib to default
+        data = abi.encodeCall(
+            IMessageLibManager.setReceiveLibrary,
+            (
+                _connectedOft, uint32(_config.eid), _connectedConfig.receiveLib302, 0
+            )
+        );
+        (success,) = _connectedConfig.endpoint.call(data);
+        require(success, "Unable to call setReceiveLibrary");
+        serializedTxs.push(
+            SerializedTx({
+                name: "setReceiveLibrary",
+                to: _connectedConfig.endpoint,
+                value: 0,
+                data: data
+            })
+        );
     }
 }

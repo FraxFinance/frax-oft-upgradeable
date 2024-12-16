@@ -1,7 +1,7 @@
 // SPDX-License-Identifier: UNLICENSED
 pragma solidity ^0.8.22;
 
-import "../DeployFraxOFTProtocol/DeployFraxOFTProtocol.s.sol";
+import "../../DeployFraxOFTProtocol/DeployFraxOFTProtocol.s.sol";
 import { IMessageLibManager } from "@fraxfinance/layerzero-v2-upgradeable/protocol/contracts/interfaces/IMessageLibManager.sol";
 
 interface IEndpointV2 {
@@ -28,12 +28,10 @@ contract BlockSendLib is DeployFraxOFTProtocol {
     /// @dev skip deployment, set oft addrs to only FRAX/sFRAX
     function run() public override {
         delete legacyOfts;
-        legacyOfts.push(0x909DBdE1eBE906Af95660033e478D59EFe831fED); // FRAX
-        legacyOfts.push(0xe4796cCB6bB5DE2290C417Ac337F2b66CA2E770E); // sFRAX
+        legacyOfts.push(); // COFT on Base
 
         delete proxyOfts;
-        proxyOfts.push(0x80Eede496655FB9047dd39d9f418d5483ED600df); // FRAX
-        proxyOfts.push(0x5Bff88cA1442c2496f7E475E9e7786383Bc070c0); // sFRAX
+        proxyOfts.push(); // COFT on fraxtal
 
         setSendLibs();
     }
@@ -51,10 +49,11 @@ contract BlockSendLib is DeployFraxOFTProtocol {
         }
     }
 
+    /// @dev override to broadcast
     function setSendLib(
         address[] memory _connectedOfts,
         L0Config memory _config
-    ) simulateAndWriteTxs(_config) public virtual {
+    ) broadcastAs(configDeployerPK) public {
 
         address blockedLibrary = IEndpointV2(_config.endpoint).blockedLibrary();
 

@@ -1,0 +1,65 @@
+// SPDX-License-Identifier: UNLICENSED
+pragma solidity ^0.8.22;
+
+import "../../DeployFraxOFTProtocol/DeployFraxOFTProtocol.s.sol";
+
+contract SendMockOFT is DeployFraxOFTProtocol {
+    using OptionsBuilder for bytes;
+    using stdJson for string;
+    using Strings for uint256;
+
+    address public mFraxOft = address(0); // TODO
+    address public mSFraxOft = address(0); // TODO
+    address public ethMsig = 0xB1748C79709f4Ba2Dd82834B8c82D4a505003f27;
+
+    /// @dev override to alter file save location
+    function filename() public view override returns (string memory) {
+        string memory root = vm.projectRoot();
+        root = string.concat(root, "/scripts/UpgradeFrax/txs/");
+        string memory name = string.concat("3_SendMockOFT-", broadcastConfig.chainid.toString());
+        name = string.concat(name, ".json");
+
+        return string.concat(root, name);
+    }
+
+    function run() public override {
+        submitSends();
+    }
+
+    function submitSends() public simulateAndWriteTxs(broadcastConfig) {
+        submitSend(mFraxOft);
+        submitSend(mSFraxOft);
+    }
+
+    function submitSend(address _oft) public {
+        uint256 amount = IERC20(_oft).balanceOf(broadcastConfig.delegate);
+
+        bytes memory options = OptionsBuilder.newOptions();
+        SendParam memory sendParam = SendParam({
+                dstEid: uint32(30101), // Ethereum
+                to: addressToBytes32(ethMsig),
+                amountLD: amount,
+                minAmountLD: amount,
+                extraOptions: options,
+                composeMsg: '',
+                oftCmd: ''
+        });
+        MessagingFee memory fee = IOFT(_oft).quoteSend(sendParam, false);
+        bytes memory data = abi.encodeCall(
+            IOFT.send,
+            (
+                sendParam, fee, broadcastConfig.delegate
+            )
+        );
+        (bool success, ) = _oft.call{value: fee.nativeFee}(data);
+        require(success, "Failed send");
+        serializedTxs.push(
+            SerializedTx({
+                name: "sendMockOFT",
+                to: _oft,
+                value: fee.nativeFee,
+                data: data
+            })
+        );
+    }
+}

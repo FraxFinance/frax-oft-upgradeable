@@ -2,22 +2,24 @@
 pragma solidity ^0.8.22;
 
 import { FraxOFTUpgradeable } from "contracts/FraxOFTUpgradeable.sol";
-import "../../DeployFraxOFTProtocol/DeployFraxOFTProtocol.s.sol";
+import "../../../DeployFraxOFTProtocol/DeployFraxOFTProtocol.s.sol";
 
-/// @dev: deploy OFT on Fraxtal and hookup to Base adapter
-/// @todo fraxtal broadcast
+/// @dev deploy OFT on Fraxtal and hookup to Base adapter
+// @todo forge script scripts/UpgradeFrax/test/setup/2_DeployOFT.s.sol --rpc-url https://rpc.frax.com
 contract DeployOFT is DeployFraxOFTProtocol {
-    address adapter = 0x0; // TODO
+    address adapter = 0xa536976c9cA36e74Af76037af555eefa632ce469;
     FraxOFTUpgradeable public oft;
 
-    address[] public connectedOfts;
-    address[] public peerOfts;
-
     constructor() {
-        peerOfts.push(adapter);
+        // already deployed
+        implementationMock = 0x8f1B9c1fd67136D525E14D96Efb3887a33f16250;
+        proxyAdmin = vm.addr(senderDeployerPK);
     }
 
     function run() public override {
+        delete legacyOfts;
+        legacyOfts.push(adapter);
+
         // deploySource();
         // setupSource();
         (address imp, address proxy) = deployFraxOFTUpgradeableAndProxy({
@@ -27,11 +29,11 @@ contract DeployOFT is DeployFraxOFTProtocol {
         console.log("Implementation @ ", imp);
         console.log("Proxy @ ", proxy);
 
-        // Setup souce as destinations
-        setupDestinations();
+        // Setup source
+        setupSource();
     }
 
-    /// @dev: configDeployer as proxy admin, broadcast as configDeployer
+    /// @dev configDeployer as proxy admin, broadcast as configDeployer
     function deployFraxOFTUpgradeableAndProxy(
         string memory _name,
         string memory _symbol
@@ -49,7 +51,6 @@ contract DeployOFT is DeployFraxOFTProtocol {
         /// @dev: create semi-pre-deterministic proxy address, then initialize with correct implementation
         proxy = address(new TransparentUpgradeableProxy(implementationMock, /*vm.addr(oftDeployerPK) */ vm.addr(configDeployerPK), ""));
 
-        /// @dev: broadcastConfig deployer is temporary OFT owner until setPriviledgedRoles()
         bytes memory initializeArgs = abi.encodeWithSelector(
             FraxOFTUpgradeable.initialize.selector,
             _name,
@@ -60,7 +61,7 @@ contract DeployOFT is DeployFraxOFTProtocol {
             newImplementation: implementation,
             data: initializeArgs
         });
-        // TransparentUpgradeableProxy(payable(proxy)).changeAdmin(proxyAdmin);
+        TransparentUpgradeableProxy(payable(proxy)).changeAdmin(proxyAdmin);
         // TODO: will need to look at these instead of expectedProxyOFTs if the deployed addrs are different than expected
         proxyOfts.push(proxy);
 
@@ -87,31 +88,16 @@ contract DeployOFT is DeployFraxOFTProtocol {
         );
     }
 
-    function setupDestinations() public override {
-        // setupLegacyDestinations();
-        setupProxyDestinations();
-    }
-
-
-    function setupDestination(
-        L0Config memory _connectedConfig,
-        address[] memory _connectedOfts
-    ) public virtual /* simulateAndWriteTxs(_connectedConfig) */ broadcastAs(configDeployerPK) {
-        setEvmEnforcedOptions({
-            _connectedOfts: _connectedOfts,
-            _configs: /* broadcastConfigArray */ proxyConfigs // includes fraxtal
-        });
-
-        setEvmPeers({
-            _connectedOfts: _connectedOfts,
-            _peerOfts: /* proxyOfts */ peerOfts,
-            _configs: /* broadcastConfigArray */ proxyConfigs // includes fraxtal 
-        });
+    function setupSource() public override broadcastAs(configDeployerPK) {
+        setupEvms();
+        // setupNonEvms();
 
         setDVNs({
-            _connectedConfig: _connectedConfig,
-            _connectedOfts: _connectedOfts,
-            _configs: /* broadcastConfigArray */ proxyConfigs // includes fraxtal
+            _connectedConfig: broadcastConfig,
+            _connectedOfts: proxyOfts,
+            _configs: allConfigs
         });
+
+        // setPriviledgedRoles();
     }
 }

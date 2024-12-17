@@ -39,7 +39,7 @@ contract DeployMockOFT is DeployFraxOFTProtocol {
         return string.concat(root, name);
     }
 
-    /// @dev override to skip setting up solana, privileded roles
+    /// @dev override to skip setting up solana, privileged roles
     function setupSource() public override broadcastAs(configDeployerPK) {
         /// @dev set enforced options / peers separately
         setupEvms();
@@ -65,6 +65,29 @@ contract DeployMockOFT is DeployFraxOFTProtocol {
                 });
             }
         }
+    }
+
+    /// @dev only set the peer
+    function setupDestination(
+        L0Config memory _connectedConfig,
+        address[] memory _connectedOfts
+    ) public virtual simulateAndWriteTxs(_connectedConfig) {
+        // setEvmEnforcedOptions({
+        //     _connectedOfts: _connectedOfts,
+        //     _configs: broadcastConfigArray
+        // });
+
+        setEvmPeers({
+            _connectedOfts: _connectedOfts,
+            _peerOfts: proxyOfts,
+            _configs: broadcastConfigArray 
+        });
+
+        // setDVNs({
+        //     _connectedConfig: _connectedConfig,
+        //     _connectedOfts: _connectedOfts,
+        //     _configs: broadcastConfigArray
+        // });
     }
 
     /// @dev simple checks override

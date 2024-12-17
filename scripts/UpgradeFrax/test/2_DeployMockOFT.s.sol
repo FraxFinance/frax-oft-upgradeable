@@ -5,7 +5,7 @@ import "../../DeployFraxOFTProtocol/DeployFraxOFTProtocol.s.sol";
 import { OFTUpgradeableMock } from "contracts/mocks/OFTUpgradeableMock.sol";
 
 /// @dev deploy upgradeable mock OFTs and mint lockbox supply to the fraxtal msig
-// forge script scripts/UpgradeFrax/2_DeployMockOFT.s.sol --rpc-url https://rpc.frax.com --broadcast
+// forge script scripts/UpgradeFrax/test/2_DeployMockOFT.s.sol --rpc-url https://rpc.frax.com --broadcast
 contract DeployMockOFT is DeployFraxOFTProtocol {
     using OptionsBuilder for bytes;
     using stdJson for string;
@@ -24,10 +24,10 @@ contract DeployMockOFT is DeployFraxOFTProtocol {
         loadJsonConfig();
 
         delete legacyOfts;
-        legacyOfts.push(address(0)); // CAC on Base
+        legacyOfts.push(0xa536976c9cA36e74Af76037af555eefa632ce469); // CAC OFT on Base
     }
 
-    /// @dev override to skip setting up solana, privileded roles
+    /// @dev override to skip setting up solana, privileged roles
     function setupSource() public override broadcastAs(configDeployerPK) {
         /// @dev set enforced options / peers separately
         setupEvms();
@@ -99,7 +99,7 @@ contract DeployMockOFT is DeployFraxOFTProtocol {
         proxyOfts.push(proxy);
 
         /// @dev mint initial circulating supply
-        OFTUpgradeableMock(proxy).mintInitialSupply(broadcastConfig.delegate, _initialSupply);
+        OFTUpgradeableMock(proxy).mintInitialSupply(vm.addr(configDeployerPK), _initialSupply);
 
         // State checks
         require(

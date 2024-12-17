@@ -5,7 +5,10 @@ import "../DeployFraxOFTProtocol/DeployFraxOFTProtocol.s.sol";
 import { OFTUpgradeableMock } from "contracts/mocks/OFTUpgradeableMock.sol";
 
 /// @dev deploy upgradeable mock OFTs and mint lockbox supply to the fraxtal msig
-// forge script scripts/UpgradeFrax/2_DeployMockOFT.s.sol --rpc-url https://rpc.frax.com --broadcast
+/*
+forge script scripts/UpgradeFrax/2_DeployMockOFT.s.sol \ 
+--rpc-url https://rpc.frax.com --verifier-url $FRAXSCAN_API_URL --etherscan-api-key $FRAXSCAN_API_KEY
+*/
 contract DeployMockOFT is DeployFraxOFTProtocol {
     using OptionsBuilder for bytes;
     using stdJson for string;
@@ -71,7 +74,7 @@ contract DeployMockOFT is DeployFraxOFTProtocol {
     function setupDestination(
         L0Config memory _connectedConfig,
         address[] memory _connectedOfts
-    ) public virtual simulateAndWriteTxs(_connectedConfig) {
+    ) public override simulateAndWriteTxs(_connectedConfig) {
         // setEvmEnforcedOptions({
         //     _connectedOfts: _connectedOfts,
         //     _configs: broadcastConfigArray

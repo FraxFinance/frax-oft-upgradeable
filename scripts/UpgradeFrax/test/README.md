@@ -12,9 +12,10 @@ This directory is a production-grade test of the UpgradeFrax scripts with a zero
 
 
 #### 2. Reproduce `scripts/UpgradeFrax/README.md` steps
-1. Block new outbound messages
-2. Deploy Mock OFT
-3. Remove lockbox liquidity
+1. Block new outbound messages ([link](https://basescan.org/tx/0x6bf51e2eb3f5c348bcef89e8b5b6408066996dd06cc434a3470e6149d10ac0c9))
+2. Deploy Mock OFT ([link](https://fraxscan.com/address/0x59dddf3e838b196c89e725d61e9e0495f6c30306)
+- Setup Base destination ([link](https://basescan.org/tx/0x7f70b121bc7d47a917e931eb7f1174cb4ba1b101d57b8d213c02da253c94ffcb#eventlog))
+3. Remove lockbox liquidity ([link](https://layerzeroscan.com/tx/0xb6b36d913e8a0850e780af77e87021adbbf608e859a3c95db7146807fb76885c))
 4. Upgrade Fraxtal OFTs to lockboxes
 5. Add liquidity to lockboxes
 6. Upgrade Proxy OFT Metadata

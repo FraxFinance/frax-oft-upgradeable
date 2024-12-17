@@ -7,7 +7,7 @@ import "../../../BaseL0Script.sol";
 contract Send is BaseL0Script {
     using OptionsBuilder for bytes;
 
-    uint256 amount = 500_000e18;
+    uint256 amount = 100_000e18;
     address public oft;
     uint32 public dstEid;
 

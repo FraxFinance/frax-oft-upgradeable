@@ -8,30 +8,13 @@ interface IEndpointV2 {
     function blockedLibrary() external view returns (address);
 }
 
-/// @dev On ethereum, reset the peers of FRAX / sFRAX to prevent bridging.  Additionally, reset the peers of FRAX / sFRAX
-///        on destination chains to prevent bridging
-// forge script scripts/UpgradeFrax/1_BlockSendLib.s.sol --rpc-url https://rpc.frax.com
+// forge script scripts/UpgradeFrax/test/1_BlockSendLib.s.sol --rpc-url https://mainnet.base.org
 contract BlockSendLib is DeployFraxOFTProtocol {
-    using stdJson for string;
-    using Strings for uint256;
-
-    /// @dev override to alter file save location
-    function filename() public view override returns (string memory) {
-        string memory root = vm.projectRoot();
-        root = string.concat(root, "/scripts/UpgradeFrax/txs/");
-        string memory name = string.concat("1_BlockSendLib-", simulateConfig.chainid.toString());
-        name = string.concat(name, ".json");
-
-        return string.concat(root, name);
-    }
 
     /// @dev skip deployment, set oft addrs to only FRAX/sFRAX
     function run() public override {
         delete legacyOfts;
-        legacyOfts.push(); // COFT on Base
-
-        delete proxyOfts;
-        proxyOfts.push(); // COFT on fraxtal
+        legacyOfts.push(0xa536976c9cA36e74Af76037af555eefa632ce469); // COFT on Base
 
         setSendLibs();
     }
@@ -39,14 +22,16 @@ contract BlockSendLib is DeployFraxOFTProtocol {
     function setSendLibs() public {
         // set for legacy chains
         for (uint256 c=0; c<legacyConfigs.length; c++) {
+            // only set for base
+            if (legacyConfigs[c].chainid != 8453) continue;
             setSendLib(legacyOfts, legacyConfigs[c]);
         }
-        // set for proxy chains
-        for (uint256 c=0; c<proxyConfigs.length; c++) {
-            // skip blocking for fraxtal- keep open to send mock OFT
-            if (proxyConfigs[c].chainid == 252) continue;
-            setSendLib(proxyOfts, proxyConfigs[c]);
-        }
+        // // set for proxy chains
+        // for (uint256 c=0; c<proxyConfigs.length; c++) {
+        //     // skip blocking for fraxtal- keep open to send mock OFT
+        //     if (proxyConfigs[c].chainid == 252) continue;
+        //     setSendLib(proxyOfts, proxyConfigs[c]);
+        // }
     }
 
     /// @dev override to broadcast
@@ -65,8 +50,8 @@ contract BlockSendLib is DeployFraxOFTProtocol {
             for (uint256 c=0; c<evmConfigs.length; c++) {
                 uint32 eid = uint32(evmConfigs[c].eid);
 
-                // skip setting sendLib for self
-                if (_config.eid == eid) continue;
+                // only set sendLib for fraxtal
+                if (eid != 30255) continue;
 
                 bytes memory data = abi.encodeCall(
                     IMessageLibManager.setSendLibrary,

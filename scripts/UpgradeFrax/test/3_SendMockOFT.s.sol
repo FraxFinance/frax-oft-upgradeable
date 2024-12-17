@@ -3,40 +3,29 @@ pragma solidity ^0.8.22;
 
 import "../../DeployFraxOFTProtocol/DeployFraxOFTProtocol.s.sol";
 
+// forge script scripts/upgradeFrax/test/3_SendMockOFT.s.sol --rpc-url https://rpc.frax.com
 contract SendMockOFT is DeployFraxOFTProtocol {
     using OptionsBuilder for bytes;
     using stdJson for string;
     using Strings for uint256;
 
-    address public mFraxOft = address(0); // TODO
-    address public mSFraxOft = address(0); // TODO
+    address public mCacOft = 0x8d8F779e1548B0eF538f5Dfe76AbFA232d705C8b; // fraxtal mock CAC
     address public ethMsig = 0xB1748C79709f4Ba2Dd82834B8c82D4a505003f27;
-
-    /// @dev override to alter file save location
-    function filename() public view override returns (string memory) {
-        string memory root = vm.projectRoot();
-        root = string.concat(root, "/scripts/UpgradeFrax/txs/");
-        string memory name = string.concat("3_SendMockOFT-", broadcastConfig.chainid.toString());
-        name = string.concat(name, ".json");
-
-        return string.concat(root, name);
-    }
 
     function run() public override {
         submitSends();
     }
 
-    function submitSends() public simulateAndWriteTxs(broadcastConfig) {
-        submitSend(mFraxOft);
-        submitSend(mSFraxOft);
+    function submitSends() public broadcastAs(configDeployerPK) {
+        submitSend(mCacOft);
     }
 
     function submitSend(address _oft) public {
-        uint256 amount = IERC20(_oft).balanceOf(broadcastConfig.delegate);
+        uint256 amount = IERC20(_oft).balanceOf(vm.addr(configDeployerPK));
 
         bytes memory options = OptionsBuilder.newOptions();
         SendParam memory sendParam = SendParam({
-                dstEid: uint32(30101), // Ethereum
+                dstEid: uint32(30184), // base
                 to: addressToBytes32(ethMsig),
                 amountLD: amount,
                 minAmountLD: amount,
@@ -48,7 +37,7 @@ contract SendMockOFT is DeployFraxOFTProtocol {
         bytes memory data = abi.encodeCall(
             IOFT.send,
             (
-                sendParam, fee, broadcastConfig.delegate
+                sendParam, fee, vm.addr(configDeployerPK)
             )
         );
         (bool success, ) = _oft.call{value: fee.nativeFee}(data);

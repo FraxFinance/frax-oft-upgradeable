@@ -46,8 +46,8 @@
 - Chain: `Mode`, `Sei`, `Fraxtal`, `X-Layer`
 - Admin: `ProxyAdmin` (owned by chain-respective msig)
 - OFTs
-  - `FRAX`: `0x80eede496655fb9047dd39d9f418d5483ed600df`
-  - `sFRAX`: `0x5bff88ca1442c2496f7e475e9e7786383bc070c0`
+  - `frxUSD`: `0x80eede496655fb9047dd39d9f418d5483ed600df`
+  - `sfrxUSD`: `0x5bff88ca1442c2496f7e475e9e7786383bc070c0`
   - `sfrxETH`: `0x3ec3849c33291a9ef4c5db86de593eb4a37fde45`
   - `FXS`: `0x64445f0aecc51e94ad52d8ac56b7190e764e561a`
   - `frxETH`: `0x43eDD7f3831b08FE70B7555ddD373C8bF65a9050`

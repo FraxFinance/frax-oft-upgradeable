@@ -6,30 +6,21 @@ import { IMessageLibManager } from "@fraxfinance/layerzero-v2-upgradeable/protoc
 
 /// @dev On ethereum, reset the peers of FRAX / sFRAX to prevent bridging.  Additionally, reset the peers of FRAX / sFRAX
 ///        on destination chains to prevent bridging
-// forge script scripts/UpgradeFrax/8_SetSendReceiveLib.s.sol --rpc-url https://rpc.frax.com
+// forge script scripts/UpgradeFrax/test/8_SetSendReceiveLib.s.sol --rpc-url https://mainnet.base.org
 contract SetSendReceiveLib is DeployFraxOFTProtocol {
     using stdJson for string;
     using Strings for uint256;
 
-    /// @dev override to alter file save location
-    function filename() public view override returns (string memory) {
-        string memory root = vm.projectRoot();
-        root = string.concat(root, "/scripts/UpgradeFrax/txs/");
-        string memory name = string.concat("8_SetSendReceiveLib-", simulateConfig.chainid.toString());
-        name = string.concat(name, ".json");
-
-        return string.concat(root, name);
-    }
-
     /// @dev skip deployment, set oft addrs to only FRAX/sFRAX
     function run() public override {
         delete legacyOfts;
-        legacyOfts.push(0x909DBdE1eBE906Af95660033e478D59EFe831fED); // FRAX
-        legacyOfts.push(0xe4796cCB6bB5DE2290C417Ac337F2b66CA2E770E); // sFRAX
+        // legacyOfts.push(0x909DBdE1eBE906Af95660033e478D59EFe831fED); // FRAX
+        // legacyOfts.push(0xe4796cCB6bB5DE2290C417Ac337F2b66CA2E770E); // sFRAX
+        legacyOfts.push(0xa536976c9cA36e74Af76037af555eefa632ce469); // base CAC OFT adapter
 
         delete proxyOfts;
-        proxyOfts.push(0x80Eede496655FB9047dd39d9f418d5483ED600df); // FRAX
-        proxyOfts.push(0x5Bff88cA1442c2496f7E475E9e7786383Bc070c0); // sFRAX
+        // proxyOfts.push(0x80Eede496655FB9047dd39d9f418d5483ED600df); // FRAX
+        // proxyOfts.push(0x5Bff88cA1442c2496f7E475E9e7786383Bc070c0); // sFRAX
 
         setLibs();
     }
@@ -37,19 +28,20 @@ contract SetSendReceiveLib is DeployFraxOFTProtocol {
     function setLibs() public {
         // For legacy chains, unblock legacy paths
         for (uint256 c=0; c<legacyConfigs.length; c++) {
+            if (legacyConfigs[c].chainid != 8453) continue; // only for base
             setLib(legacyOfts, legacyConfigs, legacyConfigs[c]);
         }
         // For proxy chains, unblock proxy paths
-        for (uint256 c=0; c<proxyConfigs.length; c++) {
-            setLib(proxyOfts, proxyConfigs, proxyConfigs[c]);
-        }
+        // for (uint256 c=0; c<proxyConfigs.length; c++) {
+        //     setLib(proxyOfts, proxyConfigs, proxyConfigs[c]);
+        // }
     }
 
     function setLib(
         address[] memory _connectedOfts,
         L0Config[] memory _peerConfigs,
         L0Config memory _config
-    ) simulateAndWriteTxs(_config) public {
+    ) broadcastAs(configDeployerPK) public {
 
         // for both FRAX/sFRAX
         for (uint256 o=0; o<_connectedOfts.length; o++) {

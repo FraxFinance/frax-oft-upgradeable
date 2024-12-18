@@ -4,25 +4,16 @@ pragma solidity ^0.8.22;
 import "../../DeployFraxOFTProtocol/DeployFraxOFTProtocol.s.sol";
 
 /// @dev On all legacy chains, remove proxy peers
-// forge script scripts/UpgradeFrax/7a_DisconnectLegacyPeer.s.sol --rpc-url https://rpc.frax.com
+// forge script scripts/UpgradeFrax/test/7a_DisconnectLegacyPeer.s.sol --rpc-url https://mainnet.base.org
 contract DisconnectLegacyPeer is DeployFraxOFTProtocol {
     using stdJson for string;
     using Strings for uint256;
 
-    /// @dev override to alter file save location
-    function filename() public view override returns (string memory) {
-        string memory root = vm.projectRoot();
-        root = string.concat(root, "/scripts/UpgradeFrax/txs/");
-        string memory name = string.concat("7a_DisconnectLegacyPeer-", simulateConfig.chainid.toString());
-        name = string.concat(name, ".json");
-
-        return string.concat(root, name);
-    }
-    
     function run() public override {
         delete legacyOfts;
-        legacyOfts.push(0x909DBdE1eBE906Af95660033e478D59EFe831fED); // FRAX
-        legacyOfts.push(0xe4796cCB6bB5DE2290C417Ac337F2b66CA2E770E); // sFRAX
+        // legacyOfts.push(0x909DBdE1eBE906Af95660033e478D59EFe831fED); // FRAX
+        // legacyOfts.push(0xe4796cCB6bB5DE2290C417Ac337F2b66CA2E770E); // sFRAX
+        legacyOfts.push(0xa536976c9cA36e74Af76037af555eefa632ce469); // Base CAC OFT Adapter
 
         // deploySource();
         // setupSource();
@@ -38,7 +29,7 @@ contract DisconnectLegacyPeer is DeployFraxOFTProtocol {
     function setupDestination(
         L0Config memory _connectedConfig,
         address[] memory _connectedOfts
-    ) public override simulateAndWriteTxs(_connectedConfig) {
+    ) public override /* simulateAndWriteTxs(_connectedConfig) */ broadcastAs(configDeployerPK) {
         // setEvmEnforcedOptions({
         //     _connectedOfts: _connectedOfts,
         //     _configs: broadcastConfigArray

@@ -5,7 +5,7 @@ import "../../DeployFraxOFTProtocol/DeployFraxOFTProtocol.s.sol";
 import { OFTUpgradeableMock } from "contracts/mocks/OFTUpgradeableMock.sol";
 
 /// @dev deploy upgradeable mock OFTs and mint lockbox supply to the fraxtal msig
-// forge script scripts/UpgradeFrax/test/2_DeployMockOFT.s.sol --rpc-url https://rpc.frax.com --broadcast
+// forge script scripts/UpgradeFrax/test/2_DeployMockOFT.s.sol --rpc-url https://rpc.frax.com --broadcast --verifier-url $FRAXSCAN_API_URL --etherscan-api-key $FRAXSCAN_API_KEY
 contract DeployMockOFT is DeployFraxOFTProtocol {
     using OptionsBuilder for bytes;
     using stdJson for string;
@@ -15,7 +15,6 @@ contract DeployMockOFT is DeployFraxOFTProtocol {
 
     constructor() {
         // already deployed
-        proxyAdmin = 0x223a681fc5c5522c85C96157c0efA18cd6c5405c;
         implementationMock = 0x8f1B9c1fd67136D525E14D96Efb3887a33f16250;
     }
 

@@ -77,9 +77,9 @@ contract BaseL0Script is Script {
     // Deployed proxies
     address public proxyAdmin;
     address public fxsOft;
-    address public sFraxOft;
+    address public sfrxUsdOft;
     address public sfrxEthOft;
-    address public fraxOft;
+    address public frxUsdOft;
     address public frxEthOft;
     address public fpiOft;
     uint256 public numOfts;
@@ -98,7 +98,7 @@ contract BaseL0Script is Script {
     string public json;
 
     function version() public virtual pure returns (uint256, uint256, uint256) {
-        return (1, 2, 1);
+        return (1, 2, 2);
     }
 
     modifier broadcastAs(uint256 privateKey) {

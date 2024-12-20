@@ -17,7 +17,7 @@ contract DeployFraxOFTProtocol is BaseL0Script {
     using Strings for uint256;
 
     function version() public virtual override pure returns (uint256, uint256, uint256) {
-        return (1, 2, 2);
+        return (1, 2, 3);
     }
 
     function setUp() public virtual override {
@@ -142,8 +142,6 @@ contract DeployFraxOFTProtocol is BaseL0Script {
     function postDeployChecks() public virtual view {
         // Ensure OFTs are their expected pre-determined address.  If not, there's a chance the deployer nonce shifted,
         // the EVM has differing logic, or we are not on an EVM compatable chain.
-        // TODO: support for non-evm addresses
-        // TODO: validate that differing OFT addrs does not impact assumed setup functions.
         require(fxsOft == expectedProxyOfts[0], "Invalid FXS OFT");
         require(sfrxUsdOft == expectedProxyOfts[1], "Invalid sFRAX OFT");
         require(sfrxEthOft == expectedProxyOfts[2], "Invalid sfrxETH OFT");
@@ -201,7 +199,7 @@ contract DeployFraxOFTProtocol is BaseL0Script {
         proxyOfts.pop();
 
         // Deploy correct FPI
-        deployFraxOFTUpgradeableAndProxy({
+        (, fpiOft) = deployFraxOFTUpgradeableAndProxy({
             _name: "Frax Price Index",
             _symbol: "FPI"
         });
@@ -238,7 +236,6 @@ contract DeployFraxOFTProtocol is BaseL0Script {
             data: initializeArgs
         });
         TransparentUpgradeableProxy(payable(proxy)).changeAdmin(proxyAdmin);
-        // TODO: will need to look at these instead of expectedProxyOFTs if the deployed addrs are different than expected
         proxyOfts.push(proxy);
 
         // State checks
@@ -267,9 +264,8 @@ contract DeployFraxOFTProtocol is BaseL0Script {
 
     function setPriviledgedRoles() public virtual {
         /// @dev transfer ownership of OFT
-        // TODO: fix loop to correct length
-        for (uint256 o=0; o<expectedProxyOfts.length; o++) {
-            address proxyOft = expectedProxyOfts[o];
+        for (uint256 o=0; o<proxyOfts.length; o++) {
+            address proxyOft = proxyOfts[o];
             FraxOFTUpgradeable(proxyOft).setDelegate(broadcastConfig.delegate);
             Ownable(proxyOft).transferOwnership(broadcastConfig.delegate);
         }

@@ -27,13 +27,14 @@ contract DeployInk is DeployFraxOFTProtocol {
             // Set the config per chain
             for (uint256 c=0; c<_configs.length; c++) {
                 address peerOft = _peerOfts[o];
-                // for fraxtal
+                // for fraxtal, override oft address of frxUSD/sfrxUSD to the standalone lockboxes
                 if (_configs[c].chainid == 252) {
                     if (_connectedOfts[o] == 0x80Eede496655FB9047dd39d9f418d5483ED600df) {
                         // standalone frxUSD lockbox
-                        peerOft = address(0);
+                        peerOft = 0x96A394058E2b84A89bac9667B19661Ed003cF5D4;
                     } else if (_connectedOfts[o] == 0x5Bff88cA1442c2496f7E475E9e7786383Bc070c0) {
-                        peerOft = address(0);
+                        // standalone sfrxUSD lockbox
+                        peerOft = 0x88Aa7854D3b2dAA5e37E7Ce73A1F39669623a361;
                     }
                 }
                 setPeer({

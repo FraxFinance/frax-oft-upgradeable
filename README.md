@@ -28,6 +28,11 @@ This repository contains all of the contracts and deployment code used to manage
   - `frxETH`: `0x43eDD7f3831b08FE70B7555ddD373C8bF65a9050`
   - `FPI` : `0x90581eCa9469D8D7F5D3B60f4715027aDFCf7927`
 
+### Fraxtal standalone frxUSD/sfrxUSD lockboxes
+These lockboxes are to be used by Ink and Sonic until FRAX/sFRAX tokens have finished their upgrade.  After the upgrade, expect to use the respective upgradeable OFT mentioned above.
+- `frxUSD`: [`0x96A394058E2b84A89bac9667B19661Ed003cF5D4`](https://fraxscan.com/address/0x96a394058e2b84a89bac9667b19661ed003cf5d4)
+- `sfrxUSD`: [`0x88Aa7854D3b2dAA5e37E7Ce73A1F39669623a361`](https://fraxscan.com/address/0x88aa7854d3b2daa5e37e7ce73a1f39669623a361)
+
 ### Solana
 - Admin: Chain-respective msig
 - `FRAX`

@@ -16,3 +16,12 @@ See `1_DeployFraxtalLockboxes.s.sol`.  This step creates the `frxUSD` and `sfrxU
 **Lockbox Addresses:**
 - `frxUSD`: [`0x96A394058E2b84A89bac9667B19661Ed003cF5D4`](https://fraxscan.com/address/0x96a394058e2b84a89bac9667b19661ed003cf5d4)
 - `sfrxUSD`: [`0x88Aa7854D3b2dAA5e37E7Ce73A1F39669623a361`](https://fraxscan.com/address/0x88aa7854d3b2daa5e37e7ce73a1f39669623a361)
+
+#### 2. Deploy on Ink
+Deploys the ProxyAdmin and six OFTs.
+
+#### 3. Setup Ink config
+Pre-configure OFTs on Ink to handle all proxy and legacy chains.
+
+#### 4. Setup Destination config
+On destination chains, hook up all OFTs except frxUSD/sfrxUSD unless the destination chain is Fraxtal.

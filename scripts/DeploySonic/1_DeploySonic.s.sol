@@ -24,6 +24,6 @@ contract DeploySonic is DeployFraxOFTProtocol {
             _configs: allConfigs
         });
 
-        // setPriviledgedRoles();
+        setPriviledgedRoles();
     }
 }

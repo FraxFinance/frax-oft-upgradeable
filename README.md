@@ -16,6 +16,7 @@ This repository contains all of the contracts and deployment code used to manage
   - [`X-Layer`](https://app.safe.global/home?safe=xlayer:0xe7Cc52f0C86f4FAB6630f1E26167B487fbF66a61)
   - [`Solana`](https://app.squads.so/squads/FSRTW4KPGifKL8yKcZ8mfoR9mKtAjwZiTHbHwgix8AQo)
   - [`Ink`](https://app.safe.global/home?safe=ink:0x91eBC17cD330DD694225133455583FBCA54b8eC8)
+  - [`Sonic`](https://app.safe.global/home?safe=sonic:0x87c7A1ef67c67cd57CBF101522a0c3B19D2C3aAc)
 
 ### Proxy (upgradeable) OFTs
 - Chain: `Mode`, `Sei`, `Fraxtal`, `X-Layer`, `Ink`

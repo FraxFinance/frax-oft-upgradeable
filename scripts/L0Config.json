@@ -93,7 +93,7 @@
         {
             "RPC": "https://rpc.soniclabs.com/",
             "chainid": 146,
-            "delegate": "0x0",
+            "delegate": "0x87c7A1ef67c67cd57CBF101522a0c3B19D2C3aAc",
             "dvnHorizen": "0x0000000000000000000000000000000000000000",
             "dvnL0": "0x0000000000000000000000000000000000000000",
             "eid": 30332,

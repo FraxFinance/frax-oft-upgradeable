@@ -17,7 +17,7 @@ contract DeployFraxOFTProtocol is BaseL0Script {
     using Strings for uint256;
 
     function version() public virtual override pure returns (uint256, uint256, uint256) {
-        return (1, 2, 3);
+        return (1, 2, 4);
     }
 
     function setUp() public virtual override {
@@ -522,40 +522,56 @@ contract DeployFraxOFTProtocol is BaseL0Script {
         // skip if the connected and target are the same
         if (_connectedConfig.eid == _config.eid) return;
 
-        // set sendLib to default
-        bytes memory data = abi.encodeCall(
-            IMessageLibManager.setSendLibrary,
-            (
-                _connectedOft, uint32(_config.eid), _connectedConfig.sendLib302
-            )
-        );
-        (bool success,) = _connectedConfig.endpoint.call(data);
-        require(success, "Unable to call setSendLibrary");
-        serializedTxs.push(
-            SerializedTx({
-                name: "setSendLibrary",
-                to: _connectedConfig.endpoint,
-                value: 0,
-                data: data
-            })
-        );
+        // set sendLib to default if not already set
+        address lib = IMessageLibManager(_connectedConfig.endpoint).getSendLibrary({
+            _sender: _connectedOft,
+            _eid: uint32(_config.eid)
+        });
+        bool isDefault = IMessageLibManager(_connectedConfig.endpoint).isDefaultSendLibrary({
+            _sender: _connectedOft,
+            _eid: uint32(_config.eid)
+        });
+        if (lib != _connectedConfig.sendLib302 || isDefault) {
+            bytes memory data = abi.encodeCall(
+                IMessageLibManager.setSendLibrary,
+                (
+                    _connectedOft, uint32(_config.eid), _connectedConfig.sendLib302
+                )
+            );
+            (bool success,) = _connectedConfig.endpoint.call(data);
+            require(success, "Unable to call setSendLibrary");
+            serializedTxs.push(
+                SerializedTx({
+                    name: "setSendLibrary",
+                    to: _connectedConfig.endpoint,
+                    value: 0,
+                    data: data
+                })
+            );
+        }
 
-        // set receiveLib to default
-        data = abi.encodeCall(
-            IMessageLibManager.setReceiveLibrary,
-            (
-                _connectedOft, uint32(_config.eid), _connectedConfig.receiveLib302, 0
-            )
-        );
-        (success,) = _connectedConfig.endpoint.call(data);
-        require(success, "Unable to call setReceiveLibrary");
-        serializedTxs.push(
-            SerializedTx({
-                name: "setReceiveLibrary",
-                to: _connectedConfig.endpoint,
-                value: 0,
-                data: data
-            })
-        );
+        // set receiveLib to default if not already set
+        (lib, isDefault) = IMessageLibManager(_connectedConfig.endpoint).getReceiveLibrary({
+            _receiver: _connectedOft,
+            _eid: uint32(_config.eid)
+        });
+        if (lib != _connectedConfig.receiveLib302 || isDefault) {
+            bytes memory data = abi.encodeCall(
+                IMessageLibManager.setReceiveLibrary,
+                (
+                    _connectedOft, uint32(_config.eid), _connectedConfig.receiveLib302, 0
+                )
+            );
+            (bool success,) = _connectedConfig.endpoint.call(data);
+            require(success, "Unable to call setReceiveLibrary");
+            serializedTxs.push(
+                SerializedTx({
+                    name: "setReceiveLibrary",
+                    to: _connectedConfig.endpoint,
+                    value: 0,
+                    data: data
+                })
+            );
+        }
     }
 }

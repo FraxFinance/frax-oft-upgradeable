@@ -94,6 +94,9 @@ TODO: automatically save as strings.
 - Ink, Sonic
   - Configure source/destination (s)frxUSD peers for Xlayer, Sei, Mode
   - Configure source/destination Fraxtal (s)frxUSD peer to predetermined OFT
+- Sonic
+  - Set up DVNs
+  - Execute msig txs
 
 ## 1) Developing Contracts
 

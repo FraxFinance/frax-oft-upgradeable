@@ -90,6 +90,11 @@ TODO: automatically save as strings.
 
 - Submit each newly crafted json to the respective `DESTINATION_CHAIN_ID` msig. 
 
+## TODO
+- Ink, Sonic
+  - Configure source/destination (s)frxUSD peers for Xlayer, Sei, Mode
+  - Configure source/destination Fraxtal (s)frxUSD peer to predetermined OFT
+
 ## 1) Developing Contracts
 
 #### Installing dependencies

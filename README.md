@@ -19,7 +19,7 @@ This repository contains all of the contracts and deployment code used to manage
   - [`Sonic`](https://app.safe.global/home?safe=sonic:0x87c7A1ef67c67cd57CBF101522a0c3B19D2C3aAc)
 
 ### Proxy (upgradeable) OFTs
-- Chain: `Mode`, `Sei`, `Fraxtal`, `X-Layer`, `Ink`
+- Chain: `Mode`, `Sei`, `Fraxtal`, `X-Layer`, `Ink`, `Sonic`
 - Admin: `ProxyAdmin` (owned by chain-respective msig)
 - OFTs
   - `frxUSD`: `0x80eede496655fb9047dd39d9f418d5483ed600df`

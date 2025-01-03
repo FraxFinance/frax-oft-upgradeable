@@ -3,9 +3,32 @@ pragma solidity ^0.8.19;
 
 import "../DeployFraxOFTProtocol/DeployFraxOFTProtocol.s.sol";
 
-/// Deploy to sonic without setting up DVNs, maintain configDeployerPK as owner/delegate
-// forge script scripts/DeploySonic/1_DeploySonic.s.sol --rpc-url https://rpc.soniclabs.com --broadcast --verify --verifier-url https://api.sonicscan.org/api --etherscan-api-key J1SBCUCM1WX85N471YARTZD4X3XGZJCUWE
-contract DeploySonic is DeployFraxOFTProtocol {
+/// @dev deployment paused at library setup- resume deployment
+// forge script scripts/DeploySonic/2_SetupSonic.s.sol --rpc-url https://rpc.soniclabs.com
+contract SetupSonic is DeployFraxOFTProtocol {
+
+    function run() public override {
+
+        // already deployed
+        // deploySource();
+
+        // since ofts are already deployed, manually populate the addresses for setup
+        proxyOfts.push(expectedProxyOfts[0]);
+        proxyOfts.push(expectedProxyOfts[1]);
+        proxyOfts.push(expectedProxyOfts[2]);
+        proxyOfts.push(expectedProxyOfts[3]);
+        proxyOfts.push(expectedProxyOfts[4]);
+        proxyOfts.push(expectedProxyOfts[5]);
+
+        // manually set already-deployed contracts
+        proxyAdmin = 0x223a681fc5c5522c85C96157c0efA18cd6c5405c;
+        frxUsdOft = 0x80Eede496655FB9047dd39d9f418d5483ED600df;
+        sfrxUsdOft = 0x5Bff88cA1442c2496f7E475E9e7786383Bc070c0;
+
+        setupSource();
+        setupDestinations();
+    }
+
     /// @dev skip setting DVNs
     function setupSource() public override broadcastAs(configDeployerPK) {
         /// @dev set enforced options / peers separately

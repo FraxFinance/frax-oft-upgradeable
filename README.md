@@ -16,9 +16,10 @@ This repository contains all of the contracts and deployment code used to manage
   - [`X-Layer`](https://app.safe.global/home?safe=xlayer:0xe7Cc52f0C86f4FAB6630f1E26167B487fbF66a61)
   - [`Solana`](https://app.squads.so/squads/FSRTW4KPGifKL8yKcZ8mfoR9mKtAjwZiTHbHwgix8AQo)
   - [`Ink`](https://app.safe.global/home?safe=ink:0x91eBC17cD330DD694225133455583FBCA54b8eC8)
+  - [`Sonic`](https://app.safe.global/home?safe=sonic:0x87c7A1ef67c67cd57CBF101522a0c3B19D2C3aAc)
 
 ### Proxy (upgradeable) OFTs
-- Chain: `Mode`, `Sei`, `Fraxtal`, `X-Layer`, `Ink`
+- Chain: `Mode`, `Sei`, `Fraxtal`, `X-Layer`, `Ink`, `Sonic`
 - Admin: `ProxyAdmin` (owned by chain-respective msig)
 - OFTs
   - `frxUSD`: `0x80eede496655fb9047dd39d9f418d5483ed600df`
@@ -88,6 +89,14 @@ These lockboxes are to be used by Ink and Sonic until FRAX/sFRAX tokens have fin
 TODO: automatically save as strings.
 
 - Submit each newly crafted json to the respective `DESTINATION_CHAIN_ID` msig. 
+
+## TODO
+- Ink, Sonic
+  - Configure source/destination (s)frxUSD peers for Xlayer, Sei, Mode
+  - Configure source/destination Fraxtal (s)frxUSD peer to predetermined OFT
+- Sonic
+  - Set up DVNs
+  - Execute msig txs
 
 ## 1) Developing Contracts
 

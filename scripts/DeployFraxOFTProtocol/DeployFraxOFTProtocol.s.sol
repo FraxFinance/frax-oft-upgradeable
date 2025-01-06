@@ -17,7 +17,7 @@ contract DeployFraxOFTProtocol is BaseL0Script {
     using Strings for uint256;
 
     function version() public virtual override pure returns (uint256, uint256, uint256) {
-        return (1, 2, 4);
+        return (1, 2, 5);
     }
 
     function setUp() public virtual override {
@@ -46,8 +46,7 @@ contract DeployFraxOFTProtocol is BaseL0Script {
             // skip if destination == source
             if (proxyConfigs[i].eid == broadcastConfig.eid) continue;
             setupDestination({
-                _connectedConfig: proxyConfigs[i],
-                _connectedOfts: proxyOfts
+                _connectedConfig: proxyConfigs[i]
             });
         }
     }
@@ -57,23 +56,22 @@ contract DeployFraxOFTProtocol is BaseL0Script {
     }
 
     function setupDestination(
-        L0Config memory _connectedConfig,
-        address[] memory _connectedOfts
+        L0Config memory _connectedConfig
     ) public virtual simulateAndWriteTxs(_connectedConfig) {
         setEvmEnforcedOptions({
-            _connectedOfts: _connectedOfts,
+            _connectedOfts: proxyOfts,
             _configs: broadcastConfigArray
         });
 
         setEvmPeers({
-            _connectedOfts: _connectedOfts,
-            _peerOfts: proxyOfts,
+            _connectedOfts: proxyOfts,
+            _peerOfts: expectedProxyOfts,
             _configs: broadcastConfigArray 
         });
 
         setDVNs({
             _connectedConfig: _connectedConfig,
-            _connectedOfts: _connectedOfts,
+            _connectedOfts: proxyOfts,
             _configs: broadcastConfigArray
         });
     }

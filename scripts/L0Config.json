@@ -111,6 +111,17 @@
             "endpoint": "0xca29f3A6f966Cb2fc0dE625F8f325c0C46dbE958",
             "receiveLib302": "0x473132bb594caEF281c68718F4541f73FE14Dc89",
             "sendLib302": "0x76111DE813F83AAAdBD62773Bf41247634e2319a"
+        },
+        {
+            "RPC": "https://arb1.arbitrum.io/rpc",
+            "chainid": 42161,
+            "delegate": "0x3da490b19F300E7cb2280426C8aD536dB2df445c",
+            "dvnHorizen": "0x19670df5e16bea2ba9b9e68b48c054c5baea06b8",
+            "dvnL0": "0x2f55c492897526677c5b68fb199ea31e2c126416",
+            "eid": 30110,
+            "endpoint": "0x1a44076050125825900e736c501f859c50fE728c",
+            "receiveLib302": "0x7B9E184e07a6EE1aC23eAe0fe8D6Be2f663f05e6",
+            "sendLib302": "0x975bcD720be66659e3EB3C0e4F1866a3020E493A"
         }
     ],
     "Non-EVM": [

@@ -98,7 +98,7 @@ contract BaseL0Script is Script {
     string public json;
 
     function version() public virtual pure returns (uint256, uint256, uint256) {
-        return (1, 2, 3);
+        return (1, 2, 4);
     }
 
     modifier broadcastAs(uint256 privateKey) {
@@ -133,6 +133,9 @@ contract BaseL0Script is Script {
 
     // Configure (s)frxUSD addresses to the standalone fraxtal lockboxes, otherwise re-usable OFTs
     function _overwriteFrxUsdAddrs() public virtual {
+        // skip overwrite if there are no proxyOfts to write to
+        if (proxyOfts.length != 6) return;
+
         /// @dev see setUp() to reference array positioning
         if (simulateConfig.chainid == 252) {
             // https://github.com/FraxFinance/frax-oft-upgradeable?tab=readme-ov-file#fraxtal-standalone-frxusdsfrxusd-lockboxes

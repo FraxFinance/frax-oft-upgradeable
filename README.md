@@ -97,9 +97,7 @@ TODO: automatically save as strings.
   - Configure source/destination (s)frxUSD peers for Xlayer, Sei, Mode, Solana
   - Configure source/destination Fraxtal (s)frxUSD peer to predetermined OFT
 - Sonic
-  - Set up DVNs
-  - Execute msig txs
-  - Configure standalone lockboxes instead of pre-deterministic OFTs
+  - Set up DVNs for each chain
 - Solana
   - Configure for Ink, Sonic, Arbitrum, Optimism
 

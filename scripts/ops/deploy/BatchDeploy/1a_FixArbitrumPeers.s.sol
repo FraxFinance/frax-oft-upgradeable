@@ -15,9 +15,7 @@ contract FixArbitrumPeers is DeployFraxOFTProtocol {
         string memory root = vm.projectRoot();
         root = string.concat(root, '/scripts/DeployFraxOFTProtocol/txs/');
 
-        string memory name = string.concat(broadcastConfig.chainid.toString(), "-");
-        name = string.concat(name, simulateConfig.chainid.toString());
-        name = string.concat(name, "-fix.json");
+        string memory name = string.concat(broadcastConfig.chainid.toString(), "-57073-fix.json");
         return string.concat(root, name);
     }
 

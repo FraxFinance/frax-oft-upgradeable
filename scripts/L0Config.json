@@ -122,6 +122,17 @@
             "endpoint": "0x1a44076050125825900e736c501f859c50fE728c",
             "receiveLib302": "0x7B9E184e07a6EE1aC23eAe0fe8D6Be2f663f05e6",
             "sendLib302": "0x975bcD720be66659e3EB3C0e4F1866a3020E493A"
+        },
+        {
+            "RPC": "https://mainnet.optimism.io",
+            "chainid": 10,
+            "delegate": "0x419e672d625f998dd07a7ecf2E06B896F8717cb2",
+            "dvnHorizen": "0x9e930731cb4a6bf7ecc11f695a295c60bdd212eb",
+            "dvnL0": "0x6a02d83e8d433304bba74ef1c427913958187142",
+            "eid": 30111,
+            "endpoint": "0x1a44076050125825900e736c501f859c50fE728c",
+            "receiveLib302": "0x3c4962Ff6258dcfCafD23a814237B7d6Eb712063",
+            "sendLib302": "0x1322871e4ab09Bc7f5717189434f97bBD9546e95"
         }
     ],
     "Non-EVM": [

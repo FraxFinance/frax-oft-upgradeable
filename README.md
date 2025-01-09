@@ -17,6 +17,8 @@ This repository contains all of the contracts and deployment code used to manage
   - [`Solana`](https://app.squads.so/squads/FSRTW4KPGifKL8yKcZ8mfoR9mKtAjwZiTHbHwgix8AQo)
   - [`Ink`](https://app.safe.global/home?safe=ink:0x91eBC17cD330DD694225133455583FBCA54b8eC8)
   - [`Sonic`](https://app.safe.global/home?safe=sonic:0x87c7A1ef67c67cd57CBF101522a0c3B19D2C3aAc)
+  - [`Arbitrum`](https://app.safe.global/home?safe=arb1:0x3da490b19F300E7cb2280426C8aD536dB2df445c)
+  - [`Optimism`](https://app.safe.global/home?safe=oeth:0x419e672d625f998dd07a7ecf2E06B896F8717cb2)
 
 ### Proxy (upgradeable) OFTs
 - Chain: `Mode`, `Sei`, `Fraxtal`, `X-Layer`, `Ink`, `Sonic`
@@ -91,12 +93,15 @@ TODO: automatically save as strings.
 - Submit each newly crafted json to the respective `DESTINATION_CHAIN_ID` msig. 
 
 ## TODO
-- Ink, Sonic
-  - Configure source/destination (s)frxUSD peers for Xlayer, Sei, Mode
+- Ink, Sonic, Arbitrum, Optimism
+  - Configure source/destination (s)frxUSD peers for Xlayer, Sei, Mode, Solana
   - Configure source/destination Fraxtal (s)frxUSD peer to predetermined OFT
 - Sonic
   - Set up DVNs
   - Execute msig txs
+  - Configure standalone lockboxes instead of pre-deterministic OFTs
+- Solana
+  - Configure for Ink, Sonic, Arbitrum, Optimism
 
 ## 1) Developing Contracts
 

@@ -133,6 +133,17 @@
             "endpoint": "0x1a44076050125825900e736c501f859c50fE728c",
             "receiveLib302": "0x3c4962Ff6258dcfCafD23a814237B7d6Eb712063",
             "sendLib302": "0x1322871e4ab09Bc7f5717189434f97bBD9546e95"
+        },
+        {
+            "RPC": "https://polygon-rpc.com",
+            "chainid": 137,
+            "delegate": "0xDbf59edA454679bB157b3B048Ba54C4D762b559E",
+            "dvnHorizen": "0x25e0e650a78e6304a3983fc4b7ffc6544b1beea6",
+            "dvnL0": "0x23de2fe932d9043291f870324b74f820e11dc81a",
+            "eid": 30109,
+            "endpoint": "0x1a44076050125825900e736c501f859c50fE728c",
+            "receiveLib302": "0x1322871e4ab09Bc7f5717189434f97bBD9546e95",
+            "sendLib302": "0x6c26c61a97006888ea9E4FA36584c7df57Cd9dA3"
         }
     ],
     "Non-EVM": [

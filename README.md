@@ -19,9 +19,10 @@ This repository contains all of the contracts and deployment code used to manage
   - [`Sonic`](https://app.safe.global/home?safe=sonic:0x87c7A1ef67c67cd57CBF101522a0c3B19D2C3aAc)
   - [`Arbitrum`](https://app.safe.global/home?safe=arb1:0x3da490b19F300E7cb2280426C8aD536dB2df445c)
   - [`Optimism`](https://app.safe.global/home?safe=oeth:0x419e672d625f998dd07a7ecf2E06B896F8717cb2)
+  - [`Polygon`](https://app.safe.global/home?safe=matic:0xDbf59edA454679bB157b3B048Ba54C4D762b559E)
 
 ### Proxy (upgradeable) OFTs
-- Chain: `Mode`, `Sei`, `Fraxtal`, `X-Layer`, `Ink`, `Sonic`
+- Chain: `Mode`, `Sei`, `Fraxtal` (except for (s)frxUSD), `X-Layer`, `Ink`, `Sonic`, `Arbitrum`, `Optimism`, `Polygon`
 - Admin: `ProxyAdmin` (owned by chain-respective msig)
 - OFTs
   - `frxUSD`: `0x80eede496655fb9047dd39d9f418d5483ed600df`
@@ -93,13 +94,12 @@ TODO: automatically save as strings.
 - Submit each newly crafted json to the respective `DESTINATION_CHAIN_ID` msig. 
 
 ## TODO
-- Ink, Sonic, Arbitrum, Optimism
+- Ink, Sonic, Arbitrum, Optimism, Polygon
   - Configure source/destination (s)frxUSD peers for Xlayer, Sei, Mode, Solana
-  - Configure source/destination Fraxtal (s)frxUSD peer to predetermined OFT
 - Sonic
   - Set up DVNs for each chain
 - Solana
-  - Configure for Ink, Sonic, Arbitrum, Optimism
+  - Configure for Ink, Sonic, Arbitrum, Optimism, Polygon
 
 ## 1) Developing Contracts
 

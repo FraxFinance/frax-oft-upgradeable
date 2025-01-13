@@ -144,6 +144,17 @@
             "endpoint": "0x1a44076050125825900e736c501f859c50fE728c",
             "receiveLib302": "0x1322871e4ab09Bc7f5717189434f97bBD9546e95",
             "sendLib302": "0x6c26c61a97006888ea9E4FA36584c7df57Cd9dA3"
+        },
+        {
+            "RPC": "https://api.avax.network/ext/bc/C/rpc",
+            "chainid": 43114,
+            "delegate": "0xBF1fF4D8B05F0871ca3f49e49fF1cA8AeeBD3b4b",
+            "dvnHorizen": "0x07c05eab7716acb6f83ebf6268f8eecda8892ba1",
+            "dvnL0": "0x962f502a63f5fbeb44dc9ab932122648e8352959",
+            "eid": 30106,
+            "endpoint": "0x1a44076050125825900e736c501f859c50fE728c",
+            "receiveLib302": "0xbf3521d309642FA9B1c91A08609505BA09752c61",
+            "sendLib302": "0x197D1333DEA5Fe0D6600E9b396c7f1B1cFCc558a"
         }
     ],
     "Non-EVM": [

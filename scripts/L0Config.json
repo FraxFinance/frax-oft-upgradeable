@@ -157,7 +157,7 @@
             "sendLib302": "0x197D1333DEA5Fe0D6600E9b396c7f1B1cFCc558a"
         },
         {
-            "RPC": "https://bsc-dataseed.bnbchain.org",
+            "RPC": "https://neat-lingering-orb.bsc.quiknode.pro/a9e1547db6f8261bf94f92603eec0cc3d0c66605",
             "chainid": 56,
             "delegate": "0xB1eff95B323D60cc04B1a44Ca1dBcbC935ae2C84",
             "dvnHorizen": "0x247624e2143504730aec22912ed41f092498bef2",
@@ -166,6 +166,17 @@
             "endpoint": "0x1a44076050125825900e736c501f859c50fE728c",
             "receiveLib302": "0xB217266c3A98C8B2709Ee26836C98cf12f6cCEC1",
             "sendLib302": "0x9F8C645f2D0b2159767Bd6E0839DE4BE49e823DE"
+        },
+        {
+            "RPC": "https://zkevm-rpc.com",
+            "chainid": 1101,
+            "delegate": "0x57445fD8d544e5D313e4f715220103b091814df4",
+            "dvnHorizen": "0x7fe673201724925b5c477d4e1a4bd3e954688cf5",
+            "dvnL0": "0x488863d609f3a673875a914fbee7508a1de45ec6",
+            "eid": 30158,
+            "endpoint": "0x1a44076050125825900e736c501f859c50fE728c",
+            "receiveLib302": "0x581b26F362AD383f7B51eF8A165Efa13DDe398a4",
+            "sendLib302": "0x28B6140ead70cb2Fb669705b3598ffB4BEaA060b"
         }
     ],
     "Non-EVM": [

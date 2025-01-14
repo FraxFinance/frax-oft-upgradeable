@@ -155,6 +155,17 @@
             "endpoint": "0x1a44076050125825900e736c501f859c50fE728c",
             "receiveLib302": "0xbf3521d309642FA9B1c91A08609505BA09752c61",
             "sendLib302": "0x197D1333DEA5Fe0D6600E9b396c7f1B1cFCc558a"
+        },
+        {
+            "RPC": "https://bsc-dataseed.bnbchain.org",
+            "chainid": 56,
+            "delegate": "0xB1eff95B323D60cc04B1a44Ca1dBcbC935ae2C84",
+            "dvnHorizen": "0x247624e2143504730aec22912ed41f092498bef2",
+            "dvnL0": "0xfd6865c841c2d64565562fcc7e05e619a30615f0",
+            "eid": 30102,
+            "endpoint": "0x1a44076050125825900e736c501f859c50fE728c",
+            "receiveLib302": "0xB217266c3A98C8B2709Ee26836C98cf12f6cCEC1",
+            "sendLib302": "0x9F8C645f2D0b2159767Bd6E0839DE4BE49e823DE"
         }
     ],
     "Non-EVM": [

@@ -21,9 +21,10 @@ This repository contains all of the contracts and deployment code used to manage
   - [`Optimism`](https://app.safe.global/home?safe=oeth:0x419e672d625f998dd07a7ecf2E06B896F8717cb2)
   - [`Polygon`](https://app.safe.global/home?safe=matic:0xDbf59edA454679bB157b3B048Ba54C4D762b559E)
   - [`Avalanche`](https://app.safe.global/home?safe=avax:0xBF1fF4D8B05F0871ca3f49e49fF1cA8AeeBD3b4b)
+  - [`BSC`](https://app.safe.global/home?safe=bnb:0xB1eff95B323D60cc04B1a44Ca1dBcbC935ae2C84)
 
 ### Proxy (upgradeable) OFTs
-- Chain: `Mode`, `Sei`, `Fraxtal` (except for (s)frxUSD), `X-Layer`, `Ink`, `Sonic`, `Arbitrum`, `Optimism`, `Polygon`
+- Chain: `Mode`, `Sei`, `Fraxtal` (except for (s)frxUSD), `X-Layer`, `Ink`, `Sonic`, `Arbitrum`, `Optimism`, `Polygon`, `BSC`
 - Admin: `ProxyAdmin` (owned by chain-respective msig)
 - OFTs
   - `frxUSD`: `0x80eede496655fb9047dd39d9f418d5483ed600df`
@@ -95,12 +96,12 @@ TODO: automatically save as strings.
 - Submit each newly crafted json to the respective `DESTINATION_CHAIN_ID` msig. 
 
 ## TODO
-- Ink, Sonic, Arbitrum, Optimism, Polygon
+- Ink, Sonic, Arbitrum, Optimism, Polygon, BSC
   - Configure source/destination (s)frxUSD peers for Xlayer, Sei, Mode, Solana
 - Sonic
   - Set up DVNs for each chain
 - Solana
-  - Configure for Ink, Sonic, Arbitrum, Optimism, Polygon
+  - Configure for Ink, Sonic, Arbitrum, Optimism, Polygon, BSC
 
 ## 1) Developing Contracts
 

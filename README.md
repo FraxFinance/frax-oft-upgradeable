@@ -22,15 +22,16 @@ This repository contains all of the contracts and deployment code used to manage
   - [`Polygon`](https://app.safe.global/home?safe=matic:0xDbf59edA454679bB157b3B048Ba54C4D762b559E)
   - [`Avalanche`](https://app.safe.global/home?safe=avax:0xBF1fF4D8B05F0871ca3f49e49fF1cA8AeeBD3b4b)
   - [`BSC`](https://app.safe.global/home?safe=bnb:0xB1eff95B323D60cc04B1a44Ca1dBcbC935ae2C84)
+  - [`Polygon zkEvm`](https://app.safe.global/home?safe=zkevm:0x57445fD8d544e5D313e4f715220103b091814df4)
 
 ### Proxy (upgradeable) OFTs
 - Chain: `Mode`, `Sei`, `Fraxtal` (except for (s)frxUSD), `X-Layer`, `Ink`, `Sonic`, `Arbitrum`, `Optimism`, `Polygon`, `BSC`
 - Admin: `ProxyAdmin` (owned by chain-respective msig)
 - OFTs
-  - `frxUSD`: `0x80eede496655fb9047dd39d9f418d5483ed600df`
+  - `frxUSD`: `0x80Eede496655FB9047dd39d9f418d5483ED600df`
   - `sfrxUSD`: `0x5bff88ca1442c2496f7e475e9e7786383bc070c0`
-  - `sfrxETH`: `0x3ec3849c33291a9ef4c5db86de593eb4a37fde45`
-  - `FXS`: `0x64445f0aecc51e94ad52d8ac56b7190e764e561a`
+  - `sfrxETH`: `0x3Ec3849C33291a9eF4c5dB86De593EB4A37fDe45`
+  - `FXS`: `0x64445f0aecC51E94aD52d8AC56b7190e764E561a`
   - `frxETH`: `0x43eDD7f3831b08FE70B7555ddD373C8bF65a9050`
   - `FPI` : `0x90581eCa9469D8D7F5D3B60f4715027aDFCf7927`
 
@@ -96,12 +97,12 @@ TODO: automatically save as strings.
 - Submit each newly crafted json to the respective `DESTINATION_CHAIN_ID` msig. 
 
 ## TODO
-- Ink, Sonic, Arbitrum, Optimism, Polygon, BSC
+- Ink, Sonic, Arbitrum, Optimism, Polygon, Avalanche, BSC, Polygon zkEvm
   - Configure source/destination (s)frxUSD peers for Xlayer, Sei, Mode, Solana
 - Sonic
   - Set up DVNs for each chain
 - Solana
-  - Configure for Ink, Sonic, Arbitrum, Optimism, Polygon, BSC
+  - Configure for Ink, Sonic, Arbitrum, Optimism, Polygon, Avalanche, BSC, Polygon zkEvm
 
 ## 1) Developing Contracts
 

@@ -12,7 +12,7 @@ contract DisconnectProxyPeer is DeployFraxOFTProtocol {
     /// @dev override to alter file save location
     function filename() public view override returns (string memory) {
         string memory root = vm.projectRoot();
-        root = string.concat(root, "/scripts/ops/UpgradeFrax/txs/");
+        root = string.concat(root, "/scripts/ops/UpgradeFrxUsd/txs/");
         string memory name = string.concat("7b_DisconnectProxyPeer-", simulateConfig.chainid.toString());
         name = string.concat(name, ".json");
 

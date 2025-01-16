@@ -4,18 +4,22 @@ pragma solidity ^0.8.22;
 import "../DeployFraxOFTProtocol/DeployFraxOFTProtocol.s.sol";
 import { IMessageLibManager } from "@fraxfinance/layerzero-v2-upgradeable/protocol/contracts/interfaces/IMessageLibManager.sol";
 
+interface IEndpointV2 {
+    function blockedLibrary() external view returns (address);
+}
+
 /// @dev On ethereum, reset the peers of FRAX / sFRAX to prevent bridging.  Additionally, reset the peers of FRAX / sFRAX
 ///        on destination chains to prevent bridging
-// forge script scripts/UpgradeFrax/8_SetSendReceiveLib.s.sol --rpc-url https://rpc.frax.com
-contract SetSendReceiveLib is DeployFraxOFTProtocol {
+// forge script scripts/UpgradeFrax/1_BlockSendLib.s.sol --rpc-url https://rpc.frax.com
+contract BlockSendLib is DeployFraxOFTProtocol {
     using stdJson for string;
     using Strings for uint256;
 
     /// @dev override to alter file save location
     function filename() public view override returns (string memory) {
         string memory root = vm.projectRoot();
-        root = string.concat(root, "/scripts/ops/UpgradeFrax/txs/");
-        string memory name = string.concat("8_SetSendReceiveLib-", simulateConfig.chainid.toString());
+        root = string.concat(root, "/scripts/ops/UpgradeFrxUsd/txs/");
+        string memory name = string.concat("1_BlockSendLib-", simulateConfig.chainid.toString());
         name = string.concat(name, ".json");
 
         return string.concat(root, name);
@@ -31,69 +35,51 @@ contract SetSendReceiveLib is DeployFraxOFTProtocol {
         proxyOfts.push(0x80Eede496655FB9047dd39d9f418d5483ED600df); // FRAX
         proxyOfts.push(0x5Bff88cA1442c2496f7E475E9e7786383Bc070c0); // sFRAX
 
-        setLibs();
+        setSendLibs();
     }
 
-    function setLibs() public {
-        // For legacy chains, unblock legacy paths
+    function setSendLibs() public {
+        // set for legacy chains
         for (uint256 c=0; c<legacyConfigs.length; c++) {
-            setLib(legacyOfts, legacyConfigs, legacyConfigs[c]);
+            setSendLib(legacyOfts, legacyConfigs[c]);
         }
-        // For proxy chains, unblock proxy paths
+        // set for proxy chains
         for (uint256 c=0; c<proxyConfigs.length; c++) {
-            setLib(proxyOfts, proxyConfigs, proxyConfigs[c]);
+            // skip blocking for fraxtal- keep open to send mock OFT
+            if (proxyConfigs[c].chainid == 252) continue;
+            setSendLib(proxyOfts, proxyConfigs[c]);
         }
     }
 
-    function setLib(
+    function setSendLib(
         address[] memory _connectedOfts,
-        L0Config[] memory _peerConfigs,
         L0Config memory _config
-    ) simulateAndWriteTxs(_config) public {
+    ) simulateAndWriteTxs(_config) public virtual {
+
+        address blockedLibrary = IEndpointV2(_config.endpoint).blockedLibrary();
 
         // for both FRAX/sFRAX
         for (uint256 o=0; o<_connectedOfts.length; o++) {
             address connectedOft = _connectedOfts[o];
             
             // For each destination
-            for (uint256 c=0; c<_peerConfigs.length; c++) {
-                uint32 eid = uint32(_peerConfigs[c].eid);
+            for (uint256 c=0; c<evmConfigs.length; c++) {
+                uint32 eid = uint32(evmConfigs[c].eid);
 
                 // skip setting sendLib for self
                 if (_config.eid == eid) continue;
 
-                // Set sendLib to default
-
                 bytes memory data = abi.encodeCall(
                     IMessageLibManager.setSendLibrary,
                     (
-                        connectedOft, eid, _config.sendLib302
+                        connectedOft, eid, blockedLibrary
                     )
                 );
                 (bool success,) = _config.endpoint.call(data);
-                require(success, "Unable to call setSendLib");
+                require(success, "Unable to block setSendLib");
                 serializedTxs.push(
                     SerializedTx({
                         name: "setSendLib",
-                        to: _config.endpoint,
-                        value: 0,
-                        data: data
-                    })
-                );
-
-                // Set receiveLib to default
-
-                data = abi.encodeCall(
-                    IMessageLibManager.setReceiveLibrary,
-                    (
-                        connectedOft, eid, _config.receiveLib302, 0
-                    )
-                );
-                (success,) = _config.endpoint.call(data);
-                require(success, "Unable to cal setReceiveLib");
-                serializedTxs.push(
-                    SerializedTx({
-                        name: "setReceiveLib",
                         to: _config.endpoint,
                         value: 0,
                         data: data

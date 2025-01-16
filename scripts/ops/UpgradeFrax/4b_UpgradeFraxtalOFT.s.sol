@@ -27,7 +27,7 @@ contract UpgradeFraxtalOFT is DeployFraxOFTProtocol {
     /// @dev override to alter file save location
     function filename() public view override returns (string memory) {
         string memory root = vm.projectRoot();
-        root = string.concat(root, "/scripts/UpgradeFrax/txs/");
+        root = string.concat(root, "/scripts/ops/UpgradeFrax/txs/");
         string memory name = string.concat("4b_UpgradeFraxtalOFT-", broadcastConfig.chainid.toString());
         name = string.concat(name, ".json");
 

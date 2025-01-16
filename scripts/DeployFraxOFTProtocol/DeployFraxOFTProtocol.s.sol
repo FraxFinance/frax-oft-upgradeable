@@ -5,7 +5,7 @@ import "../BaseL0Script.sol";
 
 /*
 TODO
-- Automatically verify contracts
+- Deployment handling on non-pre-deterministic chains
 */
 
 contract DeployFraxOFTProtocol is BaseL0Script {
@@ -14,7 +14,7 @@ contract DeployFraxOFTProtocol is BaseL0Script {
     using Strings for uint256;
 
     function version() public virtual override pure returns (uint256, uint256, uint256) {
-        return (1, 2, 0);
+        return (1, 2, 6);
     }
 
     function setUp() public virtual override {
@@ -38,44 +38,37 @@ contract DeployFraxOFTProtocol is BaseL0Script {
         setupProxyDestinations();
     }
 
-    function setupLegacyDestinations() public virtual {
-        for (uint256 i=0; i<legacyConfigs.length; i++) {
-            setupDestination({
-                _connectedConfig: legacyConfigs[i],
-                _connectedOfts: legacyOfts
-            });
-        }
-    }
-
     function setupProxyDestinations() public virtual {
         for (uint256 i=0; i<proxyConfigs.length; i++) {
             // skip if destination == source
             if (proxyConfigs[i].eid == broadcastConfig.eid) continue;
             setupDestination({
-                _connectedConfig: proxyConfigs[i],
-                _connectedOfts: proxyOfts
+                _connectedConfig: proxyConfigs[i]
             });
         }
     }
 
+    function setupLegacyDestinations() public pure {
+        // DEPRECATED
+    }
+
     function setupDestination(
-        L0Config memory _connectedConfig,
-        address[] memory _connectedOfts
+        L0Config memory _connectedConfig
     ) public virtual simulateAndWriteTxs(_connectedConfig) {
         setEvmEnforcedOptions({
-            _connectedOfts: _connectedOfts,
+            _connectedOfts: proxyOfts,
             _configs: broadcastConfigArray
         });
 
         setEvmPeers({
-            _connectedOfts: _connectedOfts,
-            _peerOfts: proxyOfts,
+            _connectedOfts: proxyOfts,
+            _peerOfts: expectedProxyOfts,
             _configs: broadcastConfigArray 
         });
 
         setDVNs({
             _connectedConfig: _connectedConfig,
-            _connectedOfts: _connectedOfts,
+            _connectedOfts: proxyOfts,
             _configs: broadcastConfigArray
         });
     }
@@ -85,7 +78,14 @@ contract DeployFraxOFTProtocol is BaseL0Script {
         setupEvms();
         setupNonEvms();
 
+        /// @dev configures legacy configs as well
         setDVNs({
+            _connectedConfig: broadcastConfig,
+            _connectedOfts: proxyOfts,
+            _configs: allConfigs
+        });
+
+        setLibs({
             _connectedConfig: broadcastConfig,
             _connectedOfts: proxyOfts,
             _configs: allConfigs
@@ -100,12 +100,6 @@ contract DeployFraxOFTProtocol is BaseL0Script {
             _configs: evmConfigs
         });
 
-        /// @dev legacy, non-upgradeable OFTs
-        setEvmPeers({
-            _connectedOfts: proxyOfts,
-            _peerOfts: legacyOfts,
-            _configs: legacyConfigs
-        });
         /// @dev Upgradeable OFTs maintaining the same address cross-chain.
         setEvmPeers({
             _connectedOfts: proxyOfts,
@@ -143,12 +137,10 @@ contract DeployFraxOFTProtocol is BaseL0Script {
     function postDeployChecks() public virtual view {
         // Ensure OFTs are their expected pre-determined address.  If not, there's a chance the deployer nonce shifted,
         // the EVM has differing logic, or we are not on an EVM compatable chain.
-        // TODO: support for non-evm addresses
-        // TODO: validate that differing OFT addrs does not impact assumed setup functions.
         require(fxsOft == expectedProxyOfts[0], "Invalid FXS OFT");
-        require(sFraxOft == expectedProxyOfts[1], "Invalid sFRAX OFT");
+        require(sfrxUsdOft == expectedProxyOfts[1], "Invalid sFRAX OFT");
         require(sfrxEthOft == expectedProxyOfts[2], "Invalid sfrxETH OFT");
-        require(fraxOft == expectedProxyOfts[3], "Invalid FRAX OFT");
+        require(frxUsdOft == expectedProxyOfts[3], "Invalid FRAX OFT");
         require(frxEthOft == expectedProxyOfts[4], "Invalid frxETH OFT");
         require(fpiOft == expectedProxyOfts[5], "Invalid FPI OFT");
         require(proxyOfts.length == numOfts, "OFT array lengths different");
@@ -157,7 +149,7 @@ contract DeployFraxOFTProtocol is BaseL0Script {
     function deployFraxOFTUpgradeablesAndProxies() broadcastAs(oftDeployerPK) public virtual {
 
         // Proxy admin (0x223a681fc5c5522c85C96157c0efA18cd6c5405c)
-        proxyAdmin = address(new ProxyAdmin(vm.addr(configDeployerPK)));
+        proxyAdmin = address(new FraxProxyAdmin(vm.addr(configDeployerPK)));
 
         // Implementation mock (0x8f1B9c1fd67136D525E14D96Efb3887a33f16250)
         implementationMock = address(new ImplementationMock());
@@ -169,10 +161,10 @@ contract DeployFraxOFTProtocol is BaseL0Script {
             _symbol: "FXS"
         });
 
-        // Deploy sFRAX
-        (,sFraxOft) = deployFraxOFTUpgradeableAndProxy({
-            _name: "Staked Frax",
-            _symbol: "sFRAX"
+        // Deploy sfrxUSD
+        (,sfrxUsdOft) = deployFraxOFTUpgradeableAndProxy({
+            _name: "Staked Frax USD",
+            _symbol: "sfrxUSD"
         });
 
         // Deploy sfrxETH
@@ -181,10 +173,10 @@ contract DeployFraxOFTProtocol is BaseL0Script {
             _symbol: "sfrxETH"
         });
 
-        // Deploy FRAX
-        (,fraxOft) = deployFraxOFTUpgradeableAndProxy({
-            _name: "Frax",
-            _symbol: "FRAX"
+        // Deploy frxUSD
+        (,frxUsdOft) = deployFraxOFTUpgradeableAndProxy({
+            _name: "Frax USD",
+            _symbol: "frxUSD"
         });
 
         // Deploy frxETH
@@ -202,7 +194,7 @@ contract DeployFraxOFTProtocol is BaseL0Script {
         proxyOfts.pop();
 
         // Deploy correct FPI
-        deployFraxOFTUpgradeableAndProxy({
+        (, fpiOft) = deployFraxOFTUpgradeableAndProxy({
             _name: "Frax Price Index",
             _symbol: "FPI"
         });
@@ -239,7 +231,6 @@ contract DeployFraxOFTProtocol is BaseL0Script {
             data: initializeArgs
         });
         TransparentUpgradeableProxy(payable(proxy)).changeAdmin(proxyAdmin);
-        // TODO: will need to look at these instead of expectedProxyOFTs if the deployed addrs are different than expected
         proxyOfts.push(proxy);
 
         // State checks
@@ -268,9 +259,8 @@ contract DeployFraxOFTProtocol is BaseL0Script {
 
     function setPriviledgedRoles() public virtual {
         /// @dev transfer ownership of OFT
-        // TODO: fix loop to correct length
-        for (uint256 o=0; o<expectedProxyOfts.length; o++) {
-            address proxyOft = expectedProxyOfts[o];
+        for (uint256 o=0; o<proxyOfts.length; o++) {
+            address proxyOft = proxyOfts[o];
             FraxOFTUpgradeable(proxyOft).setDelegate(broadcastConfig.delegate);
             Ownable(proxyOft).transferOwnership(broadcastConfig.delegate);
         }
@@ -286,14 +276,37 @@ contract DeployFraxOFTProtocol is BaseL0Script {
         L0Config[] memory _configs
     ) public virtual {
         require(_connectedOfts.length == _peerOfts.length, "Must wire equal amount of source + dest addrs");
+        require(frxUsdOft != address(0) && sfrxUsdOft != address(0), "(s)frxUSD ofts are null");
+
         // For each OFT
         for (uint256 o=0; o<_connectedOfts.length; o++) {
+            address peerOft = _peerOfts[o];
+
             // Set the config per chain
             for (uint256 c=0; c<_configs.length; c++) {
+
+                // for fraxtal destination, override OFT address of (s)frxUSD to the standalone lockbox
+                if (_configs[c].chainid == 252) {
+                    if (_connectedOfts[o] == frxUsdOft) {
+                        // standalone frxUSD lockbox
+                        peerOft = 0x96A394058E2b84A89bac9667B19661Ed003cF5D4;
+                    } else if (_connectedOfts[o] == sfrxUsdOft) {
+                        // standalone sfrxUSD lockbox
+                        peerOft = 0x88Aa7854D3b2dAA5e37E7Ce73A1F39669623a361;
+                    }
+                } else {
+                    // Non-fraxtal destination: use the predeterministic address
+                    if (_connectedOfts[o] == frxUsdOft) {
+                        peerOft = frxUsdOft;
+                    } else if (_connectedOfts[o] == sfrsUsdOft) {
+                        peerOft = sfrxUsdOft;
+                    }
+                }
+
                 setPeer({
                     _config: _configs[c],
                     _connectedOft: _connectedOfts[o],
-                    _peerOftAsBytes32: addressToBytes32(_peerOfts[o])
+                    _peerOftAsBytes32: addressToBytes32(peerOft)
                 });
             }
         }
@@ -431,6 +444,9 @@ contract DeployFraxOFTProtocol is BaseL0Script {
         ulnConfig.requiredDVNCount = 2;
         address[] memory requiredDVNs = new address[](2);
 
+        // skip setting up DVN if the address is null
+        if (_connectedConfig.dvnHorizen == address(0)) return;
+
         // sort in ascending order (as spec'd in UlnConfig)
         if (uint160(_connectedConfig.dvnHorizen) < uint160(_connectedConfig.dvnL0)) {
             requiredDVNs[0] = _connectedConfig.dvnHorizen;
@@ -494,6 +510,85 @@ contract DeployFraxOFTProtocol is BaseL0Script {
                 SerializedTx({
                     name: "setConfig for sendLib",
                     to: endpoint,
+                    value: 0,
+                    data: data
+                })
+            );
+        }
+    }
+
+    function setLibs(
+        L0Config memory _connectedConfig,
+        address[] memory _connectedOfts,
+        L0Config[] memory _configs 
+    ) public virtual {
+        // for each oft
+        for (uint256 o=0; o < _connectedOfts.length; o++) {
+            // for each destination
+            for (uint256 c=0; c < _configs.length; c++) {
+                setLib({
+                    _connectedConfig: _connectedConfig,
+                    _connectedOft: _connectedOfts[o],
+                    _config: _configs[c]
+                });
+            }
+        }
+    }
+
+    function setLib(
+        L0Config memory _connectedConfig,
+        address _connectedOft,
+        L0Config memory _config
+    ) public virtual {
+        // skip if the connected and target are the same
+        if (_connectedConfig.eid == _config.eid) return;
+
+        // set sendLib to default if not already set
+        address lib = IMessageLibManager(_connectedConfig.endpoint).getSendLibrary({
+            _sender: _connectedOft,
+            _eid: uint32(_config.eid)
+        });
+        bool isDefault = IMessageLibManager(_connectedConfig.endpoint).isDefaultSendLibrary({
+            _sender: _connectedOft,
+            _eid: uint32(_config.eid)
+        });
+        if (lib != _connectedConfig.sendLib302 || isDefault) {
+            bytes memory data = abi.encodeCall(
+                IMessageLibManager.setSendLibrary,
+                (
+                    _connectedOft, uint32(_config.eid), _connectedConfig.sendLib302
+                )
+            );
+            (bool success,) = _connectedConfig.endpoint.call(data);
+            require(success, "Unable to call setSendLibrary");
+            serializedTxs.push(
+                SerializedTx({
+                    name: "setSendLibrary",
+                    to: _connectedConfig.endpoint,
+                    value: 0,
+                    data: data
+                })
+            );
+        }
+
+        // set receiveLib to default if not already set
+        (lib, isDefault) = IMessageLibManager(_connectedConfig.endpoint).getReceiveLibrary({
+            _receiver: _connectedOft,
+            _eid: uint32(_config.eid)
+        });
+        if (lib != _connectedConfig.receiveLib302 || isDefault) {
+            bytes memory data = abi.encodeCall(
+                IMessageLibManager.setReceiveLibrary,
+                (
+                    _connectedOft, uint32(_config.eid), _connectedConfig.receiveLib302, 0
+                )
+            );
+            (bool success,) = _connectedConfig.endpoint.call(data);
+            require(success, "Unable to call setReceiveLibrary");
+            serializedTxs.push(
+                SerializedTx({
+                    name: "setReceiveLibrary",
+                    to: _connectedConfig.endpoint,
                     value: 0,
                     data: data
                 })

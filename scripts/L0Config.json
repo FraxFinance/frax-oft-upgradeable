@@ -89,6 +89,94 @@
             "endpoint": "0x1a44076050125825900e736c501f859c50fE728c",
             "receiveLib302": "0x2367325334447C5E1E0f1b3a6fB947b262F58312",
             "sendLib302": "0xe1844c5D63a9543023008D332Bd3d2e6f1FE1043"
+        },
+        {
+            "RPC": "https://rpc.soniclabs.com/",
+            "chainid": 146,
+            "delegate": "0x87c7A1ef67c67cd57CBF101522a0c3B19D2C3aAc",
+            "dvnHorizen": "0x0000000000000000000000000000000000000000",
+            "dvnL0": "0x0000000000000000000000000000000000000000",
+            "eid": 30332,
+            "endpoint": "0x6F475642a6e85809B1c36Fa62763669b1b48DD5B",
+            "receiveLib302": "0xe1844c5D63a9543023008D332Bd3d2e6f1FE1043",
+            "sendLib302": "0xC39161c743D0307EB9BCc9FEF03eeb9Dc4802de7"
+        },
+        {
+            "RPC": "https://rpc-gel.inkonchain.com",
+            "chainid": 57073,
+            "delegate": "0x91eBC17cD330DD694225133455583FBCA54b8eC8",
+            "dvnHorizen": "0x395b14700812cccc38b8e64f0a06ce2045fe9ba3",
+            "dvnL0": "0x174f2ba26f8adeafa82663bcf908288d5dbca649",
+            "eid": 30339,
+            "endpoint": "0xca29f3A6f966Cb2fc0dE625F8f325c0C46dbE958",
+            "receiveLib302": "0x473132bb594caEF281c68718F4541f73FE14Dc89",
+            "sendLib302": "0x76111DE813F83AAAdBD62773Bf41247634e2319a"
+        },
+        {
+            "RPC": "https://arb1.arbitrum.io/rpc",
+            "chainid": 42161,
+            "delegate": "0x3da490b19F300E7cb2280426C8aD536dB2df445c",
+            "dvnHorizen": "0x19670df5e16bea2ba9b9e68b48c054c5baea06b8",
+            "dvnL0": "0x2f55c492897526677c5b68fb199ea31e2c126416",
+            "eid": 30110,
+            "endpoint": "0x1a44076050125825900e736c501f859c50fE728c",
+            "receiveLib302": "0x7B9E184e07a6EE1aC23eAe0fe8D6Be2f663f05e6",
+            "sendLib302": "0x975bcD720be66659e3EB3C0e4F1866a3020E493A"
+        },
+        {
+            "RPC": "https://mainnet.optimism.io",
+            "chainid": 10,
+            "delegate": "0x419e672d625f998dd07a7ecf2E06B896F8717cb2",
+            "dvnHorizen": "0x9e930731cb4a6bf7ecc11f695a295c60bdd212eb",
+            "dvnL0": "0x6a02d83e8d433304bba74ef1c427913958187142",
+            "eid": 30111,
+            "endpoint": "0x1a44076050125825900e736c501f859c50fE728c",
+            "receiveLib302": "0x3c4962Ff6258dcfCafD23a814237B7d6Eb712063",
+            "sendLib302": "0x1322871e4ab09Bc7f5717189434f97bBD9546e95"
+        },
+        {
+            "RPC": "https://polygon-rpc.com",
+            "chainid": 137,
+            "delegate": "0xDbf59edA454679bB157b3B048Ba54C4D762b559E",
+            "dvnHorizen": "0x25e0e650a78e6304a3983fc4b7ffc6544b1beea6",
+            "dvnL0": "0x23de2fe932d9043291f870324b74f820e11dc81a",
+            "eid": 30109,
+            "endpoint": "0x1a44076050125825900e736c501f859c50fE728c",
+            "receiveLib302": "0x1322871e4ab09Bc7f5717189434f97bBD9546e95",
+            "sendLib302": "0x6c26c61a97006888ea9E4FA36584c7df57Cd9dA3"
+        },
+        {
+            "RPC": "https://api.avax.network/ext/bc/C/rpc",
+            "chainid": 43114,
+            "delegate": "0xBF1fF4D8B05F0871ca3f49e49fF1cA8AeeBD3b4b",
+            "dvnHorizen": "0x07c05eab7716acb6f83ebf6268f8eecda8892ba1",
+            "dvnL0": "0x962f502a63f5fbeb44dc9ab932122648e8352959",
+            "eid": 30106,
+            "endpoint": "0x1a44076050125825900e736c501f859c50fE728c",
+            "receiveLib302": "0xbf3521d309642FA9B1c91A08609505BA09752c61",
+            "sendLib302": "0x197D1333DEA5Fe0D6600E9b396c7f1B1cFCc558a"
+        },
+        {
+            "RPC": "https://neat-lingering-orb.bsc.quiknode.pro/a9e1547db6f8261bf94f92603eec0cc3d0c66605",
+            "chainid": 56,
+            "delegate": "0xB1eff95B323D60cc04B1a44Ca1dBcbC935ae2C84",
+            "dvnHorizen": "0x247624e2143504730aec22912ed41f092498bef2",
+            "dvnL0": "0xfd6865c841c2d64565562fcc7e05e619a30615f0",
+            "eid": 30102,
+            "endpoint": "0x1a44076050125825900e736c501f859c50fE728c",
+            "receiveLib302": "0xB217266c3A98C8B2709Ee26836C98cf12f6cCEC1",
+            "sendLib302": "0x9F8C645f2D0b2159767Bd6E0839DE4BE49e823DE"
+        },
+        {
+            "RPC": "https://zkevm-rpc.com",
+            "chainid": 1101,
+            "delegate": "0x57445fD8d544e5D313e4f715220103b091814df4",
+            "dvnHorizen": "0x7fe673201724925b5c477d4e1a4bd3e954688cf5",
+            "dvnL0": "0x488863d609f3a673875a914fbee7508a1de45ec6",
+            "eid": 30158,
+            "endpoint": "0x1a44076050125825900e736c501f859c50fE728c",
+            "receiveLib302": "0x581b26F362AD383f7B51eF8A165Efa13DDe398a4",
+            "sendLib302": "0x28B6140ead70cb2Fb669705b3598ffB4BEaA060b"
         }
     ],
     "Non-EVM": [

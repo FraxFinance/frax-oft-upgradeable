@@ -15,17 +15,23 @@ This repository contains all of the contracts and deployment code used to manage
   - [`Fraxtal`](https://safe.mainnet.frax.com/home?safe=fraxtal:0x5f25218ed9474b721d6a38c115107428E832fA2E)
   - [`X-Layer`](https://app.safe.global/home?safe=xlayer:0xe7Cc52f0C86f4FAB6630f1E26167B487fbF66a61)
   - [`Solana`](https://app.squads.so/squads/FSRTW4KPGifKL8yKcZ8mfoR9mKtAjwZiTHbHwgix8AQo)
-  - [`Ink`](https://app.safe.global/home?safe=ink:0x91eBC17cD330DD694225133455583FBCA54b8eC8)
   - [`Sonic`](https://app.safe.global/home?safe=sonic:0x87c7A1ef67c67cd57CBF101522a0c3B19D2C3aAc)
+  - [`Ink`](https://app.safe.global/home?safe=ink:0x91eBC17cD330DD694225133455583FBCA54b8eC8)
+  - [`Arbitrum`](https://app.safe.global/home?safe=arb1:0x3da490b19F300E7cb2280426C8aD536dB2df445c)
+  - [`Optimism`](https://app.safe.global/home?safe=oeth:0x419e672d625f998dd07a7ecf2E06B896F8717cb2)
+  - [`Polygon`](https://app.safe.global/home?safe=matic:0xDbf59edA454679bB157b3B048Ba54C4D762b559E)
+  - [`Avalanche`](https://app.safe.global/home?safe=avax:0xBF1fF4D8B05F0871ca3f49e49fF1cA8AeeBD3b4b)
+  - [`BSC`](https://app.safe.global/home?safe=bnb:0xB1eff95B323D60cc04B1a44Ca1dBcbC935ae2C84)
+  - [`Polygon zkEvm`](https://app.safe.global/home?safe=zkevm:0x57445fD8d544e5D313e4f715220103b091814df4)
 
 ### Proxy (upgradeable) OFTs
-- Chain: `Mode`, `Sei`, `Fraxtal`, `X-Layer`, `Ink`, `Sonic`
+- Chain: `Mode`, `Sei`, `Fraxtal` (except for (s)frxUSD), `X-Layer`, `Ink`, `Sonic`, `Arbitrum`, `Optimism`, `Polygon`, `BSC`
 - Admin: `ProxyAdmin` (owned by chain-respective msig)
 - OFTs
-  - `frxUSD`: `0x80eede496655fb9047dd39d9f418d5483ed600df`
+  - `frxUSD`: `0x80Eede496655FB9047dd39d9f418d5483ED600df`
   - `sfrxUSD`: `0x5bff88ca1442c2496f7e475e9e7786383bc070c0`
-  - `sfrxETH`: `0x3ec3849c33291a9ef4c5db86de593eb4a37fde45`
-  - `FXS`: `0x64445f0aecc51e94ad52d8ac56b7190e764e561a`
+  - `sfrxETH`: `0x3Ec3849C33291a9eF4c5dB86De593EB4A37fDe45`
+  - `FXS`: `0x64445f0aecC51E94aD52d8AC56b7190e764E561a`
   - `frxETH`: `0x43eDD7f3831b08FE70B7555ddD373C8bF65a9050`
   - `FPI` : `0x90581eCa9469D8D7F5D3B60f4715027aDFCf7927`
 
@@ -91,12 +97,14 @@ TODO: automatically save as strings.
 - Submit each newly crafted json to the respective `DESTINATION_CHAIN_ID` msig. 
 
 ## TODO
-- Ink, Sonic
-  - Configure source/destination (s)frxUSD peers for Xlayer, Sei, Mode
-  - Configure source/destination Fraxtal (s)frxUSD peer to predetermined OFT
+- Ink, Sonic, Arbitrum, Optimism, Polygon, Avalanche, BSC, Polygon zkEvm
+  - Configure source/destination (s)frxUSD peers for Xlayer, Sei, Mode, Solana
+  - Double-check peers for (s)frxUSD
+  - Wire (s)frxETH/FPI to legacy Ethereum lockbox
 - Sonic
-  - Set up DVNs
-  - Execute msig txs
+  - Set up DVNs for each chain
+- Solana
+  - Configure for Ink, Sonic, Arbitrum, Optimism, Polygon, Avalanche, BSC, Polygon zkEvm
 
 ## 1) Developing Contracts
 

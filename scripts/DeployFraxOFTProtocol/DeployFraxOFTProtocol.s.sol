@@ -5,9 +5,7 @@ import "../BaseL0Script.sol";
 
 /*
 TODO
-- Automatically verify contracts
-- Deployment on non-evm / non-pre-deterministic chains
-    - Would need to modify from expectedProxyOFTs to proxyOFTs
+- Deployment handling on non-pre-deterministic chains
 */
 
 
@@ -17,7 +15,7 @@ contract DeployFraxOFTProtocol is BaseL0Script {
     using Strings for uint256;
 
     function version() public virtual override pure returns (uint256, uint256, uint256) {
-        return (1, 2, 5);
+        return (1, 2, 6);
     }
 
     function setUp() public virtual override {
@@ -279,14 +277,37 @@ contract DeployFraxOFTProtocol is BaseL0Script {
         L0Config[] memory _configs
     ) public virtual {
         require(_connectedOfts.length == _peerOfts.length, "Must wire equal amount of source + dest addrs");
+        require(frxUsdOft != address(0) && sfrxUsdOft != address(0), "(s)frxUSD ofts are null");
+
         // For each OFT
         for (uint256 o=0; o<_connectedOfts.length; o++) {
+            address peerOft = _peerOfts[o];
+
             // Set the config per chain
             for (uint256 c=0; c<_configs.length; c++) {
+
+                // for fraxtal destination, override OFT address of (s)frxUSD to the standalone lockbox
+                if (_configs[c].chainid == 252) {
+                    if (_connectedOfts[o] == frxUsdOft) {
+                        // standalone frxUSD lockbox
+                        peerOft = 0x96A394058E2b84A89bac9667B19661Ed003cF5D4;
+                    } else if (_connectedOfts[o] == sfrxUsdOft) {
+                        // standalone sfrxUSD lockbox
+                        peerOft = 0x88Aa7854D3b2dAA5e37E7Ce73A1F39669623a361;
+                    }
+                } else {
+                    // Non-fraxtal destination: use the predeterministic address
+                    if (_connectedOfts[o] == frxUsdOft) {
+                        peerOft = frxUsdOft;
+                    } else if (_connectedOfts[o] == sfrsUsdOft) {
+                        peerOft = sfrxUsdOft;
+                    }
+                }
+
                 setPeer({
                     _config: _configs[c],
                     _connectedOft: _connectedOfts[o],
-                    _peerOftAsBytes32: addressToBytes32(_peerOfts[o])
+                    _peerOftAsBytes32: addressToBytes32(peerOft)
                 });
             }
         }

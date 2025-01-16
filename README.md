@@ -99,6 +99,8 @@ TODO: automatically save as strings.
 ## TODO
 - Ink, Sonic, Arbitrum, Optimism, Polygon, Avalanche, BSC, Polygon zkEvm
   - Configure source/destination (s)frxUSD peers for Xlayer, Sei, Mode, Solana
+  - Double-check peers for (s)frxUSD
+  - Wire (s)frxETH/FPI to legacy Ethereum lockbox
 - Sonic
   - Set up DVNs for each chain
 - Solana

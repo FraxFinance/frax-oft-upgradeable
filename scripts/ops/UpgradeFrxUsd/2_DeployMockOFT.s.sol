@@ -1,7 +1,7 @@
 // SPDX-License-Identifier: UNLICENSED
 pragma solidity ^0.8.22;
 
-import "../DeployFraxOFTProtocol/DeployFraxOFTProtocol.s.sol";
+import "scripts/DeployFraxOFTProtocol/DeployFraxOFTProtocol.s.sol";
 import { OFTUpgradeableMock } from "contracts/mocks/OFTUpgradeableMock.sol";
 
 /// @dev deploy upgradeable mock OFTs and mint lockbox supply to the fraxtal msig
@@ -74,7 +74,7 @@ contract DeployMockOFT is DeployFraxOFTProtocol {
     function setupDestination(
         L0Config memory _connectedConfig,
         address[] memory _connectedOfts
-    ) public override simulateAndWriteTxs(_connectedConfig) {
+    ) public simulateAndWriteTxs(_connectedConfig) {
         // setEvmEnforcedOptions({
         //     _connectedOfts: _connectedOfts,
         //     _configs: broadcastConfigArray
@@ -95,22 +95,22 @@ contract DeployMockOFT is DeployFraxOFTProtocol {
 
     /// @dev simple checks override
     function postDeployChecks() public override view {
-        require(fraxOft != address(0));
-        require(sFraxOft != address(0));
+        require(frxUsdOft != address(0));
+        require(sfrxUsdOft != address(0));
     }
 
     /// @dev only deploy the mock FRAX and sFRAX, as config deployer to maintain semi-deterministic-ness of the deployer nonce
     function deployFraxOFTUpgradeablesAndProxies() /* broadcastAs(oftDeployerPK) */ broadcastAs(configDeployerPK) public override {
 
         // deploy frax
-        (, fraxOft) = deployFraxOFTUpgradeableAndProxy({
+        (, frxUsdOft) = deployFraxOFTUpgradeableAndProxy({
             _name: "Mock Frax",
             _symbol: "mFRAX",
             _initialSupply: initialFraxSupply
         });
 
         // deploy sFrax
-        (, sFraxOft) = deployFraxOFTUpgradeableAndProxy({
+        (, sfrxUsdOft) = deployFraxOFTUpgradeableAndProxy({
             _name: "Mock sFrax",
             _symbol: "msFrax",
             _initialSupply: initialSFraxSupply

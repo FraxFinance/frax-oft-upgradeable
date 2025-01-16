@@ -3,7 +3,7 @@ pragma solidity ^0.8.22;
 
 import { FraxOFTAdapterUpgradeable } from "contracts/FraxOFTAdapterUpgradeable.sol";
 import { ERC20Mock } from "contracts/mocks/ERC20Mock.sol";
-import "../../../DeployFraxOFTProtocol/DeployFraxOFTProtocol.s.sol";
+import "scripts/DeployFraxOFTProtocol/DeployFraxOFTProtocol.s.sol";
 
 /// @dev deploy Carter coin with initial supply and setup OFT lockbox
 /// forge script scripts/UpgradeFrax/test/setup/1_DeployCarterCoinAndAdapter.s.sol --rpc-url https://mainnet.base.org

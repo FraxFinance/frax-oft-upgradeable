@@ -2,7 +2,7 @@
 pragma solidity ^0.8.22;
 
 import { FraxOFTUpgradeable } from "contracts/FraxOFTUpgradeable.sol";
-import "../../../DeployFraxOFTProtocol/DeployFraxOFTProtocol.s.sol";
+import "scripts/DeployFraxOFTProtocol/DeployFraxOFTProtocol.s.sol";
 
 /// @dev deploy OFT on Fraxtal and hookup to Base adapter
 // @todo forge script scripts/UpgradeFrax/test/setup/2_DeployOFT.s.sol --rpc-url https://rpc.frax.com

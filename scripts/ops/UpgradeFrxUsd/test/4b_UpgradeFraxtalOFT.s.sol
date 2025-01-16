@@ -1,7 +1,7 @@
 // SPDX-License-Identifier: UNLICENSED
 pragma solidity ^0.8.22;
 
-import "../../DeployFraxOFTProtocol/DeployFraxOFTProtocol.s.sol";
+import "scripts/DeployFraxOFTProtocol/DeployFraxOFTProtocol.s.sol";
 import { FraxOFTAdapterUpgradeable } from "contracts/FraxOFTAdapterUpgradeable.sol";
 import { IMessageLibManager } from "@fraxfinance/layerzero-v2-upgradeable/protocol/contracts/interfaces/IMessageLibManager.sol";
 
@@ -22,8 +22,8 @@ contract UpgradeFraxtalOFT is DeployFraxOFTProtocol {
     constructor() {
         /// @dev: already deployed
         proxyAdmin = 0x223a681fc5c5522c85C96157c0efA18cd6c5405c;
-        // fraxOft = 0x80Eede496655FB9047dd39d9f418d5483ED600df;
-        // sFraxOft = 0x5Bff88cA1442c2496f7E475E9e7786383Bc070c0;
+        // frxUsdOft = 0x80Eede496655FB9047dd39d9f418d5483ED600df;
+        // sfrxUsdOft = 0x5Bff88cA1442c2496f7E475E9e7786383Bc070c0;
         cacOft = 0x103C430c9Fcaa863EA90386e3d0d5cd53333876e;
     }
 
@@ -38,14 +38,14 @@ contract UpgradeFraxtalOFT is DeployFraxOFTProtocol {
         // upgrade frax
         // upgradeOft({
         //     _token: frxUsd,
-        //     _oft: fraxOft,
+        //     _oft: frxUsdOft,
         //     _implementation: frxUsdAdapterImp
         // });
 
         // // upgrade sFrax
         // upgradeOft({
         //     _token: sfrxUsd,
-        //     _oft: sFraxOft,
+        //     _oft: sfrxUsdOft,
         //     _implementation: sfrxUsdAdapterImp
         // });
         upgradeOft({

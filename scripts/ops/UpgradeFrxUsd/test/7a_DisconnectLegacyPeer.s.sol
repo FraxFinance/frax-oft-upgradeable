@@ -1,7 +1,7 @@
 // SPDX-License-Identifier: UNLICENSED
 pragma solidity ^0.8.22;
 
-import "../../DeployFraxOFTProtocol/DeployFraxOFTProtocol.s.sol";
+import "scripts/DeployFraxOFTProtocol/DeployFraxOFTProtocol.s.sol";
 
 /// @dev On all legacy chains, remove proxy peers
 // forge script scripts/UpgradeFrax/test/7a_DisconnectLegacyPeer.s.sol --rpc-url https://mainnet.base.org
@@ -29,7 +29,7 @@ contract DisconnectLegacyPeer is DeployFraxOFTProtocol {
     function setupDestination(
         L0Config memory _connectedConfig,
         address[] memory _connectedOfts
-    ) public override /* simulateAndWriteTxs(_connectedConfig) */ broadcastAs(configDeployerPK) {
+    ) public /* simulateAndWriteTxs(_connectedConfig) */ broadcastAs(configDeployerPK) {
         // setEvmEnforcedOptions({
         //     _connectedOfts: _connectedOfts,
         //     _configs: broadcastConfigArray

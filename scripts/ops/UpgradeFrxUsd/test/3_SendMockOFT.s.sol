@@ -1,7 +1,7 @@
 // SPDX-License-Identifier: UNLICENSED
 pragma solidity ^0.8.22;
 
-import "../../DeployFraxOFTProtocol/DeployFraxOFTProtocol.s.sol";
+import "scripts/DeployFraxOFTProtocol/DeployFraxOFTProtocol.s.sol";
 
 // forge script scripts/upgradeFrax/test/3_SendMockOFT.s.sol --rpc-url https://rpc.frax.com
 contract SendMockOFT is DeployFraxOFTProtocol {

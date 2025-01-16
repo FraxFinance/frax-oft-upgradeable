@@ -1,7 +1,7 @@
 // SPDX-License-Identifier: UNLICENSED
 pragma solidity ^0.8.22;
 
-import "../../DeployFraxOFTProtocol/DeployFraxOFTProtocol.s.sol";
+import "scripts/DeployFraxOFTProtocol/DeployFraxOFTProtocol.s.sol";
 import { OFTUpgradeableMock } from "contracts/mocks/OFTUpgradeableMock.sol";
 
 /// @dev deploy upgradeable mock OFTs and mint lockbox supply to the fraxtal msig

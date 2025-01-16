@@ -1,7 +1,7 @@
 // SPDX-License-Identifier: UNLICENSED
 pragma solidity ^0.8.22;
 
-import "../../../DeployFraxOFTProtocol/DeployFraxOFTProtocol.s.sol";
+import "scripts/DeployFraxOFTProtocol/DeployFraxOFTProtocol.s.sol";
 
 /// @dev now that the x-layer oft is deployed, connect fraxtal oft
 // forge script scripts/UpgradeFrax/test/setup/3b_SetupFraxtalOFT.s.sol --rpc-url https://rpc.frax.com
@@ -43,7 +43,7 @@ contract SetupFraxtalOFT is DeployFraxOFTProtocol {
     function setupDestination(
         L0Config memory _connectedConfig,
         address[] memory _connectedOfts
-    ) public override /* simulateAndWriteTxs(_connectedConfig) */ broadcastAs(configDeployerPK) {
+    ) public /* simulateAndWriteTxs(_connectedConfig) */ broadcastAs(configDeployerPK) {
         setEvmEnforcedOptions({
             _connectedOfts: _connectedOfts,
             _configs: /* broadcastConfigArray */ proxyConfigs // includes xlayer

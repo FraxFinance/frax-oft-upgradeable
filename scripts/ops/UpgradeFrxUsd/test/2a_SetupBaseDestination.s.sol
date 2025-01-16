@@ -1,7 +1,7 @@
 // SPDX-License-Identifier: UNLICENSED
 pragma solidity ^0.8.22;
 
-import "../../DeployFraxOFTProtocol/DeployFraxOFTProtocol.s.sol";
+import "scripts/DeployFraxOFTProtocol/DeployFraxOFTProtocol.s.sol";
 import { OFTUpgradeableMock } from "contracts/mocks/OFTUpgradeableMock.sol";
 
 // forge script scripts/UpgradeFrax/test/2a_SetupBaseDestination.s.sol --rpc-url https://mainnet.base.org
@@ -42,7 +42,7 @@ contract SetupBaseDestination is DeployFraxOFTProtocol {
     function setupDestination(
         L0Config memory _connectedConfig,
         address[] memory _connectedOfts
-    ) public override /* simulateAndWriteTxs(_connectedConfig) */ broadcastAs(configDeployerPK) {
+    ) public /* simulateAndWriteTxs(_connectedConfig) */ broadcastAs(configDeployerPK) {
         
         // setEvmEnforcedOptions({
         //     _connectedOfts: _connectedOfts,

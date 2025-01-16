@@ -1,7 +1,7 @@
 // SPDX-License-Identifier: ISC
 pragma solidity ^0.8.19;
 
-import "../../../BaseL0Script.sol";
+import "scripts/BaseL0Script.sol";
 
 // forge script scripts/UpgradeFrax/test/setup/Send.s.sol --rpc-url https://mainnet.base.org --broadcast
 contract Send is BaseL0Script {

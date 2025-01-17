@@ -14,7 +14,7 @@ contract DeployFraxOFTProtocol is BaseL0Script {
     using Strings for uint256;
 
     function version() public virtual override pure returns (uint256, uint256, uint256) {
-        return (1, 2, 6);
+        return (1, 2, 7);
     }
 
     function setUp() public virtual override {
@@ -67,6 +67,12 @@ contract DeployFraxOFTProtocol is BaseL0Script {
         });
 
         setDVNs({
+            _connectedConfig: _connectedConfig,
+            _connectedOfts: proxyOfts,
+            _configs: broadcastConfigArray
+        });
+
+        setLibs({
             _connectedConfig: _connectedConfig,
             _connectedOfts: proxyOfts,
             _configs: broadcastConfigArray

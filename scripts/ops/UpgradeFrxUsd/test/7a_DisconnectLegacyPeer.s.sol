@@ -27,7 +27,7 @@ contract DisconnectLegacyPeer is DeployFraxOFTProtocol {
 
     /// @dev only set peers
     function setupDestination(
-        L0Config memory _connectedConfig,
+        L0Config memory /* _connectedConfig */,
         address[] memory _connectedOfts
     ) public /* simulateAndWriteTxs(_connectedConfig) */ broadcastAs(configDeployerPK) {
         // setEvmEnforcedOptions({

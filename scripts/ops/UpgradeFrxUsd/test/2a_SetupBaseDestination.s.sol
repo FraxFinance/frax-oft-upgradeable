@@ -43,6 +43,7 @@ contract SetupBaseDestination is DeployFraxOFTProtocol {
         L0Config memory _connectedConfig,
         address[] memory _connectedOfts
     ) public /* simulateAndWriteTxs(_connectedConfig) */ broadcastAs(configDeployerPK) {
+        _connectedConfig = _connectedConfig; // warning
         
         // setEvmEnforcedOptions({
         //     _connectedOfts: _connectedOfts,

@@ -21,11 +21,11 @@ contract SFrxUSDOFTUpgradeable is OFTUpgradeable {
         _transferOwnership(_delegate);
     }
 
-    function name() public view override returns (string memory) {
+    function name() public pure override returns (string memory) {
         return "Staked Frax USD";
     }
 
-    function symbol() public view override returns (string memory) {
+    function symbol() public pure override returns (string memory) {
         return "sfrxUSD";
     }
 

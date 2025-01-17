@@ -49,7 +49,6 @@ contract UpgradeFraxtalOFT is DeployFraxOFTProtocol {
         //     _implementation: sfrxUsdAdapterImp
         // });
         upgradeOft({
-            _token: newCac,
             _oft: cacOft,
             _implementation: adapterImp
         });
@@ -87,7 +86,6 @@ contract UpgradeFraxtalOFT is DeployFraxOFTProtocol {
 
     /// @dev create the oft lockbox implementation and upgrade the proxy to the lockbox
    function upgradeOft(
-        address _token,
         address _oft,
         address _implementation
     ) public broadcastAs(senderDeployerPK) {

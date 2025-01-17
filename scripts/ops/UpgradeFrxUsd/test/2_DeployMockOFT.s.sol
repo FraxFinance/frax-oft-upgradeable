@@ -42,12 +42,12 @@ contract DeployMockOFT is DeployFraxOFTProtocol {
     }
 
     /// @dev skip base destination setup- do separate as configDeployer
-    function setupDestinations() public override {
+    function setupDestinations() public pure override {
         require(address(0) == address(0));
     }
 
     /// @dev simple checks override
-    function postDeployChecks() public override view {
+    function postDeployChecks() public pure override {
         require(address(0) == address(0));
     }
 
@@ -55,7 +55,7 @@ contract DeployMockOFT is DeployFraxOFTProtocol {
     function deployFraxOFTUpgradeablesAndProxies() /* broadcastAs(oftDeployerPK) */ broadcastAs(configDeployerPK) public override {
 
         // deploy carter
-        (, address mockCacOft) = deployFraxOFTUpgradeableAndProxy({
+        deployFraxOFTUpgradeableAndProxy({
             _name: "Mock Carter",
             _symbol: "mCAC",
             _initialSupply: initialCacSupply

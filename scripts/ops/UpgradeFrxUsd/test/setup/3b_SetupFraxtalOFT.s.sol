@@ -33,15 +33,12 @@ contract SetupFraxtalOFT is DeployFraxOFTProtocol {
             if (proxyConfigs[i].eid == broadcastConfig.eid) continue;
             // skip if not xlayer
             if (proxyConfigs[i].chainid != 196) continue;
-            setupDestination({
-                _connectedConfig: proxyConfigs[i],
-                _connectedOfts: connectedOfts
-            });
+            setupDestination(proxyConfigs[i], connectedOfts);
         }
     }
 
     function setupDestination(
-        L0Config memory _connectedConfig,
+        L0Config memory /* _connectedConfig */,
         address[] memory _connectedOfts
     ) public /* simulateAndWriteTxs(_connectedConfig) */ broadcastAs(configDeployerPK) {
         setEvmEnforcedOptions({

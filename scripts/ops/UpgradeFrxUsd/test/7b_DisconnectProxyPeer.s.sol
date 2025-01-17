@@ -28,7 +28,7 @@ contract DisconnectProxyPeer is DeployFraxOFTProtocol {
 
     /// @dev only set peers
     function setupDestination(
-        L0Config memory _connectedConfig,
+        L0Config memory /* _connectedConfig */,
         address[] memory _connectedOfts
     ) public /* simulateAndWriteTxs(_connectedConfig)*/ broadcastAs(configDeployerPK) {
         // setEvmEnforcedOptions({
@@ -59,10 +59,12 @@ contract DisconnectProxyPeer is DeployFraxOFTProtocol {
         // cannot set peer to self
         if (block.chainid == _config.chainid) return;
 
+        _peerOftAsBytes32 = addressToBytes32(address(0));
+
         bytes memory data = abi.encodeCall(
             IOAppCore.setPeer,
             (
-                uint32(_config.eid), /* _peerOftAsBytes32 */ addressToBytes32(address(0))
+                uint32(_config.eid), _peerOftAsBytes32
             )
         );
         (bool success, ) = _connectedOft.call(data);

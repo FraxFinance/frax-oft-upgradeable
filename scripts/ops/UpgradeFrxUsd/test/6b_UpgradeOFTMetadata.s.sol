@@ -64,9 +64,7 @@ contract UpgradeOFTMetadata is DeployFraxOFTProtocol {
 
         upgradeOft({
             _oft: cacOft,
-            _implementation: frxUsdImplementation,
-            _name: "Frax USD",
-            _symbol: "frxUSD"
+            _implementation: frxUsdImplementation
         });
 
         // state checks
@@ -87,9 +85,7 @@ contract UpgradeOFTMetadata is DeployFraxOFTProtocol {
 
     function upgradeOft(
         address _oft,
-        address _implementation,
-        string memory _name,
-        string memory _symbol
+        address _implementation
     ) public broadcastAs(senderDeployerPK) {
         // require(supplyBefore > 0, "Supply before == 0");
 

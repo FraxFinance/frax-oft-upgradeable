@@ -1,4 +1,4 @@
-## frxUSD Upgrade
+ ## frxUSD Upgrade
 
 ### Motivation
 FRAX and sFRAX are due for an upgrade.  These tokens will now be frxUSD and sfrxUSD, respectively, hosted natively on Fraxtal.
@@ -26,19 +26,19 @@ Prevent new messages from being sent to other chains.  Allow already-sent messag
 #### 3. Remove lockbox liquidity
 From the team msig, send the (m)FRAX/(m)sFRAX to the Ethereum team msig, removing liquidity from the lockbox.
 
-#### 4. Upgrade Fraxtal OFTs to lockboxes
-Deploy frxUSD/sfrxUSD lockboxes implementations on Fraxtal and upgrade the Fraxtal OFT proxies to point to the new implementations.
-
-#### 5. Add liquidity to lockboxes
+#### 4. Add liquidity to fraxtal lockboxes
 Frax team to add the respective FRAX/sFRAX liquidity to the frxUSD/sfrxUSD lockboxes.
 
-#### 6. Upgrade Proxy OFT Metadata
+#### 5. Upgrade Proxy OFT Metadata
 Upgrade the FRAX/sFRAX proxy OFT name, symbols.
 
-#### 7. Manage FRAX/sFRAX peer conections
-- On Ethereum lockboxes, remove the peer connection to Fraxtal (m)FRAX/(m)sFRAX and to proxy OFTs
-- On Proxy OFTs, remove peer connection to Ethereum lockbox and legacy OFTS
-- On Legacy OFTs, remove peer connection to proxy OFTs. Maintain peer connection to Ethereum lockbox & legacy OFTs to enable exit liquidity. 
+#### 6. Manage FRAX/sFRAX peer conections
+- Legacy OFTs
+    - Resume connection to legacy peers- enables exit liquidity through Ethereum
+    - Remove connection to proxy peers and Fraxtal
+- Proxy OFTs
+    - Resume connection to proxy peers
+    - Set connection to Fraxtal lockboxes
 
-#### 8. Unblock new outbound messages
+#### 7. Unblock new outbound messages
 Bridging resumes as expected.

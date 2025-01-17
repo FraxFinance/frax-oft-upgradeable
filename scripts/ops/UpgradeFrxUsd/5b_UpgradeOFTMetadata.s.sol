@@ -10,9 +10,9 @@ import {SFrxUSDOFTUpgradeable} from "contracts/frxUsd/SFrxUSDOFTUpgradeable.sol"
 
 /// @dev craft tx to upgrade the FRAX / sFRAX OFT with the new name & symbol
 // TODO: add etherscan / verifier links
-/// @dev forge script scripts/UpgradeFrax/6b_UpgradeOFTMetadata.s.sol --rpc-url https://xlayerrpc.okx.com
-/// @dev forge script scripts/UpgradeFrax/6b_UpgradeOFTMetadata.s.sol --rpc-url https://mainnet.mode.network
-/// @dev forge script scripts/UpgradeFrax/6b_UpgradeOFTMetadata.s.sol --rpc-url https://twilight-crimson-grass.sei-pacific.quiknode.pro/1fe7cb5c6950df0f3ebceead37f8eefdf41ddbe9
+/// @dev forge script scripts/UpgradeFrax/5b_UpgradeOFTMetadata.s.sol --rpc-url https://xlayerrpc.okx.com
+/// @dev forge script scripts/UpgradeFrax/5b_UpgradeOFTMetadata.s.sol --rpc-url https://mainnet.mode.network
+/// @dev forge script scripts/UpgradeFrax/5b_UpgradeOFTMetadata.s.sol --rpc-url https://twilight-crimson-grass.sei-pacific.quiknode.pro/1fe7cb5c6950df0f3ebceead37f8eefdf41ddbe9
 contract UpgradeOFTMetadata is DeployFraxOFTProtocol {
     using stdJson for string;
     using Strings for uint256;
@@ -46,7 +46,7 @@ contract UpgradeOFTMetadata is DeployFraxOFTProtocol {
     function filename() public view override returns (string memory) {
         string memory root = vm.projectRoot();
         root = string.concat(root, "/scripts/ops/UpgradeFrxUsd/txs/");
-        string memory name = string.concat("6b_UpgradeOFTMetadata-", broadcastConfig.chainid.toString());
+        string memory name = string.concat("5b_UpgradeOFTMetadata-", broadcastConfig.chainid.toString());
         name = string.concat(name, ".json");
 
         return string.concat(root, name);

@@ -9,9 +9,9 @@ import {SFrxUSDOFTUpgradeable} from "contracts/frxUsd/SFrxUSDOFTUpgradeable.sol"
 
 /// @dev craft tx to upgrade the FRAX / sFRAX OFT with the new name & symbol
 // TODO: add etherscan / verifier links
-/// @dev forge script scripts/UpgradeFrax/6a_DeployUpgradedImplementations.s.sol --rpc-url https://xlayerrpc.okx.com --broadcast
-/// @dev forge script scripts/UpgradeFrax/6a_DeployUpgradedImplementations.s.sol --rpc-url https://mainnet.mode.network --broadcast
-/// @dev forge script scripts/UpgradeFrax/6a_DeployUpgradedImplementations.s.sol --rpc-url https://twilight-crimson-grass.sei-pacific.quiknode.pro/1fe7cb5c6950df0f3ebceead37f8eefdf41ddbe9 --legacy --broadcast
+/// @dev forge script scripts/UpgradeFrax/5a_DeployUpgradedImplementations.s.sol --rpc-url https://xlayerrpc.okx.com --broadcast
+/// @dev forge script scripts/UpgradeFrax/5a_DeployUpgradedImplementations.s.sol --rpc-url https://mainnet.mode.network --broadcast
+/// @dev forge script scripts/UpgradeFrax/5a_DeployUpgradedImplementations.s.sol --rpc-url https://twilight-crimson-grass.sei-pacific.quiknode.pro/1fe7cb5c6950df0f3ebceead37f8eefdf41ddbe9 --legacy --broadcast
 contract DeployUpgradedImplementations is DeployFraxOFTProtocol {
     using stdJson for string;
     using Strings for uint256;

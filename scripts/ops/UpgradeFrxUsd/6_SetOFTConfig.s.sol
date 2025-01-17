@@ -3,9 +3,9 @@ pragma solidity ^0.8.22;
 
 import "scripts/DeployFraxOFTProtocol/DeployFraxOFTProtocol.s.sol";
 
-/// @dev On proxy OFTs, remove peer connection to legacy chains fully connect all (s)frxUSD instances
-// forge script scripts/ops/UpgradeFrxUsd/7b_SetProxyPeer.s.sol --rpc-url https://rpc.frax.com
-contract SetProxyPeer is DeployFraxOFTProtocol {
+/// @dev Make proxy network fully operable, re-open legacy network to run independently
+// forge script scripts/ops/UpgradeFrxUsd/6_SetOFTConfig.s.sol --rpc-url https://rpc.frax.com
+contract SetOFTConfig is DeployFraxOFTProtocol {
     using stdJson for string;
     using Strings for uint256;
 
@@ -16,13 +16,13 @@ contract SetProxyPeer is DeployFraxOFTProtocol {
     function filename() public view override returns (string memory) {
         string memory root = vm.projectRoot();
         root = string.concat(root, "/scripts/ops/UpgradeFrxUsd/txs/");
-        string memory name = string.concat("7b_SetProxyPeer-", simulateConfig.chainid.toString());
+        string memory name = string.concat("6_SetOFTConfig-", simulateConfig.chainid.toString());
         name = string.concat(name, ".json");
 
         return string.concat(root, name);
     }
 
-    /// @dev skip deployment, disconnect proxy peer connections
+    /// @dev setup all (s)frxUSD configs across all chains
     function run() public override {
         frxUsdOft = 0x80Eede496655FB9047dd39d9f418d5483ED600df;
         sfrxUsdOft = 0x5Bff88cA1442c2496f7E475E9e7786383Bc070c0;
@@ -30,6 +30,10 @@ contract SetProxyPeer is DeployFraxOFTProtocol {
         delete proxyOfts;
         proxyOfts.push(frxUsdOft);
         proxyOfts.push(sfrxUsdOft);
+
+        delete legacyOfts;
+        legacyOfts.push(0x909DBdE1eBE906Af95660033e478D59EFe831fED); // FRAX
+        legacyOfts.push(0xe4796cCB6bB5DE2290C417Ac337F2b66CA2E770E); // sFRAX
 
         nullOfts.push(address(0));
         nullOfts.push(address(0));
@@ -43,34 +47,57 @@ contract SetProxyPeer is DeployFraxOFTProtocol {
     }
 
     function setupDestinations() public override {
-        // setupLegacyDestinations();
+        setupLegacyDestinations();
         setupProxyDestinations();
     }
 
+    function setupLegacyDestinations() public override {
+        for (uint256 c=0; c<legacyConfigs.length; c++) {
+            setupLegacyDestination({
+                _connectedConfig: legacyConfigs[c],
+                _connectedOfts: legacyOfts
+            });
+        }
+    }
+
+    // remove proxy peers
+    function setupLegacyDestination(
+        L0Config memory _connectedConfig,
+        address[] memory _connectedOfts
+    ) public simulateAndWriteTxs(_connectedConfig) {
+        
+        // remove proxy peer
+        setEvmPeers({
+            _connectedOfts: _connectedOfts,
+            _peerOfts: nullOfts,
+            _configs: proxyConfigs
+        });
+    }
+
     // (Fraxtal, proxy OFTs): set legacy peer to 0
-    // (Fraxtal): Connect to (Mode, Sei, Xlayer) peer
+    // (Fraxtal): Connect to (Mode, Sei, Xlayer
     // (Mode, Sei, XLayer): connect to new OFT peer, fraxtal lockbox
     function setupProxyDestinations() public override {
-        for (uint256 i=0; i<proxyConfigs.length; i++) {
+        for (uint256 c=0; c<proxyConfigs.length; c++) {
 
             // All Proxy
-            if (proxyConfigs[i].chainid != 252) {
-                setupDestination({
-                    _connectedConfig: proxyConfigs[i],
+            if (proxyConfigs[c].chainid != 252) {
+                setupProxyDestination({
+                    _connectedConfig: proxyConfigs[c],
                     _connectedOfts: proxyOfts
                 });
-            } else if (proxyConfigs[i].chainid == 252) {
-                setupDestination({
-                    _connectedConfig: proxyConfigs[i],
+            } else if (proxyConfigs[c].chainid == 252) {
+                setupProxyDestination({
+                    _connectedConfig: proxyConfigs[c],
                     _connectedOfts: fraxtalLockboxes
                 });
             }
         }
     }
 
-    // Additional setEVM peers of null legacy chains
-    // change _configs from broadcastConfigArray to proxyConfigs
-    function setupDestination(
+    // Set up all config for (s)frxUSD across all proxy setups
+    // changes _configs from broadcastConfigArray to proxyConfigs
+    function setupProxyDestination(
         L0Config memory _connectedConfig,
         address[] memory _connectedOfts
     ) public simulateAndWriteTxs(_connectedConfig) {

@@ -138,19 +138,8 @@ contract ThreeDVNs is DeployFraxOFTProtocol {
         });
 
         // Determine if we are working with a different array of DVNs than what is currently configured
-        bool newStack;
-        if (desiredDVNs.length != currentUlnConfig.requiredDVNs.length) {
-            newStack = true;
-        } else {
-            for (uint256 i=0; i<desiredDVNs.length; i++) {
-                if (desiredDVNs[i] != currentUlnConfig.requiredDVNs[i]) {
-                    newStack = true;
-                }
-            }
-        }
-
         // Do nothing if the stack is the same as before
-        if (!newStack) return;
+        if (arraysAreEqual(currentUlnConfig.requiredDVNs, desiredDVNs)) return;
 
         // generate the config
         UlnConfig memory desiredUlnConfig;
@@ -183,6 +172,19 @@ contract ThreeDVNs is DeployFraxOFTProtocol {
                 data: data
             })
         );
+    }
+
+    function arraysAreEqual(address[] memory _dvnStackA, address[] memory _dvnStackB) public pure returns (bool) {
+        if (_dvnStackA.length != _dvnStackB.length) {
+            return false;
+        } else {
+            for (uint256 i=0; i<_dvnStackA.length; i++) {
+                if (_dvnStackA[i] != _dvnStackB[i]) {
+                    return false;
+                }
+            }
+        }
+        return true;
     }
 
     // Returns the ascending-sorted DVN stack of the connected chain 

@@ -27,3 +27,5 @@ remappings = [
     '@openzeppelin/=node_modules/@openzeppelin/',
     'frax-std/=node_modules/frax-standard-solidity/src/',
 ]
+
+via_ir=true

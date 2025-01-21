@@ -1,15 +1,7 @@
 {
-    "stack": [
-        "Horizen",
-        "LZ",
-        "Nethermind"
-    ]
-
-    "1": {
-        "dvns": []
+    "252": {
+        "horizen": "0x380275805876ff19055ea900cdb2b46a94ecf20d",
+        "lz": "0x589dedbd617e0cbcb916a9223f4d1300c294236b",
+        "nethermind": "0x0000000000000000000000000000000000000000"
     }
-    "dvnA": "0xdd7b5e1db4aafd5c8ec3b764efb8ed265aa5445b",
-    "dvnB": "0xcce466a522984415bc91338c232d98869193d46e",
-    "dvnC": "0xa7b5189bca84cd304d8553977c7c614329750d99",
-
 }

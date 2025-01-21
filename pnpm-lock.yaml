@@ -35,6 +35,9 @@ importers:
       '@layerzerolabs/toolbox-foundry':
         specifier: ~0.1.5
         version: 0.1.5
+      '@openzeppelin-5/contracts':
+        specifier: npm:@openzeppelin/contracts@5.2.0
+        version: '@openzeppelin/contracts@5.2.0'
       '@openzeppelin/contracts':
         specifier: ^4.8.1
         version: 4.9.6
@@ -602,6 +605,9 @@ packages:
 
   '@openzeppelin/contracts@5.0.2':
     resolution: {integrity: sha512-ytPc6eLGcHHnapAZ9S+5qsdomhjo6QBHTDRRBFfTxXIpsicMhVPouPgmUPebZZZGX7vt9USA+Z+0M0dSVtSUEA==}
+
+  '@openzeppelin/contracts@5.2.0':
+    resolution: {integrity: sha512-bxjNie5z89W1Ea0NZLZluFh8PrFNn9DH8DQlujEok2yjsOlraUPKID5p1Wk3qdNbf6XkQ1Os2RvfiHrrXLHWKA==}
 
   '@pnpm/config.env-replace@1.1.0':
     resolution: {integrity: sha512-htyl8TWnKL7K/ESFa1oW2UB5lVDxuF5DpM7tBi6Hu2LNL3mWkIzNLG6N4zoCUP1lCKNxWy/3iu8mS8MvToGd6w==}
@@ -1271,6 +1277,7 @@ packages:
   eslint@8.57.0:
     resolution: {integrity: sha512-dZ6+mexnaTIbSBZWgou51U6OmzIhYM2VcNdtiTtI7qPNZm35Akpr0f6vtw3w1Kmn5PYo+tZVfh13WrhpS6oLqQ==}
     engines: {node: ^12.22.0 || ^14.17.0 || >=16.0.0}
+    deprecated: This version is no longer supported. Please see https://eslint.org/version-support for other options.
     hasBin: true
 
   espree@9.6.1:
@@ -2271,8 +2278,8 @@ packages:
   solidity-bytes-utils@0.8.2:
     resolution: {integrity: sha512-cqXPYAV2auhpdKSTPuqji0CwpSceZDu95CzqSM/9tDJ2MoMaMsdHTpOIWtVw31BIqqGPNmIChCswzbw0tHaMTw==}
 
-  solidity-bytes-utils@https://codeload.github.com/GNSPS/solidity-bytes-utils/tar.gz/df88556cbbc267b33a787a3a6eaa32fd7247b589:
-    resolution: {tarball: https://codeload.github.com/GNSPS/solidity-bytes-utils/tar.gz/df88556cbbc267b33a787a3a6eaa32fd7247b589}
+  solidity-bytes-utils@https://codeload.github.com/GNSPS/solidity-bytes-utils/tar.gz/c433288c2907d383630864b6032e885d5603a654:
+    resolution: {tarball: https://codeload.github.com/GNSPS/solidity-bytes-utils/tar.gz/c433288c2907d383630864b6032e885d5603a654}
     version: 0.8.2
 
   solidity-comments-extractor@0.0.8:
@@ -3273,6 +3280,8 @@ snapshots:
   '@openzeppelin/contracts@4.9.6': {}
 
   '@openzeppelin/contracts@5.0.2': {}
+
+  '@openzeppelin/contracts@5.2.0': {}
 
   '@pnpm/config.env-replace@1.1.0': {}
 
@@ -4300,7 +4309,7 @@ snapshots:
       ds-test: https://codeload.github.com/dapphub/ds-test/tar.gz/e282159d5170298eb2455a6c05280ab5a73a4ef0
       forge-std: https://codeload.github.com/foundry-rs/forge-std/tar.gz/e8a047e3f40f13fa37af6fe14e6e06283d9a060e
       frax-standard-solidity: https://codeload.github.com/FraxFinance/frax-standard-solidity/tar.gz/c951978a3fbcbcfe9ed65c9e99e420facdee772f(bufferutil@4.0.8)(enquirer@2.4.1)(ethers@5.7.2(bufferutil@4.0.8)(utf-8-validate@5.0.10))(utf-8-validate@5.0.10)
-      solidity-bytes-utils: https://codeload.github.com/GNSPS/solidity-bytes-utils/tar.gz/df88556cbbc267b33a787a3a6eaa32fd7247b589
+      solidity-bytes-utils: https://codeload.github.com/GNSPS/solidity-bytes-utils/tar.gz/c433288c2907d383630864b6032e885d5603a654
     transitivePeerDependencies:
       - '@swc/core'
       - '@swc/wasm'
@@ -5295,7 +5304,7 @@ snapshots:
       ds-test: https://codeload.github.com/dapphub/ds-test/tar.gz/e282159d5170298eb2455a6c05280ab5a73a4ef0
       forge-std: 1.1.2
 
-  solidity-bytes-utils@https://codeload.github.com/GNSPS/solidity-bytes-utils/tar.gz/df88556cbbc267b33a787a3a6eaa32fd7247b589:
+  solidity-bytes-utils@https://codeload.github.com/GNSPS/solidity-bytes-utils/tar.gz/c433288c2907d383630864b6032e885d5603a654:
     dependencies:
       ds-test: https://codeload.github.com/dapphub/ds-test/tar.gz/e282159d5170298eb2455a6c05280ab5a73a4ef0
       forge-std: 1.1.2

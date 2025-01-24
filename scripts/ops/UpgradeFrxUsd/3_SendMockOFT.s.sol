@@ -12,8 +12,8 @@ contract SendMockOFT is DeployFraxOFTProtocol {
     using stdJson for string;
     using Strings for uint256;
 
-    address public mFraxOft = address(0); // TODO
-    address public mSFraxOft = address(0); // TODO
+    address public mFraxOft = 0x474Aab3444c63D628F916C7941Eb35B32a8e9B70;
+    address public mSFraxOft = 0xB9278BD0B54Ee4D39D95fF57Ffc45A8dAffDC438;
     address public ethMsig = 0xB1748C79709f4Ba2Dd82834B8c82D4a505003f27;
 
     /// @dev override to alter file save location

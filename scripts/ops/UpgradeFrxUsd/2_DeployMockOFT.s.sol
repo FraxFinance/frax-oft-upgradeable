@@ -6,16 +6,26 @@ import { OFTUpgradeableMock } from "contracts/mocks/OFTUpgradeableMock.sol";
 
 /// @dev deploy upgradeable mock OFTs and mint lockbox supply to the fraxtal msig
 /*
-forge script scripts/UpgradeFrax/2_DeployMockOFT.s.sol \ 
---rpc-url https://rpc.frax.com --verifier-url $FRAXSCAN_API_URL --etherscan-api-key $FRAXSCAN_API_KEY
+forge script scripts/ops/UpgradeFrxUsd/2_DeployMockOFT.s.sol --rpc-url https://rpc.frax.com --verifier-url $FRAXSCAN_API_URL --etherscan-api-key $FRAXSCAN_API_KEY --verify --broadcast
 */
 contract DeployMockOFT is DeployFraxOFTProtocol {
     using OptionsBuilder for bytes;
     using stdJson for string;
     using Strings for uint256;
 
-    uint256 initialFraxSupply = 1_000_000.123e18; // TODO
-    uint256 initialSFraxSupply = 1_400_000.55e18; // TODO
+    // https://etherscan.io/token/0x853d955acef822db058eb8505911ed77f175b99e?a=0x909DBdE1eBE906Af95660033e478D59EFe831fED
+    // minus
+    // https://basescan.org/token/0x909DBdE1eBE906Af95660033e478D59EFe831fED
+    uint256 initialFraxSupply = 816_384.457251e18 - 50.751238e18;
+
+    // https://etherscan.io/token/0xa663b02cf0a4b149d2ad41910cb81e23e1c41c32?a=0xe4796cCB6bB5DE2290C417Ac337F2b66CA2E770E
+    // minus
+    // https://explorer.metis.io/token/0xe4796cCB6bB5DE2290C417Ac337F2b66CA2E770E
+    // minus 
+    // https://blastscan.io/token/0xe4796cCB6bB5DE2290C417Ac337F2b66CA2E770E
+    // minus 
+    // https://basescan.org/token/0xe4796cCB6bB5DE2290C417Ac337F2b66CA2E770E
+    uint256 initialSFraxSupply = 393_082.936436e18 - 102.14e18 - 28_129.82528e18 - 46_062.44659e18;
 
     constructor() {
         // already deployed
@@ -57,6 +67,21 @@ contract DeployMockOFT is DeployFraxOFTProtocol {
         // setPriviledgedRoles();
     }
 
+    // change setEvmPeers to point to legacy (aka Ethereum)
+    // Can add other legacy peers w/o consequence as nothing will happen from an incorrect transfer
+    function setupEvms() public override {
+        setEvmEnforcedOptions({
+            _connectedOfts: proxyOfts,
+            _configs: evmConfigs
+        });
+
+        setEvmPeers({
+            _connectedOfts: proxyOfts,
+            _peerOfts: /* proxyOfts */ legacyOfts,
+            _configs: /* proxyConfigs */ legacyConfigs
+        });
+    }
+
     /// @dev only setup Ethereum destination
     function setupDestinations() public override {
         for (uint256 i=0; i<legacyConfigs.length; i++) {
@@ -70,15 +95,14 @@ contract DeployMockOFT is DeployFraxOFTProtocol {
         }
     }
 
-    /// @dev only set the peer
     function setupDestination(
         L0Config memory _connectedConfig,
         address[] memory _connectedOfts
     ) public simulateAndWriteTxs(_connectedConfig) {
-        // setEvmEnforcedOptions({
-        //     _connectedOfts: _connectedOfts,
-        //     _configs: broadcastConfigArray
-        // });
+        setEvmEnforcedOptions({
+            _connectedOfts: _connectedOfts,
+            _configs: broadcastConfigArray
+        });
 
         setEvmPeers({
             _connectedOfts: _connectedOfts,
@@ -86,11 +110,11 @@ contract DeployMockOFT is DeployFraxOFTProtocol {
             _configs: broadcastConfigArray 
         });
 
-        // setDVNs({
-        //     _connectedConfig: _connectedConfig,
-        //     _connectedOfts: _connectedOfts,
-        //     _configs: broadcastConfigArray
-        // });
+        setDVNs({
+            _connectedConfig: _connectedConfig,
+            _connectedOfts: _connectedOfts,
+            _configs: broadcastConfigArray
+        });
     }
 
     /// @dev simple checks override
@@ -176,5 +200,48 @@ contract DeployMockOFT is DeployFraxOFTProtocol {
             FraxOFTUpgradeable(proxy).owner() == vm.addr(configDeployerPK),
             "OFT owner incorrect"
         );
+    }
+
+    /// @dev comment out the fraxtal override as we're pointing to the mock lockboxes
+    function setEvmPeers(
+        address[] memory _connectedOfts,
+        address[] memory _peerOfts,
+        L0Config[] memory _configs
+    ) public override {
+        require(_connectedOfts.length == _peerOfts.length, "Must wire equal amount of source + dest addrs");
+        require(frxUsdOft != address(0) && sfrxUsdOft != address(0), "(s)frxUSD ofts are null");
+
+        // For each OFT
+        for (uint256 o=0; o<_connectedOfts.length; o++) {
+            address peerOft = _peerOfts[o];
+
+            // Set the config per chain
+            for (uint256 c=0; c<_configs.length; c++) {
+
+                // // for fraxtal destination, override OFT address of (s)frxUSD to the standalone lockbox
+                // if (_configs[c].chainid == 252) {
+                //     if (_connectedOfts[o] == frxUsdOft) {
+                //         // standalone frxUSD lockbox
+                //         peerOft = 0x96A394058E2b84A89bac9667B19661Ed003cF5D4;
+                //     } else if (_connectedOfts[o] == sfrxUsdOft) {
+                //         // standalone sfrxUSD lockbox
+                //         peerOft = 0x88Aa7854D3b2dAA5e37E7Ce73A1F39669623a361;
+                //     }
+                // } else {
+                //     // Non-fraxtal destination: use the predeterministic address
+                //     if (_connectedOfts[o] == frxUsdOft) {
+                //         peerOft = frxUsdOft;
+                //     } else if (_connectedOfts[o] == sfrxUsdOft) {
+                //         peerOft = sfrxUsdOft;
+                //     }
+                // }
+
+                setPeer({
+                    _config: _configs[c],
+                    _connectedOft: _connectedOfts[o],
+                    _peerOftAsBytes32: addressToBytes32(peerOft)
+                });
+            }
+        }
     }
 }

@@ -104,7 +104,7 @@ TODO: automatically save as strings.
 - Sonic
   - Set up DVNs for each chain
 - Solana
-  - Configure for Ink, Sonic, Arbitrum, Optimism, Polygon, Avalanche, BSC, Polygon zkEvm
+  - Configure for Ink, Sonic, Arbitrum, Optimism, Polygon, Avalanche, BSC, Polygon zkEvm, Ethereum (s)frxUSD
 
 ## 1) Developing Contracts
 

@@ -16,6 +16,8 @@ FRAX and sFRAX are due for an upgrade.  These tokens will now be frxUSD and sfrx
 #### 1. Block new outbound messages
 Prevent new messages from being sent to other chains.  Allow already-sent messages to finish delivery & execution.
 
+**NOTE**: After (1), team decided to resume outbound bridges.  See `revert/` directory for exeuction as (2+) did not happen.
+
 #### 2. Deploy Mock OFT
 - Deploy a FRAX/sFRAX "mock" OFT on Fraxtal with an initial supply of the lockbox (minus legacy/fraxtal circulating supply) to remove from the Ethereum lockbox.
     - Initial FRAX: [Lockbox](https://etherscan.io/token/0x853d955acef822db058eb8505911ed77f175b99e?a=0x909DBdE1eBE906Af95660033e478D59EFe831fED) - [base](https://basescan.org/token/0x909DBdE1eBE906Af95660033e478D59EFe831fED)

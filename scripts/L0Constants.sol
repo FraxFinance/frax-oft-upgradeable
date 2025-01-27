@@ -39,5 +39,12 @@ contract L0Constants {
         expectedProxyOfts.push(proxyFrxUsdOft);
         expectedProxyOfts.push(proxyFrxEthOft);
         expectedProxyOfts.push(proxyFpiOft);
+
+        ethLockboxes.push(ethFxsLockbox);
+        ethLockboxes.push(ethSFraxLockbox);
+        ethLockboxes.push(ethSFrxEthLockbox);
+        ethLockboxes.push(ethFraxLockbox);
+        ethLockboxes.push(ethFrxEthLockbox);
+        ethLockboxes.push(ethFpiLockbox);
     }
 }

@@ -84,14 +84,17 @@ These lockboxes are to be used by Ink and Sonic until FRAX/sFRAX tokens have fin
 - Ensure `PK_OFT_DEPLOYER` and `PK_CONFIG_DEPLOYER` are the private keys for `0x9C9dD956b413cdBD81690c9394a6B4D22afe6745` and `0x0990be6dB8c785FBbF9deD8bAEc612A10CaE814b`, respectively.
 - Modify `.env` `RPC_URL` to the new chain RPC
 - Add an item to `scripts/L0Config.json:Proxy` with the new chain details (incorrect data will cause the script to fail).
-- `source .env && forge script scripts/DeployFraxOFTProtocol.s.sol --broadcast --slow`
-- Manually verify each contract on the deployed chain (TODO: add to script cmd).
-- Modify `scripts/tx/{SOURCE_CHAIN_ID}-{DESTINATION_CHAIN_ID}.json` values to strings so that:
-```
-"operation": "0",
-...
-"value": "0"
-```
+- `source .env && forge script scripts/DeployFraxOFTProtocol.s.sol --rpc-url $RPC_URL`
+- Verify files created within `scripts/txs/{SOURCE_CHAIN_ID}-{DESTINATION_CHAIN_ID}.json` are correct peers, config
+  - Notably, Fraxtal OFTs are the (s)frxUSD lockbox contracts
+- `source .env && forge script scripts/DeployFraxOFTProtocol.s.sol --rpc-url $RPC_URL --broadcast --slow`
+- Manually verify each contract on the deployed chain (do not need to verify ImplementationMock)
+  - Use `contracts/flat`, Solidity version 0.8.22, default compiler, 200 optimizer runs
+- Modify `scripts/tx/{SOURCE_CHAIN_ID}-{DESTINATION_CHAIN_ID}.json` values to so that:
+  - `\"` => `"`
+  - `"[` => `[`
+  - `]"` => `]`
+
 TODO: automatically save as strings.
 
 - Submit each newly crafted json to the respective `DESTINATION_CHAIN_ID` msig. 

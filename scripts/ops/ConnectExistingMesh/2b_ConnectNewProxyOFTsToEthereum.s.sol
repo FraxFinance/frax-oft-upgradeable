@@ -3,8 +3,8 @@ pragma solidity ^0.8.22;
 
 import "scripts/DeployFraxOFTProtocol/DeployFraxOFTProtocol.s.sol";
 
-/// @dev Connect upgradeable chains to eth lockboxes
-// forge script scripts/ops/ConnectExistingMesh/2_ConnectNewProxyOFTsToEthereum.s.sol --rpc-url https://ethereum-rpc.publicnode.com
+/// @dev Connect upgradeable chains to eth lockboxes - source - skips setting up EVMs
+// forge script scripts/ops/ConnectExistingMesh/2a_ConnectNewProxyOFTsToEthereum.s.sol --rpc-url https://ethereum-rpc.publicnode.com
 contract ConnectNewProxyOFTsToEthereum is DeployFraxOFTProtocol {
     using stdJson for string;
     using Strings for uint256;
@@ -15,7 +15,7 @@ contract ConnectNewProxyOFTsToEthereum is DeployFraxOFTProtocol {
     function filename() public view override returns (string memory) {
         string memory root = vm.projectRoot();
         root = string.concat(root, "/scripts/ops/ConnectExistingMesh/txs/");
-        string memory name = string.concat("2_ConnectNewProxyOFTsToEthereum-", simulateConfig.chainid.toString());
+        string memory name = string.concat("2b_ConnectNewProxyOFTsToEthereum-", simulateConfig.chainid.toString());
         name = string.concat(name, ".json");
 
         return string.concat(root, name);
@@ -39,12 +39,12 @@ contract ConnectNewProxyOFTsToEthereum is DeployFraxOFTProtocol {
 
         // deploySource();
         setupSource();
-        setupDestinations();
+        // setupDestinations();
     }
 
     function setupSource() public override simulateAndWriteTxs(broadcastConfig) {
         /// @dev set enforced options / peers separately
-        setupEvms();
+        // setupEvms();
         // setupNonEvms();
 
         /// @dev configures legacy configs as well
@@ -61,20 +61,6 @@ contract ConnectNewProxyOFTsToEthereum is DeployFraxOFTProtocol {
         });
 
         // setPriviledgedRoles();
-    }
-
-    function setupEvms() public override {
-        setEvmEnforcedOptions({
-            _connectedOfts: ethLockboxes,
-            _configs: newProxyConfigs
-        });
-
-        /// @dev Upgradeable OFTs maintaining the same address cross-chain.
-        setEvmPeers({
-            _connectedOfts: ethLockboxes,
-            _peerOfts: expectedProxyOfts,
-            _configs: newProxyConfigs
-        });
     }
 
     function setupDestinations() public override {

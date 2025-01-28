@@ -10,12 +10,12 @@ contract ConnectFraxtalLockboxesToOldProxyChains is DeployFraxOFTProtocol {
     using Strings for uint256;
 
     address[] public fraxtalLockboxes;
-    L0Config[] memory oldProxyConfigs;
+    L0Config[] oldProxyConfigs;
 
     /// @dev override to alter file save location
     function filename() public view override returns (string memory) {
         string memory root = vm.projectRoot();
-        root = string.concat(root, "/scripts/ops/UpgradeFrxUsd/revert/txs/");
+        root = string.concat(root, "/scripts/ops/ConnectExistingMesh/txs/");
         string memory name = string.concat("3_ConnectFraxtalLockboxesToOldProxyChains-", simulateConfig.chainid.toString());
         name = string.concat(name, ".json");
 

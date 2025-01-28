@@ -3,7 +3,7 @@ pragma solidity ^0.8.22;
 
 import "scripts/DeployFraxOFTProtocol/DeployFraxOFTProtocol.s.sol";
 
-/// @dev Connect upgradeable chains to eth lockboxes - source - skips setting up EVMs
+/// @dev Connect upgradeable chains to eth lockboxes - source - only setup DVNs
 // forge script scripts/ops/ConnectExistingMesh/2a_ConnectNewProxyOFTsToEthereum.s.sol --rpc-url https://ethereum-rpc.publicnode.com
 contract ConnectNewProxyOFTsToEthereum is DeployFraxOFTProtocol {
     using stdJson for string;
@@ -54,55 +54,12 @@ contract ConnectNewProxyOFTsToEthereum is DeployFraxOFTProtocol {
             _configs: newProxyConfigs
         });
 
-        setLibs({
-            _connectedConfig: broadcastConfig,
-            _connectedOfts: ethLockboxes,
-            _configs: newProxyConfigs
-        });
+        // setLibs({
+        //     _connectedConfig: broadcastConfig,
+        //     _connectedOfts: ethLockboxes,
+        //     _configs: newProxyConfigs
+        // });
 
         // setPriviledgedRoles();
     }
-
-    function setupDestinations() public override {
-        // setupLegacyDestinations();
-        setupProxyDestinations();
-    }
-
-    function setupProxyDestinations() public override {
-        for (uint256 i=0; i<newProxyConfigs.length; i++) {
-            // skip if destination == source
-            if (newProxyConfigs[i].eid == broadcastConfig.eid) continue;
-            setupDestination({
-                _connectedConfig: newProxyConfigs[i]
-            });
-        }
-    }
-
-    function setupDestination(
-        L0Config memory _connectedConfig
-    ) public override simulateAndWriteTxs(_connectedConfig) {
-        setEvmEnforcedOptions({
-            _connectedOfts: expectedProxyOfts,
-            _configs: broadcastConfigArray
-        });
-
-        setEvmPeers({
-            _connectedOfts: expectedProxyOfts,
-            _peerOfts: ethLockboxes,
-            _configs: broadcastConfigArray 
-        });
-
-        setDVNs({
-            _connectedConfig: _connectedConfig,
-            _connectedOfts: expectedProxyOfts,
-            _configs: broadcastConfigArray
-        });
-
-        setLibs({
-            _connectedConfig: _connectedConfig,
-            _connectedOfts: expectedProxyOfts,
-            _configs: broadcastConfigArray
-        });
-    }
-
 }

@@ -12,17 +12,6 @@
             "sendLib302": "0xbB2Ea70C9E858123480642Cf96acbcCE1372dCe1"
         },
         {
-            "RPC": "https://rpc.blast.io",
-            "chainid": 81457,
-            "delegate": "0x33A133020b2C2CD41a24F74033B11EC2fC0bF97a",
-            "dvnHorizen": "0xc097ab8cd7b053326dfe9fb3e3a31a0cce3b526f",
-            "dvnL0": "0x70BF42C69173d6e33b834f59630DAC592C70b369",
-            "eid": 30243,
-            "endpoint": "0x1a44076050125825900e736c501f859c50fE728c",
-            "receiveLib302": "0x377530cdA84DFb2673bF4d145DCF0C4D7fdcB5b6",
-            "sendLib302": "0xc1B621b18187F74c8F6D52a6F709Dd2780C09821"
-        },
-        {
             "RPC": "https://metis-mainnet.public.blastapi.io",
             "chainid": 1088,
             "delegate": "0xF4A4F32732F9B2fB84Ee28c58616946F3bF80F7d",
@@ -177,6 +166,17 @@
             "endpoint": "0x1a44076050125825900e736c501f859c50fE728c",
             "receiveLib302": "0x581b26F362AD383f7B51eF8A165Efa13DDe398a4",
             "sendLib302": "0x28B6140ead70cb2Fb669705b3598ffB4BEaA060b"
+        },
+        {
+            "RPC": "https://rpc.blast.io",
+            "chainid": 81457,
+            "delegate": "0x33A133020b2C2CD41a24F74033B11EC2fC0bF97a",
+            "dvnHorizen": "0xc097ab8cd7b053326dfe9fb3e3a31a0cce3b526f",
+            "dvnL0": "0x70BF42C69173d6e33b834f59630DAC592C70b369",
+            "eid": 30243,
+            "endpoint": "0x1a44076050125825900e736c501f859c50fE728c",
+            "receiveLib302": "0x377530cdA84DFb2673bF4d145DCF0C4D7fdcB5b6",
+            "sendLib302": "0xc1B621b18187F74c8F6D52a6F709Dd2780C09821"
         }
     ],
     "Non-EVM": [

@@ -299,7 +299,7 @@ contract DeployFraxOFTProtocol is BaseL0Script {
                     // Non-fraxtal destination: use the predeterministic address
                     if (_connectedOfts[o] == frxUsdOft) {
                         peerOft = frxUsdOft;
-                    } else if (_connectedOfts[o] == sfrsUsdOft) {
+                    } else if (_connectedOfts[o] == sfrxUsdOft) {
                         peerOft = sfrxUsdOft;
                     }
                 }

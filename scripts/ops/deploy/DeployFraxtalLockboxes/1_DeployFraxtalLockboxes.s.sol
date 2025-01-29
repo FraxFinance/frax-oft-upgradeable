@@ -5,7 +5,7 @@ import "scripts/DeployFraxOFTProtocol/DeployFraxOFTProtocol.s.sol";
 import {FraxOFTAdapterUpgradeable} from "contracts/FraxOFTAdapterUpgradeable.sol";
 
 /// @dev deploys (s)frxETH/FXS/FPI lockboxes on fraxtal and wires them to proxy OFTs
-// forge script scripts/ops/deploy/DeployFraxtalLockboxes/DeployFraxtalLockboxes.s.sol --rpc-url https://rpc.frax.com
+// forge script scripts/ops/deploy/DeployFraxtalLockboxes/1_DeployFraxtalLockboxes.s.sol --rpc-url https://rpc.frax.com
 contract DeployFraxtalLockboxes is DeployFraxOFTProtocol {
     using Strings for uint256;
 
@@ -16,11 +16,11 @@ contract DeployFraxtalLockboxes is DeployFraxOFTProtocol {
 
     function filename() public view override returns (string memory) {
         string memory root = vm.projectRoot();
-        root = string.concat(root, '/scripts/DeployFraxOFTProtocol/txs/');
+        root = string.concat(root, '/scripts/ops/deploy/DeployFraxtalLockboxes/txs/');
 
         string memory name = string.concat(broadcastConfig.chainid.toString(), "-");
         name = string.concat(name, simulateConfig.chainid.toString());
-        name = string.concat(name, "-lockboxes.json");
+        name = string.concat(name, ".json");
         return string.concat(root, name);
     }
 

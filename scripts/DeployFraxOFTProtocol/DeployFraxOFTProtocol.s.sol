@@ -63,7 +63,6 @@ contract DeployFraxOFTProtocol is BaseL0Script {
 
         setEvmPeers({
             _connectedOfts: proxyOfts,
-            _peerOfts: expectedProxyOfts,
             _configs: broadcastConfigArray 
         });
 
@@ -104,7 +103,6 @@ contract DeployFraxOFTProtocol is BaseL0Script {
         /// @dev Upgradeable OFTs maintaining the same address cross-chain.
         setEvmPeers({
             _connectedOfts: proxyOfts,
-            _peerOfts: proxyOfts,
             _configs: proxyConfigs
         });
     }
@@ -144,7 +142,7 @@ contract DeployFraxOFTProtocol is BaseL0Script {
         require(frxUsdOft == expectedProxyOfts[3], "Invalid FRAX OFT");
         require(frxEthOft == expectedProxyOfts[4], "Invalid frxETH OFT");
         require(fpiOft == expectedProxyOfts[5], "Invalid FPI OFT");
-        require(proxyOfts.length == numOfts, "OFT array lengths different");
+        require(proxyOfts.length == 6, "OFT array lengths different");
     }
 
     function deployFraxOFTUpgradeablesAndProxies() broadcastAs(oftDeployerPK) public virtual {
@@ -273,19 +271,16 @@ contract DeployFraxOFTProtocol is BaseL0Script {
     /// @dev _connectedOfts refers to the OFTs of the RPC we are currently connected to
     function setEvmPeers(
         address[] memory _connectedOfts,
-        address[] memory _peerOfts,
         L0Config[] memory _configs
     ) public virtual {
-        require(_connectedOfts.length == _peerOfts.length, "Must wire equal amount of source + dest addrs");
-        // require(frxUsdOft != address(0) && sfrxUsdOft != address(0), "(s)frxUSD ofts are null");
-
         // For each OFT
         for (uint256 o=0; o<_connectedOfts.length; o++) {
-            address connectedOft = _connectedOfts[o];
-
             // Set the config per chain
             for (uint256 c=0; c<_configs.length; c++) {
-                address peerOft = determinePeer(_configs[c].chainid, _peerOfts[o]);
+                address peerOft = determinePeer({
+                    _chainid: _configs[c].chainid,
+                    _oft: _connectedOfts[o]
+                });
                 setPeer({
                     _config: _configs[c],
                     _connectedOft: _connectedOfts[o],
@@ -300,55 +295,43 @@ contract DeployFraxOFTProtocol is BaseL0Script {
     //  (1) frxUsdOft is set through deployFraxOFTUpgradeableAndProxy() (allows for non-predetermined addrs)
     //  (2) connectedOft is the predetermined frxUsd OFT addr
     // NOTE on partial token deployments, {token}Oft must be set
-    function determinePeer(uint256 _chainid, address _oft) public view returns (address) {
+    function determinePeer(uint256 _chainid, address _oft) public view returns (address peer) {
         if (_chainid == 252) {
-            if (_oft == frxUsdOft || _oft == proxyFrxUsdOft) {
-                return fraxtalFrxUsdLockbox;
-            } else if (_oft == sfrxUsdOft || _oft == proxySFrxUsdOft) {
-                return fraxtalSFrxUsdLockbox;
-            } else if (_oft == frxEthOft || _oft == proxyFrxEthOft) {
-                return fraxtalFrxEthLockbox;
-            } else if (_oft == sfrxEthOft || _oft == proxySFrxEthOft) {
-                return fraxtalSFrxEthLockbox;
-            } else if (_oft == fxsOft || _oft == proxyFxsOft) {
-                return fraxtalFxsLockbox;
-            } else if (_oft == fpiOft || _oft == proxyFpiOft) {
-                return fraxtalFpiLockbox;
-            } else {
-                require(0==1, "Invalid fraxtal peer");
-            }
+            peer = getPeerFromArray({
+                _oft: _oft,
+                _oftArray: fraxtalLockboxes
+            });
+            require(peer != address(0), "Invalid fraxtal peer");
         } else if (_chainid == 1) {
-            if (_oft == frxUsdOft || _oft == proxyFrxUsdOft) {
-                return ethFrxUsdLockbox;
-            } else if (_oft == sfrxUsdOft || _oft == proxySFrxUsdOft) {
-                return ethSFrxUsdLockbox;
-            } else if (_oft == frxEthOft || _oft == proxyFrxEthOft) {
-                return ethFrxEthLockbox;
-            } else if (_oft == sfrxEthOft || _oft == proxySFrxEthOft) {
-                return ethSFrxEthLockbox;
-            } else if (_oft == fxsOft || _oft == proxyFxsOft) {
-                return ethFxsLockbox;
-            } else if (_oft == fpiOft || _oft == proxyFpiOft) {
-                return ethFpiLockbox;
-            } else {
-                require(0==1, "Invalid ethereum peer");
-            }
+            peer = getPeerFromArray({
+                _oft: _oft,
+                _oftArray: ethLockboxes
+            });
+            require(peer != address(0), "Invalid ethereum peer");
         } else {
-            if (_oft == frxUsdOft || _oft == proxyFrxUsdOft) {
-                return proxyFrxUsdOft;
-            } else if (_oft == sfrxUsdOft || _oft == proxySFrxUsdOft) {
-                return proxySFrxUsdOft;
-            } else if (_oft == frxEthOft || _oft == proxyFrxEthOft) {
-                return proxyFrxEthOft;
-            } else if (_oft == sfrxEthOft || _oft == proxySFrxEthOft) {
-                return proxySFrxEthOft;
-            } else if (_oft == fxsOft || _oft == proxyFxsOft) {
-                return proxyFxsOft;
-            } else if (_oft == fpiOft || _oft == proxyFpiOft) {
-                return proxyFpiOft;
-            } else {
-                require(0==1, "Invalid proxy peer");
-            }
+            peer = getPeerFromArray({
+                _oft: _oft,
+                _oftArray: proxyOfts
+            });
+            require(peer != address(0), "Invalid proxy peer");
+        }
+    }
+
+    function getPeerFromArray(address _oft, address[] memory _oftArray) public view returns (address peer) {
+        require(_oftArray.length == 6, "getPeerFromArray index mismatch");
+        /// @dev maintains array of deployFraxOFTUpgradeablesAndProxies()
+        if (_oft == fxsOft || _oft == proxyFxsOft) {
+            peer = _oftArray[0];
+        } else if (_oft == sfrxUsdOft || _oft == proxySFrxUsdOft) {
+            peer = _oftArray[1];
+        } else if (_oft == sfrxEthOft | _oft == proxySFrxEthOft) {
+            peer = _oftArray[2];
+        } else if (_oft == frxUsdOft || _oft == proxySFrxUsdOft) {
+            peer = _oftArray[3];
+        } else if (_oft == frxEthOft || _oft == proxySFrxEthOft) {
+            peer = _oftArray[4];
+        } else if (_oft == fpiOft || _oft == proxyFpiOft) {
+            peer = _oftArray[5];
         }
     }
 

@@ -177,15 +177,6 @@ contract BaseL0Script is L0Constants, Script {
     function setUp() public virtual {
         // Set constants based on deployment chain id
         loadJsonConfig();
-
-        /// @dev: this array maintains the same token order as proxyOfts and the addrs are confirmed on eth mainnet, blast, base, and metis.
-        // legacyOfts.push(0x23432452B720C80553458496D4D9d7C5003280d0); // fxs
-        // legacyOfts.push(0xe4796cCB6bB5DE2290C417Ac337F2b66CA2E770E); // sfrxUSD
-        // legacyOfts.push(0x1f55a02A049033E3419a8E2975cF3F572F4e6E9A); // sfrxETH
-        // legacyOfts.push(0x909DBdE1eBE906Af95660033e478D59EFe831fED); // frxUSD
-        // legacyOfts.push(0xF010a7c8877043681D59AD125EbF575633505942); // frxETH
-        // legacyOfts.push(0x6Eca253b102D41B6B69AC815B9CC6bD47eF1979d); // FPI
-        numOfts = 6;
     }
 
     function loadJsonConfig() public virtual {

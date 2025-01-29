@@ -4,6 +4,7 @@ pragma solidity ^0.8.19;
 contract L0Constants {
 
     address[] public expectedProxyOfts;
+    address[] public fraxtalLockboxes;
     address[] public ethLockboxes;
 
     // Semi Pre-deterministic upgradeable addresses 
@@ -39,6 +40,13 @@ contract L0Constants {
         expectedProxyOfts.push(proxyFrxUsdOft);
         expectedProxyOfts.push(proxyFrxEthOft);
         expectedProxyOfts.push(proxyFpiOft);
+
+        fraxtalLockboxes.push(fraxtalFxsLockbox);
+        fraxtalLockboxes.push(fraxtalSFraxLockbox);
+        fraxtalLockboxes.push(fraxtalSFrxEthLockbox);
+        fraxtalLockboxes.push(fraxtalFraxLockbox);
+        fraxtalLockboxes.push(fraxtalFrxEthLockbox);
+        fraxtalLockboxes.push(fraxtalFpiLockbox);
 
         ethLockboxes.push(ethFxsLockbox);
         ethLockboxes.push(ethSFraxLockbox);

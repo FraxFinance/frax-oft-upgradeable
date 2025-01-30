@@ -17,7 +17,7 @@ contract L0Constants {
 
     address public fraxtalFrxUsdLockbox = 0x96A394058E2b84A89bac9667B19661Ed003cF5D4;
     address public fraxtalSFrxUsdLockbox = 0x88Aa7854D3b2dAA5e37E7Ce73A1F39669623a361;
-    address public fraxtalFrxEthLockbox = 0x999dfAbe3b1cc2EF66eB032Eea42FeA329bBa168;
+    address public fraxtalFrxEthLockbox = 0x9aBFE1F8a999B0011ecD6116649AEe8D575F5604;
     address public fraxtalSFrxEthLockbox = 0x999dfAbe3b1cc2EF66eB032Eea42FeA329bBa168;
     address public fraxtalFxsLockbox = 0xd86fBBd0c8715d2C1f40e451e5C3514e65E7576A;
     address public fraxtalFpiLockbox = 0x75c38D46001b0F8108c4136216bd2694982C20FC;

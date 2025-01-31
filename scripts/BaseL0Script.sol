@@ -98,7 +98,7 @@ contract BaseL0Script is L0Constants, Script {
     string public json;
 
     function version() public virtual pure returns (uint256, uint256, uint256) {
-        return (1, 2, 5);
+        return (1, 2, 6);
     }
 
     modifier broadcastAs(uint256 privateKey) {
@@ -139,12 +139,20 @@ contract BaseL0Script is L0Constants, Script {
         /// @dev see setUp() to reference array positioning
         if (simulateConfig.chainid == 252) {
             // https://github.com/FraxFinance/frax-oft-upgradeable?tab=readme-ov-file#fraxtal-standalone-frxusdsfrxusd-lockboxes
+            proxyOfts[0] = fraxtalFxsLockbox;
             proxyOfts[1] = fraxtalSFrxUsdLockbox;
+            proxyOfts[2] = fraxtalSFrxEthLockbox;
             proxyOfts[3] = fraxtalFrxUsdLockbox;
+            proxyOfts[4] = fraxtalFrxEthLockbox;
+            proxyOfts[5] = fraxtalFpiLockbox;
         } else {
             // https://github.com/FraxFinance/frax-oft-upgradeable?tab=readme-ov-file#proxy-upgradeable-ofts
+            proxyOfts[0] = proxyFxsOft;
             proxyOfts[1] = proxySFrxUsdOft;
+            proxyOfts[2] = proxySFrxEthOft;
             proxyOfts[3] = proxyFrxUsdOft;
+            proxyOfts[4] = proxyFrxEthOft;
+            proxyOfts[5] = proxyFpiOft;
         }
     }
 

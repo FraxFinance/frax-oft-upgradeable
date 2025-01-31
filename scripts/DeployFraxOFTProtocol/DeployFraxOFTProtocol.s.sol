@@ -15,7 +15,7 @@ contract DeployFraxOFTProtocol is BaseL0Script {
     using Strings for uint256;
 
     function version() public virtual override pure returns (uint256, uint256, uint256) {
-        return (1, 2, 7);
+        return (1, 2, 8);
     }
 
     function setUp() public virtual override {
@@ -295,11 +295,19 @@ contract DeployFraxOFTProtocol is BaseL0Script {
                 // for fraxtal destination, override OFT address of (s)frxUSD to the standalone lockbox
                 if (_configs[c].chainid == 252) {
                     if (_connectedOfts[o] == frxUsdOft) {
-                        // standalone frxUSD lockbox
-                        peerOft = 0x96A394058E2b84A89bac9667B19661Ed003cF5D4;
+                        peerOft = fraxtalFrxUsdLockbox;
                     } else if (_connectedOfts[o] == sfrxUsdOft) {
-                        // standalone sfrxUSD lockbox
-                        peerOft = 0x88Aa7854D3b2dAA5e37E7Ce73A1F39669623a361;
+                        peerOft = fraxtalSFrxUsdLockbox;
+                    } else if (_connectedOfts[o] == frxEthOft) {
+                        peerOft = fraxtalFrxEthLockbox;
+                    } else if (_connectedOfts[o] == sfrxEthOft) {
+                        peerOft = fraxtalSFrxEthLockbox;
+                    } else if (_connectedOfts[o] == fxsOft) {
+                        peerOft = fraxtalFxsLockbox;
+                    } else if (_connectedOfts[o] == fpiOft) {
+                        peerOft = fraxtalFpiLockbox;
+                    } else {
+                        require(0==1, "unidentified oft to fraxtal");
                     }
                 } else {
                     // Non-fraxtal destination: use the predeterministic address
@@ -307,6 +315,16 @@ contract DeployFraxOFTProtocol is BaseL0Script {
                         peerOft = frxUsdOft;
                     } else if (_connectedOfts[o] == sfrxUsdOft) {
                         peerOft = sfrxUsdOft;
+                    } else if (_connectedOfts[o] == frxEthOft) {
+                        peerOft = frxEthOft;
+                    } else if (_connectedOfts[o] == sfrxEthOft) {
+                        peerOft = sfrxEthOft;
+                    } else if (_connectedOfts[o] == fxsOft) {
+                        peerOft = fxsOft;
+                    } else if (_connectedOfts[o] == fpiOft) {
+                        peerOft = fpiOft;
+                    } else {
+                        require(0==1, "unidentified oft to pre-determined peer");
                     }
                 }
 

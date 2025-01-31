@@ -29,7 +29,7 @@ This repository contains all of the contracts and deployment code used to manage
 - Admin: `ProxyAdmin` (owned by chain-respective msig)
 - OFTs
   - `frxUSD`: `0x80Eede496655FB9047dd39d9f418d5483ED600df`
-  - `sfrxUSD`: `0x5bff88ca1442c2496f7e475e9e7786383bc070c0`
+  - `sfrxUSD`: `0x5Bff88cA1442c2496f7E475E9e7786383Bc070c0`
   - `sfrxETH`: `0x3Ec3849C33291a9eF4c5dB86De593EB4A37fDe45`
   - `FXS`: `0x64445f0aecC51E94aD52d8AC56b7190e764E561a`
   - `frxETH`: `0x43eDD7f3831b08FE70B7555ddD373C8bF65a9050`

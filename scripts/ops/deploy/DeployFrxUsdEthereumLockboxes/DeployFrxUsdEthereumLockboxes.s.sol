@@ -20,7 +20,7 @@ contract DeployFrxUsdEthereumLockboxes is DeployFraxOFTProtocol {
     using Strings for uint256;
     using stdJson for string;
 
-    address frxUsd = 0xA8F9e149cCE34ec7F68aF720D8551cb9B39ed1f1;
+    address frxUsd = 0xCAcd6fd266aF91b8AeD52aCCc382b4e165586E29;
     address sfrxUsd = 0xcf62F905562626CfcDD2261162a51fd02Fc9c5b6;
 
     function filename() public view override returns (string memory) {
@@ -36,8 +36,8 @@ contract DeployFrxUsdEthereumLockboxes is DeployFraxOFTProtocol {
     function run() public override {
         // set expectedProxyOfts to [frxUsdOft, sfrxUsdOft]
         delete expectedProxyOfts;
-        expectedProxyOfts.push(0x80Eede496655FB9047dd39d9f418d5483ED600df); // frxUsd OFT
-        expectedProxyOfts.push(0x5Bff88cA1442c2496f7E475E9e7786383Bc070c0); // sfrxUsd OFT
+        expectedProxyOfts.push(proxyFrxUsdOft);
+        expectedProxyOfts.push(proxySFrxUsdOft);
 
         deploySource();
         setupSource();
@@ -55,11 +55,11 @@ contract DeployFrxUsdEthereumLockboxes is DeployFraxOFTProtocol {
     // Configure (s)frxUSD addresses to the standalone fraxtal lockboxes, otherwise ethereum lockboxes
     function _overwriteFrxUsdAddrs() public override {
         if (simulateConfig.chainid == 252) {
-            expectedProxyOfts[0] = 0x96A394058E2b84A89bac9667B19661Ed003cF5D4; // frxUsd lockbox
-            expectedProxyOfts[1] = 0x88Aa7854D3b2dAA5e37E7Ce73A1F39669623a361; // sfrxUsd lockbox
+            expectedProxyOfts[0] = fraxtalFrxUsdLockbox;
+            expectedProxyOfts[1] = fraxtalSFrxUsdLockbox;
         } else {
-            expectedProxyOfts[0] = 0x80Eede496655FB9047dd39d9f418d5483ED600df; // frxUsd OFT
-            expectedProxyOfts[1] = 0x5Bff88cA1442c2496f7E475E9e7786383Bc070c0; // sfrxUsd OFT
+            expectedProxyOfts[0] = proxyFrxUsdOft;
+            expectedProxyOfts[1] = proxySFrxUsdOft;
         }
     }
 

@@ -131,36 +131,37 @@ contract BaseL0Script is L0Constants, Script {
         new SafeTxUtil().writeTxs(serializedTxs, filename());
     }
 
-    // Configure (s)frxUSD addresses to the standalone fraxtal lockboxes, otherwise re-usable OFTs
+    // Configure destination OFT addresses as they may be different per chain
+    // This is used within DeployfraxOFTProtocol.setupDestination()
     function _overwriteProxyAddrs() public virtual {
         // skip overwrite if there are no proxyOfts to write to
         require (proxyOfts.length == 6, "Must override. be careful");
 
         /// @dev see setUp() to reference array positioning
         if (simulateConfig.chainid == 1) {
-            proxyOfts[0] = ethLockboxes[0];
-            proxyOfts[1] = ethLockboxes[1];
-            proxyOfts[2] = ethLockboxes[2];
-            proxyOfts[3] = ethLockboxes[3];
-            proxyOfts[4] = ethLockboxes[4];
-            proxyOfts[5] = ethLockboxes[5];
+            connectedOfts[0] = ethLockboxes[0];
+            connectedOfts[1] = ethLockboxes[1];
+            connectedOfts[2] = ethLockboxes[2];
+            connectedOfts[3] = ethLockboxes[3];
+            connectedOfts[4] = ethLockboxes[4];
+            connectedOfts[5] = ethLockboxes[5];
         } else if (simulateConfig.chainid == 252) {
             // TODO: modify this readme to "Fraxtal Lockboxes"
             // https://github.com/FraxFinance/frax-oft-upgradeable?tab=readme-ov-file#fraxtal-standalone-frxusdsfrxusd-lockboxes
-            proxyOfts[0] = fraxtalLockboxes[0];
-            proxyOfts[1] = fraxtalLockboxes[1];
-            proxyOfts[2] = fraxtalLockboxes[2];
-            proxyOfts[3] = fraxtalLockboxes[3];
-            proxyOfts[4] = fraxtalLockboxes[4];
-            proxyOfts[5] = fraxtalLockboxes[5];
+            connectedOfts[0] = fraxtalLockboxes[0];
+            connectedOfts[1] = fraxtalLockboxes[1];
+            connectedOfts[2] = fraxtalLockboxes[2];
+            connectedOfts[3] = fraxtalLockboxes[3];
+            connectedOfts[4] = fraxtalLockboxes[4];
+            connectedOfts[5] = fraxtalLockboxes[5];
         } else {
             // https://github.com/FraxFinance/frax-oft-upgradeable?tab=readme-ov-file#proxy-upgradeable-ofts
-            proxyOfts[0] = expectedProxyOfts[0];
-            proxyOfts[1] = expectedProxyOfts[1];
-            proxyOfts[2] = expectedProxyOfts[2];
-            proxyOfts[3] = expectedProxyOfts[3];
-            proxyOfts[4] = expectedProxyOfts[4];
-            proxyOfts[5] = expectedProxyOfts[5];
+            connectedOfts[0] = expectedProxyOfts[0];
+            connectedOfts[1] = expectedProxyOfts[1];
+            connectedOfts[2] = expectedProxyOfts[2];
+            connectedOfts[3] = expectedProxyOfts[3];
+            connectedOfts[4] = expectedProxyOfts[4];
+            connectedOfts[5] = expectedProxyOfts[5];
         }
     }
 

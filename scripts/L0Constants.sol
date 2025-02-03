@@ -6,6 +6,7 @@ contract L0Constants {
     address[] public expectedProxyOfts;
     address[] public fraxtalLockboxes;
     address[] public ethLockboxes;
+    address[] public connectedOfts;
 
     // Semi Pre-deterministic upgradeable addresses 
     address public proxyFrxUsdOft = 0x80Eede496655FB9047dd39d9f418d5483ED600df;
@@ -54,5 +55,7 @@ contract L0Constants {
         ethLockboxes.push(ethFraxLockbox);
         ethLockboxes.push(ethFrxEthLockbox);
         ethLockboxes.push(ethFpiLockbox);
+
+        connectedOfts = new address[](expectedProxyOfts.length);
     }
 }

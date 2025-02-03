@@ -57,24 +57,25 @@ contract DeployFraxOFTProtocol is BaseL0Script {
         L0Config memory _connectedConfig
     ) public virtual simulateAndWriteTxs(_connectedConfig) {
         setEvmEnforcedOptions({
-            _connectedOfts: proxyOfts,
+            _connectedOfts: connectedOfts,
             _configs: broadcastConfigArray
         });
 
         setEvmPeers({
-            _connectedOfts: proxyOfts,
+            _connectedOfts: connectedOfts,
+            _expectedPeers: proxyOfts,
             _configs: broadcastConfigArray 
         });
 
         setDVNs({
             _connectedConfig: _connectedConfig,
-            _connectedOfts: proxyOfts,
+            _connectedOfts: connectedOfts,
             _configs: broadcastConfigArray
         });
 
         setLibs({
             _connectedConfig: _connectedConfig,
-            _connectedOfts: proxyOfts,
+            _connectedOfts: connectedOfts,
             _configs: broadcastConfigArray
         });
     }
@@ -109,6 +110,7 @@ contract DeployFraxOFTProtocol is BaseL0Script {
         /// @dev Upgradeable OFTs maintaining the same address cross-chain.
         setEvmPeers({
             _connectedOfts: proxyOfts,
+            _expectedPeers: expectedProxyOfts,
             _configs: proxyConfigs
         });
     }
@@ -277,15 +279,18 @@ contract DeployFraxOFTProtocol is BaseL0Script {
     /// @dev _connectedOfts refers to the OFTs of the RPC we are currently connected to
     function setEvmPeers(
         address[] memory _connectedOfts,
+        address[] memory _expectedPeers,
         L0Config[] memory _configs
     ) public virtual {
+        require(_connectedOfts.length == _expectedPeers.length, "connectedOfts.length != _expectedPeers.length");
         // For each OFT
         for (uint256 o=0; o<_connectedOfts.length; o++) {
             // Set the config per chain
             for (uint256 c=0; c<_configs.length; c++) {
                 address peerOft = determinePeer({
                     _chainid: _configs[c].chainid,
-                    _oft: _connectedOfts[o]
+                    _oft: _connectedOfts[o],
+                    _expectedPeers: _expectedPeers
                 });
                 setPeer({
                     _config: _configs[c],
@@ -297,11 +302,16 @@ contract DeployFraxOFTProtocol is BaseL0Script {
     }
 
     // Overwrite the peer where necessary
-    // Conditional statement allows for overwriting peer whether:
+    // Conditional statement allows for overwriting peer whether (for example, frxUSD):
     //  (1) frxUsdOft is set through deployFraxOFTUpgradeableAndProxy() (allows for non-predetermined addrs)
     //  (2) connectedOft is the predetermined frxUsd OFT addr
+    //  (3) peer is either the ethereum/fraxtal frxUSD lockbox
     // NOTE on partial token deployments, {token}Oft must be set
-    function determinePeer(uint256 _chainid, address _oft) public view returns (address peer) {
+    function determinePeer(
+        uint256 _chainid,
+        address _oft,
+        address[] memory _expectedPeers
+    ) public view returns (address peer) {
         if (_chainid == 252) {
             peer = getPeerFromArray({
                 _oft: _oft,
@@ -317,7 +327,7 @@ contract DeployFraxOFTProtocol is BaseL0Script {
         } else {
             peer = getPeerFromArray({
                 _oft: _oft,
-                _oftArray: proxyOfts
+                _oftArray: _expectedPeers
             });
             require(peer != address(0), "Invalid proxy peer");
         }

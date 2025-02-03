@@ -58,8 +58,8 @@ contract DeployFrxUsdEthereumLockboxes is DeployFraxOFTProtocol {
             expectedProxyOfts[0] = fraxtalFrxUsdLockbox;
             expectedProxyOfts[1] = fraxtalSFrxUsdLockbox;
         } else {
-            expectedProxyOfts[0] = proxyFrxUsdOft;
-            expectedProxyOfts[1] = proxySFrxUsdOft;
+            expectedProxyOfts[0] = frxUsdOft;
+            expectedProxyOfts[1] = sfrxUsdOft;
         }
     }
 

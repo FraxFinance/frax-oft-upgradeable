@@ -98,7 +98,7 @@ contract BaseL0Script is L0Constants, Script {
     string public json;
 
     function version() public virtual pure returns (uint256, uint256, uint256) {
-        return (1, 2, 5);
+        return (1, 2, 7);
     }
 
     modifier broadcastAs(uint256 privateKey) {
@@ -236,7 +236,7 @@ contract BaseL0Script is L0Constants, Script {
             NonEvmPeer memory peer = nonEvmPeers[i];
             bytes32[] memory peerArray = new bytes32[](6);
             peerArray[0] = peer.fxs;
-            peerArray[1] = peer.sFrax;
+            peerArray[1] = peer.sFrax; // TODO: modify to sfrxUSD
             peerArray[2] = peer.sFrxEth;
             peerArray[3] = peer.frax;
             peerArray[4] = peer.frxEth;

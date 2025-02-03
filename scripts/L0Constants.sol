@@ -4,6 +4,7 @@ pragma solidity ^0.8.19;
 contract L0Constants {
 
     address[] public expectedProxyOfts;
+    address[] public fraxtalLockboxes;
     address[] public ethLockboxes;
 
     // Semi Pre-deterministic upgradeable addresses 
@@ -16,10 +17,10 @@ contract L0Constants {
 
     address public fraxtalFrxUsdLockbox = 0x96A394058E2b84A89bac9667B19661Ed003cF5D4;
     address public fraxtalSFrxUsdLockbox = 0x88Aa7854D3b2dAA5e37E7Ce73A1F39669623a361;
-    address public fraxtalFrxEthLockbox = address(0); // TODO
-    address public fraxtalSFrxEthLockbox = address(0); // TODO
-    address public fraxtalFxsLockbox = address(0); // TODO
-    address public fraxtalFpiLockbox = address(0); // TODO
+    address public fraxtalFrxEthLockbox = 0x9aBFE1F8a999B0011ecD6116649AEe8D575F5604;
+    address public fraxtalSFrxEthLockbox = 0x999dfAbe3b1cc2EF66eB032Eea42FeA329bBa168;
+    address public fraxtalFxsLockbox = 0xd86fBBd0c8715d2C1f40e451e5C3514e65E7576A;
+    address public fraxtalFpiLockbox = 0x75c38D46001b0F8108c4136216bd2694982C20FC;
 
     address public ethFrxUsdLockbox = address(0); // TODO
     address public ethSFrxUsdLockbox = address(0); // TODO 
@@ -28,7 +29,7 @@ contract L0Constants {
     address public ethFrxEthLockbox = 0xF010a7c8877043681D59AD125EbF575633505942;
     address public ethSFrxEthLockbox = 0x1f55a02A049033E3419a8E2975cF3F572F4e6E9A;
     address public ethFxsLockbox = 0x23432452B720C80553458496D4D9d7C5003280d0; // TODO - upgrade 
-    address public ethFpiLockbox = 0x6Eca253b102D41B6B69AC815B9CC6bD47eF1979d; // TODO 
+    address public ethFpiLockbox = 0x6Eca253b102D41B6B69AC815B9CC6bD47eF1979d;
 
     constructor() {
         // array of semi-pre-determined upgradeable OFTs
@@ -39,6 +40,13 @@ contract L0Constants {
         expectedProxyOfts.push(proxyFrxUsdOft);
         expectedProxyOfts.push(proxyFrxEthOft);
         expectedProxyOfts.push(proxyFpiOft);
+
+        fraxtalLockboxes.push(fraxtalFxsLockbox);
+        fraxtalLockboxes.push(fraxtalSFrxUsdLockbox);
+        fraxtalLockboxes.push(fraxtalSFrxEthLockbox);
+        fraxtalLockboxes.push(fraxtalFrxUsdLockbox);
+        fraxtalLockboxes.push(fraxtalFrxEthLockbox);
+        fraxtalLockboxes.push(fraxtalFpiLockbox);
 
         ethLockboxes.push(ethFxsLockbox);
         ethLockboxes.push(ethSFraxLockbox);

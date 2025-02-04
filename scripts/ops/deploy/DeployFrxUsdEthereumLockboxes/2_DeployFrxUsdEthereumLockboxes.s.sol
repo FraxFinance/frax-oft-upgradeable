@@ -14,7 +14,8 @@ TODO
 - Connect to Solana OFTs
 */
 
-// Deployed contracts via-ir, unable to verify contracts. Leaving here as the proxyAdmin ownership was transferred
+// Deployed contracts via-ir, unable to verify contracts. Leaving here as the proxyAdmin ownership was transferred at the end of the script
+// https://etherscan.io/tx/0xe850df76dfa2edd21c6ac64e2c24a4f12935cf3116163d5a417a9568ca7f373e#eventlog
 // forge script scripts/ops/deploy/DeployFrxUsdEthereumLockboxes/DeployFrxUsdEthereumLockboxes.s.sol --rpc-url https://ethereum-rpc.publicnode.com
 contract DeployFrxUsdEthereumLockboxes is DeployFraxOFTProtocol {
 

@@ -14,7 +14,7 @@ TODO
 - Connect to Solana OFTs
 */
 
-// Re-run without via-ir to verify contracts
+// Same as (2) but without via-ir to verify contracts
 // forge script scripts/ops/deploy/DeployFrxUsdEthereumLockboxes/DeployFrxUsdEthereumLockboxes.s.sol --rpc-url https://ethereum-rpc.publicnode.com
 contract DeployFrxUsdEthereumLockboxes is DeployFraxOFTProtocol {
 
@@ -125,6 +125,8 @@ contract DeployFrxUsdEthereumLockboxes is DeployFraxOFTProtocol {
         });
     }
 
+    // ProxyAdmin ownership already transferred in step 2
+    // https://etherscan.io/tx/0xe850df76dfa2edd21c6ac64e2c24a4f12935cf3116163d5a417a9568ca7f373e#eventlog
     function setPriviledgedRoles() public override {
         /// @dev transfer ownership of OFT
         for (uint256 o=0; o<proxyOfts.length; o++) {

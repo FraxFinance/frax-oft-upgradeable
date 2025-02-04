@@ -14,6 +14,7 @@ TODO
 - Connect to Solana OFTs
 */
 
+// Deployed contracts via-ir, unable to verify contracts. Leaving here as the proxyAdmin ownership was transferred
 // forge script scripts/ops/deploy/DeployFrxUsdEthereumLockboxes/DeployFrxUsdEthereumLockboxes.s.sol --rpc-url https://ethereum-rpc.publicnode.com
 contract DeployFrxUsdEthereumLockboxes is DeployFraxOFTProtocol {
 
@@ -47,7 +48,6 @@ contract DeployFrxUsdEthereumLockboxes is DeployFraxOFTProtocol {
     // Additional deployProxyAdmin to get 0x223 addr for proxyAdmin
     function deploySource() public override {
         preDeployChecks();
-        deployProxyAdminAndImplementationMock();
         deployFraxOFTUpgradeablesAndProxies();
         // postDeployChecks()
     }
@@ -125,23 +125,8 @@ contract DeployFrxUsdEthereumLockboxes is DeployFraxOFTProtocol {
         });
     }
 
-    // deploy only the proxyAdmin and implementationMock from the predeterministic address 
-    //  - maintains 0x223 for proxyAdmin (used for OFTs on other chains)
-    //  - if we want to have later pre-deterministic proxies, we can.
-    function deployProxyAdminAndImplementationMock() public broadcastAs(oftDeployerPK) {
-                
-        // Proxy admin (0x223a681fc5c5522c85C96157c0efA18cd6c5405c)
-        proxyAdmin = address(new FraxProxyAdmin(vm.addr(configDeployerPK)));
-        require(address(proxyAdmin) == 0x223a681fc5c5522c85C96157c0efA18cd6c5405c, "Unexpected ProxyAdmin address");
-
-        // Implementation mock (0x8f1B9c1fd67136D525E14D96Efb3887a33f16250)
-        implementationMock = address(new ImplementationMock());
-        require(implementationMock == 0x8f1B9c1fd67136D525E14D96Efb3887a33f16250, "Unexpected ImplementationMock address");
-    }
-
-
     // only deploy the two lockboxes from Carter's deployer wallet
-    function deployFraxOFTUpgradeablesAndProxies() broadcastAs(senderDeployerPK) public override {
+    function deployFraxOFTUpgradeablesAndProxies() broadcastAs(configDeployerPK) public override {
         (, frxUsdOft) = deployFraxOFTUpgradeableAndProxy({
             _token: frxUsd
         });
@@ -154,6 +139,9 @@ contract DeployFrxUsdEthereumLockboxes is DeployFraxOFTProtocol {
 
 
     function deployFraxOFTUpgradeableAndProxy(address _token) public returns (address implementation, address proxy) {
+        proxyAdmin = 0x223a681fc5c5522c85C96157c0efA18cd6c5405c;
+        implementationMock = 0x8f1B9c1fd67136D525E14D96Efb3887a33f16250;
+        
         // create the implementation
         bytes memory bytecode = bytes.concat(
             abi.encodePacked(type(FraxOFTAdapterUpgradeable).creationCode),
@@ -170,7 +158,7 @@ contract DeployFrxUsdEthereumLockboxes is DeployFraxOFTProtocol {
         // FraxOFTAdapterUpgradeable(implementation).initialize(address(0));
 
         // create the proxy
-        proxy = address(new TransparentUpgradeableProxy(implementationMock, vm.addr(senderDeployerPK), ""));
+        proxy = address(new TransparentUpgradeableProxy(implementationMock, vm.addr(configDeployerPK), ""));
         proxyOfts.push(proxy);
 
         // upgrade and init

@@ -134,7 +134,8 @@ contract BaseL0Script is L0Constants, Script {
     // Configure destination OFT addresses as they may be different per chain
     // `connectedOfts` is used within DeployfraxOFTProtocol.setupDestination()
     function _populateConnectedOfts() public virtual {
-        // skip overwrite if there are no proxyOfts to write to
+        // check to prevent array mismatch.  This will trigger when, for example, managing peers of 2 of 6 OFTs as
+        // this method asumes we're managing all 6 OFTs
         require (proxyOfts.length == 6, "Must override. be careful");
 
         /// @dev order maintained through L0Constants.sol `constructor()` and DeployFraxOFTProtocol.s.sol `deployFraxOFTUpgradeablesAndProxies()`

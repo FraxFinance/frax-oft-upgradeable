@@ -9,8 +9,6 @@ contract ConnectLegacyOFTsToFraxtal is DeployFraxOFTProtocol {
     using stdJson for string;
     using Strings for uint256;
 
-    address[] fraxtalLockboxes;
-
     /// @dev override to alter file save location
     function filename() public view override returns (string memory) {
         string memory root = vm.projectRoot();
@@ -28,9 +26,10 @@ contract ConnectLegacyOFTsToFraxtal is DeployFraxOFTProtocol {
         sfrxUsdOft = address(1);
 
         delete legacyOfts;
-        legacyOfts.push(ethFraxLockbox); // FRAX legacy OFT / lockbox
-        legacyOfts.push(ethSFraxLockbox); // sFRAX legacy oft / lockbox
+        legacyOfts.push(ethFraxLockboxLegacy); // FRAX legacy OFT / lockbox
+        legacyOfts.push(ethSFraxLockboxLegacy); // sFRAX legacy oft / lockbox
 
+        delete fraxtalLockboxes;
         fraxtalLockboxes.push(fraxtalFrxUsdLockbox);
         fraxtalLockboxes.push(fraxtalSFrxUsdLockbox);
 

@@ -1,7 +1,7 @@
 // SPDX-License-Identifier: ISC
 pragma solidity ^0.8.19;
 
-import "../DeployFraxOFTProtocol/DeployFraxOFTProtocol.s.sol";
+import "scripts/DeployFraxOFTProtocol/DeployFraxOFTProtocol.s.sol";
 
 /// Deploy to sonic without setting up DVNs, maintain configDeployerPK as owner/delegate
 // forge script scripts/DeploySonic/1_DeploySonic.s.sol --rpc-url https://rpc.soniclabs.com --broadcast --verify --verifier-url https://api.sonicscan.org/api --etherscan-api-key J1SBCUCM1WX85N471YARTZD4X3XGZJCUWE

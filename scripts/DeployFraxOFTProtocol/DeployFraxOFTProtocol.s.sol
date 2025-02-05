@@ -335,16 +335,16 @@ contract DeployFraxOFTProtocol is BaseL0Script {
 
     function getPeerFromArray(address _oft, address[] memory _oftArray) public view returns (address peer) {
         require(_oftArray.length == 6, "getPeerFromArray index mismatch");
-        /// @dev maintains array of deployFraxOFTUpgradeablesAndProxies()
+        /// @dev maintains array of deployFraxOFTUpgradeablesAndProxies(), where proxyOfts is pushed to in the respective order
         if (_oft == fxsOft || _oft == proxyFxsOft) {
             peer = _oftArray[0];
         } else if (_oft == sfrxUsdOft || _oft == proxySFrxUsdOft) {
             peer = _oftArray[1];
         } else if (_oft == sfrxEthOft | _oft == proxySFrxEthOft) {
             peer = _oftArray[2];
-        } else if (_oft == frxUsdOft || _oft == proxySFrxUsdOft) {
+        } else if (_oft == frxUsdOft || _oft == proxyFrxUsdOft) {
             peer = _oftArray[3];
-        } else if (_oft == frxEthOft || _oft == proxySFrxEthOft) {
+        } else if (_oft == frxEthOft || _oft == proxyFrxEthOft) {
             peer = _oftArray[4];
         } else if (_oft == fpiOft || _oft == proxyFpiOft) {
             peer = _oftArray[5];

@@ -118,8 +118,8 @@ contract BaseL0Script is L0Constants, Script {
         // store for later referencing
         simulateConfig = _simulateConfig;
 
-        // if we're simulating fraxtal, overwrite the proxy (s)frxUSD OFTs to the standalone lockboxes.  Otherwise, use the re-usable addrs
-        _overwriteProxyAddrs();
+        // Use the correct OFT addresses given the chain we're simulating
+        _populateConnectedOfts();
 
         // Simulate fork as delegate (aka msig) as we're crafting txs within the modified function
         vm.createSelectFork(_simulateConfig.RPC);
@@ -132,12 +132,12 @@ contract BaseL0Script is L0Constants, Script {
     }
 
     // Configure destination OFT addresses as they may be different per chain
-    // This is used within DeployfraxOFTProtocol.setupDestination()
-    function _overwriteProxyAddrs() public virtual {
+    // `connectedOfts` is used within DeployfraxOFTProtocol.setupDestination()
+    function _populateConnectedOfts() public virtual {
         // skip overwrite if there are no proxyOfts to write to
         require (proxyOfts.length == 6, "Must override. be careful");
 
-        /// @dev see setUp() to reference array positioning
+        /// @dev order maintained through L0Constants.sol `constructor()` and DeployFraxOFTProtocol.s.sol `deployFraxOFTUpgradeablesAndProxies()`
         if (simulateConfig.chainid == 1) {
             connectedOfts[0] = ethLockboxes[0];
             connectedOfts[1] = ethLockboxes[1];

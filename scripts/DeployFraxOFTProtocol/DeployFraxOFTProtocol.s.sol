@@ -142,23 +142,15 @@ contract DeployFraxOFTProtocol is BaseL0Script {
     }
 
     function postDeployChecks() public virtual view {
-        // Ensure OFTs are their expected pre-determined address.  If not, there's a chance the deployer nonce shifted,
-        // the EVM has differing logic, or we are not on an EVM compatable chain.
-        require(fxsOft == expectedProxyOfts[0], "Invalid FXS OFT");
-        require(sfrxUsdOft == expectedProxyOfts[1], "Invalid sFRAX OFT");
-        require(sfrxEthOft == expectedProxyOfts[2], "Invalid sfrxETH OFT");
-        require(frxUsdOft == expectedProxyOfts[3], "Invalid FRAX OFT");
-        require(frxEthOft == expectedProxyOfts[4], "Invalid frxETH OFT");
-        require(fpiOft == expectedProxyOfts[5], "Invalid FPI OFT");
-        require(proxyOfts.length == 6, "OFT array lengths different");
+        require(proxyOfts.length == 6, "Did not deploy all 6 OFTs");
     }
 
     function deployFraxOFTUpgradeablesAndProxies() broadcastAs(oftDeployerPK) public virtual {
 
-        // Proxy admin (0x223a681fc5c5522c85C96157c0efA18cd6c5405c)
+        // Proxy admin (0x223a681fc5c5522c85C96157c0efA18cd6c5405c if predeterministic)
         proxyAdmin = address(new FraxProxyAdmin(vm.addr(configDeployerPK)));
 
-        // Implementation mock (0x8f1B9c1fd67136D525E14D96Efb3887a33f16250)
+        // Implementation mock (0x8f1B9c1fd67136D525E14D96Efb3887a33f16250 if predeterministic)
         implementationMock = address(new ImplementationMock());
 
         // / @dev: follows deployment order of legacy OFTs found at https://etherscan.io/address/0xded884435f2db0169010b3c325e733df0038e51d

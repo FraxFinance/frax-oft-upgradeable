@@ -41,9 +41,7 @@ contract DeployFrxUsdEthereumLockboxes is DeployFraxOFTProtocol {
         expectedProxyOfts.push(proxyFrxUsdOft);
         expectedProxyOfts.push(proxySFrxUsdOft);
 
-        deploySource();
-        setupSource();
-        setupDestinations();
+        super.run();
     }
 
     // Additional deployProxyAdmin to get 0x223 addr for proxyAdmin

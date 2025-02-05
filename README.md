@@ -25,20 +25,34 @@ This repository contains all of the contracts and deployment code used to manage
   - [`Polygon zkEvm`](https://app.safe.global/home?safe=zkevm:0x57445fD8d544e5D313e4f715220103b091814df4)
 
 ### Proxy (upgradeable) OFTs
-- Chain: `Mode`, `Sei`, `Fraxtal` (except for (s)frxUSD), `X-Layer`, `Ink`, `Sonic`, `Arbitrum`, `Optimism`, `Polygon`, `BSC`
+- Chain: `Mode`, `Sei`, `X-Layer`, `Ink`, `Sonic`, `Arbitrum`, `Optimism`, `Polygon`, `BSC`
 - Admin: `ProxyAdmin` (owned by chain-respective msig)
 - OFTs
   - `frxUSD`: `0x80Eede496655FB9047dd39d9f418d5483ED600df`
-  - `sfrxUSD`: `0x5bff88ca1442c2496f7e475e9e7786383bc070c0`
+  - `sfrxUSD`: `0x5Bff88cA1442c2496f7E475E9e7786383Bc070c0`
+  - `frxETH`: `0x43eDD7f3831b08FE70B7555ddD373C8bF65a9050`
   - `sfrxETH`: `0x3Ec3849C33291a9eF4c5dB86De593EB4A37fDe45`
   - `FXS`: `0x64445f0aecC51E94aD52d8AC56b7190e764E561a`
-  - `frxETH`: `0x43eDD7f3831b08FE70B7555ddD373C8bF65a9050`
   - `FPI` : `0x90581eCa9469D8D7F5D3B60f4715027aDFCf7927`
 
-### Fraxtal standalone frxUSD/sfrxUSD lockboxes
-These lockboxes are to be used by Ink and Sonic until FRAX/sFRAX tokens have finished their upgrade.  After the upgrade, expect to use the respective upgradeable OFT mentioned above.
-- `frxUSD`: [`0x96A394058E2b84A89bac9667B19661Ed003cF5D4`](https://fraxscan.com/address/0x96a394058e2b84a89bac9667b19661ed003cf5d4)
-- `sfrxUSD`: [`0x88Aa7854D3b2dAA5e37E7Ce73A1F39669623a361`](https://fraxscan.com/address/0x88aa7854d3b2daa5e37e7ce73a1f39669623a361)
+### Lockbox design
+Frax operates a dual-lockbox design where users can exit their OFT token into the native Frax-asset token on both Ethereum and Fraxtal.  Utilizing a dual-lockbox design is a novel solution to bridging as liquidity is  unlocked from more than one location.  More about this solution is be explained in the [docs](TODO).
+
+#### Fraxtal Lockboxes
+- `frxUSD`: `0x96A394058E2b84A89bac9667B19661Ed003cF5D4`
+- `sfrxUSD`: `0x88Aa7854D3b2dAA5e37E7Ce73A1F39669623a361`
+- `frxETH`: `0x999dfAbe3b1cc2EF66eB032Eea42FeA329bBa168`
+- `sfrxETH`: `0x999dfAbe3b1cc2EF66eB032Eea42FeA329bBa168`
+- `FXS`: `0xd86fBBd0c8715d2C1f40e451e5C3514e65E7576A`
+- `FPI`: `0x75c38D46001b0F8108c4136216bd2694982C20FC`
+
+#### Ethereum Lockboxes
+- `frxUSD`: `TODO`
+- `sfrxUSD`: `TODO`
+- `frxETH` : `0xF010a7c8877043681D59AD125EbF575633505942`
+- `sfrxETH`: `0x1f55a02A049033E3419a8E2975cF3F572F4e6E9A`
+- `FXS`: `0x23432452B720C80553458496D4D9d7C5003280d0`
+- `FPI`: `0x6Eca253b102D41B6B69AC815B9CC6bD47eF1979d`
 
 ### Solana
 - Admin: Chain-respective msig
@@ -99,12 +113,10 @@ TODO: automatically save as strings.
 ## TODO
 - Ink, Sonic, Arbitrum, Optimism, Polygon, Avalanche, BSC, Polygon zkEvm
   - Configure source/destination (s)frxUSD peers for Xlayer, Sei, Mode, Solana
-  - Double-check peers for (s)frxUSD
   - Wire (s)frxETH/FPI to legacy Ethereum lockbox
-- Sonic
-  - Set up DVNs for each chain
 - Solana
   - Configure for Ink, Sonic, Arbitrum, Optimism, Polygon, Avalanche, BSC, Polygon zkEvm
+  - Configure for Fraxtal lockboxes
 
 ## 1) Developing Contracts
 

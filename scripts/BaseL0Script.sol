@@ -98,7 +98,11 @@ contract BaseL0Script is L0Constants, Script {
     string public json;
 
     function version() public virtual pure returns (uint256, uint256, uint256) {
+<<<<<<< HEAD
+        return (1, 2, 4);
+=======
         return (1, 2, 7);
+>>>>>>> master
     }
 
     modifier broadcastAs(uint256 privateKey) {

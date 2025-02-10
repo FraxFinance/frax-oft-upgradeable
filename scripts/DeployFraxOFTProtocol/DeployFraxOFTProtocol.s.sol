@@ -141,7 +141,7 @@ contract DeployFraxOFTProtocol is BaseL0Script {
         }
     }
 
-    function postDeployChecks() public virtual view {
+    function postDeployChecks() internal virtual view {
         // Ensure OFTs are their expected pre-determined address.  If not, there's a chance the deployer nonce shifted,
         // the EVM has differing logic, or we are not on an EVM compatable chain.
         require(fxsOft == expectedProxyOfts[0], "Invalid FXS OFT");

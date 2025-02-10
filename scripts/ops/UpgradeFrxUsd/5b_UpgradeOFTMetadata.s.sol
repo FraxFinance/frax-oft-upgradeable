@@ -9,10 +9,9 @@ import {SFrxUSDOFTUpgradeable} from "contracts/frxUsd/SFrxUSDOFTUpgradeable.sol"
 
 
 /// @dev craft tx to upgrade the FRAX / sFRAX OFT with the new name & symbol
-// TODO: add etherscan / verifier links
-/// @dev forge script scripts/UpgradeFrax/5b_UpgradeOFTMetadata.s.sol --rpc-url https://xlayerrpc.okx.com
-/// @dev forge script scripts/UpgradeFrax/5b_UpgradeOFTMetadata.s.sol --rpc-url https://mainnet.mode.network
-/// @dev forge script scripts/UpgradeFrax/5b_UpgradeOFTMetadata.s.sol --rpc-url https://twilight-crimson-grass.sei-pacific.quiknode.pro/1fe7cb5c6950df0f3ebceead37f8eefdf41ddbe9
+/// @dev forge script scripts/ops/UpgradeFrxUsd/5b_UpgradeOFTMetadata.s.sol --rpc-url https://xlayerrpc.okx.com
+/// @dev forge script scripts/ops/UpgradeFrxUsd/5b_UpgradeOFTMetadata.s.sol --rpc-url https://mainnet.mode.network
+/// @dev forge script scripts/ops/UpgradeFrxUsd/5b_UpgradeOFTMetadata.s.sol --rpc-url https://twilight-crimson-grass.sei-pacific.quiknode.pro/1fe7cb5c6950df0f3ebceead37f8eefdf41ddbe9
 contract UpgradeOFTMetadata is DeployFraxOFTProtocol {
     using stdJson for string;
     using Strings for uint256;
@@ -29,16 +28,16 @@ contract UpgradeOFTMetadata is DeployFraxOFTProtocol {
 
         if (block.chainid == 34443) {
             // mode
-            frxUsdImplementation = 0x83a3581c22C143a574B584af583DE3D6d3A2fD50;
-            sfrxUsdImplementation = 0x09EE6975fEff1Ba02d7FEA060Dd196c58e2e4c9E;
+            frxUsdImplementation = 0xEEdd3A0DDDF977462A97C1F0eBb89C3fbe8D084B;
+            sfrxUsdImplementation = 0x5aDdD7c2e5D7526fdcbd887bE09F0D6cB14bea2F;
         } else if (block.chainid == 1329) {
             // sei
-            frxUsdImplementation = 0x9735Eef5e5D7fA1BC5a7956C7439d15D5E658601;
-            sfrxUsdImplementation = 0x493f17254f8A6cF7B4346a9d6927148521B03680;
+            frxUsdImplementation = 0x8c65aa3215bd20DBe20374BB5d9AaE891973D0d6;
+            sfrxUsdImplementation = 0x8f6F4359090BbF65938392874Cac44dcE165A285;
         } else {
             // xlayer
-            frxUsdImplementation = 0x9D0FEe988A8134Db109c587DB047761904A34B5b;
-            sfrxUsdImplementation = 0xD09F0B6B4b76D5832BfE911793437f5b4c143100;
+            frxUsdImplementation = 0xcB73b257b4d3b7e984abC7f49eEe2980A22E0585;
+            sfrxUsdImplementation = 0x47c9756489Cf57F2dfD2f134c59d7683E25CfeBa;
         }
     }
 

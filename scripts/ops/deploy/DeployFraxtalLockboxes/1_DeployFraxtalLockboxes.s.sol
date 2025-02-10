@@ -104,7 +104,7 @@ contract DeployFraxtalLockboxes is DeployFraxOFTProtocol {
     }
 
     // skip verification of ofts as the addreses will be different
-    function postDeployChecks() public override pure {}
+    function postDeployChecks() internal override pure {}
 
     // Deploy (s)frxETH/FXS/FPI
    function deployFraxOFTUpgradeablesAndProxies() broadcastAs(configDeployerPK) public override {

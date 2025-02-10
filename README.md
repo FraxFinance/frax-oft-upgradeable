@@ -41,18 +41,20 @@ Frax operates a dual-lockbox design where users can exit their OFT token into th
 #### Fraxtal Lockboxes
 - `frxUSD`: `0x96A394058E2b84A89bac9667B19661Ed003cF5D4`
 - `sfrxUSD`: `0x88Aa7854D3b2dAA5e37E7Ce73A1F39669623a361`
-- `frxETH`: `0x999dfAbe3b1cc2EF66eB032Eea42FeA329bBa168`
+- `frxETH`: `0x9aBFE1F8a999B0011ecD6116649AEe8D575F5604`
 - `sfrxETH`: `0x999dfAbe3b1cc2EF66eB032Eea42FeA329bBa168`
 - `FXS`: `0xd86fBBd0c8715d2C1f40e451e5C3514e65E7576A`
 - `FPI`: `0x75c38D46001b0F8108c4136216bd2694982C20FC`
 
 #### Ethereum Lockboxes
-- `frxUSD`: `TODO`
-- `sfrxUSD`: `TODO`
+- `frxUSD`: `0x566a6442A5A6e9895B9dCA97cC7879D632c6e4B0`
+- `sfrxUSD`: `0x7311CEA93ccf5f4F7b789eE31eBA5D9B9290E126`
 - `frxETH` : `0xF010a7c8877043681D59AD125EbF575633505942`
 - `sfrxETH`: `0x1f55a02A049033E3419a8E2975cF3F572F4e6E9A`
 - `FXS`: `0x23432452B720C80553458496D4D9d7C5003280d0`
 - `FPI`: `0x6Eca253b102D41B6B69AC815B9CC6bD47eF1979d`
+- `FRAX` (legacy): `0x909DBdE1eBE906Af95660033e478D59EFe831fED`
+- `sFRAX` (legacy): `0xe4796cCB6bB5DE2290C417Ac337F2b66CA2E770E`
 
 ### Solana
 - Admin: Chain-respective msig
@@ -64,6 +66,10 @@ Frax operates a dual-lockbox design where users can exit their OFT token into th
   - SPL Token: `DnVyztLHnDyTqL3xfPYF9Uqpgrhcxphn6e31sVAwtg6K`
   - OFT Config: `3BcysJF4fQx86fVTDTBGNpZyRpeMyTF8XsuvPHJQuP3V`
     - As bytes32: `0x206fdd7d0be90d8ff93f6f7f4bd4d8b42ca8977317da0b7d2861299e3c589dd8`
+- `frxETH`
+  - SPL Token: `CuXHLCxCcyPkmbemPxh7PAWedfFffeL82b6VPJmonTaa`
+  - OFT Config: `AzaSy9yr44e4bnWNdrNkxmye1kEYmbbgGfY8a3ZqzuMf`
+    - As bytes32: `0x94791ba0aae2b57460c63d36346392d849b22f39fd3eafad5bc82d01e352dde6`
 - `sfrxETH`
   - SPL Token: `6iHW2j5dvW8EiEVSXqQFjm7c5xNd4MdYuXLrW3eQ1UYw`
   - OFT Config: `8AdTghMT8yyNpWrTuPoDjrtXW7t1YEZgLVjWDftWfCxo`
@@ -72,10 +78,6 @@ Frax operates a dual-lockbox design where users can exit their OFT token into th
   - SPL Token: `8QRvtWw4XYQW7UqTiGhzyWZkhCqSwZDA5qjRWDotSZ4e`
   - OFT Config: `5KYEyuA1cAdnZFj4i6zUjTEre4s7snacyXbkTmNqLjJs`
     - As bytes32: `0x402e86d1cfd2cde4fac63aa8d9892eca6d3c0e08e8335622124332a95df6c10c`
-- `frxETH`
-  - SPL Token: `CuXHLCxCcyPkmbemPxh7PAWedfFffeL82b6VPJmonTaa`
-  - OFT Config: `AzaSy9yr44e4bnWNdrNkxmye1kEYmbbgGfY8a3ZqzuMf`
-    - As bytes32: `0x94791ba0aae2b57460c63d36346392d849b22f39fd3eafad5bc82d01e352dde6`
 - `FPI`
   - SPL Token: `FqRC7vNLS3ubbhtdqNSz8Q5ei8VdUxF6H6eoXQLHxihr`
   - OFT Config: `BG9oPj76NRPbj1e1GbL4imnqo9VD7W2ukpnRFSWtq5CA`
@@ -88,9 +90,9 @@ Frax operates a dual-lockbox design where users can exit their OFT token into th
 - OFTs
   - `FRAX`: `0x909DBdE1eBE906Af95660033e478D59EFe831fED`
   - `sFRAX`: `0xe4796cCB6bB5DE2290C417Ac337F2b66CA2E770E`
+  - `frxETH` : `0xF010a7c8877043681D59AD125EbF575633505942`
   - `sfrxETH`: `0x1f55a02A049033E3419a8E2975cF3F572F4e6E9A`
   - `FXS`: `0x23432452B720C80553458496D4D9d7C5003280d0`
-  - `frxETH` : `0xF010a7c8877043681D59AD125EbF575633505942`
   - `FPI`: `0x6Eca253b102D41B6B69AC815B9CC6bD47eF1979d`
 
 
@@ -112,11 +114,9 @@ TODO: automatically save as strings.
 
 ## TODO
 - Ink, Sonic, Arbitrum, Optimism, Polygon, Avalanche, BSC, Polygon zkEvm
-  - Configure source/destination (s)frxUSD peers for Xlayer, Sei, Mode, Solana
   - Wire (s)frxETH/FPI to legacy Ethereum lockbox
 - Solana
-  - Configure for Ink, Sonic, Arbitrum, Optimism, Polygon, Avalanche, BSC, Polygon zkEvm
-  - Configure for Fraxtal lockboxes
+  - Configure for Ink, Sonic, Arbitrum, Optimism, Polygon, Avalanche, BSC, Polygon zkEvm, Ethereum (s)frxUSD, Fraxtal lockboxes
 
 ## 1) Developing Contracts
 

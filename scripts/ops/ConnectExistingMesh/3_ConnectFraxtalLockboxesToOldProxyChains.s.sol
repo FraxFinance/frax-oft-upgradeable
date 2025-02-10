@@ -9,7 +9,6 @@ contract ConnectFraxtalLockboxesToOldProxyChains is DeployFraxOFTProtocol {
     using stdJson for string;
     using Strings for uint256;
 
-    address[] public fraxtalLockboxes;
     L0Config[] oldProxyConfigs;
 
     /// @dev override to alter file save location
@@ -39,6 +38,7 @@ contract ConnectFraxtalLockboxesToOldProxyChains is DeployFraxOFTProtocol {
         }
 
         // [frxUsd, sfrxUsd]
+        delete fraxtalLockboxes;
         fraxtalLockboxes.push(fraxtalFrxUsdLockbox);
         fraxtalLockboxes.push(fraxtalSFrxUsdLockbox);
 

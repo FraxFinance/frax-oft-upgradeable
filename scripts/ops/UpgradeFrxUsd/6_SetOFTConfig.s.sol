@@ -10,7 +10,6 @@ contract SetOFTConfig is DeployFraxOFTProtocol {
     using Strings for uint256;
 
     address[] nullOfts;
-    address[] fraxtalLockboxes;
 
     /// @dev override to alter file save location
     function filename() public view override returns (string memory) {
@@ -38,6 +37,7 @@ contract SetOFTConfig is DeployFraxOFTProtocol {
         nullOfts.push(address(0));
         nullOfts.push(address(0));
 
+        delete fraxtalLockboxes;
         fraxtalLockboxes.push(0x96A394058E2b84A89bac9667B19661Ed003cF5D4); // frxUSD
         fraxtalLockboxes.push(0x88Aa7854D3b2dAA5e37E7Ce73A1F39669623a361); // sfrxUSD
 

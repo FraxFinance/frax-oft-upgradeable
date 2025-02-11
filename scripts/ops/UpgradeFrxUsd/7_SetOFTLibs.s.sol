@@ -9,7 +9,6 @@ contract SetOFTLibs is DeployFraxOFTProtocol {
     using stdJson for string;
     using Strings for uint256;
 
-    address[] fraxtalLockboxes;
 
     /// @dev override to alter file save location
     function filename() public view override returns (string memory) {
@@ -34,6 +33,7 @@ contract SetOFTLibs is DeployFraxOFTProtocol {
         legacyOfts.push(0x909DBdE1eBE906Af95660033e478D59EFe831fED); // FRAX
         legacyOfts.push(0xe4796cCB6bB5DE2290C417Ac337F2b66CA2E770E); // sFRAX
 
+        delete fraxtalLockboxes;
         fraxtalLockboxes.push(0x96A394058E2b84A89bac9667B19661Ed003cF5D4); // frxUSD
         fraxtalLockboxes.push(0x88Aa7854D3b2dAA5e37E7Ce73A1F39669623a361); // sfrxUSD
 

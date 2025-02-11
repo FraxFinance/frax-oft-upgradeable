@@ -47,7 +47,7 @@ contract DeployMockOFT is DeployFraxOFTProtocol {
     }
 
     /// @dev simple checks override
-    function postDeployChecks() public pure override {
+    function postDeployChecks() internal pure override {
         require(address(0) == address(0));
     }
 

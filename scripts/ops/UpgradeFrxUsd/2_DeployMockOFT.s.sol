@@ -118,7 +118,7 @@ contract DeployMockOFT is DeployFraxOFTProtocol {
     }
 
     /// @dev simple checks override
-    function postDeployChecks() public override view {
+    function postDeployChecks() internal override view {
         require(frxUsdOft != address(0));
         require(sfrxUsdOft != address(0));
     }

@@ -23,8 +23,6 @@ contract UpgradeOFTMetadata is DeployFraxOFTProtocol {
     constructor() {
         /// @dev declared in BaseL0Script.sol, already deployed
         proxyAdmin = 0x223a681fc5c5522c85C96157c0efA18cd6c5405c;
-        frxUsdOft = 0x80Eede496655FB9047dd39d9f418d5483ED600df;
-        sfrxUsdOft = 0x5Bff88cA1442c2496f7E475E9e7786383Bc070c0;
 
         if (block.chainid == 34443) {
             // mode
@@ -57,13 +55,13 @@ contract UpgradeOFTMetadata is DeployFraxOFTProtocol {
 
     function upgradeOfts() public simulateAndWriteTxs(broadcastConfig) {
         upgradeOft({
-            _oft: frxUsdOft,
+            _oft: proxyFrxUsdOft,
             _implementation: frxUsdImplementation,
             _name: "Frax USD",
             _symbol: "frxUSD"
         });
         upgradeOft({
-            _oft: sfrxUsdOft,
+            _oft: proxySFrxUsdOft,
             _implementation: sfrxUsdImplementation,
             _name: "Staked Frax USD",
             _symbol: "sfrxUSD"

@@ -62,78 +62,78 @@ contract ThreeDVNs is DeployFraxOFTProtocol {
             // NOTE: only checking for fraxtal <> xlayer
             if (srcConfig.chainid != 196 && srcConfig.chainid != 252) continue;
             setAllConfigs({
-                _connectedConfig: srcConfig,
-                _configs: proxyConfigs                
+                _srcConfig: srcConfig,
+                _dstConfigs: proxyConfigs                
             });
         }
     }
 
     function setAllConfigs(
-        L0Config memory _connectedConfig,
-        L0Config[] memory _configs
-    ) public simulateAndWriteTxs(_connectedConfig) {
+        L0Config memory _srcConfig,
+        L0Config[] memory _dstConfigs
+    ) public simulateAndWriteTxs(_srcConfig) {
         // loop through ofts
         for (uint256 o=0; o<proxyOfts.length; o++) {
             address oft = proxyOfts[o];
 
             // set per library
             setLibConfigs({
-                _connectedConfig: _connectedConfig,
+                _srcConfig: _srcConfig,
                 _connectedOft: oft,
-                _configs: _configs,
-                _lib: _connectedConfig.sendLib302
+                _dstConfigs: _dstConfigs,
+                _lib: _srcConfig.sendLib302
             });
 
             // set per library
             setLibConfigs({
-                _connectedConfig: _connectedConfig,
+                _srcConfig: _srcConfig,
                 _connectedOft: oft,
-                _configs: _configs,
-                _lib: _connectedConfig.receiveLib302
+                _dstConfigs: _dstConfigs,
+                _lib: _srcConfig.receiveLib302
             });
         }
     }
 
     function setLibConfigs(
-        L0Config memory _connectedConfig,
+        L0Config memory _srcConfig,
         address _connectedOft,
-        L0Config[] memory _configs,
+        L0Config[] memory _dstConfigs,
         address _lib
     ) public {
-        for (uint256 c=0; c<_configs.length; c++) {
+        for (uint256 c=0; c<_dstConfigs.length; c++) {
             // cannot set dvn options to self
-            if (block.chainid == _configs[c].chainid) continue;
+            if (block.chainid == _dstConfigs[c].chainid) continue;
 
             // NOTE: only checking for fraxtal <> xlayer
-            if (_configs[c].chainid != 196 && _configs[c].chainid != 252) continue;
+            if (_dstConfigs[c].chainid != 196 && _dstConfigs[c].chainid != 252) continue;
 
             setConfig({
-                _connectedConfig: _connectedConfig,
+                _srcConfig: _srcConfig,
                 _connectedOft: _connectedOft,
-                _dstConfig: _configs[c],
+                _dstConfig: _dstConfigs[c],
                 _lib: _lib
             });
         }
     }
 
     function setConfig(
-        L0Config memory _connectedConfig,
+        L0Config memory _srcConfig,
         address _connectedOft,
         L0Config memory _dstConfig,
         address _lib
     ) public {
         // get the current DVN stack for the given oft and library
-        bytes memory currentUlnConfigBytes = IMessageLibManager(_connectedConfig.endpoint).getConfig({
+        bytes memory currentUlnConfigBytes = IMessageLibManager(_srcConfig.endpoint).getConfig({
             _oapp: _connectedOft,
             _lib: _lib,
-            _eid: uint32(_connectedConfig.eid),
+            _eid: uint32(_srcConfig.eid),
             _configType: Constant.CONFIG_TYPE_ULN
         });
         UlnConfig memory currentUlnConfig = abi.decode(currentUlnConfigBytes, (UlnConfig));
 
         // generate the DVN stack as defined in the config
         address[] memory desiredDVNs = craftDvnStack({
-            _connectedChainId: _connectedConfig.chainid,
+            _srcChainId: _srcConfig.chainid,
             _dstChainId: _dstConfig.chainid
         });
 
@@ -162,12 +162,12 @@ contract ThreeDVNs is DeployFraxOFTProtocol {
                 setConfigParamArray
             )
         );
-        (bool success, ) = _connectedConfig.endpoint.call(data);
+        (bool success, ) = _srcConfig.endpoint.call(data);
         require(success, "Unable to setConfig");
         serializedTxs.push(
             SerializedTx({
                 name: "setConfig",
-                to: _connectedConfig.endpoint,
+                to: _srcConfig.endpoint,
                 value: 0,
                 data: data
             })
@@ -189,16 +189,16 @@ contract ThreeDVNs is DeployFraxOFTProtocol {
 
     // Returns the ascending-sorted DVN stack of the connected chain 
     function craftDvnStack(
-        uint256 _connectedChainId,
+        uint256 _srcChainId,
         uint256 _dstChainId
     ) public returns (address[] memory desiredDVNs) {
         DvnStack memory srcDVNs = getDvnStack({
-            _connectedChainId: _connectedChainId,
+            _srcChainId: _srcChainId,
             _dstChainId: _dstChainId
         });
         DvnStack memory dstDVNs = getDvnStack({
-            _connectedChainId: _dstChainId,
-            _dstChainId: _connectedChainId
+            _srcChainId: _dstChainId,
+            _dstChainId: _srcChainId
         });
 
         // start with a fresh array
@@ -208,7 +208,7 @@ contract ThreeDVNs is DeployFraxOFTProtocol {
         if (srcDVNs.horizen != address(0) || dstDVNs.horizen != address(0)) {
             require(
                 srcDVNs.horizen != address(0) && dstDVNs.horizen != address(0),
-                incorrectDvnMatchMsg("horizen", _connectedChainId, _dstChainId)
+                incorrectDvnMatchMsg("horizen", _srcChainId, _dstChainId)
             );
             dvnStackTemp.push(srcDVNs.horizen);
         }
@@ -216,7 +216,7 @@ contract ThreeDVNs is DeployFraxOFTProtocol {
         if (srcDVNs.lz != address(0) || dstDVNs.lz != address(0)) {
             require(
                 srcDVNs.lz != address(0) && dstDVNs.lz != address(0),
-                incorrectDvnMatchMsg("lz", _connectedChainId, _dstChainId)
+                incorrectDvnMatchMsg("lz", _srcChainId, _dstChainId)
             );
             dvnStackTemp.push(srcDVNs.lz);
         }
@@ -224,7 +224,7 @@ contract ThreeDVNs is DeployFraxOFTProtocol {
         if (srcDVNs.nethermind != address(0) || dstDVNs.nethermind != address(0)) {
             require(
                 srcDVNs.nethermind != address(0) && dstDVNs.nethermind != address(0),
-                incorrectDvnMatchMsg("nethermind", _connectedChainId, _dstChainId)
+                incorrectDvnMatchMsg("nethermind", _srcChainId, _dstChainId)
             );
             dvnStackTemp.push(srcDVNs.nethermind);
         }
@@ -246,11 +246,11 @@ contract ThreeDVNs is DeployFraxOFTProtocol {
         return message;
     }
 
-    function getDvnStack(uint256 _connectedChainId, uint256 _dstChainId) public virtual view returns (DvnStack memory dvnStack) {
+    function getDvnStack(uint256 _srcChainId, uint256 _dstChainId) public virtual view returns (DvnStack memory dvnStack) {
         // craft path
         string memory root = vm.projectRoot();
         root = string.concat(root, "/config/dvn/");
-        string memory name = string.concat(_connectedChainId.toString(), ".json");
+        string memory name = string.concat(_srcChainId.toString(), ".json");
         string memory path = string.concat(root, name);
         
         // load json

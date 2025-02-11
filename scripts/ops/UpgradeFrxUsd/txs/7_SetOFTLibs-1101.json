@@ -1,0 +1,10 @@
+{
+  "chainId": 1101,
+  "createdAt": 1737146291000,
+  "meta": {
+    "description": "",
+    "name": "Transactions Batch"
+  },
+  "transactions": [],
+  "version": "1.0"
+}

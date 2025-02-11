@@ -1,6 +1,6 @@
 [profile.default]
 solc-version = '0.8.22'
-src = 'contracts'
+src = 'scripts'
 out = 'out'
 test = 'test/foundry'
 cache_path = 'cache'
@@ -28,4 +28,4 @@ remappings = [
     'frax-std/=node_modules/frax-standard-solidity/src/',
 ]
 
-via_ir = true
+via_ir = false

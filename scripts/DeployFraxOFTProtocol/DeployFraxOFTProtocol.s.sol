@@ -8,7 +8,6 @@ TODO
 - Deployment handling on non-pre-deterministic chains
 */
 
-
 contract DeployFraxOFTProtocol is BaseL0Script {
     using OptionsBuilder for bytes;
     using stdJson for string;
@@ -49,7 +48,7 @@ contract DeployFraxOFTProtocol is BaseL0Script {
         }
     }
 
-    function setupLegacyDestinations() public pure {
+    function setupLegacyDestinations() public virtual {
         // DEPRECATED
     }
 

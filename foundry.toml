@@ -28,4 +28,4 @@ remappings = [
     'frax-std/=node_modules/frax-standard-solidity/src/',
 ]
 
-# via_ir = true
+via_ir = false

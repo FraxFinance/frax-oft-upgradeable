@@ -1,7 +1,7 @@
 // SPDX-License-Identifier: ISC
 pragma solidity ^0.8.19;
 
-import "../DeployFraxOFTProtocol/DeployFraxOFTProtocol.s.sol";
+import "scripts/DeployFraxOFTProtocol/DeployFraxOFTProtocol.s.sol";
 import {FraxOFTAdapterUpgradeable} from "contracts/FraxOFTAdapterUpgradeable.sol";
 
 // Deploy fresh frxUSD, sfrxUSD lockboxes.
@@ -59,7 +59,7 @@ contract DeployFraxtalLockboxes is DeployFraxOFTProtocol {
     }
 
     // skip verification of ofts as the addreses will be different
-    function postDeployChecks() public override pure {}
+    function postDeployChecks() internal override pure {}
 
     // deploy only frxUSD, sfrxUSD lockboxes
     function deployFraxOFTUpgradeablesAndProxies() broadcastAs(configDeployerPK) public override {

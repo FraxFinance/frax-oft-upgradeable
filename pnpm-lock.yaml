@@ -21,7 +21,7 @@ importers:
         specifier: ^7.23.9
         version: 7.24.6
       '@fraxfinance/layerzero-v2-upgradeable':
-        specifier: github:fraxfinance/LayerZero-v2-upgradeable
+        specifier: git://github.com/fraxfinance/LayerZero-v2-upgradeable.git#v1.0.0
         version: https://codeload.github.com/fraxfinance/LayerZero-v2-upgradeable/tar.gz/e1470197e0cffe0d89dd9c776762c8fdcfc1e160
       '@layerzerolabs/lz-evm-messagelib-v2':
         specifier: ~2.3.21

@@ -1,7 +1,7 @@
 // SPDX-License-Identifier: ISC
 pragma solidity ^0.8.19;
 
-import "../DeployFraxOFTProtocol/DeployFraxOFTProtocol.s.sol";
+import "scripts/DeployFraxOFTProtocol/DeployFraxOFTProtocol.s.sol";
 
 /// @dev deployment paused at library setup- resume deployment
 // forge script scripts/DeploySonic/2_SetupSonic.s.sol --rpc-url https://rpc.soniclabs.com

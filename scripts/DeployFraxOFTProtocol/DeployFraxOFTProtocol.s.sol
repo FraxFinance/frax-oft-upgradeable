@@ -5,11 +5,8 @@ import "../BaseL0Script.sol";
 
 /*
 TODO
-- Automatically verify contracts
-- Deployment on non-evm / non-pre-deterministic chains
-    - Would need to modify from expectedProxyOFTs to proxyOFTs
+- Deployment handling on non-pre-deterministic chains
 */
-
 
 contract DeployFraxOFTProtocol is BaseL0Script {
     using OptionsBuilder for bytes;
@@ -17,7 +14,7 @@ contract DeployFraxOFTProtocol is BaseL0Script {
     using Strings for uint256;
 
     function version() public virtual override pure returns (uint256, uint256, uint256) {
-        return (1, 2, 4);
+        return (1, 2, 7);
     }
 
     function setUp() public virtual override {
@@ -46,34 +43,38 @@ contract DeployFraxOFTProtocol is BaseL0Script {
             // skip if destination == source
             if (proxyConfigs[i].eid == broadcastConfig.eid) continue;
             setupDestination({
-                _connectedConfig: proxyConfigs[i],
-                _connectedOfts: proxyOfts
+                _connectedConfig: proxyConfigs[i]
             });
         }
     }
 
-    function setupLegacyDestinations() public pure {
+    function setupLegacyDestinations() public virtual {
         // DEPRECATED
     }
 
     function setupDestination(
-        L0Config memory _connectedConfig,
-        address[] memory _connectedOfts
+        L0Config memory _connectedConfig
     ) public virtual simulateAndWriteTxs(_connectedConfig) {
         setEvmEnforcedOptions({
-            _connectedOfts: _connectedOfts,
+            _connectedOfts: proxyOfts,
             _configs: broadcastConfigArray
         });
 
         setEvmPeers({
-            _connectedOfts: _connectedOfts,
-            _peerOfts: proxyOfts,
+            _connectedOfts: proxyOfts,
+            _peerOfts: expectedProxyOfts,
             _configs: broadcastConfigArray 
         });
 
         setDVNs({
             _connectedConfig: _connectedConfig,
-            _connectedOfts: _connectedOfts,
+            _connectedOfts: proxyOfts,
+            _configs: broadcastConfigArray
+        });
+
+        setLibs({
+            _connectedConfig: _connectedConfig,
+            _connectedOfts: proxyOfts,
             _configs: broadcastConfigArray
         });
     }
@@ -139,7 +140,7 @@ contract DeployFraxOFTProtocol is BaseL0Script {
         }
     }
 
-    function postDeployChecks() public virtual view {
+    function postDeployChecks() internal virtual view {
         // Ensure OFTs are their expected pre-determined address.  If not, there's a chance the deployer nonce shifted,
         // the EVM has differing logic, or we are not on an EVM compatable chain.
         require(fxsOft == expectedProxyOfts[0], "Invalid FXS OFT");
@@ -281,14 +282,55 @@ contract DeployFraxOFTProtocol is BaseL0Script {
         L0Config[] memory _configs
     ) public virtual {
         require(_connectedOfts.length == _peerOfts.length, "Must wire equal amount of source + dest addrs");
+        require(frxUsdOft != address(0) && sfrxUsdOft != address(0), "(s)frxUSD ofts are null");
+
         // For each OFT
         for (uint256 o=0; o<_connectedOfts.length; o++) {
+            address peerOft = _peerOfts[o];
+
             // Set the config per chain
             for (uint256 c=0; c<_configs.length; c++) {
+
+                // for fraxtal destination, override OFT address of (s)frxUSD to the standalone lockbox
+                if (_configs[c].chainid == 252) {
+                    if (_connectedOfts[o] == frxUsdOft) {
+                        peerOft = fraxtalFrxUsdLockbox;
+                    } else if (_connectedOfts[o] == sfrxUsdOft) {
+                        peerOft = fraxtalSFrxUsdLockbox;
+                    } else if (_connectedOfts[o] == frxEthOft) {
+                        peerOft = fraxtalFrxEthLockbox;
+                    } else if (_connectedOfts[o] == sfrxEthOft) {
+                        peerOft = fraxtalSFrxEthLockbox;
+                    } else if (_connectedOfts[o] == fxsOft) {
+                        peerOft = fraxtalFxsLockbox;
+                    } else if (_connectedOfts[o] == fpiOft) {
+                        peerOft = fraxtalFpiLockbox;
+                    } else {
+                        require(0==1, "unidentified oft to fraxtal");
+                    }
+                } else {
+                    // Non-fraxtal destination: use the predeterministic address
+                    if (_connectedOfts[o] == frxUsdOft) {
+                        peerOft = frxUsdOft;
+                    } else if (_connectedOfts[o] == sfrxUsdOft) {
+                        peerOft = sfrxUsdOft;
+                    } else if (_connectedOfts[o] == frxEthOft) {
+                        peerOft = frxEthOft;
+                    } else if (_connectedOfts[o] == sfrxEthOft) {
+                        peerOft = sfrxEthOft;
+                    } else if (_connectedOfts[o] == fxsOft) {
+                        peerOft = fxsOft;
+                    } else if (_connectedOfts[o] == fpiOft) {
+                        peerOft = fpiOft;
+                    } else {
+                        require(0==1, "unidentified oft to pre-determined peer");
+                    }
+                }
+
                 setPeer({
                     _config: _configs[c],
                     _connectedOft: _connectedOfts[o],
-                    _peerOftAsBytes32: addressToBytes32(_peerOfts[o])
+                    _peerOftAsBytes32: addressToBytes32(peerOft)
                 });
             }
         }
@@ -425,6 +467,9 @@ contract DeployFraxOFTProtocol is BaseL0Script {
         UlnConfig memory ulnConfig;
         ulnConfig.requiredDVNCount = 2;
         address[] memory requiredDVNs = new address[](2);
+
+        // skip setting up DVN if the address is null
+        if (_connectedConfig.dvnHorizen == address(0)) return;
 
         // sort in ascending order (as spec'd in UlnConfig)
         if (uint160(_connectedConfig.dvnHorizen) < uint160(_connectedConfig.dvnL0)) {

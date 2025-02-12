@@ -280,7 +280,7 @@ contract DeployFraxOFTProtocol is BaseL0Script {
             for (uint256 c=0; c<_configs.length; c++) {
                 address peerOft = determinePeer({
                     _chainid: _configs[c].chainid,
-                    _oft: _connectedOfts[o],
+                    _oft: _expectedPeers[o],
                     _expectedPeers: _expectedPeers
                 });
                 setPeer({
@@ -302,7 +302,7 @@ contract DeployFraxOFTProtocol is BaseL0Script {
         uint256 _chainid,
         address _oft,
         address[] memory _expectedPeers
-    ) public view returns (address peer) {
+    ) public virtual view returns (address peer) {
         if (_chainid == 252) {
             peer = getPeerFromArray({
                 _oft: _oft,
@@ -324,7 +324,7 @@ contract DeployFraxOFTProtocol is BaseL0Script {
         }
     }
 
-    function getPeerFromArray(address _oft, address[] memory _oftArray) public view returns (address peer) {
+    function getPeerFromArray(address _oft, address[] memory _oftArray) public virtual view returns (address peer) {
         require(_oftArray.length == 6, "getPeerFromArray index mismatch");
         /// @dev maintains array of deployFraxOFTUpgradeablesAndProxies(), where proxyOfts is pushed to in the respective order
         if (_oft == fxsOft || _oft == proxyFxsOft) {

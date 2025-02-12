@@ -36,7 +36,7 @@ contract DeployRemainingEthereumLockboxes is DeployFraxOFTProtocol {
 
     // Configure destination OFT addresses as they may be different per chain
     // `connectedOfts` is used within DeployfraxOFTProtocol.setupDestination()
-    function _populateConnectedOfts() public virtual {
+    function _populateConnectedOfts() public override {
         if (simulateConfig.chainid == 252) {
             connectedOfts[0] = fraxtalLockboxes[0];
             connectedOfts[1] = fraxtalLockboxes[1];
@@ -47,6 +47,19 @@ contract DeployRemainingEthereumLockboxes is DeployFraxOFTProtocol {
             connectedOfts[1] = expectedProxyOfts[1];
             connectedOfts[2] = expectedProxyOfts[2];
             connectedOfts[3] = expectedProxyOfts[3];
+        }
+    }
+
+    function getPeerFromArray(address _oft, address[] memory _oftArray) public override view returns (address peer) {
+        require(_oftArray.length == 4, "getPeerFromArray index mismatch");
+        if (_oft == frxEthOft || _oft == proxyFrxEthOft) {
+            peer = _oftArray[0];
+        } else if (_oft == sfrxEthOft || _oft == proxySFrxEthOft) {
+            peer = _oftArray[1];
+        } else if (_oft == fxsOft || _oft == proxyFxsOft) {
+            peer = _oftArray[2];
+        } else if (_oft == fpiOft || _oft == proxyFpiOft) {
+            peer = _oftArray[3];
         }
     }
 
@@ -67,12 +80,12 @@ contract DeployRemainingEthereumLockboxes is DeployFraxOFTProtocol {
         super.run();
     }
 
-    // Additional deployProxyAdmin to get 0x223 addr for proxyAdmin
-    function deploySource() public override {
-        preDeployChecks();
-        deployFraxOFTUpgradeablesAndProxies();
-        // postDeployChecks()
+    function postDeployChecks() public override view {
+        require(proxyOfts.length == 4, "Did not deploy 4 expected OFTs");
     }
+
+    // Skip setting up solana
+    function setupNonEvms() public override pure {}
 
     // Deploy the four lockboxes to any address
     function deployFraxOFTUpgradeablesAndProxies() broadcastAs(configDeployerPK) public override {

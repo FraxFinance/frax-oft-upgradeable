@@ -62,7 +62,7 @@ contract DeployFraxOFTProtocol is BaseL0Script {
 
         setEvmPeers({
             _connectedOfts: connectedOfts,
-            _expectedPeers: proxyOfts,
+            _peerOfts: proxyOfts,
             _configs: broadcastConfigArray 
         });
 
@@ -109,7 +109,7 @@ contract DeployFraxOFTProtocol is BaseL0Script {
         /// @dev Upgradeable OFTs maintaining the same address cross-chain.
         setEvmPeers({
             _connectedOfts: proxyOfts,
-            _expectedPeers: expectedProxyOfts,
+            _peerOfts: expectedProxyOfts,
             _configs: proxyConfigs
         });
     }
@@ -140,7 +140,7 @@ contract DeployFraxOFTProtocol is BaseL0Script {
         }
     }
 
-    function postDeployChecks() public virtual view {
+    function postDeployChecks() internal virtual view {
         require(proxyOfts.length == 6, "Did not deploy all 6 OFTs");
     }
 
@@ -270,18 +270,18 @@ contract DeployFraxOFTProtocol is BaseL0Script {
     /// @dev _connectedOfts refers to the OFTs of the RPC we are currently connected to
     function setEvmPeers(
         address[] memory _connectedOfts,
-        address[] memory _expectedPeers,
+        address[] memory _peerOfts,
         L0Config[] memory _configs
     ) public virtual {
-        require(_connectedOfts.length == _expectedPeers.length, "connectedOfts.length != _expectedPeers.length");
+        require(_connectedOfts.length == _peerOfts.length, "connectedOfts.length != _peerOfts.length");
         // For each OFT
         for (uint256 o=0; o<_connectedOfts.length; o++) {
             // Set the config per chain
             for (uint256 c=0; c<_configs.length; c++) {
                 address peerOft = determinePeer({
                     _chainid: _configs[c].chainid,
-                    _oft: _expectedPeers[o],
-                    _expectedPeers: _expectedPeers
+                    _oft: _peerOfts[o],
+                    _peerOfts: _peerOfts
                 });
                 setPeer({
                     _config: _configs[c],
@@ -301,7 +301,7 @@ contract DeployFraxOFTProtocol is BaseL0Script {
     function determinePeer(
         uint256 _chainid,
         address _oft,
-        address[] memory _expectedPeers
+        address[] memory _peerOfts
     ) public virtual view returns (address peer) {
         if (_chainid == 252) {
             peer = getPeerFromArray({
@@ -318,7 +318,7 @@ contract DeployFraxOFTProtocol is BaseL0Script {
         } else {
             peer = getPeerFromArray({
                 _oft: _oft,
-                _oftArray: _expectedPeers
+                _oftArray: _peerOfts
             });
             require(peer != address(0), "Invalid proxy peer");
         }
@@ -331,7 +331,7 @@ contract DeployFraxOFTProtocol is BaseL0Script {
             peer = _oftArray[0];
         } else if (_oft == sfrxUsdOft || _oft == proxySFrxUsdOft) {
             peer = _oftArray[1];
-        } else if (_oft == sfrxEthOft | _oft == proxySFrxEthOft) {
+        } else if (_oft == sfrxEthOft || _oft == proxySFrxEthOft) {
             peer = _oftArray[2];
         } else if (_oft == frxUsdOft || _oft == proxyFrxUsdOft) {
             peer = _oftArray[3];

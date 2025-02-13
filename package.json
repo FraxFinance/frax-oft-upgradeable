@@ -14,7 +14,14 @@
     "lint:sol": "solhint 'contracts/**/*.sol'",
     "test": "$npm_execpath run test:forge && $npm_execpath run test:hardhat",
     "test:forge": "forge test",
-    "test:hardhat": "hardhat test"
+    "test:hardhat": "hardhat test",
+    "lz:sdk:move:build": "ts-node scripts/cli.ts --vm move --op build",
+    "lz:sdk:move:deploy": "ts-node scripts/cli.ts --vm move --op deploy",
+    "lz:sdk:move:init-fa": "ts-node scripts/cli.ts --vm move --op init-fa",
+    "lz:sdk:move:set-delegate": "ts-node scripts/cli.ts --vm move --op set-delegate",
+    "lz:sdk:move:transfer-oapp-owner": "ts-node scripts/cli.ts --vm move --op transfer-oapp-owner",
+    "lz:sdk:move:transfer-object-owner": "ts-node scripts/cli.ts --vm move --op transfer-object-owner",
+    "lz:sdk:move:wire": "ts-node scripts/cli.ts --vm move --op wire"
   },
   "resolutions": {
     "@nomicfoundation/edr": "0.3.5",

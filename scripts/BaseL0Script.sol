@@ -127,8 +127,10 @@ contract BaseL0Script is L0Constants, Script {
         _;
         vm.stopPrank();
 
-        // serialized txs were pushed within the modified function- write to storage
-        new SafeTxUtil().writeTxs(serializedTxs, filename());
+        // serialized txs may have been pushed within the decorated function- write to file
+        if (serializedTxs.length > 0) {
+            new SafeTxUtil().writeTxs(serializedTxs, filename());
+        }
     }
 
     // Configure destination OFT addresses as they may be different per chain
@@ -136,7 +138,7 @@ contract BaseL0Script is L0Constants, Script {
     function _populateConnectedOfts() public virtual {
         // check to prevent array mismatch.  This will trigger when, for example, managing peers of 2 of 6 OFTs as
         // this method asumes we're managing all 6 OFTs
-        require (proxyOfts.length == 6, "Must override. be careful");
+        require (proxyOfts.length == 6, "proxyOfts.length != 6");
 
         /// @dev order maintained through L0Constants.sol `constructor()` and DeployFraxOFTProtocol.s.sol `deployFraxOFTUpgradeablesAndProxies()`
         if (simulateConfig.chainid == 1) {

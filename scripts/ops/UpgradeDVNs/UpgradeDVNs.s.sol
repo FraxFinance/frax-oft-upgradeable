@@ -23,20 +23,16 @@ contract UpgradeDVNs is DeployFraxOFTProtocol {
 
     using Strings for uint256;
     using stdJson for string;
-
-    address endpoint = 0x1a44076050125825900e736c501f859c50fE728c;
-    // address oft = 0x80Eede496655FB9047dd39d9f418d5483ED600df;
-    address lib = 0x8bC1e36F015b9902B54b1387A4d733cebc2f5A4e;
-    // uint32 eid = uint32(30274);
-    // uint32 configType = uint32(2);
     
     // used in getDvnStack to craft the memory array
     address[] dvnStackTemp;
 
     struct DvnStack {
+        address bcwGroup
         address horizen;
         address lz;
         address nethermind;
+        address stargate;
     }
 
     function filename() public view override returns (string memory) {
@@ -48,14 +44,6 @@ contract UpgradeDVNs is DeployFraxOFTProtocol {
     }
 
     function run() public override {
-        // array of semi-pre-determined upgradeable OFTs
-        proxyOfts.push(0x64445f0aecC51E94aD52d8AC56b7190e764E561a); // fxs
-        proxyOfts.push(0x5Bff88cA1442c2496f7E475E9e7786383Bc070c0); // sFRAX
-        proxyOfts.push(0x3Ec3849C33291a9eF4c5dB86De593EB4A37fDe45); // sfrxETH
-        proxyOfts.push(0x80Eede496655FB9047dd39d9f418d5483ED600df); // FRAX
-        proxyOfts.push(0x43eDD7f3831b08FE70B7555ddD373C8bF65a9050); // frxETH
-        proxyOfts.push(0x90581eCa9469D8D7F5D3B60f4715027aDFCf7927); // FPI
-
         for (uint256 a=0; a<proxyConfigs.length; a++) {
             L0Config memory srcConfig = proxyConfigs[a];
 
@@ -73,8 +61,8 @@ contract UpgradeDVNs is DeployFraxOFTProtocol {
         L0Config[] memory _dstConfigs
     ) public simulateAndWriteTxs(_srcConfig) {
         // loop through ofts
-        for (uint256 o=0; o<proxyOfts.length; o++) {
-            address oft = proxyOfts[o];
+        for (uint256 o=0; o<connectedOfts.length; o++) {
+            address oft = connectedOfts[o];
 
             // set per library
             setLibConfigs({
@@ -205,6 +193,14 @@ contract UpgradeDVNs is DeployFraxOFTProtocol {
         delete dvnStackTemp;
 
         // populate the temporary dvn stack array
+        if (srcDVNs.bcwGroup != address(0) || dstDVNs.bcwGroup != address(0)) {
+            require(
+                srcDVNs.bcwGroup != address(0) && dstDVNs.bcwGroup != address(0),
+                incorrectDvnMatchMsg("bcwGroup", _srcChainId, _dstChainId)
+            );
+            dvnStackTemp.push(srcDVNs.bcwGroup);
+        }
+
         if (srcDVNs.horizen != address(0) || dstDVNs.horizen != address(0)) {
             require(
                 srcDVNs.horizen != address(0) && dstDVNs.horizen != address(0),
@@ -227,6 +223,14 @@ contract UpgradeDVNs is DeployFraxOFTProtocol {
                 incorrectDvnMatchMsg("nethermind", _srcChainId, _dstChainId)
             );
             dvnStackTemp.push(srcDVNs.nethermind);
+        }
+
+        if (srcDVNs.stargate != address(0) || dstDVNs.stargate != address(0)) {
+            require(
+                srcDVNs.stargate != address(0) && dstDVNs.stargate != address(0),
+                incorrectDvnMatchMsg("stargate", _srcChainId, _dstChainId)
+            );
+            dvnStackTemp.push(srcDVNs.stargate);
         }
 
         // populate the output array and sort ascending

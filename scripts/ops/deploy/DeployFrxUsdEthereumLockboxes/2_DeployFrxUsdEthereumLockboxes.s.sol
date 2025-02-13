@@ -52,7 +52,7 @@ contract DeployFrxUsdEthereumLockboxes is DeployFraxOFTProtocol {
     }
 
     // Configure (s)frxUSD addresses to the standalone fraxtal lockboxes, otherwise ethereum lockboxes
-    function _overwriteFrxUsdAddrs() public override {
+    function _overwriteFrxUsdAddrs() public {
         if (simulateConfig.chainid == 252) {
             expectedProxyOfts[0] = fraxtalFrxUsdLockbox;
             expectedProxyOfts[1] = fraxtalSFrxUsdLockbox;

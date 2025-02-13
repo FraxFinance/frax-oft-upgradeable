@@ -12,7 +12,7 @@ TODO
 - Connect to Solana OFTs
 */
 
-// forge script scripts/ops/deploy/DeployRemainingEthereumLockboxes/DeployRemainingEthereumLockboxes.s.sol --rpc-url https://ethereum-rpc.publicnode.com
+// forge script scripts/ops/deploy/DeployRemainingEthereumLockboxes/1_DeployRemainingEthereumLockboxes.s.sol --rpc-url https://ethereum-rpc.publicnode.com
 contract DeployRemainingEthereumLockboxes is DeployFraxOFTProtocol {
 
     using Strings for uint256;
@@ -50,6 +50,26 @@ contract DeployRemainingEthereumLockboxes is DeployFraxOFTProtocol {
         }
     }
 
+    function determinePeer(
+        uint256 _chainid,
+        address _oft,
+        address[] memory _peerOfts
+    ) public override view returns (address peer) {
+        if (_chainid == 252) {
+            peer = getPeerFromArray({
+                _oft: _oft,
+                _oftArray: fraxtalLockboxes
+            });
+            require(peer != address(0), "Invalid fraxtal peer");
+        } else {
+            peer = getPeerFromArray({
+                _oft: _oft,
+                _oftArray: _peerOfts
+            });
+            require(peer != address(0), "Invalid proxy peer");
+        }
+    }
+
     function getPeerFromArray(address _oft, address[] memory _oftArray) public override view returns (address peer) {
         require(_oftArray.length == 4, "getPeerFromArray index mismatch");
         if (_oft == frxEthOft || _oft == proxyFrxEthOft) {
@@ -64,28 +84,44 @@ contract DeployRemainingEthereumLockboxes is DeployFraxOFTProtocol {
     }
 
     function run() public override {
-        // set expectedProxyOfts to [frxEthOft, sfrxEthOft, fxsOft, fpiOft]
-        delete expectedProxyOfts;
-        expectedProxyOfts.push(frxEthOft);
-        expectedProxyOfts.push(sfrxEthOft);
-        expectedProxyOfts.push(fxsOft);
-        expectedProxyOfts.push(fpiOft);
-
+        // [frxEthOft, sfrxEthOft, fxsOft, fpiOft]
         delete fraxtalLockboxes;
         fraxtalLockboxes.push(fraxtalFrxEthLockbox);
         fraxtalLockboxes.push(fraxtalSFrxEthLockbox);
         fraxtalLockboxes.push(fraxtalFxsLockbox);
         fraxtalLockboxes.push(fraxtalFpiLockbox);
 
+        delete expectedProxyOfts;
+        expectedProxyOfts.push(proxyFrxEthOft);
+        expectedProxyOfts.push(proxySFrxEthOft);
+        expectedProxyOfts.push(proxyFxsOft);
+        expectedProxyOfts.push(proxyFpiOft);
+
+        connectedOfts = new address[](expectedProxyOfts.length);
+
         super.run();
     }
 
-    function postDeployChecks() public override view {
+    function postDeployChecks() internal override view {
         require(proxyOfts.length == 4, "Did not deploy 4 expected OFTs");
     }
 
     // Skip setting up solana
     function setupNonEvms() public override pure {}
+
+    // ProxyAdmin ownership already transferred when deploying (s)frxUSD lockboxes
+    // https://etherscan.io/tx/0xe850df76dfa2edd21c6ac64e2c24a4f12935cf3116163d5a417a9568ca7f373e#eventlog
+    function setPriviledgedRoles() public override {
+        /// @dev transfer ownership of OFT
+        for (uint256 o=0; o<proxyOfts.length; o++) {
+            address proxyOft = proxyOfts[o];
+            FraxOFTUpgradeable(proxyOft).setDelegate(broadcastConfig.delegate);
+            Ownable(proxyOft).transferOwnership(broadcastConfig.delegate);
+        }
+
+        // Ownable(proxyAdmin).transferOwnership(broadcastConfig.delegate);
+    }
+
 
     // Deploy the four lockboxes to any address
     function deployFraxOFTUpgradeablesAndProxies() broadcastAs(configDeployerPK) public override {

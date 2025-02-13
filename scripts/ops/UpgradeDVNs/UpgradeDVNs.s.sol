@@ -23,12 +23,15 @@ contract UpgradeDVNs is DeployFraxOFTProtocol {
 
     using Strings for uint256;
     using stdJson for string;
-    
+
     // used in getDvnStack to craft the memory array
     address[] dvnStackTemp;
 
+    // Used in writing filename
+    L0Config dstConfig;
+
     struct DvnStack {
-        address bcwGroup
+        address bcwGroup;
         address horizen;
         address lz;
         address nethermind;
@@ -39,13 +42,17 @@ contract UpgradeDVNs is DeployFraxOFTProtocol {
         string memory root = vm.projectRoot();
         root = string.concat(root, "/scripts/ops/UpgradeDVNs/txs/");
 
-        string memory name = string.concat(simulateConfig.chainid.toString(), ".json");
+        string memory name = string.concat(simulateConfig.chainid.toString(), "-");
+        name = string.concat(name, dstConfig.chainid.toString());
+        name = string.concat(name, ".json");
         return string.concat(root, name);
     }
 
     function run() public override {
-        for (uint256 a=0; a<proxyConfigs.length; a++) {
-            L0Config memory srcConfig = proxyConfigs[a];
+        proxyOfts = new address[](6);
+
+        for (uint256 s=0; s<proxyConfigs.length; s++) {
+            L0Config memory srcConfig = proxyConfigs[s];
 
             // NOTE: only checking for fraxtal <> xlayer
             if (srcConfig.chainid != 196 && srcConfig.chainid != 252) continue;
@@ -59,62 +66,58 @@ contract UpgradeDVNs is DeployFraxOFTProtocol {
     function setAllConfigs(
         L0Config memory _srcConfig,
         L0Config[] memory _dstConfigs
-    ) public simulateAndWriteTxs(_srcConfig) {
+    ) public {
         // loop through ofts
-        for (uint256 o=0; o<connectedOfts.length; o++) {
-            address oft = connectedOfts[o];
+        for (uint256 d=0; d<_dstConfigs.length; d++) {
+            dstConfig = _dstConfigs[d];
 
-            // set per library
-            setLibConfigs({
-                _srcConfig: _srcConfig,
-                _connectedOft: oft,
-                _dstConfigs: _dstConfigs,
-                _lib: _srcConfig.sendLib302
-            });
+            // cannot set dvn options to self
+            if (_srcConfig.chainid == dstConfig.chainid) continue;
 
-            // set per library
-            setLibConfigs({
+            // NOTE: only checking for fraxtal <> xlayer
+            if (dstConfig.chainid != 196 && dstConfig.chainid != 252) continue;
+
+            setConfigs({
                 _srcConfig: _srcConfig,
-                _connectedOft: oft,
-                _dstConfigs: _dstConfigs,
-                _lib: _srcConfig.receiveLib302
+                _dstConfig: dstConfig
             });
         }
     }
 
-    function setLibConfigs(
+    function setConfigs(
         L0Config memory _srcConfig,
-        address _connectedOft,
-        L0Config[] memory _dstConfigs,
-        address _lib
-    ) public {
-        for (uint256 c=0; c<_dstConfigs.length; c++) {
-            // cannot set dvn options to self
-            if (block.chainid == _dstConfigs[c].chainid) continue;
-
-            // NOTE: only checking for fraxtal <> xlayer
-            if (_dstConfigs[c].chainid != 196 && _dstConfigs[c].chainid != 252) continue;
+        L0Config memory _dstConfig
+    ) public virtual simulateAndWriteTxs(_srcConfig) {
+        for (uint256 o=0; o<connectedOfts.length; o++) {
+            address oft = connectedOfts[o];
 
             setConfig({
                 _srcConfig: _srcConfig,
-                _connectedOft: _connectedOft,
-                _dstConfig: _dstConfigs[c],
-                _lib: _lib
+                _dstConfig: _dstConfig,
+                _lib: _srcConfig.sendLib302,
+                _oft: oft
+            });
+
+            setConfig({
+                _srcConfig: _srcConfig,
+                _dstConfig: _dstConfig,
+                _lib: _srcConfig.receiveLib302,
+                _oft: oft
             });
         }
     }
 
     function setConfig(
         L0Config memory _srcConfig,
-        address _connectedOft,
         L0Config memory _dstConfig,
-        address _lib
+        address _lib,
+        address _oft
     ) public {
         // get the current DVN stack for the given oft and library
         bytes memory currentUlnConfigBytes = IMessageLibManager(_srcConfig.endpoint).getConfig({
-            _oapp: _connectedOft,
+            _oapp: _oft,
             _lib: _lib,
-            _eid: uint32(_srcConfig.eid),
+            _eid: uint32(_dstConfig.eid),
             _configType: Constant.CONFIG_TYPE_ULN
         });
         UlnConfig memory currentUlnConfig = abi.decode(currentUlnConfigBytes, (UlnConfig));
@@ -145,7 +148,7 @@ contract UpgradeDVNs is DeployFraxOFTProtocol {
         bytes memory data = abi.encodeCall(
             IMessageLibManager.setConfig,
             (
-                _connectedOft,
+                _oft,
                 _lib,
                 setConfigParamArray
             )
@@ -193,14 +196,6 @@ contract UpgradeDVNs is DeployFraxOFTProtocol {
         delete dvnStackTemp;
 
         // populate the temporary dvn stack array
-        if (srcDVNs.bcwGroup != address(0) || dstDVNs.bcwGroup != address(0)) {
-            require(
-                srcDVNs.bcwGroup != address(0) && dstDVNs.bcwGroup != address(0),
-                incorrectDvnMatchMsg("bcwGroup", _srcChainId, _dstChainId)
-            );
-            dvnStackTemp.push(srcDVNs.bcwGroup);
-        }
-
         if (srcDVNs.horizen != address(0) || dstDVNs.horizen != address(0)) {
             require(
                 srcDVNs.horizen != address(0) && dstDVNs.horizen != address(0),
@@ -223,14 +218,6 @@ contract UpgradeDVNs is DeployFraxOFTProtocol {
                 incorrectDvnMatchMsg("nethermind", _srcChainId, _dstChainId)
             );
             dvnStackTemp.push(srcDVNs.nethermind);
-        }
-
-        if (srcDVNs.stargate != address(0) || dstDVNs.stargate != address(0)) {
-            require(
-                srcDVNs.stargate != address(0) && dstDVNs.stargate != address(0),
-                incorrectDvnMatchMsg("stargate", _srcChainId, _dstChainId)
-            );
-            dvnStackTemp.push(srcDVNs.stargate);
         }
 
         // populate the output array and sort ascending

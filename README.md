@@ -4,7 +4,12 @@ This repository contains all of the contracts and deployment code used to manage
 
 ## Contracts & Addresses
 ### Admin
-- `ProxyAdmin`: `0x223a681fc5c5522c85c96157c0efa18cd6c5405c`
+- `ProxyAdmin`
+  - `Mode`, `Sei`, `X-Layer`, `Ink`, `Sonic`, `Arbitrum`, `Optimism`, `Polygon`, `BSC`
+    - `0x223a681fc5c5522c85c96157c0efa18cd6c5405c`
+  - `ZKSync`
+    - TODO
+
 - Msigs (links to gnosis safe)
   - [`Ethereum`](https://app.safe.global/home?safe=eth:0xB1748C79709f4Ba2Dd82834B8c82D4a505003f27)
   - [`Blast`](https://blast-safe.io/home?safe=blast:0x33A133020b2C2CD41a24F74033B11EC2fC0bF97a)
@@ -26,14 +31,16 @@ This repository contains all of the contracts and deployment code used to manage
 
 ### Proxy (upgradeable) OFTs
 - Chain: `Mode`, `Sei`, `X-Layer`, `Ink`, `Sonic`, `Arbitrum`, `Optimism`, `Polygon`, `BSC`
-- Admin: `ProxyAdmin` (owned by chain-respective msig)
-- OFTs
-  - `frxUSD`: `0x80Eede496655FB9047dd39d9f418d5483ED600df`
-  - `sfrxUSD`: `0x5Bff88cA1442c2496f7E475E9e7786383Bc070c0`
-  - `frxETH`: `0x43eDD7f3831b08FE70B7555ddD373C8bF65a9050`
-  - `sfrxETH`: `0x3Ec3849C33291a9eF4c5dB86De593EB4A37fDe45`
-  - `FXS`: `0x64445f0aecC51E94aD52d8AC56b7190e764E561a`
-  - `FPI` : `0x90581eCa9469D8D7F5D3B60f4715027aDFCf7927`
+  - OFTs
+    - `frxUSD`: `0x80Eede496655FB9047dd39d9f418d5483ED600df`
+    - `sfrxUSD`: `0x5Bff88cA1442c2496f7E475E9e7786383Bc070c0`
+    - `frxETH`: `0x43eDD7f3831b08FE70B7555ddD373C8bF65a9050`
+    - `sfrxETH`: `0x3Ec3849C33291a9eF4c5dB86De593EB4A37fDe45`
+    - `FXS`: `0x64445f0aecC51E94aD52d8AC56b7190e764E561a`
+    - `FPI` : `0x90581eCa9469D8D7F5D3B60f4715027aDFCf7927`
+- Chain: `ZkSync`
+  - OFTs
+    - TODO
 
 ### Lockbox design
 Frax operates a dual-lockbox design where users can exit their OFT token into the native Frax-asset token on both Ethereum and Fraxtal.  Utilizing a dual-lockbox design is a novel solution to bridging as liquidity is  unlocked from more than one location.  More about this solution is be explained in the [docs](TODO).

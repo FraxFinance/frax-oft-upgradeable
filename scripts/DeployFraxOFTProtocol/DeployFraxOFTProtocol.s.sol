@@ -430,7 +430,7 @@ contract DeployFraxOFTProtocol is BaseL0Script {
 
         setEnforcedOptions({
             _connectedOfts: _connectedOfts,
-            _configs: aptosConfigArray,
+            _configs: configs,
             _optionsTypeOne: optionsTypeOne,
             _optionsTypeTwo: optionsTypeTwo
         });

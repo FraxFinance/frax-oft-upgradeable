@@ -18,11 +18,7 @@ contract SetupAptosSingle is DeployFraxOFTProtocol {
     }
 
     function run() public override {
-        for (uint256 i=0; i<nonEvmConfigs.length; i++) {
-            if (nonEvmConfigs[i].eid == 30108) {
-                aptosConfigArray.push(nonEvmConfgis[i]);
-            }
-        }
+        aptosConfigArray.push(nonEvmConfigs[1]);
         require(aptosConfigArray.length == 1, "Aptos config not added");
         require(aptosConfigArray[0].eid == 30108, "Not aptos config");
 

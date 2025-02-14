@@ -49,18 +49,13 @@ contract UpgradeDVNs is DeployFraxOFTProtocol {
     }
 
     function run() public override {
+        /// @dev to skip checks
         proxyOfts = new address[](6);
 
-        for (uint256 s=0; s<proxyConfigs.length; s++) {
-            L0Config memory srcConfig = proxyConfigs[s];
-
-            // NOTE: only checking for fraxtal <> xlayer
-            if (srcConfig.chainid != 196 && srcConfig.chainid != 252) continue;
-            setAllConfigs({
-                _srcConfig: srcConfig,
-                _dstConfigs: proxyConfigs                
-            });
-        }
+        setAllConfigs({
+            _srcConfig: broadcastConfig,
+            _dstConfigs: proxyConfigs
+        });
     }
 
     function setAllConfigs(
@@ -73,9 +68,6 @@ contract UpgradeDVNs is DeployFraxOFTProtocol {
 
             // cannot set dvn options to self
             if (_srcConfig.chainid == dstConfig.chainid) continue;
-
-            // NOTE: only checking for fraxtal <> xlayer
-            if (dstConfig.chainid != 196 && dstConfig.chainid != 252) continue;
 
             setConfigs({
                 _srcConfig: _srcConfig,

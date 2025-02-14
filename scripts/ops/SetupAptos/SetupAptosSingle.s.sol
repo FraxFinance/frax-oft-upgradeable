@@ -52,21 +52,6 @@ contract SetupAptosSingle is DeployFraxOFTProtocol {
         });
     }
 
-    function setAptosEnforcedOptions(
-        address[] memory _connectedOfts
-    ) public {
-        // TODO: change these, [200_000, 2_500_000] is solana config
-        bytes memory optionsTypeOne = OptionsBuilder.newOptions().addExecutorLzReceiveOption(200_000, 2_500_000);
-        bytes memory optionsTypeTwo = OptionsBuilder.newOptions().addExecutorLzReceiveOption(200_000, 2_500_000);
-
-        setEnforcedOptions({
-            _connectedOfts: _connectedOfts,
-            _configs: aptosConfigArray,
-            _optionsTypeOne: optionsTypeOne,
-            _optionsTypeTwo: optionsTypeTwo
-        });
-    }
-
     function setAptosPeers(
         L0Config memory _connectedConfig,
         address[] memory _connectedOfts

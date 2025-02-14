@@ -120,6 +120,11 @@ contract DeployFraxOFTProtocol is BaseL0Script {
         setSolanaEnforcedOptions({
             _connectedOfts: proxyOfts
         });
+
+        // TODO: should be connectedOfts after merging with master
+        setAptosEnforcedOptions({
+            _connectedOfts: proxyOfts
+        });
         
         /// @dev: additional enforced options for non-evms set here
 
@@ -412,6 +417,25 @@ contract DeployFraxOFTProtocol is BaseL0Script {
             _optionsTypeTwo: optionsTypeTwo
         });
     }
+
+    function setAptosEnforcedOptions(
+        address[] memory _connectedOfts
+    ) public virtual {
+        // TODO: change these, [200_000, 2_500_000] is solana config
+        bytes memory optionsTypeOne = OptionsBuilder.newOptions().addExecutorLzReceiveOption(200_000, 2_500_000);
+        bytes memory optionsTypeTwo = OptionsBuilder.newOptions().addExecutorLzReceiveOption(200_000, 2_500_000);
+
+        L0Config[] memory configs = new L0Config[](1);
+        configs[0] = nonEvmConfigs[0]; // mapped to Aptos
+
+        setEnforcedOptions({
+            _connectedOfts: _connectedOfts,
+            _configs: aptosConfigArray,
+            _optionsTypeOne: optionsTypeOne,
+            _optionsTypeTwo: optionsTypeTwo
+        });
+    }
+
 
     function setEnforcedOptions(
         address[] memory _connectedOfts,

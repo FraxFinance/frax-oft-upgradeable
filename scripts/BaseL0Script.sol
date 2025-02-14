@@ -64,11 +64,11 @@ contract BaseL0Script is L0Constants, Script {
     /// @dev alphabetical order as json is read in by keys alphabetically.
     struct NonEvmPeer {
         bytes32 fpi;
-        bytes32 frax;
         bytes32 frxEth;
+        bytes32 frxUsd;
         bytes32 fxs;
-        bytes32 sFrax;
-        bytes32 sFrxEth;
+        bytes32 sfrxEth;
+        bytes32 sfrxUsd;
     }
     bytes32[][] public nonEvmPeersArrays;
 
@@ -237,9 +237,9 @@ contract BaseL0Script is L0Constants, Script {
             NonEvmPeer memory peer = nonEvmPeers[i];
             bytes32[] memory peerArray = new bytes32[](6);
             peerArray[0] = peer.fxs;
-            peerArray[1] = peer.sFrax; // TODO: modify to sfrxUSD
-            peerArray[2] = peer.sFrxEth;
-            peerArray[3] = peer.frax;
+            peerArray[1] = peer.sfrxUsd; 
+            peerArray[2] = peer.sfrxEth;
+            peerArray[3] = peer.frxUsd;
             peerArray[4] = peer.frxEth;
             peerArray[5] = peer.fpi;
 

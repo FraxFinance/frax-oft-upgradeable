@@ -121,7 +121,6 @@ contract DeployFraxOFTProtocol is BaseL0Script {
             _connectedOfts: proxyOfts
         });
 
-        // TODO: should be connectedOfts after merging with master
         setAptosEnforcedOptions({
             _connectedOfts: proxyOfts
         });

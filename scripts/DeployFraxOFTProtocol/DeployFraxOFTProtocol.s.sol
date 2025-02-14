@@ -426,7 +426,7 @@ contract DeployFraxOFTProtocol is BaseL0Script {
         bytes memory optionsTypeTwo = OptionsBuilder.newOptions().addExecutorLzReceiveOption(200_000, 2_500_000);
 
         L0Config[] memory configs = new L0Config[](1);
-        configs[0] = nonEvmConfigs[0]; // mapped to Aptos
+        configs[0] = nonEvmConfigs[1]; // mapped to Aptos
 
         setEnforcedOptions({
             _connectedOfts: _connectedOfts,

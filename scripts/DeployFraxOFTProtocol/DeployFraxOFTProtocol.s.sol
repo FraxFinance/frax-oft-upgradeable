@@ -14,7 +14,7 @@ contract DeployFraxOFTProtocol is BaseL0Script {
     using Strings for uint256;
 
     function version() public virtual override pure returns (uint256, uint256, uint256) {
-        return (1, 2, 7);
+        return (1, 2, 8);
     }
 
     function setUp() public virtual override {
@@ -345,7 +345,7 @@ contract DeployFraxOFTProtocol is BaseL0Script {
             // For each non-evm
             for (uint256 c=0; c<nonEvmPeersArrays.length; c++) {
                 setPeer({
-                    _config: broadcastConfig,
+                    _config: nonEvmConfigs[c],
                     _connectedOft: _connectedOfts[o],
                     _peerOftAsBytes32: nonEvmPeersArrays[c][o]
                 });

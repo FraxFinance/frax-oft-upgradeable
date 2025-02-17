@@ -65,9 +65,9 @@ contract L0Constants {
         connectedOfts = new address[](expectedProxyOfts.length);
 
         ethLockboxesLegacy.push(ethFxsLockboxLegacy);
-        ethLockboxesLegacy.push(ethSFrxUsdLockboxLegacy);
+        ethLockboxesLegacy.push(ethSFraxLockboxLegacy);
         ethLockboxesLegacy.push(ethSFrxEthLockboxLegacy);
-        ethLockboxesLegacy.push(ethFrxUsdLockboxLegacy);
+        ethLockboxesLegacy.push(ethFraxLockboxLegacy);
         ethLockboxesLegacy.push(ethFrxEthLockboxLegacy);
         ethLockboxesLegacy.push(ethFpiLockboxLegacy);
     }

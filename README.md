@@ -54,14 +54,22 @@ Frax operates a dual-lockbox design where users can exit their OFT token into th
 - `FPI`: `0x75c38D46001b0F8108c4136216bd2694982C20FC`
 
 #### Ethereum Lockboxes
-- `frxUSD`: `0x566a6442A5A6e9895B9dCA97cC7879D632c6e4B0`
-- `sfrxUSD`: `0x7311CEA93ccf5f4F7b789eE31eBA5D9B9290E126`
-- `frxETH` : `0xF010a7c8877043681D59AD125EbF575633505942`
-- `sfrxETH`: `0x1f55a02A049033E3419a8E2975cF3F572F4e6E9A`
-- `FXS`: `0x23432452B720C80553458496D4D9d7C5003280d0`
-- `FPI`: `0x6Eca253b102D41B6B69AC815B9CC6bD47eF1979d`
-- `FRAX` (legacy): `0x909DBdE1eBE906Af95660033e478D59EFe831fED`
-- `sFRAX` (legacy): `0xe4796cCB6bB5DE2290C417Ac337F2b66CA2E770E`
+There are two sets of Ethereum lockboxes: (1) the upgradeable lockboxes used in current deployments and (2) legacy immutable lockboxes used to unlock immutable OFT liquidity.
+You can expect to use (1) unless you are holding OFTs on Base, Blast, or Metis prior to February 2025.  Legacy liquidity can be unlocked through Stargate UI.
+1. Upgradeable (current) Lockboxes
+  - `frxUSD`: `0x566a6442A5A6e9895B9dCA97cC7879D632c6e4B0`
+  - `sfrxUSD`: `0x7311CEA93ccf5f4F7b789eE31eBA5D9B9290E126`
+  - `frxETH` : `0x1c1649A38f4A3c5A0c4a24070f688C525AB7D6E6`
+  - `sfrxETH`: `0xbBc424e58ED38dd911309611ae2d7A23014Bd960`
+  - `FXS`: `0xC6F59a4fD50cAc677B51558489E03138Ac1784EC`
+  - `FPI`: `0x9033BAD7aA130a2466060A2dA71fAe2219781B4b`
+2. Immutable (legacy) Lockboxes
+  - `FRAX`: `0x909DBdE1eBE906Af95660033e478D59EFe831fED`
+  - `sFRAX`: `0xe4796cCB6bB5DE2290C417Ac337F2b66CA2E770E`
+  - `frxETH` : `0xF010a7c8877043681D59AD125EbF575633505942`
+  - `sfrxETH`: `0x1f55a02A049033E3419a8E2975cF3F572F4e6E9A`
+  - `FXS`: `0x23432452B720C80553458496D4D9d7C5003280d0`
+  - `FPI`: `0x6Eca253b102D41B6B69AC815B9CC6bD47eF1979d`
 
 ### Solana
 - Admin: Chain-respective msig

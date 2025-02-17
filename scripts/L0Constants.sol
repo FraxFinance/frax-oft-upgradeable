@@ -38,8 +38,6 @@ contract L0Constants {
     address public ethFxsLockboxLegacy = 0x23432452B720C80553458496D4D9d7C5003280d0;
     address public ethFpiLockboxLegacy = 0x6Eca253b102D41B6B69AC815B9CC6bD47eF1979d;
 
-
-
     constructor() {
         // array of semi-pre-determined upgradeable OFTs
         /// @dev: this array maintains the same token order as proxyOfts

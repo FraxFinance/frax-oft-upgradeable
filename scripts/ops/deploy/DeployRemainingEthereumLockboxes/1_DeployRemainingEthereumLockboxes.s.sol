@@ -12,7 +12,7 @@ TODO
 - Connect to Solana OFTs
 */
 
-// forge script scripts/ops/deploy/DeployRemainingEthereumLockboxes/1_DeployRemainingEthereumLockboxes.s.sol --rpc-url https://ethereum-rpc.publicnode.com
+// forge script scripts/ops/deploy/DeployRemainingEthereumLockboxes/1_DeployRemainingEthereumLockboxes.s.sol --rpc-url https://ethereum-rpc.publicnode.com --verify --etherscan-api-key $ETHERSCAN_API_KEY --broadcast
 contract DeployRemainingEthereumLockboxes is DeployFraxOFTProtocol {
 
     using Strings for uint256;

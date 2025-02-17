@@ -14,7 +14,7 @@ contract DeployFraxOFTProtocol is BaseL0Script {
     using Strings for uint256;
 
     function version() public virtual override pure returns (uint256, uint256, uint256) {
-        return (1, 2, 7);
+        return (1, 2, 8);
     }
 
     function setUp() public virtual override {
@@ -118,6 +118,10 @@ contract DeployFraxOFTProtocol is BaseL0Script {
         require(proxyOfts.length == 6, "Error: non-evm setup will be incorrect");
 
         setSolanaEnforcedOptions({
+            _connectedOfts: proxyOfts
+        });
+
+        setAptosEnforcedOptions({
             _connectedOfts: proxyOfts
         });
         
@@ -345,7 +349,7 @@ contract DeployFraxOFTProtocol is BaseL0Script {
             // For each non-evm
             for (uint256 c=0; c<nonEvmPeersArrays.length; c++) {
                 setPeer({
-                    _config: broadcastConfig,
+                    _config: nonEvmConfigs[c],
                     _connectedOft: _connectedOfts[o],
                     _peerOftAsBytes32: nonEvmPeersArrays[c][o]
                 });
@@ -412,6 +416,25 @@ contract DeployFraxOFTProtocol is BaseL0Script {
             _optionsTypeTwo: optionsTypeTwo
         });
     }
+
+    function setAptosEnforcedOptions(
+        address[] memory _connectedOfts
+    ) public virtual {
+        // TODO: change these, [200_000, 2_500_000] is solana config
+        bytes memory optionsTypeOne = OptionsBuilder.newOptions().addExecutorLzReceiveOption(200_000, 2_500_000);
+        bytes memory optionsTypeTwo = OptionsBuilder.newOptions().addExecutorLzReceiveOption(200_000, 2_500_000);
+
+        L0Config[] memory configs = new L0Config[](1);
+        configs[0] = nonEvmConfigs[1]; // mapped to Aptos
+
+        setEnforcedOptions({
+            _connectedOfts: _connectedOfts,
+            _configs: configs,
+            _optionsTypeOne: optionsTypeOne,
+            _optionsTypeTwo: optionsTypeTwo
+        });
+    }
+
 
     function setEnforcedOptions(
         address[] memory _connectedOfts,

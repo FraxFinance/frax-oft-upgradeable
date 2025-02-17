@@ -59,7 +59,6 @@ contract BaseL0Script is L0Constants, Script {
     L0Config public broadcastConfig; // config of actively-connected (broadcasting) chain
     L0Config public simulateConfig;  // Config of the simulated chain
     L0Config[] public broadcastConfigArray; // length of 1 of broadcastConfig
-    bool public activeLegacy; // true if we're broadcasting to legacy chain (setup by L0 team)
 
     /// @dev alphabetical order as json is read in by keys alphabetically.
     struct NonEvmPeer {
@@ -196,7 +195,6 @@ contract BaseL0Script is L0Constants, Script {
             if (config_.chainid == block.chainid) {
                 broadcastConfig = config_;
                 broadcastConfigArray.push(config_);
-                activeLegacy = true;
             }
             legacyConfigs.push(config_);
             allConfigs.push(config_);
@@ -210,11 +208,13 @@ contract BaseL0Script is L0Constants, Script {
             if (config_.chainid == block.chainid) {
                 broadcastConfig = config_;
                 broadcastConfigArray.push(config_);
-                activeLegacy = false;
             }
             proxyConfigs.push(config_);
-            allConfigs.push(config_);
-            evmConfigs.push(config_);
+            // skip pushing Eth config as it was already added through legacyConfigs
+            if (config_.chainid != 1) {
+                allConfigs.push(config_);
+                evmConfigs.push(config_);
+            }
         }
 
         // Non-EVM allConfigs

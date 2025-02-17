@@ -8,6 +8,8 @@ contract SubmitSends is BaseL0Script {
     using stdJson for string;
     using Strings for uint256;
 
+    bool activeLegacy;
+
     function version() public pure override returns (uint256, uint256, uint256) {
         return (1, 1, 2);
     }
@@ -22,7 +24,7 @@ contract SubmitSends is BaseL0Script {
 
     function submitSends() public {
         activeLegacy ? 
-            submitSends(legacyOfts) :
+            submitSends(ethLockboxesLegacy) :
             submitSends(expectedProxyOfts);
     }
 

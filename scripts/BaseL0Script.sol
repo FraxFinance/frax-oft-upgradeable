@@ -15,6 +15,7 @@ import { ImplementationMock } from "contracts/mocks/ImplementationMock.sol";
 import { Ownable } from "@openzeppelin/contracts/access/Ownable.sol";
 import { Strings } from "@openzeppelin/contracts/utils/Strings.sol";
 import { IERC20 } from "@openzeppelin/contracts/token/ERC20/IERC20.sol";
+import {Arrays} from "@openzeppelin-5/contracts/utils/Arrays.sol";
 
 import { MessagingParams, MessagingReceipt, Origin } from "@fraxfinance/layerzero-v2-upgradeable/protocol/contracts/interfaces/ILayerZeroEndpointV2.sol";
 import { EndpointV2 } from "@fraxfinance/layerzero-v2-upgradeable/protocol/contracts/EndpointV2.sol";
@@ -28,7 +29,8 @@ import { SendParam, OFTReceipt, MessagingFee, IOFT } from "@fraxfinance/layerzer
 import { ProxyAdmin, TransparentUpgradeableProxy } from "@fraxfinance/layerzero-v2-upgradeable/messagelib/contracts/upgradeable/proxy/ProxyAdmin.sol";
 import { UlnConfig } from "@fraxfinance/layerzero-v2-upgradeable/messagelib/contracts/uln/UlnBase.sol";
 import { Constant } from "@fraxfinance/layerzero-v2-upgradeable/messagelib/test/util/Constant.sol";
-    
+
+
 contract BaseL0Script is L0Constants, Script {
 
     using OptionsBuilder for bytes;
@@ -89,11 +91,11 @@ contract BaseL0Script is L0Constants, Script {
     address[] public legacyOfts;
     address[] public proxyOfts; // the OFTs deployed through `DeployFraxOFTProtocol.s.sol`
 
+    // temporary storage
     EnforcedOptionParam[] public enforcedOptionParams;
-
-    SetConfigParam[] public setConfigParams;
-
+    SetConfigParam[] public setConfigParams; // deprecated
     SerializedTx[] public serializedTxs;
+    address[] dvnStackTemp;
 
     string public json;
 

@@ -31,10 +31,12 @@
   "devDependencies": {
     "@babel/core": "^7.23.9",
     "@fraxfinance/layerzero-v2-upgradeable": "git://github.com/fraxfinance/LayerZero-v2-upgradeable.git#v1.0.0",
+    "@layerzerolabs/lz-definitions": "^3.0.68",
     "@layerzerolabs/lz-evm-messagelib-v2": "~2.3.21",
     "@layerzerolabs/lz-evm-oapp-v2": "~2.3.19",
     "@layerzerolabs/lz-evm-protocol-v2": "~2.3.3",
     "@layerzerolabs/toolbox-foundry": "~0.1.5",
+    "@layerzerolabs/toolbox-hardhat": "^0.6.6",
     "@openzeppelin/contracts": "^4.8.1",
     "@openzeppelin/contracts-upgradeable": "^4.8.1",
     "@rushstack/eslint-patch": "^1.7.0",

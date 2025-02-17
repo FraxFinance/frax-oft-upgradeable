@@ -26,13 +26,19 @@ contract L0Constants {
 
     address public ethFrxUsdLockbox = 0x566a6442A5A6e9895B9dCA97cC7879D632c6e4B0;
     address public ethSFrxUsdLockbox = 0x7311CEA93ccf5f4F7b789eE31eBA5D9B9290E126;
-    address public ethFrxEthLockbox = 0xF010a7c8877043681D59AD125EbF575633505942;
-    address public ethSFrxEthLockbox = 0x1f55a02A049033E3419a8E2975cF3F572F4e6E9A;
-    address public ethFxsLockbox = 0x23432452B720C80553458496D4D9d7C5003280d0; // TODO - upgrade 
-    address public ethFpiLockbox = 0x6Eca253b102D41B6B69AC815B9CC6bD47eF1979d;
+    address public ethFrxEthLockbox = 0x1c1649A38f4A3c5A0c4a24070f688C525AB7D6E6;
+    address public ethSFrxEthLockbox = 0xbBc424e58ED38dd911309611ae2d7A23014Bd960;
+    address public ethFxsLockbox = 0xC6F59a4fD50cAc677B51558489E03138Ac1784EC; // TODO - upgrade 
+    address public ethFpiLockbox = 0x9033BAD7aA130a2466060A2dA71fAe2219781B4b;
 
     address public ethFraxLockboxLegacy = 0x909DBdE1eBE906Af95660033e478D59EFe831fED;
     address public ethSFraxLockboxLegacy = 0xe4796cCB6bB5DE2290C417Ac337F2b66CA2E770E;
+    address public ethFrxEthLockboxLegacy = 0xF010a7c8877043681D59AD125EbF575633505942;
+    address public ethSFrxEthLockboxLegacy = 0x1f55a02A049033E3419a8E2975cF3F572F4e6E9A;
+    address public ethFxsLockboxLegacy = 0x23432452B720C80553458496D4D9d7C5003280d0;
+    address public ethFpiLockboxLegacy = 0x6Eca253b102D41B6B69AC815B9CC6bD47eF1979d;
+
+
 
     constructor() {
         // array of semi-pre-determined upgradeable OFTs
@@ -60,7 +66,11 @@ contract L0Constants {
 
         connectedOfts = new address[](expectedProxyOfts.length);
 
-        ethLockboxesLegacy.push(ethFraxLockboxLegacy);
-        ethLockboxesLegacy.push(ethSFraxLockboxLegacy);
+        ethLockboxesLegacy.push(ethFxsLockboxLegacy);
+        ethLockboxesLegacy.push(ethSFrxUsdLockboxLegacy);
+        ethLockboxesLegacy.push(ethSFrxEthLockboxLegacy);
+        ethLockboxesLegacy.push(ethFrxUsdLockboxLegacy);
+        ethLockboxesLegacy.push(ethFrxEthLockboxLegacy);
+        ethLockboxesLegacy.push(ethFpiLockboxLegacy);
     }
 }

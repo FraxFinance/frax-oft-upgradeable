@@ -23,6 +23,17 @@
             "sendLib302": "0x63e39ccB510926d05a0ae7817c8f1CC61C5BdD6c"
         },
         {
+            "RPC": "https://rpc.blast.io",
+            "chainid": 81457,
+            "delegate": "0x33A133020b2C2CD41a24F74033B11EC2fC0bF97a",
+            "dvnHorizen": "0xc097ab8cd7b053326dfe9fb3e3a31a0cce3b526f",
+            "dvnL0": "0x70BF42C69173d6e33b834f59630DAC592C70b369",
+            "eid": 30243,
+            "endpoint": "0x1a44076050125825900e736c501f859c50fE728c",
+            "receiveLib302": "0x377530cdA84DFb2673bF4d145DCF0C4D7fdcB5b6",
+            "sendLib302": "0xc1B621b18187F74c8F6D52a6F709Dd2780C09821"
+        },
+        {
             "RPC": "https://mainnet.base.org",
             "chainid": 8453,
             "delegate": "0xCBfd4Ef00a8cf91Fd1e1Fe97dC05910772c15E53",

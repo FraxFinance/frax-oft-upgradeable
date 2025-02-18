@@ -210,8 +210,11 @@ contract BaseL0Script is L0Constants, Script {
                 broadcastConfigArray.push(config_);
             }
             proxyConfigs.push(config_);
-            // skip pushing Eth config as it was already added through legacyConfigs
-            if (config_.chainid != 1) {
+            // do not push legacy configs which have also been deployed as proxy configs
+            if (
+                config_.chainid != 1 && config_.chainid != 81457 &&
+                config_.chainid != 1088 && config_.chainid != 8453
+            ) {
                 allConfigs.push(config_);
                 evmConfigs.push(config_);
             }

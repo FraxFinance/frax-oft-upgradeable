@@ -4,7 +4,12 @@ This repository contains all of the contracts and deployment code used to manage
 
 ## Contracts & Addresses
 ### Admin
-- `ProxyAdmin`: `0x223a681fc5c5522c85c96157c0efa18cd6c5405c`
+- `ProxyAdmin`
+  - `Mode`, `Sei`, `X-Layer`, `Ink`, `Sonic`, `Arbitrum`, `Optimism`, `Polygon`, `BSC`
+    - `0x223a681fc5c5522c85c96157c0efa18cd6c5405c`
+  - `ZKSync`
+    - TODO
+
 - Msigs (links to gnosis safe)
   - [`Ethereum`](https://app.safe.global/home?safe=eth:0xB1748C79709f4Ba2Dd82834B8c82D4a505003f27)
   - [`Blast`](https://blast-safe.io/home?safe=blast:0x33A133020b2C2CD41a24F74033B11EC2fC0bF97a)
@@ -26,14 +31,16 @@ This repository contains all of the contracts and deployment code used to manage
 
 ### Proxy (upgradeable) OFTs
 - Chain: `Mode`, `Sei`, `X-Layer`, `Ink`, `Sonic`, `Arbitrum`, `Optimism`, `Polygon`, `BSC`
-- Admin: `ProxyAdmin` (owned by chain-respective msig)
-- OFTs
-  - `frxUSD`: `0x80Eede496655FB9047dd39d9f418d5483ED600df`
-  - `sfrxUSD`: `0x5Bff88cA1442c2496f7E475E9e7786383Bc070c0`
-  - `frxETH`: `0x43eDD7f3831b08FE70B7555ddD373C8bF65a9050`
-  - `sfrxETH`: `0x3Ec3849C33291a9eF4c5dB86De593EB4A37fDe45`
-  - `FXS`: `0x64445f0aecC51E94aD52d8AC56b7190e764E561a`
-  - `FPI` : `0x90581eCa9469D8D7F5D3B60f4715027aDFCf7927`
+  - OFTs
+    - `frxUSD`: `0x80Eede496655FB9047dd39d9f418d5483ED600df`
+    - `sfrxUSD`: `0x5Bff88cA1442c2496f7E475E9e7786383Bc070c0`
+    - `frxETH`: `0x43eDD7f3831b08FE70B7555ddD373C8bF65a9050`
+    - `sfrxETH`: `0x3Ec3849C33291a9eF4c5dB86De593EB4A37fDe45`
+    - `FXS`: `0x64445f0aecC51E94aD52d8AC56b7190e764E561a`
+    - `FPI` : `0x90581eCa9469D8D7F5D3B60f4715027aDFCf7927`
+- Chain: `ZkSync`
+  - OFTs
+    - TODO
 
 ### Lockbox design
 Frax operates a dual-lockbox design where users can exit their OFT token into the native Frax-asset token on both Ethereum and Fraxtal.  Utilizing a dual-lockbox design is a novel solution to bridging as liquidity is  unlocked from more than one location.  More about this solution is be explained in the [docs](TODO).
@@ -47,14 +54,22 @@ Frax operates a dual-lockbox design where users can exit their OFT token into th
 - `FPI`: `0x75c38D46001b0F8108c4136216bd2694982C20FC`
 
 #### Ethereum Lockboxes
-- `frxUSD`: `0x566a6442A5A6e9895B9dCA97cC7879D632c6e4B0`
-- `sfrxUSD`: `0x7311CEA93ccf5f4F7b789eE31eBA5D9B9290E126`
-- `frxETH` : `0xF010a7c8877043681D59AD125EbF575633505942`
-- `sfrxETH`: `0x1f55a02A049033E3419a8E2975cF3F572F4e6E9A`
-- `FXS`: `0x23432452B720C80553458496D4D9d7C5003280d0`
-- `FPI`: `0x6Eca253b102D41B6B69AC815B9CC6bD47eF1979d`
-- `FRAX` (legacy): `0x909DBdE1eBE906Af95660033e478D59EFe831fED`
-- `sFRAX` (legacy): `0xe4796cCB6bB5DE2290C417Ac337F2b66CA2E770E`
+There are two sets of Ethereum lockboxes: (1) the upgradeable lockboxes used in current deployments and (2) legacy immutable lockboxes used to unlock immutable OFT liquidity.
+You can expect to use (1) unless you are holding OFTs on Base, Blast, or Metis prior to February 2025.  Legacy liquidity can be unlocked through Stargate UI.
+1. Upgradeable (current) Lockboxes
+  - `frxUSD`: `0x566a6442A5A6e9895B9dCA97cC7879D632c6e4B0`
+  - `sfrxUSD`: `0x7311CEA93ccf5f4F7b789eE31eBA5D9B9290E126`
+  - `frxETH` : `0x1c1649A38f4A3c5A0c4a24070f688C525AB7D6E6`
+  - `sfrxETH`: `0xbBc424e58ED38dd911309611ae2d7A23014Bd960`
+  - `FXS`: `0xC6F59a4fD50cAc677B51558489E03138Ac1784EC`
+  - `FPI`: `0x9033BAD7aA130a2466060A2dA71fAe2219781B4b`
+2. Immutable (legacy) Lockboxes
+  - `FRAX`: `0x909DBdE1eBE906Af95660033e478D59EFe831fED`
+  - `sFRAX`: `0xe4796cCB6bB5DE2290C417Ac337F2b66CA2E770E`
+  - `frxETH` : `0xF010a7c8877043681D59AD125EbF575633505942`
+  - `sfrxETH`: `0x1f55a02A049033E3419a8E2975cF3F572F4e6E9A`
+  - `FXS`: `0x23432452B720C80553458496D4D9d7C5003280d0`
+  - `FPI`: `0x6Eca253b102D41B6B69AC815B9CC6bD47eF1979d`
 
 ### Solana
 - Admin: Chain-respective msig

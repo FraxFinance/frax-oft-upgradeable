@@ -9,9 +9,8 @@ contract SetupFraxtalOFT is DeployFraxOFTProtocol {
     address fraxtalOft = 0x103C430c9Fcaa863EA90386e3d0d5cd53333876e;
     address xlayerOft = 0x45682729Bdc0f68e7A02E76E9CfdA57D0cD4d20b;
 
-    address[] public connectedOfts;
-
     constructor() {
+        delete connectedOfts;
         connectedOfts.push(fraxtalOft);
         proxyOfts.push(xlayerOft);
     }

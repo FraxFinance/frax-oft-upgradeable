@@ -9,9 +9,9 @@ contract SetupAdapter is DeployFraxOFTProtocol {
     address oft = 0x103C430c9Fcaa863EA90386e3d0d5cd53333876e;
     address adapter = 0xa536976c9cA36e74Af76037af555eefa632ce469;
 
-    address[] public connectedOfts;
 
     constructor() {
+        delete connectedOfts;
         connectedOfts.push(adapter);
         proxyOfts.push(oft);
     }

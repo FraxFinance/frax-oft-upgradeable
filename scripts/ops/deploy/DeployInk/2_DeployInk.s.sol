@@ -1,7 +1,7 @@
 // SPDX-License-Identifier: ISC
 pragma solidity ^0.8.19;
 
-import "../DeployFraxOFTProtocol/DeployFraxOFTProtocol.s.sol";
+import "scripts/DeployFraxOFTProtocol/DeployFraxOFTProtocol.s.sol";
 
 // Deploy to ink, override fraxtal frxUSD/sfrxUSD peers to the standalone lockboxes
 // forge script scripts/DeployInk/2_DeployInk.s.sol --rpc-url https://rpc-gel.inkonchain.com --verify --verifier blockscout --verifier-url https://explorer.inkonchain.com/api/

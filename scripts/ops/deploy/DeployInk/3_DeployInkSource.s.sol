@@ -1,7 +1,7 @@
 // SPDX-License-Identifier: ISC
 pragma solidity ^0.8.19;
 
-import "../DeployFraxOFTProtocol/DeployFraxOFTProtocol.s.sol";
+import "scripts/DeployFraxOFTProtocol/DeployFraxOFTProtocol.s.sol";
 
 // Resume Ink deployment by setting config
 // forge script scripts/DeployInk/3_DeployInkSource.s.sol --rpc-url https://rpc-gel.inkonchain.com

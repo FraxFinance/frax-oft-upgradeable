@@ -1,7 +1,7 @@
 // SPDX-License-Identifier: ISC
 pragma solidity ^0.8.19;
 
-import "../DeployFraxOFTProtocol/DeployFraxOFTProtocol.s.sol";
+import "scripts/DeployFraxOFTProtocol/DeployFraxOFTProtocol.s.sol";
 
 /// @dev creates 34443 files with set DVNs for all chains- 
 
@@ -46,7 +46,7 @@ contract FixDeployDVNs is DeployFraxOFTProtocol {
     function setupDestination(
         L0Config memory _connectedConfig,
         address[] memory _connectedOfts
-    ) public override simulateAndWriteTxs(_connectedConfig) {
+    ) public simulateAndWriteTxs(_connectedConfig) {
         // setEnforcedOptions({
         //     _connectedOfts: _connectedOfts,
         //     _configs: broadcastConfigArray

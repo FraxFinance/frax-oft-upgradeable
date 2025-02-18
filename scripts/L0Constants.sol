@@ -6,6 +6,8 @@ contract L0Constants {
     address[] public expectedProxyOfts;
     address[] public fraxtalLockboxes;
     address[] public ethLockboxes;
+    address[] public connectedOfts;
+    address[] public ethLockboxesLegacy;
 
     // Semi Pre-deterministic upgradeable addresses 
     address public proxyFrxUsdOft = 0x80Eede496655FB9047dd39d9f418d5483ED600df;
@@ -22,14 +24,19 @@ contract L0Constants {
     address public fraxtalFxsLockbox = 0xd86fBBd0c8715d2C1f40e451e5C3514e65E7576A;
     address public fraxtalFpiLockbox = 0x75c38D46001b0F8108c4136216bd2694982C20FC;
 
-    address public ethFrxUsdLockbox = address(0); // TODO
-    address public ethSFrxUsdLockbox = address(0); // TODO 
-    address public ethFraxLockbox = 0x909DBdE1eBE906Af95660033e478D59EFe831fED;
-    address public ethSFraxLockbox = 0xe4796cCB6bB5DE2290C417Ac337F2b66CA2E770E;
-    address public ethFrxEthLockbox = 0xF010a7c8877043681D59AD125EbF575633505942;
-    address public ethSFrxEthLockbox = 0x1f55a02A049033E3419a8E2975cF3F572F4e6E9A;
-    address public ethFxsLockbox = 0x23432452B720C80553458496D4D9d7C5003280d0; // TODO - upgrade 
-    address public ethFpiLockbox = 0x6Eca253b102D41B6B69AC815B9CC6bD47eF1979d;
+    address public ethFrxUsdLockbox = 0x566a6442A5A6e9895B9dCA97cC7879D632c6e4B0;
+    address public ethSFrxUsdLockbox = 0x7311CEA93ccf5f4F7b789eE31eBA5D9B9290E126;
+    address public ethFrxEthLockbox = 0x1c1649A38f4A3c5A0c4a24070f688C525AB7D6E6;
+    address public ethSFrxEthLockbox = 0xbBc424e58ED38dd911309611ae2d7A23014Bd960;
+    address public ethFxsLockbox = 0xC6F59a4fD50cAc677B51558489E03138Ac1784EC; // TODO - upgrade 
+    address public ethFpiLockbox = 0x9033BAD7aA130a2466060A2dA71fAe2219781B4b;
+
+    address public ethFraxLockboxLegacy = 0x909DBdE1eBE906Af95660033e478D59EFe831fED;
+    address public ethSFraxLockboxLegacy = 0xe4796cCB6bB5DE2290C417Ac337F2b66CA2E770E;
+    address public ethFrxEthLockboxLegacy = 0xF010a7c8877043681D59AD125EbF575633505942;
+    address public ethSFrxEthLockboxLegacy = 0x1f55a02A049033E3419a8E2975cF3F572F4e6E9A;
+    address public ethFxsLockboxLegacy = 0x23432452B720C80553458496D4D9d7C5003280d0;
+    address public ethFpiLockboxLegacy = 0x6Eca253b102D41B6B69AC815B9CC6bD47eF1979d;
 
     constructor() {
         // array of semi-pre-determined upgradeable OFTs
@@ -49,10 +56,19 @@ contract L0Constants {
         fraxtalLockboxes.push(fraxtalFpiLockbox);
 
         ethLockboxes.push(ethFxsLockbox);
-        ethLockboxes.push(ethSFraxLockbox);
+        ethLockboxes.push(ethSFrxUsdLockbox);
         ethLockboxes.push(ethSFrxEthLockbox);
-        ethLockboxes.push(ethFraxLockbox);
+        ethLockboxes.push(ethFrxUsdLockbox);
         ethLockboxes.push(ethFrxEthLockbox);
         ethLockboxes.push(ethFpiLockbox);
+
+        connectedOfts = new address[](expectedProxyOfts.length);
+
+        ethLockboxesLegacy.push(ethFxsLockboxLegacy);
+        ethLockboxesLegacy.push(ethSFraxLockboxLegacy);
+        ethLockboxesLegacy.push(ethSFrxEthLockboxLegacy);
+        ethLockboxesLegacy.push(ethFraxLockboxLegacy);
+        ethLockboxesLegacy.push(ethFrxEthLockboxLegacy);
+        ethLockboxesLegacy.push(ethFpiLockboxLegacy);
     }
 }

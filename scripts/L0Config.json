@@ -177,7 +177,17 @@
             "endpoint": "0x1a44076050125825900e736c501f859c50fE728c",
             "receiveLib302": "0x581b26F362AD383f7B51eF8A165Efa13DDe398a4",
             "sendLib302": "0x28B6140ead70cb2Fb669705b3598ffB4BEaA060b"
-<<<<<<< HEAD
+        },
+        {
+            "RPC": "https://ethereum-rpc.publicnode.com",
+            "chainid": 1,
+            "delegate": "0xB1748C79709f4Ba2Dd82834B8c82D4a505003f27",
+            "dvnHorizen": "0x589dEDbD617e0CBcB916A9223F4d1300c294236b",
+            "dvnL0": "0x380275805876Ff19055EA900CDb2B46a94ecF20D",
+            "eid": 30101,
+            "endpoint": "0x1a44076050125825900e736c501f859c50fE728c",
+            "receiveLib302": "0xc02Ab410f0734EFa3F14628780e6e695156024C2",
+            "sendLib302": "0xbB2Ea70C9E858123480642Cf96acbcCE1372dCe1"
         },
         {
             "RPC": "https://mainnet.era.zksync.io",
@@ -189,8 +199,6 @@
             "endpoint": "0xd07C30aF3Ff30D96BDc9c6044958230Eb797DDBF",
             "receiveLib302": "0x04830f6deCF08Dec9eD6C3fCAD215245B78A59e1",
             "sendLib302": "0x07fD0e370B49919cA8dA0CE842B8177263c0E12c"
-=======
->>>>>>> master
         }
     ],
     "Non-EVM": [

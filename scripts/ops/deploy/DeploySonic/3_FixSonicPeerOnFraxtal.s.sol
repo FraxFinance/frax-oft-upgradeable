@@ -10,8 +10,6 @@ contract FixArbitrumPeers is DeployFraxOFTProtocol {
     using Strings for uint256;
     using stdJson for string;
 
-    address[] fraxtalLockboxes;
-
     // adds "-fix" to maintain old file states
     function filename() public view override returns (string memory) {
         string memory root = vm.projectRoot();
@@ -26,6 +24,7 @@ contract FixArbitrumPeers is DeployFraxOFTProtocol {
         proxyOfts.push(0x5Bff88cA1442c2496f7E475E9e7786383Bc070c0); // sfrxUSD
         proxyOfts.push(0x80Eede496655FB9047dd39d9f418d5483ED600df); // frxUSD
 
+        delete fraxtalLockboxes;
         fraxtalLockboxes.push(0x88Aa7854D3b2dAA5e37E7Ce73A1F39669623a361); // sfrxUSD lockbox on fraxtal
         fraxtalLockboxes.push(0x96A394058E2b84A89bac9667B19661Ed003cF5D4); // frxUSD lockbox on fraxtal
         setupSource();

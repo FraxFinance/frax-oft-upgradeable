@@ -2,9 +2,7 @@
 pragma solidity ^0.8.19;
 
 import "scripts/DeployFraxOFTProtocol/DeployFraxOFTProtocol.s.sol";
-import {UlnConfig} from "@fraxfinance/layerzero-v2-upgradeable/messagelib/contracts/uln/UlnBase.sol";
 
-import {Arrays} from "@openzeppelin-5/contracts/utils/Arrays.sol";
 
 /*
 struct UlnConfig {

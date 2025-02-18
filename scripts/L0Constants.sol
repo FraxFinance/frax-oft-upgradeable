@@ -1,6 +1,19 @@
 // SPDX-License-Identifier: ISC
 pragma solidity ^0.8.19;
 
+/// @dev: required to be alphabetical to conform to https://book.getfoundry.sh/cheatcodes/parse-json
+struct L0Config {
+    string RPC;
+    uint256 chainid;
+    address delegate;
+    address dvnHorizen;
+    address dvnL0;
+    uint256 eid;
+    address endpoint;
+    address receiveLib302;
+    address sendLib302;
+}
+
 contract L0Constants {
 
     address[] public expectedProxyOfts;

@@ -28,6 +28,7 @@
     "@layerzerolabs/lz-evm-oapp-v2": "~2.3.19",
     "@layerzerolabs/lz-evm-protocol-v2": "~2.3.3",
     "@layerzerolabs/toolbox-foundry": "~0.1.5",
+    "@openzeppelin-5/contracts": "npm:@openzeppelin/contracts@5.2.0",
     "@openzeppelin/contracts": "^4.8.1",
     "@openzeppelin/contracts-upgradeable": "^4.8.1",
     "@rushstack/eslint-patch": "^1.7.0",

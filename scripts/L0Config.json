@@ -113,7 +113,7 @@
             "sendLib302": "0x975bcD720be66659e3EB3C0e4F1866a3020E493A"
         },
         {
-            "RPC": "https://mainnet.optimism.io",
+            "RPC": "https://optimism-mainnet.public.blastapi.io",
             "chainid": 10,
             "delegate": "0x419e672d625f998dd07a7ecf2E06B896F8717cb2",
             "dvnHorizen": "0x9e930731cb4a6bf7ecc11f695a295c60bdd212eb",
@@ -166,6 +166,17 @@
             "endpoint": "0x1a44076050125825900e736c501f859c50fE728c",
             "receiveLib302": "0x581b26F362AD383f7B51eF8A165Efa13DDe398a4",
             "sendLib302": "0x28B6140ead70cb2Fb669705b3598ffB4BEaA060b"
+        },
+        {
+            "RPC": "https://ethereum-rpc.publicnode.com",
+            "chainid": 1,
+            "delegate": "0xB1748C79709f4Ba2Dd82834B8c82D4a505003f27",
+            "dvnHorizen": "0x589dEDbD617e0CBcB916A9223F4d1300c294236b",
+            "dvnL0": "0x380275805876Ff19055EA900CDb2B46a94ecF20D",
+            "eid": 30101,
+            "endpoint": "0x1a44076050125825900e736c501f859c50fE728c",
+            "receiveLib302": "0xc02Ab410f0734EFa3F14628780e6e695156024C2",
+            "sendLib302": "0xbB2Ea70C9E858123480642Cf96acbcCE1372dCe1"
         },
         {
             "RPC": "https://rpc.blast.io",

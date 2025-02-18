@@ -6,6 +6,7 @@ import "forge-std/StdJson.sol";
 import "frax-template/src/Constants.sol";
 import { console } from "frax-std/FraxTest.sol";
 
+import { L0Constants } from "scripts/L0Constants.sol";
 import { SerializedTx, SafeTxUtil } from "scripts/SafeBatchSerialize.sol";
 import { FraxOFTUpgradeable } from "contracts/FraxOFTUpgradeable.sol";
 import { FraxProxyAdmin } from "contracts/FraxProxyAdmin.sol";
@@ -28,7 +29,7 @@ import { ProxyAdmin, TransparentUpgradeableProxy } from "@fraxfinance/layerzero-
 import { UlnConfig } from "@fraxfinance/layerzero-v2-upgradeable/messagelib/contracts/uln/UlnBase.sol";
 import { Constant } from "@fraxfinance/layerzero-v2-upgradeable/messagelib/test/util/Constant.sol";
     
-contract BaseL0Script is Script {
+contract BaseL0Script is L0Constants, Script {
 
     using OptionsBuilder for bytes;
     using stdJson for string;
@@ -58,7 +59,6 @@ contract BaseL0Script is Script {
     L0Config public broadcastConfig; // config of actively-connected (broadcasting) chain
     L0Config public simulateConfig;  // Config of the simulated chain
     L0Config[] public broadcastConfigArray; // length of 1 of broadcastConfig
-    bool public activeLegacy; // true if we're broadcasting to legacy chain (setup by L0 team)
 
     /// @dev alphabetical order as json is read in by keys alphabetically.
     struct NonEvmPeer {
@@ -86,7 +86,6 @@ contract BaseL0Script is Script {
 
     // 1:1 match between these arrays for setting peers
     address[] public legacyOfts;
-    address[] public expectedProxyOfts; // to assert against proxyOfts
     address[] public proxyOfts; // the OFTs deployed through `DeployFraxOFTProtocol.s.sol`
 
     EnforcedOptionParam[] public enforcedOptionParams;
@@ -98,7 +97,7 @@ contract BaseL0Script is Script {
     string public json;
 
     function version() public virtual pure returns (uint256, uint256, uint256) {
-        return (1, 2, 4);
+        return (1, 2, 7);
     }
 
     modifier broadcastAs(uint256 privateKey) {
@@ -118,8 +117,8 @@ contract BaseL0Script is Script {
         // store for later referencing
         simulateConfig = _simulateConfig;
 
-        // if we're simulating fraxtal, overwrite the proxy (s)frxUSD OFTs to the standalone lockboxes.  Otherwise, use the re-usable addrs
-        _overwriteFrxUsdAddrs();
+        // Use the correct OFT addresses given the chain we're simulating
+        _populateConnectedOfts();
 
         // Simulate fork as delegate (aka msig) as we're crafting txs within the modified function
         vm.createSelectFork(_simulateConfig.RPC);
@@ -131,20 +130,38 @@ contract BaseL0Script is Script {
         new SafeTxUtil().writeTxs(serializedTxs, filename());
     }
 
-    // Configure (s)frxUSD addresses to the standalone fraxtal lockboxes, otherwise re-usable OFTs
-    function _overwriteFrxUsdAddrs() public virtual {
-        // skip overwrite if there are no proxyOfts to write to
-        if (proxyOfts.length != 6) return;
+    // Configure destination OFT addresses as they may be different per chain
+    // `connectedOfts` is used within DeployfraxOFTProtocol.setupDestination()
+    function _populateConnectedOfts() public virtual {
+        // check to prevent array mismatch.  This will trigger when, for example, managing peers of 2 of 6 OFTs as
+        // this method asumes we're managing all 6 OFTs
+        require (proxyOfts.length == 6, "Must override. be careful");
 
-        /// @dev see setUp() to reference array positioning
-        if (simulateConfig.chainid == 252) {
+        /// @dev order maintained through L0Constants.sol `constructor()` and DeployFraxOFTProtocol.s.sol `deployFraxOFTUpgradeablesAndProxies()`
+        if (simulateConfig.chainid == 1) {
+            connectedOfts[0] = ethLockboxes[0];
+            connectedOfts[1] = ethLockboxes[1];
+            connectedOfts[2] = ethLockboxes[2];
+            connectedOfts[3] = ethLockboxes[3];
+            connectedOfts[4] = ethLockboxes[4];
+            connectedOfts[5] = ethLockboxes[5];
+        } else if (simulateConfig.chainid == 252) {
+            // TODO: modify this readme to "Fraxtal Lockboxes"
             // https://github.com/FraxFinance/frax-oft-upgradeable?tab=readme-ov-file#fraxtal-standalone-frxusdsfrxusd-lockboxes
-            proxyOfts[1] = 0x88Aa7854D3b2dAA5e37E7Ce73A1F39669623a361; // sfrxUSD
-            proxyOfts[3] = 0x96A394058E2b84A89bac9667B19661Ed003cF5D4; // frxUSD
+            connectedOfts[0] = fraxtalLockboxes[0];
+            connectedOfts[1] = fraxtalLockboxes[1];
+            connectedOfts[2] = fraxtalLockboxes[2];
+            connectedOfts[3] = fraxtalLockboxes[3];
+            connectedOfts[4] = fraxtalLockboxes[4];
+            connectedOfts[5] = fraxtalLockboxes[5];
         } else {
             // https://github.com/FraxFinance/frax-oft-upgradeable?tab=readme-ov-file#proxy-upgradeable-ofts
-            proxyOfts[1] = 0x5Bff88cA1442c2496f7E475E9e7786383Bc070c0;
-            proxyOfts[3] = 0x80Eede496655FB9047dd39d9f418d5483ED600df;
+            connectedOfts[0] = expectedProxyOfts[0];
+            connectedOfts[1] = expectedProxyOfts[1];
+            connectedOfts[2] = expectedProxyOfts[2];
+            connectedOfts[3] = expectedProxyOfts[3];
+            connectedOfts[4] = expectedProxyOfts[4];
+            connectedOfts[5] = expectedProxyOfts[5];
         }
     }
 
@@ -161,23 +178,6 @@ contract BaseL0Script is Script {
     function setUp() public virtual {
         // Set constants based on deployment chain id
         loadJsonConfig();
-
-        /// @dev: this array maintains the same token order as proxyOfts and the addrs are confirmed on eth mainnet, blast, base, and metis.
-        legacyOfts.push(0x23432452B720C80553458496D4D9d7C5003280d0); // fxs
-        legacyOfts.push(0xe4796cCB6bB5DE2290C417Ac337F2b66CA2E770E); // sfrxUSD
-        legacyOfts.push(0x1f55a02A049033E3419a8E2975cF3F572F4e6E9A); // sfrxETH
-        legacyOfts.push(0x909DBdE1eBE906Af95660033e478D59EFe831fED); // frxUSD
-        legacyOfts.push(0xF010a7c8877043681D59AD125EbF575633505942); // frxETH
-        legacyOfts.push(0x6Eca253b102D41B6B69AC815B9CC6bD47eF1979d); // FPI
-        numOfts = legacyOfts.length;
-
-        // aray of semi-pre-determined upgradeable OFTs
-        expectedProxyOfts.push(0x64445f0aecC51E94aD52d8AC56b7190e764E561a); // fxs
-        expectedProxyOfts.push(0x5Bff88cA1442c2496f7E475E9e7786383Bc070c0); // sfrxUSD
-        expectedProxyOfts.push(0x3Ec3849C33291a9eF4c5dB86De593EB4A37fDe45); // sfrxETH
-        expectedProxyOfts.push(0x80Eede496655FB9047dd39d9f418d5483ED600df); // frxUSD
-        expectedProxyOfts.push(0x43eDD7f3831b08FE70B7555ddD373C8bF65a9050); // frxETH
-        expectedProxyOfts.push(0x90581eCa9469D8D7F5D3B60f4715027aDFCf7927); // FPI
     }
 
     function loadJsonConfig() public virtual {
@@ -195,7 +195,6 @@ contract BaseL0Script is Script {
             if (config_.chainid == block.chainid) {
                 broadcastConfig = config_;
                 broadcastConfigArray.push(config_);
-                activeLegacy = true;
             }
             legacyConfigs.push(config_);
             allConfigs.push(config_);
@@ -209,11 +208,13 @@ contract BaseL0Script is Script {
             if (config_.chainid == block.chainid) {
                 broadcastConfig = config_;
                 broadcastConfigArray.push(config_);
-                activeLegacy = false;
             }
             proxyConfigs.push(config_);
-            allConfigs.push(config_);
-            evmConfigs.push(config_);
+            // skip pushing Eth config as it was already added through legacyConfigs
+            if (config_.chainid != 1) {
+                allConfigs.push(config_);
+                evmConfigs.push(config_);
+            }
         }
 
         // Non-EVM allConfigs
@@ -237,7 +238,7 @@ contract BaseL0Script is Script {
             NonEvmPeer memory peer = nonEvmPeers[i];
             bytes32[] memory peerArray = new bytes32[](6);
             peerArray[0] = peer.fxs;
-            peerArray[1] = peer.sFrax;
+            peerArray[1] = peer.sFrax; // TODO: modify to sfrxUSD
             peerArray[2] = peer.sFrxEth;
             peerArray[3] = peer.frax;
             peerArray[4] = peer.frxEth;

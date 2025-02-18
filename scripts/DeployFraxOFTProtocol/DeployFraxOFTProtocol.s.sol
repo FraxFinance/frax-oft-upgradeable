@@ -8,14 +8,13 @@ TODO
 - Deployment handling on non-pre-deterministic chains
 */
 
-
 contract DeployFraxOFTProtocol is BaseL0Script {
     using OptionsBuilder for bytes;
     using stdJson for string;
     using Strings for uint256;
 
     function version() public virtual override pure returns (uint256, uint256, uint256) {
-        return (1, 2, 6);
+        return (1, 2, 7);
     }
 
     function setUp() public virtual override {
@@ -49,7 +48,7 @@ contract DeployFraxOFTProtocol is BaseL0Script {
         }
     }
 
-    function setupLegacyDestinations() public pure {
+    function setupLegacyDestinations() public virtual {
         // DEPRECATED
     }
 
@@ -57,19 +56,25 @@ contract DeployFraxOFTProtocol is BaseL0Script {
         L0Config memory _connectedConfig
     ) public virtual simulateAndWriteTxs(_connectedConfig) {
         setEvmEnforcedOptions({
-            _connectedOfts: proxyOfts,
+            _connectedOfts: connectedOfts,
             _configs: broadcastConfigArray
         });
 
         setEvmPeers({
-            _connectedOfts: proxyOfts,
-            _peerOfts: expectedProxyOfts,
+            _connectedOfts: connectedOfts,
+            _peerOfts: proxyOfts,
             _configs: broadcastConfigArray 
         });
 
         setDVNs({
             _connectedConfig: _connectedConfig,
-            _connectedOfts: proxyOfts,
+            _connectedOfts: connectedOfts,
+            _configs: broadcastConfigArray
+        });
+
+        setLibs({
+            _connectedConfig: _connectedConfig,
+            _connectedOfts: connectedOfts,
             _configs: broadcastConfigArray
         });
     }
@@ -104,7 +109,7 @@ contract DeployFraxOFTProtocol is BaseL0Script {
         /// @dev Upgradeable OFTs maintaining the same address cross-chain.
         setEvmPeers({
             _connectedOfts: proxyOfts,
-            _peerOfts: proxyOfts,
+            _peerOfts: expectedProxyOfts,
             _configs: proxyConfigs
         });
     }
@@ -135,24 +140,16 @@ contract DeployFraxOFTProtocol is BaseL0Script {
         }
     }
 
-    function postDeployChecks() public virtual view {
-        // Ensure OFTs are their expected pre-determined address.  If not, there's a chance the deployer nonce shifted,
-        // the EVM has differing logic, or we are not on an EVM compatable chain.
-        require(fxsOft == expectedProxyOfts[0], "Invalid FXS OFT");
-        require(sfrxUsdOft == expectedProxyOfts[1], "Invalid sFRAX OFT");
-        require(sfrxEthOft == expectedProxyOfts[2], "Invalid sfrxETH OFT");
-        require(frxUsdOft == expectedProxyOfts[3], "Invalid FRAX OFT");
-        require(frxEthOft == expectedProxyOfts[4], "Invalid frxETH OFT");
-        require(fpiOft == expectedProxyOfts[5], "Invalid FPI OFT");
-        require(proxyOfts.length == numOfts, "OFT array lengths different");
+    function postDeployChecks() internal virtual view {
+        require(proxyOfts.length == 6, "Did not deploy all 6 OFTs");
     }
 
     function deployFraxOFTUpgradeablesAndProxies() broadcastAs(oftDeployerPK) public virtual {
 
-        // Proxy admin (0x223a681fc5c5522c85C96157c0efA18cd6c5405c)
+        // Proxy admin (0x223a681fc5c5522c85C96157c0efA18cd6c5405c if predeterministic)
         proxyAdmin = address(new FraxProxyAdmin(vm.addr(configDeployerPK)));
 
-        // Implementation mock (0x8f1B9c1fd67136D525E14D96Efb3887a33f16250)
+        // Implementation mock (0x8f1B9c1fd67136D525E14D96Efb3887a33f16250 if predeterministic)
         implementationMock = address(new ImplementationMock());
 
         // / @dev: follows deployment order of legacy OFTs found at https://etherscan.io/address/0xded884435f2db0169010b3c325e733df0038e51d
@@ -276,40 +273,72 @@ contract DeployFraxOFTProtocol is BaseL0Script {
         address[] memory _peerOfts,
         L0Config[] memory _configs
     ) public virtual {
-        require(_connectedOfts.length == _peerOfts.length, "Must wire equal amount of source + dest addrs");
-        require(frxUsdOft != address(0) && sfrxUsdOft != address(0), "(s)frxUSD ofts are null");
-
+        require(_connectedOfts.length == _peerOfts.length, "connectedOfts.length != _peerOfts.length");
         // For each OFT
         for (uint256 o=0; o<_connectedOfts.length; o++) {
-            address peerOft = _peerOfts[o];
-
             // Set the config per chain
             for (uint256 c=0; c<_configs.length; c++) {
-
-                // for fraxtal destination, override OFT address of (s)frxUSD to the standalone lockbox
-                if (_configs[c].chainid == 252) {
-                    if (_connectedOfts[o] == frxUsdOft) {
-                        // standalone frxUSD lockbox
-                        peerOft = 0x96A394058E2b84A89bac9667B19661Ed003cF5D4;
-                    } else if (_connectedOfts[o] == sfrxUsdOft) {
-                        // standalone sfrxUSD lockbox
-                        peerOft = 0x88Aa7854D3b2dAA5e37E7Ce73A1F39669623a361;
-                    }
-                } else {
-                    // Non-fraxtal destination: use the predeterministic address
-                    if (_connectedOfts[o] == frxUsdOft) {
-                        peerOft = frxUsdOft;
-                    } else if (_connectedOfts[o] == sfrxUsdOft) {
-                        peerOft = sfrxUsdOft;
-                    }
-                }
-
+                address peerOft = determinePeer({
+                    _chainid: _configs[c].chainid,
+                    _oft: _peerOfts[o],
+                    _peerOfts: _peerOfts
+                });
                 setPeer({
                     _config: _configs[c],
                     _connectedOft: _connectedOfts[o],
                     _peerOftAsBytes32: addressToBytes32(peerOft)
                 });
             }
+        }
+    }
+
+    // Overwrite the peer where necessary
+    // Conditional statement allows for overwriting peer whether (for example, frxUSD):
+    //  (1) frxUsdOft is set through deployFraxOFTUpgradeableAndProxy() (allows for non-predetermined addrs)
+    //  (2) connectedOft is the predetermined frxUsd OFT addr
+    //  (3) peer is either the ethereum/fraxtal frxUSD lockbox
+    // NOTE on partial token deployments, {token}Oft must be set
+    function determinePeer(
+        uint256 _chainid,
+        address _oft,
+        address[] memory _peerOfts
+    ) public virtual view returns (address peer) {
+        if (_chainid == 252) {
+            peer = getPeerFromArray({
+                _oft: _oft,
+                _oftArray: fraxtalLockboxes
+            });
+            require(peer != address(0), "Invalid fraxtal peer");
+        } else if (_chainid == 1) {
+            peer = getPeerFromArray({
+                _oft: _oft,
+                _oftArray: ethLockboxes
+            });
+            require(peer != address(0), "Invalid ethereum peer");
+        } else {
+            peer = getPeerFromArray({
+                _oft: _oft,
+                _oftArray: _peerOfts
+            });
+            require(peer != address(0), "Invalid proxy peer");
+        }
+    }
+
+    function getPeerFromArray(address _oft, address[] memory _oftArray) public virtual view returns (address peer) {
+        require(_oftArray.length == 6, "getPeerFromArray index mismatch");
+        /// @dev maintains array of deployFraxOFTUpgradeablesAndProxies(), where proxyOfts is pushed to in the respective order
+        if (_oft == fxsOft || _oft == proxyFxsOft) {
+            peer = _oftArray[0];
+        } else if (_oft == sfrxUsdOft || _oft == proxySFrxUsdOft) {
+            peer = _oftArray[1];
+        } else if (_oft == sfrxEthOft || _oft == proxySFrxEthOft) {
+            peer = _oftArray[2];
+        } else if (_oft == frxUsdOft || _oft == proxyFrxUsdOft) {
+            peer = _oftArray[3];
+        } else if (_oft == frxEthOft || _oft == proxyFrxEthOft) {
+            peer = _oftArray[4];
+        } else if (_oft == fpiOft || _oft == proxyFpiOft) {
+            peer = _oftArray[5];
         }
     }
 

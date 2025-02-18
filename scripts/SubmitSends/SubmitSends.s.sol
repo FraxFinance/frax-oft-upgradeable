@@ -8,6 +8,8 @@ contract SubmitSends is BaseL0Script {
     using stdJson for string;
     using Strings for uint256;
 
+    bool activeLegacy;
+
     function version() public pure override returns (uint256, uint256, uint256) {
         return (1, 1, 2);
     }
@@ -22,7 +24,7 @@ contract SubmitSends is BaseL0Script {
 
     function submitSends() public {
         activeLegacy ? 
-            submitSends(legacyOfts) :
+            submitSends(ethLockboxesLegacy) :
             submitSends(expectedProxyOfts);
     }
 
@@ -48,6 +50,15 @@ contract SubmitSends is BaseL0Script {
     ) public broadcastAs(senderDeployerPK) {
         uint256 amount = 1e14;
         address oftToken = IOFT(_connectedOft).token();
+        
+        // only send FRAX, sFRAX to x-layer
+        if (_connectedConfig.eid != 30274 ||
+            (_connectedOft != 0x5Bff88cA1442c2496f7E475E9e7786383Bc070c0 &&
+             _connectedOft != 0x80Eede496655FB9047dd39d9f418d5483ED600df)
+        ) {
+            return;
+        }
+
         require(
             IERC20(oftToken).balanceOf(vm.addr(senderDeployerPK)) > amount * 6,
             "Not enough token balance"

@@ -4,7 +4,12 @@ This repository contains all of the contracts and deployment code used to manage
 
 ## Contracts & Addresses
 ### Admin
-- `ProxyAdmin`: `0x223a681fc5c5522c85c96157c0efa18cd6c5405c`
+- `ProxyAdmin`
+  - `Mode`, `Sei`, `X-Layer`, `Ink`, `Sonic`, `Arbitrum`, `Optimism`, `Polygon`, `BSC`
+    - `0x223a681fc5c5522c85c96157c0efa18cd6c5405c`
+  - `ZKSync`
+    - TODO
+
 - Msigs (links to gnosis safe)
   - [`Ethereum`](https://app.safe.global/home?safe=eth:0xB1748C79709f4Ba2Dd82834B8c82D4a505003f27)
   - [`Blast`](https://blast-safe.io/home?safe=blast:0x33A133020b2C2CD41a24F74033B11EC2fC0bF97a)
@@ -25,20 +30,46 @@ This repository contains all of the contracts and deployment code used to manage
   - [`Polygon zkEvm`](https://app.safe.global/home?safe=zkevm:0x57445fD8d544e5D313e4f715220103b091814df4)
 
 ### Proxy (upgradeable) OFTs
-- Chain: `Mode`, `Sei`, `Fraxtal` (except for (s)frxUSD), `X-Layer`, `Ink`, `Sonic`, `Arbitrum`, `Optimism`, `Polygon`, `BSC`
-- Admin: `ProxyAdmin` (owned by chain-respective msig)
-- OFTs
-  - `frxUSD`: `0x80Eede496655FB9047dd39d9f418d5483ED600df`
-  - `sfrxUSD`: `0x5bff88ca1442c2496f7e475e9e7786383bc070c0`
-  - `sfrxETH`: `0x3Ec3849C33291a9eF4c5dB86De593EB4A37fDe45`
-  - `FXS`: `0x64445f0aecC51E94aD52d8AC56b7190e764E561a`
-  - `frxETH`: `0x43eDD7f3831b08FE70B7555ddD373C8bF65a9050`
-  - `FPI` : `0x90581eCa9469D8D7F5D3B60f4715027aDFCf7927`
+- Chain: `Mode`, `Sei`, `X-Layer`, `Ink`, `Sonic`, `Arbitrum`, `Optimism`, `Polygon`, `BSC`
+  - OFTs
+    - `frxUSD`: `0x80Eede496655FB9047dd39d9f418d5483ED600df`
+    - `sfrxUSD`: `0x5Bff88cA1442c2496f7E475E9e7786383Bc070c0`
+    - `frxETH`: `0x43eDD7f3831b08FE70B7555ddD373C8bF65a9050`
+    - `sfrxETH`: `0x3Ec3849C33291a9eF4c5dB86De593EB4A37fDe45`
+    - `FXS`: `0x64445f0aecC51E94aD52d8AC56b7190e764E561a`
+    - `FPI` : `0x90581eCa9469D8D7F5D3B60f4715027aDFCf7927`
+- Chain: `ZkSync`
+  - OFTs
+    - TODO
 
-### Fraxtal standalone frxUSD/sfrxUSD lockboxes
-These lockboxes are to be used by Ink and Sonic until FRAX/sFRAX tokens have finished their upgrade.  After the upgrade, expect to use the respective upgradeable OFT mentioned above.
-- `frxUSD`: [`0x96A394058E2b84A89bac9667B19661Ed003cF5D4`](https://fraxscan.com/address/0x96a394058e2b84a89bac9667b19661ed003cf5d4)
-- `sfrxUSD`: [`0x88Aa7854D3b2dAA5e37E7Ce73A1F39669623a361`](https://fraxscan.com/address/0x88aa7854d3b2daa5e37e7ce73a1f39669623a361)
+### Lockbox design
+Frax operates a dual-lockbox design where users can exit their OFT token into the native Frax-asset token on both Ethereum and Fraxtal.  Utilizing a dual-lockbox design is a novel solution to bridging as liquidity is  unlocked from more than one location.  More about this solution is be explained in the [docs](TODO).
+
+#### Fraxtal Lockboxes
+- `frxUSD`: `0x96A394058E2b84A89bac9667B19661Ed003cF5D4`
+- `sfrxUSD`: `0x88Aa7854D3b2dAA5e37E7Ce73A1F39669623a361`
+- `frxETH`: `0x9aBFE1F8a999B0011ecD6116649AEe8D575F5604`
+- `sfrxETH`: `0x999dfAbe3b1cc2EF66eB032Eea42FeA329bBa168`
+- `FXS`: `0xd86fBBd0c8715d2C1f40e451e5C3514e65E7576A`
+- `FPI`: `0x75c38D46001b0F8108c4136216bd2694982C20FC`
+
+#### Ethereum Lockboxes
+There are two sets of Ethereum lockboxes: (1) the upgradeable lockboxes used in current deployments and (2) legacy immutable lockboxes used to unlock immutable OFT liquidity.
+You can expect to use (1) unless you are holding OFTs on Base, Blast, or Metis prior to February 2025.  Legacy liquidity can be unlocked through Stargate UI.
+1. Upgradeable (current) Lockboxes
+  - `frxUSD`: `0x566a6442A5A6e9895B9dCA97cC7879D632c6e4B0`
+  - `sfrxUSD`: `0x7311CEA93ccf5f4F7b789eE31eBA5D9B9290E126`
+  - `frxETH` : `0x1c1649A38f4A3c5A0c4a24070f688C525AB7D6E6`
+  - `sfrxETH`: `0xbBc424e58ED38dd911309611ae2d7A23014Bd960`
+  - `FXS`: `0xC6F59a4fD50cAc677B51558489E03138Ac1784EC`
+  - `FPI`: `0x9033BAD7aA130a2466060A2dA71fAe2219781B4b`
+2. Immutable (legacy) Lockboxes
+  - `FRAX`: `0x909DBdE1eBE906Af95660033e478D59EFe831fED`
+  - `sFRAX`: `0xe4796cCB6bB5DE2290C417Ac337F2b66CA2E770E`
+  - `frxETH` : `0xF010a7c8877043681D59AD125EbF575633505942`
+  - `sfrxETH`: `0x1f55a02A049033E3419a8E2975cF3F572F4e6E9A`
+  - `FXS`: `0x23432452B720C80553458496D4D9d7C5003280d0`
+  - `FPI`: `0x6Eca253b102D41B6B69AC815B9CC6bD47eF1979d`
 
 ### Solana
 - Admin: Chain-respective msig
@@ -50,6 +81,10 @@ These lockboxes are to be used by Ink and Sonic until FRAX/sFRAX tokens have fin
   - SPL Token: `DnVyztLHnDyTqL3xfPYF9Uqpgrhcxphn6e31sVAwtg6K`
   - OFT Config: `3BcysJF4fQx86fVTDTBGNpZyRpeMyTF8XsuvPHJQuP3V`
     - As bytes32: `0x206fdd7d0be90d8ff93f6f7f4bd4d8b42ca8977317da0b7d2861299e3c589dd8`
+- `frxETH`
+  - SPL Token: `CuXHLCxCcyPkmbemPxh7PAWedfFffeL82b6VPJmonTaa`
+  - OFT Config: `AzaSy9yr44e4bnWNdrNkxmye1kEYmbbgGfY8a3ZqzuMf`
+    - As bytes32: `0x94791ba0aae2b57460c63d36346392d849b22f39fd3eafad5bc82d01e352dde6`
 - `sfrxETH`
   - SPL Token: `6iHW2j5dvW8EiEVSXqQFjm7c5xNd4MdYuXLrW3eQ1UYw`
   - OFT Config: `8AdTghMT8yyNpWrTuPoDjrtXW7t1YEZgLVjWDftWfCxo`
@@ -58,10 +93,6 @@ These lockboxes are to be used by Ink and Sonic until FRAX/sFRAX tokens have fin
   - SPL Token: `8QRvtWw4XYQW7UqTiGhzyWZkhCqSwZDA5qjRWDotSZ4e`
   - OFT Config: `5KYEyuA1cAdnZFj4i6zUjTEre4s7snacyXbkTmNqLjJs`
     - As bytes32: `0x402e86d1cfd2cde4fac63aa8d9892eca6d3c0e08e8335622124332a95df6c10c`
-- `frxETH`
-  - SPL Token: `CuXHLCxCcyPkmbemPxh7PAWedfFffeL82b6VPJmonTaa`
-  - OFT Config: `AzaSy9yr44e4bnWNdrNkxmye1kEYmbbgGfY8a3ZqzuMf`
-    - As bytes32: `0x94791ba0aae2b57460c63d36346392d849b22f39fd3eafad5bc82d01e352dde6`
 - `FPI`
   - SPL Token: `FqRC7vNLS3ubbhtdqNSz8Q5ei8VdUxF6H6eoXQLHxihr`
   - OFT Config: `BG9oPj76NRPbj1e1GbL4imnqo9VD7W2ukpnRFSWtq5CA`
@@ -74,9 +105,9 @@ These lockboxes are to be used by Ink and Sonic until FRAX/sFRAX tokens have fin
 - OFTs
   - `FRAX`: `0x909DBdE1eBE906Af95660033e478D59EFe831fED`
   - `sFRAX`: `0xe4796cCB6bB5DE2290C417Ac337F2b66CA2E770E`
+  - `frxETH` : `0xF010a7c8877043681D59AD125EbF575633505942`
   - `sfrxETH`: `0x1f55a02A049033E3419a8E2975cF3F572F4e6E9A`
   - `FXS`: `0x23432452B720C80553458496D4D9d7C5003280d0`
-  - `frxETH` : `0xF010a7c8877043681D59AD125EbF575633505942`
   - `FPI`: `0x6Eca253b102D41B6B69AC815B9CC6bD47eF1979d`
 
 
@@ -101,13 +132,9 @@ TODO: automatically save as strings.
 
 ## TODO
 - Ink, Sonic, Arbitrum, Optimism, Polygon, Avalanche, BSC, Polygon zkEvm
-  - Configure source/destination (s)frxUSD peers for Xlayer, Sei, Mode, Solana
-  - Double-check peers for (s)frxUSD
   - Wire (s)frxETH/FPI to legacy Ethereum lockbox
-- Sonic
-  - Set up DVNs for each chain
 - Solana
-  - Configure for Ink, Sonic, Arbitrum, Optimism, Polygon, Avalanche, BSC, Polygon zkEvm
+  - Configure for Ink, Sonic, Arbitrum, Optimism, Polygon, Avalanche, BSC, Polygon zkEvm, Ethereum (s)frxUSD, Fraxtal lockboxes
 
 ## 1) Developing Contracts
 

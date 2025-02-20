@@ -199,6 +199,17 @@
             "endpoint": "0x1a44076050125825900e736c501f859c50fE728c",
             "receiveLib302": "0x377530cdA84DFb2673bF4d145DCF0C4D7fdcB5b6",
             "sendLib302": "0xc1B621b18187F74c8F6D52a6F709Dd2780C09821"
+        },
+        {
+            "RPC": "https://metis-mainnet.public.blastapi.io",
+            "chainid": 1088,
+            "delegate": "0xF4A4F32732F9B2fB84Ee28c58616946F3bF80F7d",
+            "dvnHorizen": "0x32d4F92437454829b3Fe7BEBfeCE5D0523DEb475",
+            "dvnL0": "0x7fe673201724925B5c477d4E1A4Bd3E954688cF5",
+            "eid": 30151,
+            "endpoint": "0x1a44076050125825900e736c501f859c50fE728c",
+            "receiveLib302": "0x5539Eb17a84E1D59d37C222Eb2CC4C81b502D1Ac",
+            "sendLib302": "0x63e39ccB510926d05a0ae7817c8f1CC61C5BdD6c"
         }
     ],
     "Non-EVM": [

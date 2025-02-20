@@ -1,4 +1,4 @@
-import { sdk } from '@layerzerolabs/devtools-extensible-cli/cli/AptosEVMCli'
+import { sdk } from '@layerzerolabs/devtools-extensible-cli/cli/AptosEVMCli';
 import { attach_wire_evm, attach_wire_move } from '@layerzerolabs/devtools-move/cli/init'
 import { attach_oft_move } from '@layerzerolabs/oft-move/cli/init'
 

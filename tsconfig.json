@@ -2,8 +2,9 @@
   "exclude": ["node_modules"],
   "include": ["deploy", "tasks", "test", "hardhat.config.ts"],
   "compilerOptions": {
-    "target": "es2020",
-    "module": "commonjs",
+    "target": "ESNext",
+    "module": "ESNext",
+    "moduleResolution": "node",
     "esModuleInterop": true,
     "forceConsistentCasingInFileNames": true,
     "strict": true,

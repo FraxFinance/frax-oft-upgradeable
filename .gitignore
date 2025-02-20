@@ -20,3 +20,4 @@ pnpm-error.log
 # Editor and OS files
 .DS_Store
 .idea
+.aptos

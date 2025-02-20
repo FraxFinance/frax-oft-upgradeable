@@ -15,13 +15,7 @@
     "test": "$npm_execpath run test:forge && $npm_execpath run test:hardhat",
     "test:forge": "forge test",
     "test:hardhat": "hardhat test",
-    "lz:sdk:move:build": "ts-node scripts/cli.ts --vm move --op build",
-    "lz:sdk:move:deploy": "ts-node scripts/cli.ts --vm move --op deploy",
-    "lz:sdk:move:init-fa": "ts-node scripts/cli.ts --vm move --op init-fa",
-    "lz:sdk:move:set-delegate": "ts-node scripts/cli.ts --vm move --op set-delegate",
-    "lz:sdk:move:transfer-oapp-owner": "ts-node scripts/cli.ts --vm move --op transfer-oapp-owner",
-    "lz:sdk:move:transfer-object-owner": "ts-node scripts/cli.ts --vm move --op transfer-object-owner",
-    "lz:sdk:move:wire": "ts-node scripts/cli.ts --vm move --op wire"
+    "lz:sdk:aptos-move:build": "ts-node scripts/DeployFraxOFTProtocol/aptos-move-cli.ts --vm move --op build"
   },
   "resolutions": {
     "@nomicfoundation/edr": "0.3.5",
@@ -31,10 +25,13 @@
   "devDependencies": {
     "@babel/core": "^7.23.9",
     "@fraxfinance/layerzero-v2-upgradeable": "git://github.com/fraxfinance/LayerZero-v2-upgradeable.git#v1.0.0",
+    "@layerzerolabs/devtools-extensible-cli": "^0.0.2",
+    "@layerzerolabs/devtools-move": "^0.0.2",
     "@layerzerolabs/lz-definitions": "^3.0.68",
     "@layerzerolabs/lz-evm-messagelib-v2": "~2.3.21",
     "@layerzerolabs/lz-evm-oapp-v2": "~2.3.19",
     "@layerzerolabs/lz-evm-protocol-v2": "~2.3.3",
+    "@layerzerolabs/oft-move": "^0.0.2",
     "@layerzerolabs/toolbox-foundry": "~0.1.5",
     "@layerzerolabs/toolbox-hardhat": "^0.6.6",
     "@openzeppelin/contracts": "^4.8.1",
@@ -42,7 +39,7 @@
     "@rushstack/eslint-patch": "^1.7.0",
     "@types/chai": "^4.3.11",
     "@types/mocha": "^10.0.6",
-    "@types/node": "~18.18.14",
+    "@types/node": "~22.13.4",
     "chai": "^4.4.1",
     "dotenv": "^16.4.1",
     "eslint-plugin-jest-extended": "~2.0.0",
@@ -57,7 +54,7 @@
     "solhint": "^4.1.1",
     "solidity-bytes-utils": "^0.8.2",
     "ts-node": "^10.9.2",
-    "typescript": "^5.3.3"
+    "typescript": "^5.7.3"
   },
   "engines": {
     "node": ">=18.16.0"
@@ -76,5 +73,6 @@
   },
   "dependencies": {
     "@layerzerolabs/lz-v2-utilities": "^2.3.38"
-  }
+  },
+  "type": "module"
 }

@@ -1,10 +1,15 @@
 {
   "exclude": ["node_modules"],
-  "include": ["deploy", "tasks", "test", "hardhat.config.ts"],
+  "include": [
+    "deploy",
+    "tasks",
+    "test",
+    "hardhat.config.ts",
+    "deploy-move/MyMoveOFTFA.ts"
+  ],
   "compilerOptions": {
-    "target": "ESNext",
-    "module": "ESNext",
-    "moduleResolution": "node",
+    "target": "es2020",
+    "module": "commonjs",
     "esModuleInterop": true,
     "forceConsistentCasingInFileNames": true,
     "strict": true,

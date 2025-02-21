@@ -4,7 +4,11 @@ coverage
 coverage.json
 typechain
 typechain-types
+
+# Foundry compiles
 out
+zkout
+foundryup-zksync
 
 # Hardhat files
 cache

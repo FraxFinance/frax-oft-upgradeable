@@ -50,8 +50,8 @@ function getContractConfig(lzConfig: lzConfigType[]): OmniNodeHardhat[] {
 
 function getConnectionConfig(lzConfig: lzConfigType[], sourceContract: OmniPointHardhat): OmniEdgeHardhat<OAppEdgeConfig>[] {
 
-    let sourceOFTConfig
-    LOCOnfig['Non-EVM'].forEach(nonEVMConfig => {
+    let sourceOFTConfig:lzConfigType
+    LOCOnfig['Non-EVM'].forEach((nonEVMConfig:lzConfigType) => {
         if (nonEVMConfig.eid == sourceContract.eid) {
             sourceOFTConfig = nonEVMConfig
         }
@@ -80,17 +80,17 @@ function getConnectionConfig(lzConfig: lzConfigType[], sourceContract: OmniPoint
             ],
             sendLibrary: sourceOFTConfig.sendLib302,
             receiveLibraryConfig: {
-                receiveLibrary: sourceOFTConfig.receiveLib302,
+                receiveLibrary: sourceOFTConfig.receiveLib302 ?? "",
                 gracePeriod: BigInt(0),
             },
             sendConfig: {
                 executorConfig: {
                     maxMessageSize: 10_000,
-                    executor: sourceOFTConfig.executor,
+                    executor: sourceOFTConfig.executor ?? "",
                 },
                 ulnConfig: {
                     confirmations: BigInt(260),
-                    requiredDVNs: [sourceOFTConfig.dvnHorizen, sourceOFTConfig.dvnL0],
+                    requiredDVNs: [sourceOFTConfig.dvnHorizen ?? "", sourceOFTConfig.dvnL0 ?? ""],
                     optionalDVNs: [],
                     optionalDVNThreshold: 0,
                 },
@@ -100,7 +100,7 @@ function getConnectionConfig(lzConfig: lzConfigType[], sourceContract: OmniPoint
             receiveConfig: {
                 ulnConfig: {
                     confirmations: BigInt(5),
-                    requiredDVNs: [sourceOFTConfig.dvnHorizen, sourceOFTConfig.dvnL0],
+                    requiredDVNs: [sourceOFTConfig.dvnHorizen ?? "", sourceOFTConfig.dvnL0 ?? ""],
                     optionalDVNs: [],
                     optionalDVNThreshold: 0,
                 },

@@ -22,3 +22,4 @@ pnpm-error.log
 .idea
 build/
 .turbo
+target

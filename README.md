@@ -30,6 +30,7 @@ This repository contains all of the contracts and deployment code used to manage
   - [`Avalanche`](https://app.safe.global/home?safe=avax:0xBF1fF4D8B05F0871ca3f49e49fF1cA8AeeBD3b4b)
   - [`BSC`](https://app.safe.global/home?safe=bnb:0xB1eff95B323D60cc04B1a44Ca1dBcbC935ae2C84)
   - [`Polygon zkEvm`](https://app.safe.global/home?safe=zkevm:0x57445fD8d544e5D313e4f715220103b091814df4)
+  - [`Berachain`](https://safe.berachain.com/home?safe=berachain:0x436b303dAf4b95e94ad86cA3821d5E50eB0De3aA)
 
 ### Proxy (upgradeable) OFTs
 - Chain: `Mode`, `Sei`, `X-Layer`, `Ink`, `Sonic`, `Arbitrum`, `Optimism`, `Polygon`, `BSC`, `Avalanche`, `Polygon zkEvm`, `Blast`

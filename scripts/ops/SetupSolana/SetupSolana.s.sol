@@ -79,6 +79,7 @@ contract SetupSolana is DeployFraxOFTProtocol {
         broadcastConfig = nonEvmConfigs[0];
         broadcastConfigArray.push(nonEvmConfigs[0]);
 
+        // TODO : (Dhruvin) : update following addresses after solana deployment
         // push bytes32 token addrs in the same order as deployFraxOFTUpgradeblesAndProxies()
         solanaPeers.push(0x402e86d1cfd2cde4fac63aa8d9892eca6d3c0e08e8335622124332a95df6c10c); // fxs
         solanaPeers.push(0x206fdd7d0be90d8ff93f6f7f4bd4d8b42ca8977317da0b7d2861299e3c589dd8); // sFrax

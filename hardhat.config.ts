@@ -51,6 +51,11 @@ const config: HardhatUserConfig = {
         ],
     },
     networks: {
+        fraxtal:{
+            eid: EndpointId.FRAXTAL_V2_MAINNET,
+            url: process.env.RPC_URL_FRAXTAL || 'https://rpc.frax.com/',
+            accounts,
+        },
         sepolia: {
             eid: EndpointId.SEPOLIA_V2_TESTNET,
             url: process.env.RPC_URL_SEPOLIA || 'https://rpc.sepolia.org/',

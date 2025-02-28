@@ -1,0 +1,8 @@
+import { VersionedMessage, VersionedTransaction } from '@solana/web3.js'
+
+const transactionDataHex = '020101043c1b094729102e0c095ee2417e5940ee4f1eab4763f6113fe75281ab74c62398d686ca6c5f329a8001280fc5746b81b4d7adbe81cd03aecb55686030d04386903290f7cb566e3551d3b61847d7de7ecef11c221abd502eb1f4009e9b72f5926ec15627c37a10f89f1c6fc7fedd83ebbdd82cbddd14df55674498ec9c1eae1b3105ee6856400bbb2ad7b9a0ecb0f3765fe4b9309c888bd966d997d971d942de77010302010229377e57d99f4218c2003c1b094729102e0c095ee2417e5940ee4f1eab4763f6113fe75281ab74c62398'
+const versionedMessage = VersionedMessage.deserialize(Buffer.from(transactionDataHex, 'hex'))
+
+const tx = new VersionedTransaction(versionedMessage);
+
+console.log(Buffer.from(tx.serialize()).toString('base64'));

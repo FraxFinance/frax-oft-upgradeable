@@ -55,28 +55,28 @@ contract DeployFraxOFTProtocol is BaseL0Script {
     function setupDestination(
         L0Config memory _connectedConfig
     ) public virtual simulateAndWriteTxs(_connectedConfig) {
-        setEvmEnforcedOptions({
-            _connectedOfts: connectedOfts,
-            _configs: broadcastConfigArray
-        });
+        // setEvmEnforcedOptions({
+        //     _connectedOfts: connectedOfts,
+        //     _configs: broadcastConfigArray
+        // });
 
-        setEvmPeers({
-            _connectedOfts: connectedOfts,
-            _peerOfts: proxyOfts,
-            _configs: broadcastConfigArray 
-        });
+        // setEvmPeers({
+        //     _connectedOfts: connectedOfts,
+        //     _peerOfts: proxyOfts,
+        //     _configs: broadcastConfigArray 
+        // });
 
-        setDVNs({
-            _connectedConfig: _connectedConfig,
-            _connectedOfts: connectedOfts,
-            _configs: broadcastConfigArray
-        });
+        // setDVNs({
+        //     _connectedConfig: _connectedConfig,
+        //     _connectedOfts: connectedOfts,
+        //     _configs: broadcastConfigArray
+        // });
 
-        setLibs({
-            _connectedConfig: _connectedConfig,
-            _connectedOfts: connectedOfts,
-            _configs: broadcastConfigArray
-        });
+        // setLibs({
+        //     _connectedConfig: _connectedConfig,
+        //     _connectedOfts: connectedOfts,
+        //     _configs: broadcastConfigArray
+        // });
     }
 
     function setupSource() public virtual broadcastAs(configDeployerPK) {

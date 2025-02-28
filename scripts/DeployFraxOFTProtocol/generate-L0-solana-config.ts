@@ -2,7 +2,7 @@ import { ExecutorOptionType } from '@layerzerolabs/lz-v2-utilities'
 
 import type { OAppEdgeConfig, OAppOmniGraphHardhat, OmniEdgeHardhat, OmniPointHardhat } from '@layerzerolabs/toolbox-hardhat'
 
-import LOCOnfig from "../L0Config.json"
+import LOCOnfig4L0 from "../L0Config4L0.json"
 
 enum MsgType {
     SEND = 1,
@@ -60,7 +60,7 @@ function getContractConfig(lzConfig: lzConfigType[], assetName: string): OmniNod
 function getConnectionConfig(lzConfig: lzConfigType[], sourceContract: OmniPointHardhat,assetName:string): OmniEdgeHardhat<OAppEdgeConfig>[] {
 
     let sourceOFTConfig: lzConfigType
-    LOCOnfig['Non-EVM'].forEach((nonEVMConfig: lzConfigType) => {
+    LOCOnfig4L0['Non-EVM'].forEach((nonEVMConfig: lzConfigType) => {
         if (nonEVMConfig.eid == sourceContract.eid) {
             sourceOFTConfig = nonEVMConfig
         }
@@ -123,8 +123,8 @@ export function GenerateConfig(sourceContract: OmniPointHardhat, assetName: stri
 
     return {
         contracts: [
-            ...getContractConfig(LOCOnfig.Legacy, assetName),
-            ...getContractConfig(LOCOnfig.Proxy, assetName),
+            ...getContractConfig(LOCOnfig4L0.Legacy.filter(configItem => configItem.contractName != ""), assetName),
+            ...getContractConfig(LOCOnfig4L0.Proxy.filter(configItem => configItem.contractName != ""), assetName),
             {
                 contract: sourceContract,
                 // config: {
@@ -134,8 +134,8 @@ export function GenerateConfig(sourceContract: OmniPointHardhat, assetName: stri
             },
         ],
         connections: [
-            ...getConnectionConfig(LOCOnfig.Legacy, sourceContract,assetName),
-            ...getConnectionConfig(LOCOnfig.Proxy, sourceContract,assetName)
+            ...getConnectionConfig(LOCOnfig4L0.Legacy.filter(configItem => configItem.contractName != ""), sourceContract,assetName),
+            ...getConnectionConfig(LOCOnfig4L0.Proxy.filter(configItem => configItem.contractName != ""), sourceContract,assetName)
         ]
     }
 }

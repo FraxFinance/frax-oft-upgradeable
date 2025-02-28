@@ -188,6 +188,17 @@
             "endpoint": "0x1a44076050125825900e736c501f859c50fE728c",
             "receiveLib302": "0xc02Ab410f0734EFa3F14628780e6e695156024C2",
             "sendLib302": "0xbB2Ea70C9E858123480642Cf96acbcCE1372dCe1"
+        },
+        {
+            "RPC": "https://rpc.linea.build",
+            "chainid": 59144,
+            "delegate": "0x0E5a5284820E350ffce7fe7ba3364FaC1C53eaFD",
+            "dvnHorizen": "0x7fe673201724925b5c477d4e1a4bd3e954688cf5",
+            "dvnL0": "0x129ee430cb2ff2708ccaddbdb408a88fe4ffd480",
+            "eid": 30183,
+            "endpoint": "0x1a44076050125825900e736c501f859c50fE728c",
+            "receiveLib302": "0xE22ED54177CE1148C557de74E4873619e6c6b205",
+            "sendLib302": "0x32042142DD551b4EbE17B6FEd53131dd4b4eEa06"
         }
     ],
     "Non-EVM": [

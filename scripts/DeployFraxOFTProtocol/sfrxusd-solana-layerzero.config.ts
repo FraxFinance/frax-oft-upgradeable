@@ -4,12 +4,11 @@ import type { OmniPointHardhat } from '@layerzerolabs/toolbox-hardhat'
 
 import { GenerateConfig } from './generate-L0-solana-config';
 
-const assetName = "sfrxusd"
+const assetName = "sfrxUSD"
 
 const solanaContract: OmniPointHardhat = {
     eid: EndpointId.SOLANA_V2_MAINNET,
-    contractName: assetName,
-    address: '', // NOTE: update this with the OFTStore address.
+    address: 'A28EK6j1euK4e6taP1KLFpGEoR1mDpXR4vtfiyCE1Nxv', // NOTE: update this with the OFTStore address.
 }
 
 const config = GenerateConfig(solanaContract,assetName);

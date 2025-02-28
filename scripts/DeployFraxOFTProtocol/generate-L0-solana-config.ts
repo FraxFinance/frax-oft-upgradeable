@@ -48,7 +48,7 @@ function getContractConfig(lzConfig: lzConfigType[], assetName: string): OmniNod
         contract: {
             eid: config.eid,
             contractName: config.contractName,
-            address: lzConfig[assetName]
+            address: config[assetName]
         },
         // config: {
         //     owner: config.delegate,
@@ -94,10 +94,6 @@ function getConnectionConfig(lzConfig: lzConfigType[], sourceContract: OmniPoint
                 gracePeriod: BigInt(0),
             },
             sendConfig: {
-                executorConfig: {
-                    maxMessageSize: 10_000,
-                    executor: sourceOFTConfig.executor ?? "",
-                },
                 ulnConfig: {
                     confirmations: BigInt(10),
                     requiredDVNs: [sourceOFTConfig.dvnHorizen ?? "", sourceOFTConfig.dvnL0 ?? ""],

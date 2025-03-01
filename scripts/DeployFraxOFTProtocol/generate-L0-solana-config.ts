@@ -12,8 +12,8 @@ enum MsgType {
 type OmniNodeHardhat = {
     contract: {
         eid: number
-        contractName: string
-        address: string
+        contractName?: string
+        address?: string
     }
     config?: {
         owner?: string
@@ -44,20 +44,20 @@ type lzConfigType = {
 }
 
 function getContractConfig(lzConfig: lzConfigType[], assetName: string): OmniNodeHardhat[] {
-    return lzConfig.map(config => ({
+    return lzConfig.map(_config => ({
         contract: {
-            eid: config.eid,
-            contractName: config.contractName,
-            address: config[assetName]
+            eid: _config.eid,
+            // address: _config[assetName],
+            contractName: _config.contractName,
         },
         // config: {
-        //     owner: config.delegate,
-        //     delegate: config.delegate
+        //     owner: _config.delegate,
+        //     delegate: _config.delegate
         // }
     }))
 }
 
-function getConnectionConfig(lzConfig: lzConfigType[], sourceContract: OmniPointHardhat,assetName:string): OmniEdgeHardhat<OAppEdgeConfig>[] {
+function getConnectionConfig(lzConfig: lzConfigType[], sourceContract: OmniPointHardhat, assetName: string): OmniEdgeHardhat<OAppEdgeConfig>[] {
 
     let sourceOFTConfig: lzConfigType
     LOCOnfig4L0['Non-EVM'].forEach((nonEVMConfig: lzConfigType) => {
@@ -70,8 +70,8 @@ function getConnectionConfig(lzConfig: lzConfigType[], sourceContract: OmniPoint
         from: sourceContract,
         to: {
             eid: config.eid,
+            // address: config[assetName],
             contractName: config.contractName,
-            address:config[assetName]
         },
         config: {
             enforcedOptions: [
@@ -79,13 +79,13 @@ function getConnectionConfig(lzConfig: lzConfigType[], sourceContract: OmniPoint
                     msgType: MsgType.SEND,
                     optionType: ExecutorOptionType.LZ_RECEIVE,
                     gas: 80_000,
-                    value: 0,
+                    value: 0
                 },
                 {
                     msgType: MsgType.SEND_AND_CALL,
                     optionType: ExecutorOptionType.LZ_RECEIVE,
                     gas: 80_000,
-                    value: 0,
+                    value: 0
                 },
             ],
             sendLibrary: sourceOFTConfig.sendLib302,
@@ -117,7 +117,7 @@ function getConnectionConfig(lzConfig: lzConfigType[], sourceContract: OmniPoint
 
 export function GenerateConfig(sourceContract: OmniPointHardhat, assetName: string): OAppOmniGraphHardhat {
 
-    return {
+    const config = {
         contracts: [
             ...getContractConfig(LOCOnfig4L0.Legacy.filter(configItem => configItem.contractName != ""), assetName),
             ...getContractConfig(LOCOnfig4L0.Proxy.filter(configItem => configItem.contractName != ""), assetName),
@@ -130,8 +130,9 @@ export function GenerateConfig(sourceContract: OmniPointHardhat, assetName: stri
             },
         ],
         connections: [
-            ...getConnectionConfig(LOCOnfig4L0.Legacy.filter(configItem => configItem.contractName != ""), sourceContract,assetName),
-            ...getConnectionConfig(LOCOnfig4L0.Proxy.filter(configItem => configItem.contractName != ""), sourceContract,assetName)
+            ...getConnectionConfig(LOCOnfig4L0.Legacy.filter(configItem => configItem.contractName != ""), sourceContract, assetName),
+            ...getConnectionConfig(LOCOnfig4L0.Proxy.filter(configItem => configItem.contractName != ""), sourceContract, assetName),
         ]
     }
+    return config
 }

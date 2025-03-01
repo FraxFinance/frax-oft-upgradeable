@@ -351,7 +351,7 @@ contract DeployFraxOFTProtocol is BaseL0Script {
             // For each non-evm
             for (uint256 c=0; c<nonEvmPeersArrays.length; c++) {
                 setPeer({
-                    _config: broadcastConfig,
+                    _config: nonEvmConfigs[0], // TODO : assuming 0th index is solana
                     _connectedOft: _connectedOfts[o],
                     _peerOftAsBytes32: nonEvmPeersArrays[c][o]
                 });

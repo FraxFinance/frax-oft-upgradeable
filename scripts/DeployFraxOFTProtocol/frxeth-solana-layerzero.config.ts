@@ -8,8 +8,7 @@ const assetName = "frxeth"
 
 const solanaContract: OmniPointHardhat = {
     eid: EndpointId.SOLANA_V2_MAINNET,
-    contractName: assetName,
-    address: '', // NOTE: update this with the OFTStore address.
+    address: '4pyqBQFhzsuL7ED76x3AyzT4bCVpMpQWXhS1LqEsfQtz', // NOTE: update this with the OFTStore address.
 }
 
 const config = GenerateConfig(solanaContract,assetName);

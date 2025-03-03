@@ -5,7 +5,7 @@ This repository contains all of the contracts and deployment code used to manage
 ## Contracts & Addresses
 ### Admin
 - `ProxyAdmin`
-  - `Mode`, `Sei`, `Fraxtal`, `X-Layer`, `Ink`, `Sonic`, `Arbitrum`, `Optimism`, `Polygon`, `BSC`
+  - `Mode`, `Sei`, `Fraxtal`, `X-Layer`, `Ink`, `Sonic`, `Arbitrum`, `Optimism`, `Polygon`, `Avalanche`, `BSC`, `Polygon zkEvm`
     - `0x223a681fc5c5522c85c96157c0efa18cd6c5405c`
   - `Base`
     - `0xF59C41A57AB4565AF7424F64981523DfD7A453c5`
@@ -33,7 +33,7 @@ This repository contains all of the contracts and deployment code used to manage
   - [`Berachain`](https://safe.berachain.com/home?safe=berachain:0x436b303dAf4b95e94ad86cA3821d5E50eB0De3aA)
 
 ### Proxy (upgradeable) OFTs
-- Chain: `Mode`, `Sei`, `X-Layer`, `Ink`, `Sonic`, `Arbitrum`, `Optimism`, `Polygon`, `BSC`, `Avalanche`, `Polygon zkEvm`, `Blast`
+- Chain: `Mode`, `Sei`, `X-Layer`, `Ink`, `Sonic`, `Arbitrum`, `Optimism`, `Polygon`, `BSC`, `Avalanche`, `Polygon zkEvm`, `Blast`, `Berachain`
   - OFTs
     - `frxUSD`: `0x80Eede496655FB9047dd39d9f418d5483ED600df`
     - `sfrxUSD`: `0x5Bff88cA1442c2496f7E475E9e7786383Bc070c0`

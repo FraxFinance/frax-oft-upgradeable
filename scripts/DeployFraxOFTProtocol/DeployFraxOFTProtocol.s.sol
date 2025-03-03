@@ -103,7 +103,7 @@ contract DeployFraxOFTProtocol is BaseL0Script {
     function setupEvms() public virtual {
         setEvmEnforcedOptions({
             _connectedOfts: proxyOfts,
-            _configs: evmConfigs
+            _configs: proxyConfigs
         });
 
         /// @dev Upgradeable OFTs maintaining the same address cross-chain.

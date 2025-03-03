@@ -97,7 +97,7 @@ contract BaseL0Script is L0Constants, Script {
     string public json;
 
     function version() public virtual pure returns (uint256, uint256, uint256) {
-        return (1, 2, 7);
+        return (1, 2, 9);
     }
 
     modifier broadcastAs(uint256 privateKey) {
@@ -205,13 +205,17 @@ contract BaseL0Script is L0Constants, Script {
         L0Config[] memory proxyConfigs_ = abi.decode(json.parseRaw(".Proxy"), (L0Config[]));
         for (uint256 i=0; i<proxyConfigs_.length; i++) {
             L0Config memory config_ = proxyConfigs_[i];
-            if (config_.chainid == block.chainid) {
+            // broadcast config could have already been set if dealing with a legacy chain
+            if (config_.chainid == block.chainid && broadcastConfigArray.length == 0) {
                 broadcastConfig = config_;
                 broadcastConfigArray.push(config_);
             }
             proxyConfigs.push(config_);
-            // skip pushing Eth config as it was already added through legacyConfigs
-            if (config_.chainid != 1) {
+            // do not push legacy configs which have also been deployed as proxy configs
+            if (
+                config_.chainid != 1 && config_.chainid != 81457 &&
+                config_.chainid != 1088 && config_.chainid != 8453
+            ) {
                 allConfigs.push(config_);
                 evmConfigs.push(config_);
             }

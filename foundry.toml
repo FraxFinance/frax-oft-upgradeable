@@ -1,5 +1,6 @@
 [profile.default]
 solc-version = '0.8.22'
+evm_version = 'paris'
 src = 'scripts'
 out = 'out'
 test = 'test/foundry'

@@ -33,7 +33,7 @@ contract DeployLinea_2 is DeployFraxOFTProtocol {
     // Additional deployment of proxyAdmin here
     function setupSource() public override broadcastAs(configDeployerPK) {
         proxyAdmin = address(new FraxProxyAdmin(vm.addr(configDeployerPK)));
-        console.log("proxyAdmin: ", proxyAdmin);
+        require(proxyAdmin == 0xa0E311912a0b0CF839Bc77dbdC2dE3c3e0846De4, "ProxyAdmin address incorrect");
 
         setupEvms();
         setupNonEvms();
@@ -126,5 +126,12 @@ contract DeployLinea_2 is DeployFraxOFTProtocol {
             _name: "Frax Price Index",
             _symbol: "FPI"
         });
+
+        require(fxsOft == proxyFxsOft, "fxsOft address incorrect");
+        require(sfrxUsdOft == proxySFrxUsdOft, "sfrxUsdOft address incorrect");
+        require(sfrxEthOft == proxySFrxEthOft, "sfrxEthOft address incorrect");
+        require(frxUsdOft == proxyFrxUsdOft, "frxUsdOft address incorrect");
+        require(frxEthOft == proxyFrxEthOft, "frxEthOft address incorrect");
+        require(fpiOft == proxyFpiOft, "fpiOft address incorrect");
     }
 }

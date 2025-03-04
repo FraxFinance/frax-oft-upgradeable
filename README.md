@@ -5,8 +5,10 @@ This repository contains all of the contracts and deployment code used to manage
 ## Contracts & Addresses
 ### Admin
 - `ProxyAdmin`
-  - `Mode`, `Sei`, `X-Layer`, `Ink`, `Sonic`, `Arbitrum`, `Optimism`, `Polygon`, `Avalanche`, `BSC`, `Polygon zkEvm`, `Linea`
+  - `Mode`, `Sei`, `X-Layer`, `Ink`, `Sonic`, `Arbitrum`, `Optimism`, `Polygon`, `Avalanche`, `BSC`, `Polygon zkEvm`
     - `0x223a681fc5c5522c85c96157c0efa18cd6c5405c`
+  - `Linea`
+    - `0x3cf371c128b092b085B7732069cEAF3Fd863F270`
   - `ZKSync`
     - TODO
 
@@ -31,7 +33,7 @@ This repository contains all of the contracts and deployment code used to manage
   - [`Linea`](https://safe.linea.build/home?safe=linea:0x0E5a5284820E350ffce7fe7ba3364FaC1C53eaFD)
 
 ### Proxy (upgradeable) OFTs
-- Chain: `Mode`, `Sei`, `X-Layer`, `Ink`, `Sonic`, `Arbitrum`, `Optimism`, `Polygon`, `Avalanche`, `BSC`, `Polygon zkEvm`, `Linea`
+- Chain: `Mode`, `Sei`, `X-Layer`, `Ink`, `Sonic`, `Arbitrum`, `Optimism`, `Polygon`, `Avalanche`, `BSC`, `Polygon zkEvm`
   - OFTs
     - `frxUSD`: `0x80Eede496655FB9047dd39d9f418d5483ED600df`
     - `sfrxUSD`: `0x5Bff88cA1442c2496f7E475E9e7786383Bc070c0`
@@ -39,9 +41,18 @@ This repository contains all of the contracts and deployment code used to manage
     - `sfrxETH`: `0x3Ec3849C33291a9eF4c5dB86De593EB4A37fDe45`
     - `FXS`: `0x64445f0aecC51E94aD52d8AC56b7190e764E561a`
     - `FPI` : `0x90581eCa9469D8D7F5D3B60f4715027aDFCf7927`
+- Chain: `Linea`
+  - OFTs:
+      - `frxUSD`: `0xC7346783f5e645aa998B106Ef9E7f499528673D8`
+      - `sfrxUSD`: `0x592a48c0FB9c7f8BF1701cB0136b90DEa2A5B7B6`
+      - `frxETH`: `0xB1aFD04774c02AE84692619448B08BA79F19b1ff`
+      - `sfrxETH`: `0x383Eac7CcaA89684b8277cBabC25BCa8b13B7Aa2`
+      - `FXS`: `0x5217Ab28ECE654Aab2C68efedb6A22739df6C3D5`
+      - `FPI`:  `0xDaF72Aa849d3C4FAA8A9c8c99f240Cf33dA02fc4`
 - Chain: `ZkSync`
   - OFTs
     - TODO
+
 
 ### Lockbox design
 Frax operates a dual-lockbox design where users can exit their OFT token into the native Frax-asset token on both Ethereum and Fraxtal.  Utilizing a dual-lockbox design is a novel solution to bridging as liquidity is  unlocked from more than one location.  More about this solution is be explained in the [docs](TODO).

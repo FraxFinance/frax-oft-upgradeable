@@ -1,6 +1,10 @@
 {
-    "name": "Staked Frax USD",
-    "symbol": "sfrxUSD",
-    "description": "Staked Frax USD Token",
-    "image": "https://static.frax.com/images/tokens/sfrxusd.png"
+  "name": "Staked Frax USD",
+  "symbol": "sfrxUSD",
+  "description": "Staked Frax USD Token",
+  "image": "https://static.frax.com/images/tokens/sfrxusd.png",
+  "extensions": {
+    "website": "https://frax.finance/",
+    "twitter": "https://x.com/fraxfinance"
   }
+}

@@ -123,10 +123,10 @@ export function GenerateConfig(sourceContract: OmniPointHardhat, assetName: stri
             ...getContractConfig(LOCOnfig4L0.Proxy.filter(configItem => configItem.contractName != ""), assetName),
             {
                 contract: sourceContract,
-                // config: {
-                //     delegate: '',
-                //     owner: '',
-                // },
+                config: {
+                    delegate: 'FSRTW4KPGifKL8yKcZ8mfoR9mKtAjwZiTHbHwgix8AQo',
+                    owner: 'FSRTW4KPGifKL8yKcZ8mfoR9mKtAjwZiTHbHwgix8AQo',
+                },
             },
         ],
         connections: [

@@ -55,28 +55,28 @@ contract DeployFraxOFTProtocol is BaseL0Script {
     function setupDestination(
         L0Config memory _connectedConfig
     ) public virtual simulateAndWriteTxs(_connectedConfig) {
-        setEvmEnforcedOptions({
-            _connectedOfts: connectedOfts,
-            _configs: broadcastConfigArray
-        });
+        // setEvmEnforcedOptions({
+        //     _connectedOfts: connectedOfts,
+        //     _configs: broadcastConfigArray
+        // });
 
-        setEvmPeers({
-            _connectedOfts: connectedOfts,
-            _peerOfts: proxyOfts,
-            _configs: broadcastConfigArray 
-        });
+        // setEvmPeers({
+        //     _connectedOfts: connectedOfts,
+        //     _peerOfts: proxyOfts,
+        //     _configs: broadcastConfigArray 
+        // });
 
-        setDVNs({
-            _connectedConfig: _connectedConfig,
-            _connectedOfts: connectedOfts,
-            _configs: broadcastConfigArray
-        });
+        // setDVNs({
+        //     _connectedConfig: _connectedConfig,
+        //     _connectedOfts: connectedOfts,
+        //     _configs: broadcastConfigArray
+        // });
 
-        setLibs({
-            _connectedConfig: _connectedConfig,
-            _connectedOfts: connectedOfts,
-            _configs: broadcastConfigArray
-        });
+        // setLibs({
+        //     _connectedConfig: _connectedConfig,
+        //     _connectedOfts: connectedOfts,
+        //     _configs: broadcastConfigArray
+        // });
     }
 
     function setupSource() public virtual broadcastAs(configDeployerPK) {
@@ -351,7 +351,7 @@ contract DeployFraxOFTProtocol is BaseL0Script {
             // For each non-evm
             for (uint256 c=0; c<nonEvmPeersArrays.length; c++) {
                 setPeer({
-                    _config: broadcastConfig,
+                    _config: nonEvmConfigs[0], // TODO : assuming 0th index is solana
                     _connectedOft: _connectedOfts[o],
                     _peerOftAsBytes32: nonEvmPeersArrays[c][o]
                 });

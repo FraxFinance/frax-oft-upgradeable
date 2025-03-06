@@ -1,0 +1,166 @@
+{
+    "Legacy": [
+        {
+            "RPC": "https://rpc.blast.io",
+            "chainid": 81457,
+            "frxUSD": "0x909DBdE1eBE906Af95660033e478D59EFe831fED",
+            "sfrxUSD": "0xe4796cCB6bB5DE2290C417Ac337F2b66CA2E770E",
+            "frxETH": "0xF010a7c8877043681D59AD125EbF575633505942",
+            "sfrxETH": "0x1f55a02A049033E3419a8E2975cF3F572F4e6E9A",
+            "fxs": "0x23432452B720C80553458496D4D9d7C5003280d0",
+            "fpi": "0x6Eca253b102D41B6B69AC815B9CC6bD47eF1979d"
+        },
+        {
+            "RPC": "https://metis-mainnet.public.blastapi.io",
+            "chainid": 1088,
+            "frxUSD": "0x909DBdE1eBE906Af95660033e478D59EFe831fED",
+            "sfrxUSD": "0xe4796cCB6bB5DE2290C417Ac337F2b66CA2E770E",
+            "frxETH": "0xF010a7c8877043681D59AD125EbF575633505942",
+            "sfrxETH": "0x1f55a02A049033E3419a8E2975cF3F572F4e6E9A",
+            "fxs": "0x23432452B720C80553458496D4D9d7C5003280d0",
+            "fpi": "0x6Eca253b102D41B6B69AC815B9CC6bD47eF1979d"
+        },
+        {
+            "RPC": "https://mainnet.base.org",
+            "chainid": 8453,
+            "frxUSD": "0x909DBdE1eBE906Af95660033e478D59EFe831fED",
+            "sfrxUSD": "0xe4796cCB6bB5DE2290C417Ac337F2b66CA2E770E",
+            "frxETH": "0xF010a7c8877043681D59AD125EbF575633505942",
+            "sfrxETH": "0x1f55a02A049033E3419a8E2975cF3F572F4e6E9A",
+            "fxs": "0x23432452B720C80553458496D4D9d7C5003280d0",
+            "fpi": "0x6Eca253b102D41B6B69AC815B9CC6bD47eF1979d"
+        }
+    ],
+    "Proxy": [
+        {
+            "RPC": "https://mainnet.mode.network/",
+            "chainid": 34443,
+            "frxUSD": "0x80Eede496655FB9047dd39d9f418d5483ED600df",
+            "sfrxUSD": "0x5Bff88cA1442c2496f7E475E9e7786383Bc070c0",
+            "frxETH": "0x43eDD7f3831b08FE70B7555ddD373C8bF65a9050",
+            "sfrxETH": "0x3Ec3849C33291a9eF4c5dB86De593EB4A37fDe45",
+            "fxs": "0x64445f0aecC51E94aD52d8AC56b7190e764E561a",
+            "fpi": "0x90581eCa9469D8D7F5D3B60f4715027aDFCf7927"
+        },
+        {
+            "RPC": "https://twilight-crimson-grass.sei-pacific.quiknode.pro/1fe7cb5c6950df0f3ebceead37f8eefdf41ddbe9/",
+            "chainid": 1329,
+            "frxUSD": "0x80Eede496655FB9047dd39d9f418d5483ED600df",
+            "sfrxUSD": "0x5Bff88cA1442c2496f7E475E9e7786383Bc070c0",
+            "frxETH": "0x43eDD7f3831b08FE70B7555ddD373C8bF65a9050",
+            "sfrxETH": "0x3Ec3849C33291a9eF4c5dB86De593EB4A37fDe45",
+            "fxs": "0x64445f0aecC51E94aD52d8AC56b7190e764E561a",
+            "fpi": "0x90581eCa9469D8D7F5D3B60f4715027aDFCf7927"
+        },
+        {
+            "RPC": "https://xlayerrpc.okx.com/",
+            "chainid": 196,
+            "frxUSD": "0x80Eede496655FB9047dd39d9f418d5483ED600df",
+            "sfrxUSD": "0x5Bff88cA1442c2496f7E475E9e7786383Bc070c0",
+            "frxETH": "0x43eDD7f3831b08FE70B7555ddD373C8bF65a9050",
+            "sfrxETH": "0x3Ec3849C33291a9eF4c5dB86De593EB4A37fDe45",
+            "fxs": "0x64445f0aecC51E94aD52d8AC56b7190e764E561a",
+            "fpi": "0x90581eCa9469D8D7F5D3B60f4715027aDFCf7927"
+        },
+        {
+            "RPC": "https://rpc.soniclabs.com/",
+            "chainid": 146,
+            "frxUSD": "0x80Eede496655FB9047dd39d9f418d5483ED600df",
+            "sfrxUSD": "0x5Bff88cA1442c2496f7E475E9e7786383Bc070c0",
+            "frxETH": "0x43eDD7f3831b08FE70B7555ddD373C8bF65a9050",
+            "sfrxETH": "0x3Ec3849C33291a9eF4c5dB86De593EB4A37fDe45",
+            "fxs": "0x64445f0aecC51E94aD52d8AC56b7190e764E561a",
+            "fpi": "0x90581eCa9469D8D7F5D3B60f4715027aDFCf7927"
+        },
+        {
+            "RPC": "https://rpc-gel.inkonchain.com",
+            "chainid": 57073,
+            "frxUSD": "0x80Eede496655FB9047dd39d9f418d5483ED600df",
+            "sfrxUSD": "0x5Bff88cA1442c2496f7E475E9e7786383Bc070c0",
+            "frxETH": "0x43eDD7f3831b08FE70B7555ddD373C8bF65a9050",
+            "sfrxETH": "0x3Ec3849C33291a9eF4c5dB86De593EB4A37fDe45",
+            "fxs": "0x64445f0aecC51E94aD52d8AC56b7190e764E561a",
+            "fpi": "0x90581eCa9469D8D7F5D3B60f4715027aDFCf7927"
+        },
+        {
+            "RPC": "https://arb1.arbitrum.io/rpc",
+            "chainid": 42161,
+            "frxUSD": "0x80Eede496655FB9047dd39d9f418d5483ED600df",
+            "sfrxUSD": "0x5Bff88cA1442c2496f7E475E9e7786383Bc070c0",
+            "frxETH": "0x43eDD7f3831b08FE70B7555ddD373C8bF65a9050",
+            "sfrxETH": "0x3Ec3849C33291a9eF4c5dB86De593EB4A37fDe45",
+            "fxs": "0x64445f0aecC51E94aD52d8AC56b7190e764E561a",
+            "fpi": "0x90581eCa9469D8D7F5D3B60f4715027aDFCf7927"
+        },
+        {
+            "RPC": "https://optimism-mainnet.public.blastapi.io",
+            "chainid": 10,
+            "frxUSD": "0x80Eede496655FB9047dd39d9f418d5483ED600df",
+            "sfrxUSD": "0x5Bff88cA1442c2496f7E475E9e7786383Bc070c0",
+            "frxETH": "0x43eDD7f3831b08FE70B7555ddD373C8bF65a9050",
+            "sfrxETH": "0x3Ec3849C33291a9eF4c5dB86De593EB4A37fDe45",
+            "fxs": "0x64445f0aecC51E94aD52d8AC56b7190e764E561a",
+            "fpi": "0x90581eCa9469D8D7F5D3B60f4715027aDFCf7927"
+        },
+        {
+            "RPC": "https://polygon-rpc.com",
+            "chainid": 137,
+            "frxUSD": "0x80Eede496655FB9047dd39d9f418d5483ED600df",
+            "sfrxUSD": "0x5Bff88cA1442c2496f7E475E9e7786383Bc070c0",
+            "frxETH": "0x43eDD7f3831b08FE70B7555ddD373C8bF65a9050",
+            "sfrxETH": "0x3Ec3849C33291a9eF4c5dB86De593EB4A37fDe45",
+            "fxs": "0x64445f0aecC51E94aD52d8AC56b7190e764E561a",
+            "fpi": "0x90581eCa9469D8D7F5D3B60f4715027aDFCf7927"
+        },
+        {
+            "RPC": "https://api.avax.network/ext/bc/C/rpc",
+            "chainid": 43114,
+            "frxUSD": "0x80Eede496655FB9047dd39d9f418d5483ED600df",
+            "sfrxUSD": "0x5Bff88cA1442c2496f7E475E9e7786383Bc070c0",
+            "frxETH": "0x43eDD7f3831b08FE70B7555ddD373C8bF65a9050",
+            "sfrxETH": "0x3Ec3849C33291a9eF4c5dB86De593EB4A37fDe45",
+            "fxs": "0x64445f0aecC51E94aD52d8AC56b7190e764E561a",
+            "fpi": "0x90581eCa9469D8D7F5D3B60f4715027aDFCf7927"
+        },
+        {
+            "RPC": "https://neat-lingering-orb.bsc.quiknode.pro/a9e1547db6f8261bf94f92603eec0cc3d0c66605",
+            "chainid": 56,
+            "frxUSD": "0x80Eede496655FB9047dd39d9f418d5483ED600df",
+            "sfrxUSD": "0x5Bff88cA1442c2496f7E475E9e7786383Bc070c0",
+            "frxETH": "0x43eDD7f3831b08FE70B7555ddD373C8bF65a9050",
+            "sfrxETH": "0x3Ec3849C33291a9eF4c5dB86De593EB4A37fDe45",
+            "fxs": "0x64445f0aecC51E94aD52d8AC56b7190e764E561a",
+            "fpi": "0x90581eCa9469D8D7F5D3B60f4715027aDFCf7927"
+        },
+        {
+            "RPC": "https://zkevm-rpc.com",
+            "chainid": 1101,
+            "frxUSD": "0x80Eede496655FB9047dd39d9f418d5483ED600df",
+            "sfrxUSD": "0x5Bff88cA1442c2496f7E475E9e7786383Bc070c0",
+            "frxETH": "0x43eDD7f3831b08FE70B7555ddD373C8bF65a9050",
+            "sfrxETH": "0x3Ec3849C33291a9eF4c5dB86De593EB4A37fDe45",
+            "fxs": "0x64445f0aecC51E94aD52d8AC56b7190e764E561a",
+            "fpi": "0x90581eCa9469D8D7F5D3B60f4715027aDFCf7927"
+        },
+        {
+            "RPC": "https://mainnet.base.org",
+            "chainid": 8453,
+            "frxUSD": "0xe5020A6d073a794B6E7f05678707dE47986Fb0b6",
+            "sfrxUSD": "0x91A3f8a8d7a881fBDfcfEcd7A2Dc92a46DCfa14e",
+            "fxs": "0x0CEAC003B0d2479BebeC9f4b2EBAd0a803759bbf",
+            "fpi": "0xEEdd3A0DDDF977462A97C1F0eBb89C3fbe8D084B",
+            "frxETH": "0x7eb8d1E4E2D0C8b9bEDA7a97b305cF49F3eeE8dA",
+            "sfrxETH": "0x192e0C7Cc9B263D93fa6d472De47bBefe1Fb12bA"
+        },
+        {
+            "RPC": "https://rpc.linea.build",
+            "chainid": 59144,
+            "frxUSD": "0xC7346783f5e645aa998B106Ef9E7f499528673D8",
+            "sfrxUSD": "0x592a48c0FB9c7f8BF1701cB0136b90DEa2A5B7B6",
+            "fxs": "0x5217Ab28ECE654Aab2C68efedb6A22739df6C3D5",
+            "fpi": "0xDaF72Aa849d3C4FAA8A9c8c99f240Cf33dA02fc4",
+            "frxETH": "0xB1aFD04774c02AE84692619448B08BA79F19b1ff",
+            "sfrxETH": "0x383Eac7CcaA89684b8277cBabC25BCa8b13B7Aa2"
+        }
+    ]
+}

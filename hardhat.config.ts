@@ -66,6 +66,11 @@ const config: HardhatUserConfig = {
             url: process.env.RPC_URL_BLAST || 'https://rpc.blast.io',
             accounts,
         },
+        base:{
+            eid: EndpointId.BASE_V2_MAINNET,
+            url: process.env.RPC_URL_BASE || 'https://mainnet.base.org',
+            accounts,
+        },
         mode:{
             eid: EndpointId.MODE_V2_MAINNET,
             url: process.env.RPC_URL_MODE || 'https://mainnet.mode.network',
@@ -119,6 +124,16 @@ const config: HardhatUserConfig = {
         zkevm:{
             eid: EndpointId.ZKPOLYGON_V2_MAINNET,
             url: process.env.RPC_URL_ZKEVM || 'https://endpoints.omniatech.io/v1/polygon-zkevm/mainnet/public',
+            accounts,
+        },
+        linea:{
+            eid: EndpointId.ZKCONSENSYS_V2_MAINNET,
+            url: process.env.RPC_URL_LINEA || 'https://rpc.linea.build',
+            accounts,
+        },
+        berachain:{
+            eid: EndpointId.BERA_V2_MAINNET,
+            url: process.env.RPC_URL_BERACHAIN || 'https://rpc.berachain.com',
             accounts,
         },
         sepolia: {

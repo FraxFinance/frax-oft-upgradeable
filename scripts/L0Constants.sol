@@ -4,6 +4,7 @@ pragma solidity ^0.8.19;
 contract L0Constants {
 
     address[] public expectedProxyOfts;
+    address[] public baseProxyOfts;
     address[] public fraxtalLockboxes;
     address[] public ethLockboxes;
     address[] public connectedOfts;
@@ -16,6 +17,13 @@ contract L0Constants {
     address public proxySFrxEthOft = 0x3Ec3849C33291a9eF4c5dB86De593EB4A37fDe45;
     address public proxyFxsOft = 0x64445f0aecC51E94aD52d8AC56b7190e764E561a;
     address public proxyFpiOft = 0x90581eCa9469D8D7F5D3B60f4715027aDFCf7927;
+
+    address public baseFrxUsdOft = 0xe5020A6d073a794B6E7f05678707dE47986Fb0b6;
+    address public baseSFrxUsdOft = 0x91A3f8a8d7a881fBDfcfEcd7A2Dc92a46DCfa14e;
+    address public baseFrxEthOft = 0x7eb8d1E4E2D0C8b9bEDA7a97b305cF49F3eeE8dA;
+    address public baseSFrxEthOft = 0x192e0C7Cc9B263D93fa6d472De47bBefe1Fb12bA;
+    address public baseFxsOft = 0x0CEAC003B0d2479BebeC9f4b2EBAd0a803759bbf;
+    address public baseFpiOft = 0xEEdd3A0DDDF977462A97C1F0eBb89C3fbe8D084B;
 
     address public fraxtalFrxUsdLockbox = 0x96A394058E2b84A89bac9667B19661Ed003cF5D4;
     address public fraxtalSFrxUsdLockbox = 0x88Aa7854D3b2dAA5e37E7Ce73A1F39669623a361;
@@ -47,6 +55,14 @@ contract L0Constants {
         expectedProxyOfts.push(proxyFrxUsdOft);
         expectedProxyOfts.push(proxyFrxEthOft);
         expectedProxyOfts.push(proxyFpiOft);
+
+        // array of base OFTs
+        baseProxyOfts.push(baseFxsOft);
+        baseProxyOfts.push(baseSFrxUsdOft);
+        baseProxyOfts.push(baseSFrxEthOft);
+        baseProxyOfts.push(baseFrxUsdOft);
+        baseProxyOfts.push(baseFrxEthOft);
+        baseProxyOfts.push(baseFpiOft);
 
         fraxtalLockboxes.push(fraxtalFxsLockbox);
         fraxtalLockboxes.push(fraxtalSFrxUsdLockbox);

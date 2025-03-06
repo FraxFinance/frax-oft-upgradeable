@@ -95,7 +95,7 @@ function getConnectionConfig(lzConfig: lzConfigType[], sourceContract: OmniPoint
             },
             sendConfig: {
                 ulnConfig: {
-                    confirmations: BigInt(10),
+                    confirmations: BigInt(32),
                     requiredDVNs: [sourceOFTConfig.dvnHorizen ?? "", sourceOFTConfig.dvnL0 ?? ""],
                     optionalDVNs: [],
                     optionalDVNThreshold: 0,
@@ -105,7 +105,7 @@ function getConnectionConfig(lzConfig: lzConfigType[], sourceContract: OmniPoint
             // @dev Controls how the `from` chain receives messages from the `to` chain.
             receiveConfig: {
                 ulnConfig: {
-                    confirmations: BigInt(2),
+                    confirmations: BigInt(5),
                     requiredDVNs: [sourceOFTConfig.dvnHorizen ?? "", sourceOFTConfig.dvnL0 ?? ""],
                     optionalDVNs: [],
                     optionalDVNThreshold: 0,

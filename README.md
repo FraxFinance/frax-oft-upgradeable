@@ -10,7 +10,7 @@ This repository contains all of the contracts and deployment code used to manage
   - `ZKSync`
     - TODO
 
-- Msigs (links to gnosis safe)
+- Msigs (links to gnosis safe and squad for Solana)
   - [`Ethereum`](https://app.safe.global/home?safe=eth:0xB1748C79709f4Ba2Dd82834B8c82D4a505003f27)
   - [`Blast`](https://blast-safe.io/home?safe=blast:0x33A133020b2C2CD41a24F74033B11EC2fC0bF97a)
   - [`Metis`](https://metissafe.tech/home?safe=metis-andromeda:0xF4A4F32732F9B2fB84Ee28c58616946F3bF80F7d)
@@ -28,6 +28,7 @@ This repository contains all of the contracts and deployment code used to manage
   - [`Avalanche`](https://app.safe.global/home?safe=avax:0xBF1fF4D8B05F0871ca3f49e49fF1cA8AeeBD3b4b)
   - [`BSC`](https://app.safe.global/home?safe=bnb:0xB1eff95B323D60cc04B1a44Ca1dBcbC935ae2C84)
   - [`Polygon zkEvm`](https://app.safe.global/home?safe=zkevm:0x57445fD8d544e5D313e4f715220103b091814df4)
+  - [`Solana`](https://app.squads.so/squads/FSRTW4KPGifKL8yKcZ8mfoR9mKtAjwZiTHbHwgix8AQo/home)
 
 ### Proxy (upgradeable) OFTs
 - Chain: `Mode`, `Sei`, `X-Layer`, `Ink`, `Sonic`, `Arbitrum`, `Optimism`, `Polygon`, `Avalanche`, `BSC`, `Polygon zkEvm`
@@ -73,30 +74,24 @@ You can expect to use (1) unless you are holding OFTs on Base, Blast, or Metis p
 
 ### Solana
 - Admin: Chain-respective msig
-- `FRAX`
-  - SPL Token: `B4Ds2fCbxjSiVLNyGQd44htvvNuVxzdoJSxNsRv3nxpE`
-  - OFT Config: `7pw5h3gc4LQCGPdq9qsqCdBDt6vtyk5CWjL9spsjp7Sa`
-    - As bytes32: `0x656d91ab3d464c05cd1345ce21c78e36140a36491e102fbb08c58af73aafe89b`
-- `sFrax`
-  - SPL Token: `DnVyztLHnDyTqL3xfPYF9Uqpgrhcxphn6e31sVAwtg6K`
-  - OFT Config: `3BcysJF4fQx86fVTDTBGNpZyRpeMyTF8XsuvPHJQuP3V`
-    - As bytes32: `0x206fdd7d0be90d8ff93f6f7f4bd4d8b42ca8977317da0b7d2861299e3c589dd8`
+- `frxUSD`
+  - SPL Token: `GzX1ireZDU865FiMaKrdVB1H6AE8LAqWYCg6chrMrfBw`
+    - As bytes32: `0x5e208a73d5bb1c78e9dbf53badd7299afd6bee9acacdcd4fd668833e53c538ad`
+- `sfrxUSD`
+  - SPL Token: `DUvWQMyASSkLNJFwsMDA4kwxEvmfaqpPGrvUVKtitX45`
+    - As bytes32: `0x8602f005ca65b6da46a3c6ce66ecd1d15be911ca650d5f418d369df184b584cf`
 - `frxETH`
-  - SPL Token: `CuXHLCxCcyPkmbemPxh7PAWedfFffeL82b6VPJmonTaa`
-  - OFT Config: `AzaSy9yr44e4bnWNdrNkxmye1kEYmbbgGfY8a3ZqzuMf`
-    - As bytes32: `0x94791ba0aae2b57460c63d36346392d849b22f39fd3eafad5bc82d01e352dde6`
+  - SPL Token: `5sDrwVNiHMM2jC78hRBH1CtysDQYiNKihubgW2zNu8tf`
+    - As bytes32: `0x38dd9e11bbf63835dc61d3cbf259f4221f5987ac92982c96609b99634662dfb3`
 - `sfrxETH`
-  - SPL Token: `6iHW2j5dvW8EiEVSXqQFjm7c5xNd4MdYuXLrW3eQ1UYw`
-  - OFT Config: `8AdTghMT8yyNpWrTuPoDjrtXW7t1YEZgLVjWDftWfCxo`
-    - As bytes32: `0x6a7942e4eb4938d5490d8187183d01123f515025f4244670aff7f8ecd2250d50`
+  - SPL Token: `58zpC9acE6F4FBtd88L64NoWHJcmzLsQSy5bjz35Ydgv`
+    - As bytes32: `0xbf2f1fc27286a43f25b05bd843a74a5478c4246343fa90c1fcb641a1caf46c61`
 - `FXS`
-  - SPL Token: `8QRvtWw4XYQW7UqTiGhzyWZkhCqSwZDA5qjRWDotSZ4e`
-  - OFT Config: `5KYEyuA1cAdnZFj4i6zUjTEre4s7snacyXbkTmNqLjJs`
-    - As bytes32: `0x402e86d1cfd2cde4fac63aa8d9892eca6d3c0e08e8335622124332a95df6c10c`
+  - SPL Token: `zZbQjiRg8uSxZaPu996XuviuZeSY6nsaMuutKZQBJga`
+    - As bytes32: `0x4939035f8dd13d15a9386e28b6705519aa6f488791323466a3c0116a201e51aa`
 - `FPI`
-  - SPL Token: `FqRC7vNLS3ubbhtdqNSz8Q5ei8VdUxF6H6eoXQLHxihr`
-  - OFT Config: `BG9oPj76NRPbj1e1GbL4imnqo9VD7W2ukpnRFSWtq5CA`
-    - As bytes32: `0x9876880bee04a9020e619b1be124ee307e03ca94bab4f32a7a22cfd2ccee3927`
+  - SPL Token: `8xKX8CRH9LxriRUNCPittu1jiovyQQr4EonWQjHZjWyH`
+    - As bytes32: `0xd3cee058686107cc51844f331ee213a33142ab299b5ce473c1cf3a8ddaa721a0`
 
 ### Legacy (non-upgradeable) OFTs
 - Chain: `Ethereum`, `Metis`, `Blast`, `Base`

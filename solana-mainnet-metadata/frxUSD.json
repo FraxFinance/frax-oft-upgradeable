@@ -1,0 +1,10 @@
+{
+  "name": "Frax USD",
+  "symbol": "frxUSD",
+  "description": "Frax USD Token",
+  "image": "https://static.frax.com/images/tokens/frxusd.png",
+  "extensions": {
+    "website": "https://frax.finance/",
+    "twitter": "https://x.com/fraxfinance"
+  }
+}

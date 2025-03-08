@@ -13,6 +13,8 @@ import { HardhatUserConfig, HttpNetworkAccountsUserConfig } from 'hardhat/types'
 
 import { EndpointId } from '@layerzerolabs/lz-definitions'
 
+import './tasks/index'
+
 // Set your preferred authentication method
 //
 // If you prefer using a mnemonic, set a MNEMONIC environment variable
@@ -49,6 +51,91 @@ const config: HardhatUserConfig = {
         ],
     },
     networks: {
+        fraxtal:{
+            eid: EndpointId.FRAXTAL_V2_MAINNET,
+            url: process.env.RPC_URL_FRAXTAL || 'https://rpc.frax.com/',
+            accounts,
+        },
+        ethereum:{
+            eid: EndpointId.ETHEREUM_V2_MAINNET,
+            url: process.env.RPC_URL_ETHEREUM || 'https://ethereum-rpc.publicnode.com',
+            accounts,
+        },
+        blast:{
+            eid: EndpointId.BLAST_V2_MAINNET,
+            url: process.env.RPC_URL_BLAST || 'https://rpc.blast.io',
+            accounts,
+        },
+        base:{
+            eid: EndpointId.BASE_V2_MAINNET,
+            url: process.env.RPC_URL_BASE || 'https://mainnet.base.org',
+            accounts,
+        },
+        mode:{
+            eid: EndpointId.MODE_V2_MAINNET,
+            url: process.env.RPC_URL_MODE || 'https://mainnet.mode.network',
+            accounts,
+        },
+        sei:{
+            eid: EndpointId.SEI_V2_MAINNET,
+            url: process.env.RPC_URL_SEI || 'https://twilight-crimson-grass.sei-pacific.quiknode.pro/1fe7cb5c6950df0f3ebceead37f8eefdf41ddbe9/',
+            accounts,
+        },
+        xlayer:{
+            eid: EndpointId.XLAYER_V2_MAINNET,
+            url: process.env.RPC_URL_XLAYER || 'https://rpc.xlayer.tech',
+            accounts,
+        },
+        sonic:{
+            eid: EndpointId.SONIC_V2_MAINNET,
+            url: process.env.RPC_URL_SONIC || 'https://rpc.soniclabs.com',
+            accounts,
+        },
+        ink:{
+            eid: EndpointId.INK_V2_MAINNET,
+            url: process.env.RPC_URL_INK || 'https://rpc-gel.inkonchain.com',
+            accounts,
+        },
+        arbitrum:{
+            eid: EndpointId.ARBITRUM_V2_MAINNET,
+            url: process.env.RPC_URL_ARBITRUM || 'https://endpoints.omniatech.io/v1/arbitrum/one/public',
+            accounts,
+        },
+        optimism:{
+            eid: EndpointId.OPTIMISM_V2_MAINNET,
+            url: process.env.RPC_URL_OPTIMISM || 'https://optimism-rpc.publicnode.com',
+            accounts,
+        },
+        polygon:{
+            eid: EndpointId.POLYGON_V2_MAINNET,
+            url: process.env.RPC_URL_POLYGON || 'https://polygon-rpc.com',
+            accounts,
+        },
+        avalanche:{
+            eid: EndpointId.AVALANCHE_V2_MAINNET,
+            url: process.env.RPC_URL_AVALANCHE || 'https://avalanche-c-chain-rpc.publicnode.com',
+            accounts,
+        },
+        bsc:{
+            eid: EndpointId.BSC_V2_MAINNET,
+            url: process.env.RPC_URL_BSC || 'https://bsc-rpc.publicnode.com',
+            accounts,
+        },
+        zkevm:{
+            eid: EndpointId.ZKPOLYGON_V2_MAINNET,
+            url: process.env.RPC_URL_ZKEVM || 'https://endpoints.omniatech.io/v1/polygon-zkevm/mainnet/public',
+            accounts,
+        },
+        linea:{
+            eid: EndpointId.ZKCONSENSYS_V2_MAINNET,
+            url: process.env.RPC_URL_LINEA || 'https://rpc.linea.build',
+            accounts,
+        },
+        berachain:{
+            eid: EndpointId.BERA_V2_MAINNET,
+            url: process.env.RPC_URL_BERACHAIN || 'https://rpc.berachain.com',
+            accounts,
+        },
         sepolia: {
             eid: EndpointId.SEPOLIA_V2_TESTNET,
             url: process.env.RPC_URL_SEPOLIA || 'https://rpc.sepolia.org/',

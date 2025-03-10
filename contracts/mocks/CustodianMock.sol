@@ -1,11 +1,13 @@
 pragma solidity ^0.8.22;
 
-import "scripts/BaseL0Script.sol";
+import { OptionsBuilder } from "@fraxfinance/layerzero-v2-upgradeable/oapp/contracts/oapp/libs/OptionsBuilder.sol";
+import { IERC20 } from "@openzeppelin/contracts/token/ERC20/IERC20.sol";
+import { SendParam, MessagingFee, IOFT } from "@fraxfinance/layerzero-v2-upgradeable/oapp/contracts/oft/interfaces/IOFT.sol";
 
 /// @dev used in conjunction with `scripts/ops/MoveLegacyLiquidity/1_DeployMockOFTs.s.sol`
 contract CustodianMock {
     
-    uint32 public constant dstEid = 30101;
+    uint32 public constant dstEid = 30101; // Ethereum
 
     // Copied from L0Constants.sol
     address public constant ethFrxUsdLockbox = 0x566a6442A5A6e9895B9dCA97cC7879D632c6e4B0;
@@ -39,29 +41,25 @@ contract CustodianMock {
         mockFxsOft = _mockFxsOft;
     }
 
-    function send(address _oft) external {
-        uint256 balance = IERC20(_oft).balanceOf(address(this));
-        require(balance > 0, "No balance");
+    function send() external {
+        _send(mockFrxUsdOft, ethFrxUsdLockbox);
+        _send(mockSfrxUsdOft, ethSFrxUsdLockbox);
+        _send(mockFrxEthOft, ethFrxEthLockbox);
+        _send(mockSfrxEthOft, ethSFrxEthLockbox);
+        _send(mockFxsOft, ethFxsLockbox);
 
-        address to;
-        if (_oft == mockFrxUsdOft) {
-            to = ethFrxUsdLockbox;
-        } else if (_oft == mockSfrxUsdOft) {
-            to = ethSFrxUsdLockbox;
-        } else if (_oft == mockFrxEthOft) {
-            to = ethFrxEthLockbox;
-        } else if (_oft == mockSfrxEthOft) {
-            to = ethSFrxEthLockbox;
-        } else if (_oft == mockFxsOft) {
-            to = ethFxsLockbox;
-        } else {
-            revert("Invalid OFT");
-        }
+        // withdraw any remaining ETH
+        payable(refundAddr).transfer(address(this).balance);
+    }
+
+    function _send(address _oft, address _to) internal {
+        uint256 balance = IERC20(_oft).balanceOf(address(this));
+        require(balance > 0, "CustodianMock: no balance");
 
         bytes memory options = OptionsBuilder.newOptions();
         SendParam memory sendParam = SendParam({
             dstEid: dstEid,
-            to: bytes32(uint256(uint160(to))),
+            to: bytes32(uint256(uint160(_to))),
             amountLD: balance,
             minAmountLD: balance,
             extraOptions: options,
@@ -74,9 +72,5 @@ contract CustodianMock {
             fee,
             payable(refundAddr)
         );
-    }
-
-    function withdrawEth() external {
-        payable(refundAddr).transfer(address(this).balance);
     }
 }

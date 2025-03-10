@@ -5,14 +5,24 @@ import "scripts/DeployFraxOFTProtocol/DeployFraxOFTProtocol.s.sol";
 import { OFTUpgradeableMock } from "contracts/mocks/OFTUpgradeableMock.sol";
 import { CustodianMock } from "contracts/mocks/CustodianMock.sol";
 
-/// @dev deploy/setup upgradeable mock OFTs and mint lockbox supply to the CustodianMock
+/*
+1. Deploy upgradeable mock OFTs
+2. Setup OFTs on Fraxtal and generate Ethereum msig tx for Ethereum legacy lockboxes
+3. Deploy CustodianMock
+4. Mint OFT supply to CustodianMock
+5. Send to legacy lockboxes
+6. Submit Ethereum msig tx
+7. Execute send of excess lockbox balances from legacy lockboxes to upgradeable lockboxes
+*/
+
 // forge script scripts/ops/MoveLegacyLiquidity/1_DeployMockOFTs.s.sol --rpc-url https://rpc.frax.com
-contract DeployMockOFT is DeployFraxOFTProtocol {
+contract DeployMockOFTsAndSend is DeployFraxOFTProtocol {
     using OptionsBuilder for bytes;
     using stdJson for string;
     using Strings for uint256;
 
     L0Config public ethConfig;
+    CustodianMock public custodian;
 
     /*
     How balances were determined:
@@ -114,6 +124,21 @@ contract DeployMockOFT is DeployFraxOFTProtocol {
 
         // no need to set roles
         // setPriviledgedRoles();
+
+        mintToCustodianAndSend();
+    }
+
+    function mintToCustodianAndSend() public {
+
+        // Send the initial supply to the mock custodian
+        OFTUpgradeableMock(frxUsdOft).mintInitialSupply(address(custodian), intitialFrxUsdSupply);
+        OFTUpgradeableMock(sfrxUsdOft).mintInitialSupply(address(custodian), intitialSFrxUsdSupply);
+        OFTUpgradeableMock(frxEthOft).mintInitialSupply(address(custodian), intitialFrxEthSupply);
+        OFTUpgradeableMock(sfrxEthOft).mintInitialSupply(address(custodian), intitialSFrxEthSupply);
+        OFTUpgradeableMock(fxsOft).mintInitialSupply(address(custodian), intitialFxsSupply);
+
+        // Send to the legacy lockboxes
+        custodian.send{value: 0.1 ether}();
     }
 
     function setEvmPeers(
@@ -176,23 +201,16 @@ contract DeployMockOFT is DeployFraxOFTProtocol {
 
     function deployCustodianMock() public broadcastAs(configDeployerPK) {
         // Deploy the mock custodian
-        address custodian = address(new CustodianMock({
+        custodian = new CustodianMock({
             _refundAddr: vm.addr(configDeployerPK),
             _mockFrxUsdOft: frxUsdOft,
             _mockSfrxUsdOft: sfrxUsdOft,
             _mockFrxEthOft: frxEthOft,
             _mockSfrxEthOft: sfrxEthOft,
             _mockFxsOft: fxsOft
-        }));
+        });
 
-        console.log("CustodianMock deployed at:", custodian);
-
-        // Send the initial supply to the mock custodian
-        OFTUpgradeableMock(frxUsdOft).mintInitialSupply(custodian, intitialFrxUsdSupply);
-        OFTUpgradeableMock(sfrxUsdOft).mintInitialSupply(custodian, intitialSFrxUsdSupply);
-        OFTUpgradeableMock(frxEthOft).mintInitialSupply(custodian, intitialFrxEthSupply);
-        OFTUpgradeableMock(sfrxEthOft).mintInitialSupply(custodian, intitialSFrxEthSupply);
-        OFTUpgradeableMock(fxsOft).mintInitialSupply(custodian, intitialFxsSupply);
+        console.log("CustodianMock deployed at:", address(custodian));
     }
 
     function deployFraxOFTUpgradeableAndProxy(

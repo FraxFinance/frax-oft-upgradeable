@@ -41,7 +41,7 @@ contract CustodianMock {
         mockFxsOft = _mockFxsOft;
     }
 
-    function send() external {
+    function send() external payable {
         _send(mockFrxUsdOft, ethFrxUsdLockbox);
         _send(mockSfrxUsdOft, ethSFrxUsdLockbox);
         _send(mockFrxEthOft, ethFrxEthLockbox);

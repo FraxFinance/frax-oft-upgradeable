@@ -6,6 +6,7 @@ import "scripts/DeployFraxOFTProtocol/DeployFraxOFTProtocol.s.sol";
 // deploy everything from the oftConfigPK instead of the oftDeployerPK
 contract DeployRandomAddressOFTs is DeployFraxOFTProtocol {
 
+    /// @notice override to change the deployer to configDeployerPK
     function deployFraxOFTUpgradeablesAndProxies() broadcastAs(configDeployerPK) public override {
 
         // Proxy admin (0x223a681fc5c5522c85C96157c0efA18cd6c5405c if predeterministic)
@@ -60,8 +61,7 @@ contract DeployRandomAddressOFTs is DeployFraxOFTProtocol {
         });
     }
 
-    /// @notice Sourced from https://github.com/FraxFinance/LayerZero-v2-upgradeable/blob/e1470197e0cffe0d89dd9c776762c8fdcfc1e160/oapp/test/TestHelper.sol#L266
-    ///     With state checks
+    /// @dev override to set initial owner of TransparentUpgradeableProxy to configDeployerPK 
     function deployFraxOFTUpgradeableAndProxy(
         string memory _name,
         string memory _symbol

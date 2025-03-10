@@ -12,6 +12,8 @@ contract OFTUpgradeableMock is FraxOFTUpgradeable {
 
     function mintInitialSupply(address _to, uint256 _amount) public {
         require(!minted);
+        require(msg.sender == owner());
+
         _mint(_to, _amount);
         minted = true;
     }

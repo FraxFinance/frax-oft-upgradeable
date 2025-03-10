@@ -15,7 +15,7 @@ import { CustodianMock } from "contracts/mocks/CustodianMock.sol";
 7. Execute send of excess lockbox balances from legacy lockboxes to upgradeable lockboxes
 */
 
-// forge script scripts/ops/MoveLegacyLiquidity/1_DeployMockOFTs.s.sol --rpc-url https://rpc.frax.com
+// forge script scripts/ops/MoveLegacyLiquidity/1_DeployMockOFTsAndSend.s.sol --rpc-url https://rpc.frax.com
 contract DeployMockOFTsAndSend is DeployFraxOFTProtocol {
     using OptionsBuilder for bytes;
     using stdJson for string;
@@ -66,7 +66,7 @@ contract DeployMockOFTsAndSend is DeployFraxOFTProtocol {
 
     function filename() public view override returns (string memory) {
         string memory root = vm.projectRoot();
-        return string.concat(root, "/scripts/ops/MoveLegacyLiquidity/txs/1_DeployMockOFTs.json");
+        return string.concat(root, "/scripts/ops/MoveLegacyLiquidity/txs/1_DeployMockOFTsAndSend.json");
     }
 
     // Set the config so that we're only pointing to the Ethereum legacy lockboxes
@@ -97,6 +97,7 @@ contract DeployMockOFTsAndSend is DeployFraxOFTProtocol {
     /// @dev override to maintain connectedOfts as configured in run()
     function _populateConnectedOfts() public override {}
 
+    /// @notice mints supply to custodian and sends after OFT setup
     function setupSource() public override broadcastAs(configDeployerPK) {
         setEvmEnforcedOptions({
             _connectedOfts: proxyOfts,

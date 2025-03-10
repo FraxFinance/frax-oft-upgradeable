@@ -161,6 +161,13 @@ contract BaseL0Script is L0Constants, Script {
             connectedOfts[3] = baseProxyOfts[3];
             connectedOfts[4] = baseProxyOfts[4];
             connectedOfts[5] = baseProxyOfts[5];
+        } else if (simulateConfig.chainid == 59144) {
+            connectedOfts[0] = lineaProxyOfts[0];
+            connectedOfts[1] = lineaProxyOfts[1];
+            connectedOfts[2] = lineaProxyOfts[2];
+            connectedOfts[3] = lineaProxyOfts[3];
+            connectedOfts[4] = lineaProxyOfts[4];
+            connectedOfts[5] = lineaProxyOfts[5];
         } else {
             // https://github.com/FraxFinance/frax-oft-upgradeable?tab=readme-ov-file#proxy-upgradeable-ofts
             connectedOfts[0] = expectedProxyOfts[0];

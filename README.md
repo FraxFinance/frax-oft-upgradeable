@@ -9,6 +9,8 @@ This repository contains all of the contracts and deployment code used to manage
     - `0x223a681fc5c5522c85c96157c0efa18cd6c5405c`
   - `Base`
     - `0xF59C41A57AB4565AF7424F64981523DfD7A453c5`
+  - `Linea`
+    - `0x3cf371c128b092b085B7732069cEAF3Fd863F270`
   - `ZKSync`
     - TODO
 
@@ -31,6 +33,7 @@ This repository contains all of the contracts and deployment code used to manage
   - [`BSC`](https://app.safe.global/home?safe=bnb:0xB1eff95B323D60cc04B1a44Ca1dBcbC935ae2C84)
   - [`Polygon zkEvm`](https://app.safe.global/home?safe=zkevm:0x57445fD8d544e5D313e4f715220103b091814df4)
   - [`Berachain`](https://safe.berachain.com/home?safe=berachain:0x436b303dAf4b95e94ad86cA3821d5E50eB0De3aA)
+  - [`Linea`](https://safe.linea.build/home?safe=linea:0x0E5a5284820E350ffce7fe7ba3364FaC1C53eaFD)
 
 ### Proxy (upgradeable) OFTs
 - Chain: `Mode`, `Sei`, `X-Layer`, `Ink`, `Sonic`, `Arbitrum`, `Optimism`, `Polygon`, `BSC`, `Avalanche`, `Polygon zkEvm`, `Blast`, `Berachain`
@@ -49,9 +52,18 @@ This repository contains all of the contracts and deployment code used to manage
     - `sfrxETH`: `0x192e0C7Cc9B263D93fa6d472De47bBefe1Fb12bA`
     - `FXS`: `0x0CEAC003B0d2479BebeC9f4b2EBAd0a803759bbf`
     - `FPI` : `0xEEdd3A0DDDF977462A97C1F0eBb89C3fbe8D084B`
+- Chain: `Linea`
+  - OFTs:
+      - `frxUSD`: `0xC7346783f5e645aa998B106Ef9E7f499528673D8`
+      - `sfrxUSD`: `0x592a48c0FB9c7f8BF1701cB0136b90DEa2A5B7B6`
+      - `frxETH`: `0xB1aFD04774c02AE84692619448B08BA79F19b1ff`
+      - `sfrxETH`: `0x383Eac7CcaA89684b8277cBabC25BCa8b13B7Aa2`
+      - `FXS`: `0x5217Ab28ECE654Aab2C68efedb6A22739df6C3D5`
+      - `FPI`:  `0xDaF72Aa849d3C4FAA8A9c8c99f240Cf33dA02fc4`
 - Chain: `ZkSync`
   - OFTs
     - TODO
+
 
 ### Lockbox design
 Frax operates a dual-lockbox design where users can exit their OFT token into the native Frax-asset token on both Ethereum and Fraxtal.  Utilizing a dual-lockbox design is a novel solution to bridging as liquidity is  unlocked from more than one location.  More about this solution is be explained in the [docs](TODO).

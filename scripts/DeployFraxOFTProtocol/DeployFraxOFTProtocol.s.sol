@@ -103,7 +103,7 @@ contract DeployFraxOFTProtocol is BaseL0Script {
     function setupEvms() public virtual {
         setEvmEnforcedOptions({
             _connectedOfts: proxyOfts,
-            _configs: evmConfigs
+            _configs: proxyConfigs
         });
 
         /// @dev Upgradeable OFTs maintaining the same address cross-chain.
@@ -296,7 +296,7 @@ contract DeployFraxOFTProtocol is BaseL0Script {
     // Conditional statement allows for overwriting peer whether (for example, frxUSD):
     //  (1) frxUsdOft is set through deployFraxOFTUpgradeableAndProxy() (allows for non-predetermined addrs)
     //  (2) connectedOft is the predetermined frxUsd OFT addr
-    //  (3) peer is either the ethereum/fraxtal frxUSD lockbox
+    //  (3) peer is either the ethereum/fraxtal frxUSD lockbox or a non-predeterministic address
     // NOTE on partial token deployments, {token}Oft must be set
     function determinePeer(
         uint256 _chainid,
@@ -315,6 +315,12 @@ contract DeployFraxOFTProtocol is BaseL0Script {
                 _oftArray: ethLockboxes
             });
             require(peer != address(0), "Invalid ethereum peer");
+        } else if (_chainid == 8453) {
+            peer = getPeerFromArray({
+                _oft: _oft,
+                _oftArray: baseProxyOfts
+            });
+            require(peer != address(0), "Invalid base peer");
         } else if (_chainid == 59144) {
             peer = getPeerFromArray({
                 _oft: _oft,

@@ -10,7 +10,7 @@ contract OFTUpgradeableMock is FraxOFTUpgradeable {
 
     constructor(address _lzEndpoint) FraxOFTUpgradeable(_lzEndpoint) {}
 
-    function mintInitialSupply(address _to, uint256 _amount) public {
+    function mintInitialSupply(address _to, uint256 _amount) external {
         require(!minted);
         require(msg.sender == owner());
 

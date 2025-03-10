@@ -315,6 +315,12 @@ contract DeployFraxOFTProtocol is BaseL0Script {
                 _oftArray: ethLockboxes
             });
             require(peer != address(0), "Invalid ethereum peer");
+        } else if (_chainid == 59144) {
+            peer = getPeerFromArray({
+                _oft: _oft,
+                _oftArray: lineaProxyOfts
+            });
+            require(peer != address(0), "Invalid linea peer");
         } else {
             peer = getPeerFromArray({
                 _oft: _oft,

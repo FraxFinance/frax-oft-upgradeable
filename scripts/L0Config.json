@@ -232,6 +232,17 @@
             "endpoint": "0x1a44076050125825900e736c501f859c50fE728c",
             "receiveLib302": "0xE22ED54177CE1148C557de74E4873619e6c6b205",
             "sendLib302": "0x32042142DD551b4EbE17B6FEd53131dd4b4eEa06"
+        },
+        {
+            "RPC": "https://api.mainnet.abs.xyz",
+            "chainid": 2741,
+            "delegate": "0xcC20eAE3CdC554E96291708B362dF349CC443808",
+            "dvnHorizen": "0x264fe346fcd0a89e3b41a6499bac80dea7e908d2",
+            "dvnL0": "0xf4da94b4ee9d8e209e3bf9f469221ce2731a7112",
+            "eid": 30324,
+            "endpoint": "0x5c6cfF4b7C49805F8295Ff73C204ac83f3bC4AE7",
+            "receiveLib302": "0x9d799c1935c51CA399e6465Ed9841DEbCcEc413E",
+            "sendLib302": "0x166CAb679EBDB0853055522D3B523621b94029a1"
         }
     ],
     "Non-EVM": [

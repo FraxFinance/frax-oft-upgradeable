@@ -32,3 +32,9 @@ remappings = [
 via_ir = false
 optimizer = true
 optimizer_runs = 200
+
+[profile.default.zksync]
+compile = true
+startup = true
+optimizer = true
+optimizer_mode = '3'

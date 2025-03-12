@@ -238,13 +238,13 @@
         {
             "RPC": "Solana",
             "chainid": 9999999999,
-            "delegate": "0x0000000000000000000000000000000000000000",
-            "dvnHorizen": "0x0000000000000000000000000000000000000000",
-            "dvnL0": "0x0000000000000000000000000000000000000000",
+            "delegate": "FSRTW4KPGifKL8yKcZ8mfoR9mKtAjwZiTHbHwgix8AQo",
+            "dvnHorizen": "HR9NQKK1ynW9NzgdM37dU5CBtqRHTukmbMKS7qkwSkHX",
+            "dvnL0": "4VDjp6XQaxoZf5RGwiPU9NR1EXSZn2TP4ATMmiSzLfhb",
             "eid": 30168,
-            "endpoint": "0x0000000000000000000000000000000000000000",
-            "receiveLib302": "0x0000000000000000000000000000000000000000",
-            "sendLib302": "0x0000000000000000000000000000000000000000"
+            "endpoint": "76y77prsiCMvXMjuoZ5VRrhG5qYBrUMYTE5WgHqgjEn6",
+            "receiveLib302": "7a4WjyR8VZ7yZz5XJAKm39BUGn5iT9CKcv2pmG9tdXVH",
+            "sendLib302": "7a4WjyR8VZ7yZz5XJAKm39BUGn5iT9CKcv2pmG9tdXVH"
         }
     ]
 }

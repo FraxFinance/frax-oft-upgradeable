@@ -2,17 +2,17 @@
 pragma solidity ^0.8.22;
 
 import "scripts/DeployFraxOFTProtocol/DeployFraxOFTProtocol.s.sol";
-import { OFTUpgradeableMock } from "contracts/mocks/OFTUpgradeableMock.sol";
+import { OFTUpgradeableMockMint } from "contracts/mocks/OFTUpgradeableMockMint.sol";
 import { CustodianMock } from "contracts/mocks/CustodianMock.sol";
 
 /*
-1. Deploy upgradeable mock OFTs
-2. Setup OFTs on Fraxtal and generate Ethereum msig tx for Ethereum legacy lockboxes
-3. Deploy CustodianMock
-4. Mint OFT supply to CustodianMock
-5. Send to legacy lockboxes
-6. Submit Ethereum msig tx
-7. Execute send of excess lockbox balances from legacy lockboxes to upgradeable lockboxes
+1. Deploy Custodian
+2. Deploy upgradeable mock OFTs and mint supply to custodian
+3. Build msig tx for Fraxtal msig to send mock OFTs to Ethereum legacy lockboxes 
+4. Submit Fraxtal msig tx
+    - Fraxtal msig will send the mock OFTs
+5. Submit Ethereum tx
+     - Legacy lockboxes will be wired to the mock OFTs to execute the send, moving supply
 */
 
 // forge script scripts/ops/MoveLegacyLiquidity/1_DeployMockOFTsAndSend.s.sol --rpc-url https://rpc.frax.com
@@ -32,27 +32,27 @@ contract DeployMockOFTsAndSend is DeployFraxOFTProtocol {
 
     Even if users bridge to/from these chains and the balances change, the additional balances in the lockboxes remain constant.
     */
-    uint256 intitialFrxUsdSupply = 294_703.796e18 -     // ethereum
+    uint256 initialFrxUsdSupply = 294_703.796e18 -     // ethereum
                                         101.751e18 -    // base
                                         0.001e18 -      // blast
                                         0.01e18;        // metis
 
-    uint256 intitialSFrxUsdSupply = 288_442.533e18 -    // ethereum
+    uint256 initialSfrxUsdSupply = 288_442.533e18 -    // ethereum
                                         31_816.103e18 - // base
                                         3_496.227e18 -  // blast
                                         102.138e18;     // metis
 
-    uint256 intitialFrxEthSupply = 257.507e18 -         // ethereum
+    uint256 initialFrxEthSupply = 257.507e18 -         // ethereum
                                         0.1923e18 -     // base
                                         0.0057e18 -     // blast
                                         0;              // metis
 
-    uint256 intitialSFrxEthSupply = 199.12e18 -         // ethereum
+    uint256 initialSfrxEthSupply = 199.12e18 -         // ethereum
                                         45.7842e18 -    // base
                                         23.7698e18 -    // blast
                                         3.9053e18;      // metis
 
-    uint256 intitialFxsSupply = 131_950.021e18 -        // ethereum
+    uint256 initialFxsSupply = 131_950.021e18 -        // ethereum
                                     27_477.41e18 -      // base
                                     3_557.605e18 -      // blast
                                     111.127e18;         // metis
@@ -66,7 +66,10 @@ contract DeployMockOFTsAndSend is DeployFraxOFTProtocol {
 
     function filename() public view override returns (string memory) {
         string memory root = vm.projectRoot();
-        return string.concat(root, "/scripts/ops/MoveLegacyLiquidity/txs/1_DeployMockOFTsAndSend.json");
+        root = string.concat(root, "/scripts/ops/MoveLegacyLiquidity/txs/1_DeployMockOFTsAndSend-");
+
+        string memory file = string.concat(simulateConfig.chainid.toString(), ".json");
+        return string.concat(root, file);
     }
 
     // Set the config so that we're only pointing to the Ethereum legacy lockboxes
@@ -83,15 +86,43 @@ contract DeployMockOFTsAndSend is DeployFraxOFTProtocol {
                 ethConfig = proxyConfigs[i];
             }
         }
+        require(ethConfig.chainid == 1, "ethConfig not properly set");
         delete proxyConfigs;
         proxyConfigs.push(ethConfig);
 
-        super.run();
+        deploySource();
+        setupSource();
+        buildCustodianSendTx();
+        setupDestinations();
+    }
+
+    function buildCustodianSendTx() public simulateAndWriteTxs(broadcastConfig) {
+        bytes memory data = abi.encodeCall(
+            CustodianMock.send,
+            (
+                address(frxUsdOft),
+                address(sfrxUsdOft),
+                address(frxEthOft),
+                address(sfrxEthOft),
+                address(fxsOft)
+            )
+        );
+        uint256 value = 0.1e18;
+        (bool success, ) = address(custodian).call{value: value}(data);
+        require(success, "CustodianMock.send failed");
+        serializedTxs.push(
+            SerializedTx({
+                name: "CustodianMock.send",
+                to: address(custodian),
+                value: value,
+                data: data
+            })
+        );
     }
 
     function deploySource() public override {
-        deployFraxOFTUpgradeablesAndProxies();
         deployCustodianMock();
+        deployFraxOFTUpgradeablesAndProxies();
     }
 
     /// @dev override to maintain connectedOfts as configured in run()
@@ -125,21 +156,6 @@ contract DeployMockOFTsAndSend is DeployFraxOFTProtocol {
 
         // no need to set roles
         // setPriviledgedRoles();
-
-        mintToCustodianAndSend();
-    }
-
-    function mintToCustodianAndSend() public {
-
-        // Send the initial supply to the mock custodian
-        OFTUpgradeableMock(frxUsdOft).mintInitialSupply(address(custodian), intitialFrxUsdSupply);
-        OFTUpgradeableMock(sfrxUsdOft).mintInitialSupply(address(custodian), intitialSFrxUsdSupply);
-        OFTUpgradeableMock(frxEthOft).mintInitialSupply(address(custodian), intitialFrxEthSupply);
-        OFTUpgradeableMock(sfrxEthOft).mintInitialSupply(address(custodian), intitialSFrxEthSupply);
-        OFTUpgradeableMock(fxsOft).mintInitialSupply(address(custodian), intitialFxsSupply);
-
-        // Send to the legacy lockboxes
-        custodian.send{value: 0.1 ether}();
     }
 
     function setEvmPeers(
@@ -172,54 +188,54 @@ contract DeployMockOFTsAndSend is DeployFraxOFTProtocol {
         // Deploy frxUSD
         (,frxUsdOft) = deployFraxOFTUpgradeableAndProxy({
             _name: "Mock Frax USD",
-            _symbol: "mfrxUSD"
+            _symbol: "mfrxUSD",
+            _initialSupply: initialFrxUsdSupply
         });
 
         // Deploy sfrxUSD
         (,sfrxUsdOft) = deployFraxOFTUpgradeableAndProxy({
             _name: "Mock Staked Frax USD",
-            _symbol: "msfrxUSD"
+            _symbol: "msfrxUSD",
+            _initialSupply: initialSfrxUsdSupply
         });
 
         // Deploy frxETH
         (,frxEthOft) = deployFraxOFTUpgradeableAndProxy({
             _name: "Mock Frax Ether",
-            _symbol: "mfrxETH"
+            _symbol: "mfrxETH",
+            _initialSupply: initialFrxEthSupply
         });
 
         // Deploy sfrxETH
         (,sfrxEthOft) = deployFraxOFTUpgradeableAndProxy({
             _name: "Mock Staked Frax Ether",
-            _symbol: "msfrxETH"
+            _symbol: "msfrxETH",
+            _initialSupply: initialSfrxEthSupply
         });
 
         // Deploy FXS
         (,fxsOft) = deployFraxOFTUpgradeableAndProxy({
             _name: "Mock Frax Share",
-            _symbol: "mFXS"
+            _symbol: "mFXS",
+            _initialSupply: initialFxsSupply
         });
     }
 
     function deployCustodianMock() public broadcastAs(configDeployerPK) {
         // Deploy the mock custodian
         custodian = new CustodianMock({
-            _refundAddr: vm.addr(configDeployerPK),
-            _mockFrxUsdOft: frxUsdOft,
-            _mockSfrxUsdOft: sfrxUsdOft,
-            _mockFrxEthOft: frxEthOft,
-            _mockSfrxEthOft: sfrxEthOft,
-            _mockFxsOft: fxsOft
+            _initialOwner: broadcastConfig.delegate
         });
-
         console.log("CustodianMock deployed at:", address(custodian));
     }
 
     function deployFraxOFTUpgradeableAndProxy(
         string memory _name,
-        string memory _symbol
-    ) public override returns (address implementation, address proxy) {
+        string memory _symbol,
+        uint256 _initialSupply
+    ) public returns (address implementation, address proxy) {
         bytes memory bytecode = bytes.concat(
-            abi.encodePacked(type(OFTUpgradeableMock).creationCode),
+            abi.encodePacked(type(OFTUpgradeableMockMint).creationCode),
             abi.encode(broadcastConfig.endpoint)
         );
         assembly {
@@ -233,10 +249,12 @@ contract DeployMockOFTsAndSend is DeployFraxOFTProtocol {
 
         /// @dev: broadcastConfig deployer is temporary OFT owner until setPriviledgedRoles()
         bytes memory initializeArgs = abi.encodeWithSelector(
-            FraxOFTUpgradeable.initialize.selector,
+            OFTUpgradeableMockMint.initialize.selector,
             _name,
             _symbol,
-            vm.addr(configDeployerPK)
+            vm.addr(configDeployerPK),
+            _initialSupply,
+            address(custodian)
         );
         TransparentUpgradeableProxy(payable(proxy)).upgradeToAndCall({
             newImplementation: implementation,

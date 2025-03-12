@@ -4,8 +4,11 @@ import { OptionsBuilder } from "@fraxfinance/layerzero-v2-upgradeable/oapp/contr
 import { IERC20 } from "@openzeppelin/contracts/token/ERC20/IERC20.sol";
 import { SendParam, MessagingFee, IOFT } from "@fraxfinance/layerzero-v2-upgradeable/oapp/contracts/oft/interfaces/IOFT.sol";
 
+import { Ownable } from "@openzeppelin/contracts/access/Ownable.sol";
+import { Initializable } from "@openzeppelin/contracts-upgradeable/proxy/utils/Initializable.sol";
+
 /// @dev used in conjunction with `scripts/ops/MoveLegacyLiquidity/1_DeployMockOFTs.s.sol`
-contract CustodianMock {
+contract CustodianMock is Ownable, Initializable{
     
     uint32 public constant dstEid = 30101; // Ethereum
 
@@ -16,40 +19,36 @@ contract CustodianMock {
     address public constant ethSFrxEthLockbox = 0xbBc424e58ED38dd911309611ae2d7A23014Bd960;
     address public constant ethFxsLockbox = 0xC6F59a4fD50cAc677B51558489E03138Ac1784EC;
 
-    address public immutable refundAddr;
-    address public immutable mockFrxUsdOft;
-    address public immutable mockSfrxUsdOft;
-    address public immutable mockFrxEthOft;
-    address public immutable mockSfrxEthOft;
-    address public immutable mockFxsOft;
-
     receive() external payable {}
 
-    constructor(
-        address _refundAddr,
+    constructor(address _initialOwner) {
+        _transferOwnership(_initialOwner);
+    }
+
+    function send(
         address _mockFrxUsdOft,
         address _mockSfrxUsdOft,
         address _mockFrxEthOft,
         address _mockSfrxEthOft,
         address _mockFxsOft
-    ) {
-        refundAddr = _refundAddr;
-        mockFrxUsdOft = _mockFrxUsdOft;
-        mockSfrxUsdOft = _mockSfrxUsdOft;
-        mockFrxEthOft = _mockFrxEthOft;
-        mockSfrxEthOft = _mockSfrxEthOft;
-        mockFxsOft = _mockFxsOft;
-    }
+    ) external payable onlyOwner initializer {
+        require(
+            _mockFrxUsdOft != address(0) &&
+            _mockSfrxUsdOft != address(0) &&
+            _mockFrxEthOft != address(0) &&
+            _mockSfrxEthOft != address(0) &&
+            _mockFxsOft != address(0),
+            "CustodianMock: zero address"
+        );
 
-    function send() external payable {
-        _send(mockFrxUsdOft, ethFrxUsdLockbox);
-        _send(mockSfrxUsdOft, ethSFrxUsdLockbox);
-        _send(mockFrxEthOft, ethFrxEthLockbox);
-        _send(mockSfrxEthOft, ethSFrxEthLockbox);
-        _send(mockFxsOft, ethFxsLockbox);
+        _send(_mockFrxUsdOft, ethFrxUsdLockbox);
+        _send(_mockSfrxUsdOft, ethSFrxUsdLockbox);
+        _send(_mockFrxEthOft, ethFrxEthLockbox);
+        _send(_mockSfrxEthOft, ethSFrxEthLockbox);
+        _send(_mockFxsOft, ethFxsLockbox);
 
         // withdraw any remaining ETH
-        payable(refundAddr).transfer(address(this).balance);
+        payable(owner()).transfer(address(this).balance);
     }
 
     function _send(address _oft, address _to) internal {
@@ -70,7 +69,7 @@ contract CustodianMock {
         IOFT(_oft).send{value: fee.nativeFee}(
             sendParam,
             fee,
-            payable(refundAddr)
+            payable(owner())
         );
     }
 }

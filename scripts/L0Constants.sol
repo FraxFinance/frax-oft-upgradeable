@@ -4,8 +4,8 @@ pragma solidity ^0.8.19;
 contract L0Constants {
 
     address[] public expectedProxyOfts;
-    address[] public baseProxyOfts;
     address[] public lineaProxyOfts;
+    address[] public baseProxyOfts;
     address[] public fraxtalLockboxes;
     address[] public ethLockboxes;
     address[] public connectedOfts;
@@ -77,6 +77,14 @@ contract L0Constants {
         lineaProxyOfts.push(lineaFrxUsdOft);
         lineaProxyOfts.push(lineaFrxEthOft);
         lineaProxyOfts.push(lineaFpiOft);
+
+         // array of base OFTs
+        baseProxyOfts.push(baseFxsOft);
+        baseProxyOfts.push(baseSFrxUsdOft);
+        baseProxyOfts.push(baseSFrxEthOft);
+        baseProxyOfts.push(baseFrxUsdOft);
+        baseProxyOfts.push(baseFrxEthOft);
+        baseProxyOfts.push(baseFpiOft);
 
         fraxtalLockboxes.push(fraxtalFxsLockbox);
         fraxtalLockboxes.push(fraxtalSFrxUsdLockbox);

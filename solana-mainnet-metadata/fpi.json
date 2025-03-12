@@ -1,0 +1,10 @@
+{
+  "name": "Frax Price Index",
+  "symbol": "FPI",
+  "description": "Frax Price Index Token",
+  "image": "https://static.frax.com/images/tokens/fpi.png",
+  "extensions": {
+    "website": "https://frax.finance/",
+    "twitter": "https://x.com/fraxfinance"
+  }
+}

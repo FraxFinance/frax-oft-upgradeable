@@ -63,10 +63,10 @@ contract BaseL0Script is L0Constants, Script {
     /// @dev alphabetical order as json is read in by keys alphabetically.
     struct NonEvmPeer {
         bytes32 fpi;
-        bytes32 frax;
+        bytes32 frxUSD;
         bytes32 frxEth;
         bytes32 fxs;
-        bytes32 sFrax;
+        bytes32 sfrxUSD;
         bytes32 sFrxEth;
     }
     bytes32[][] public nonEvmPeersArrays;
@@ -97,7 +97,7 @@ contract BaseL0Script is L0Constants, Script {
     string public json;
 
     function version() public virtual pure returns (uint256, uint256, uint256) {
-        return (1, 2, 7);
+        return (1, 2, 9);
     }
 
     modifier broadcastAs(uint256 privateKey) {
@@ -154,6 +154,20 @@ contract BaseL0Script is L0Constants, Script {
             connectedOfts[3] = fraxtalLockboxes[3];
             connectedOfts[4] = fraxtalLockboxes[4];
             connectedOfts[5] = fraxtalLockboxes[5];
+        } else if (simulateConfig.chainid == 59144) {
+            connectedOfts[0] = lineaProxyOfts[0];
+            connectedOfts[1] = lineaProxyOfts[1];
+            connectedOfts[2] = lineaProxyOfts[2];
+            connectedOfts[3] = lineaProxyOfts[3];
+            connectedOfts[4] = lineaProxyOfts[4];
+            connectedOfts[5] = lineaProxyOfts[5];
+        } else if (simulateConfig.chainid == 8453) {
+            connectedOfts[0] = baseProxyOfts[0];
+            connectedOfts[1] = baseProxyOfts[1];
+            connectedOfts[2] = baseProxyOfts[2];
+            connectedOfts[3] = baseProxyOfts[3];
+            connectedOfts[4] = baseProxyOfts[4];
+            connectedOfts[5] = baseProxyOfts[5];
         } else {
             // https://github.com/FraxFinance/frax-oft-upgradeable?tab=readme-ov-file#proxy-upgradeable-ofts
             connectedOfts[0] = expectedProxyOfts[0];
@@ -238,10 +252,10 @@ contract BaseL0Script is L0Constants, Script {
             NonEvmPeer memory peer = nonEvmPeers[i];
             bytes32[] memory peerArray = new bytes32[](6);
             peerArray[0] = peer.fxs;
-            peerArray[1] = peer.sFrax; // TODO: modify to sfrxUSD
-            peerArray[2] = peer.sFrxEth;
-            peerArray[3] = peer.frax;
-            peerArray[4] = peer.frxEth;
+            peerArray[1] = peer.sFrxEth; // TODO: modify to sfrxUSD
+            peerArray[2] = peer.sfrxUSD;
+            peerArray[3] = peer.frxEth;
+            peerArray[4] = peer.frxUSD;
             peerArray[5] = peer.fpi;
 
             nonEvmPeersArrays.push(peerArray);

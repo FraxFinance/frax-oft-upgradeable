@@ -11,7 +11,7 @@ This repository contains all of the contracts and deployment code used to manage
     - `0xF59C41A57AB4565AF7424F64981523DfD7A453c5`
   - `Linea`
     - `0x3cf371c128b092b085B7732069cEAF3Fd863F270`
-  - `ZKSync`
+  - `ZKSync`, `Abstract`
     - `0xe59dcae52a4ffa39be99588486c84bc2dc1ba52f`
 
 - Msigs (links to gnosis safe and squad for Solana)
@@ -36,6 +36,7 @@ This repository contains all of the contracts and deployment code used to manage
   - [`Linea`](https://safe.linea.build/home?safe=linea:0x0E5a5284820E350ffce7fe7ba3364FaC1C53eaFD)
   - [`Solana`](https://app.squads.so/squads/FSRTW4KPGifKL8yKcZ8mfoR9mKtAjwZiTHbHwgix8AQo/home)
   - [`ZkSync`] (https://app.safe.global/home?safe=zksync:0x66716ae60898dD4479B52aC4d92ef16C1821f420)
+  - [`Abstract`](https://app.safe.global/home?safe=abstract:0x66716ae60898dD4479B52aC4d92ef16C1821f420)
 
 ### Proxy (upgradeable) OFTs
 - Chain: `Mode`, `Sei`, `X-Layer`, `Ink`, `Sonic`, `Arbitrum`, `Optimism`, `Polygon`, `BSC`, `Avalanche`, `Polygon zkEvm`, `Blast`, `Berachain`
@@ -62,7 +63,7 @@ This repository contains all of the contracts and deployment code used to manage
       - `sfrxETH`: `0x383Eac7CcaA89684b8277cBabC25BCa8b13B7Aa2`
       - `FXS`: `0x5217Ab28ECE654Aab2C68efedb6A22739df6C3D5`
       - `FPI`:  `0xDaF72Aa849d3C4FAA8A9c8c99f240Cf33dA02fc4`
-- Chain: `ZkSync`
+- Chain: `ZkSync`,`Abstract`
   - OFTs:
       - `frxUSD`: `0xEa77c590Bb36c43ef7139cE649cFBCFD6163170d`
       - `sfrxUSD`: `0x9F87fbb47C33Cd0614E43500b9511018116F79eE`

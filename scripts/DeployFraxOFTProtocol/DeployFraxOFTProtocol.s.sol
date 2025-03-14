@@ -318,6 +318,12 @@ contract DeployFraxOFTProtocol is BaseL0Script {
                 _oftArray: baseProxyOfts
             });
             require(peer != address(0), "Invalid base peer");
+        } else if (_chainid == 2741 || _chainid == 324) {
+            peer = getPeerFromArray({
+                _oft: _oft,
+                _oftArray: zkEraProxyOfts
+            });
+            require(peer != address(0), "Invalid Zk Era peer");
         } else {
             peer = getPeerFromArray({
                 _oft: _oft,

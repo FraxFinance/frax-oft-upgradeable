@@ -128,7 +128,6 @@ contract DeployMockOFTsAndSend is DeployFraxOFTProtocol {
     /// @dev override to maintain connectedOfts as configured in run()
     function _populateConnectedOfts() public override {}
 
-    /// @notice mints supply to custodian and sends after OFT setup
     function setupSource() public override broadcastAs(configDeployerPK) {
         setEvmEnforcedOptions({
             _connectedOfts: proxyOfts,
@@ -154,8 +153,20 @@ contract DeployMockOFTsAndSend is DeployFraxOFTProtocol {
             _configs: proxyConfigs
         });
 
-        // no need to set roles
-        // setPriviledgedRoles();
+        setPriviledgedRoles();
+    }
+
+    /// @notice skip proxyAdmin ownership transfer
+    function setPriviledgedRoles() public virtual {
+        /// @dev transfer ownership of OFT
+        for (uint256 o=0; o<proxyOfts.length; o++) {
+            address proxyOft = proxyOfts[o];
+            FraxOFTUpgradeable(proxyOft).setDelegate(broadcastConfig.delegate);
+            Ownable(proxyOft).transferOwnership(broadcastConfig.delegate);
+        }
+
+        /// @dev transfer ownership of ProxyAdmin
+        // Ownable(proxyAdmin).transferOwnership(broadcastConfig.delegate);
     }
 
     function setEvmPeers(
@@ -247,7 +258,6 @@ contract DeployMockOFTsAndSend is DeployFraxOFTProtocol {
         /// @dev: create semi-pre-deterministic proxy address, then initialize with correct implementation
         proxy = address(new TransparentUpgradeableProxy(implementationMock, vm.addr(configDeployerPK), ""));
 
-        /// @dev: broadcastConfig deployer is temporary OFT owner until setPriviledgedRoles()
         bytes memory initializeArgs = abi.encodeWithSelector(
             OFTUpgradeableMockMint.initialize.selector,
             _name,

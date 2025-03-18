@@ -1,8 +1,8 @@
 const oftMetadata = {
     token_name: 'Frax Share',
     token_symbol: 'FXS',
-    icon_uri: '',
-    project_uri: '',
+    icon_uri: 'https://static.frax.com/images/tokens/fxs.png',
+    project_uri: 'https://frax.finance/',
     sharedDecimals: 6,
     localDecimals: 6,
 }

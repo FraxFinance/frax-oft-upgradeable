@@ -57,28 +57,28 @@ contract DeployFraxOFTProtocol is SetDVNs, BaseL0Script {
     function setupDestination(
         L0Config memory _connectedConfig
     ) public virtual simulateAndWriteTxs(_connectedConfig) {
-        setEvmEnforcedOptions({
-            _connectedOfts: connectedOfts,
-            _configs: broadcastConfigArray
-        });
+        // setEvmEnforcedOptions({
+        //     _connectedOfts: connectedOfts,
+        //     _configs: broadcastConfigArray
+        // });
 
-        setEvmPeers({
-            _connectedOfts: connectedOfts,
-            _peerOfts: proxyOfts,
-            _configs: broadcastConfigArray 
-        });
+        // setEvmPeers({
+        //     _connectedOfts: connectedOfts,
+        //     _peerOfts: proxyOfts,
+        //     _configs: broadcastConfigArray 
+        // });
 
-        setDVNs({
-            _connectedConfig: _connectedConfig,
-            _connectedOfts: connectedOfts,
-            _configs: broadcastConfigArray
-        });
+        // setDVNs({
+        //     _connectedConfig: _connectedConfig,
+        //     _connectedOfts: connectedOfts,
+        //     _configs: broadcastConfigArray
+        // });
 
-        setLibs({
-            _connectedConfig: _connectedConfig,
-            _connectedOfts: connectedOfts,
-            _configs: broadcastConfigArray
-        });
+        // setLibs({
+        //     _connectedConfig: _connectedConfig,
+        //     _connectedOfts: connectedOfts,
+        //     _configs: broadcastConfigArray
+        // });
     }
 
     function setupSource() public virtual broadcastAs(configDeployerPK) {
@@ -105,7 +105,7 @@ contract DeployFraxOFTProtocol is SetDVNs, BaseL0Script {
     function setupEvms() public virtual {
         setEvmEnforcedOptions({
             _connectedOfts: proxyOfts,
-            _configs: evmConfigs
+            _configs: proxyConfigs
         });
 
         /// @dev Upgradeable OFTs maintaining the same address cross-chain.
@@ -298,7 +298,7 @@ contract DeployFraxOFTProtocol is SetDVNs, BaseL0Script {
     // Conditional statement allows for overwriting peer whether (for example, frxUSD):
     //  (1) frxUsdOft is set through deployFraxOFTUpgradeableAndProxy() (allows for non-predetermined addrs)
     //  (2) connectedOft is the predetermined frxUsd OFT addr
-    //  (3) peer is either the ethereum/fraxtal frxUSD lockbox
+    //  (3) peer is either the ethereum/fraxtal frxUSD lockbox or a non-predeterministic address    
     // NOTE on partial token deployments, {token}Oft must be set
     function determinePeer(
         uint256 _chainid,
@@ -317,6 +317,18 @@ contract DeployFraxOFTProtocol is SetDVNs, BaseL0Script {
                 _oftArray: ethLockboxes
             });
             require(peer != address(0), "Invalid ethereum peer");
+        } else if (_chainid == 59144) {
+            peer = getPeerFromArray({
+                _oft: _oft,
+                _oftArray: lineaProxyOfts
+            });
+            require(peer != address(0), "Invalid linea peer");
+        } else if (_chainid == 8453) {
+            peer = getPeerFromArray({
+                _oft: _oft,
+                _oftArray: baseProxyOfts
+            });
+            require(peer != address(0), "Invalid base peer");
         } else {
             peer = getPeerFromArray({
                 _oft: _oft,
@@ -353,7 +365,7 @@ contract DeployFraxOFTProtocol is SetDVNs, BaseL0Script {
             // For each non-evm
             for (uint256 c=0; c<nonEvmPeersArrays.length; c++) {
                 setPeer({
-                    _config: broadcastConfig,
+                    _config: nonEvmConfigs[0], // TODO : assuming 0th index is solana
                     _connectedOft: _connectedOfts[o],
                     _peerOftAsBytes32: nonEvmPeersArrays[c][o]
                 });

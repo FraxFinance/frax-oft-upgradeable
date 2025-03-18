@@ -12,17 +12,6 @@
             "sendLib302": "0xbB2Ea70C9E858123480642Cf96acbcCE1372dCe1"
         },
         {
-            "RPC": "https://rpc.blast.io",
-            "chainid": 81457,
-            "delegate": "0x33A133020b2C2CD41a24F74033B11EC2fC0bF97a",
-            "dvnHorizen": "0xc097ab8cd7b053326dfe9fb3e3a31a0cce3b526f",
-            "dvnL0": "0x70BF42C69173d6e33b834f59630DAC592C70b369",
-            "eid": 30243,
-            "endpoint": "0x1a44076050125825900e736c501f859c50fE728c",
-            "receiveLib302": "0x377530cdA84DFb2673bF4d145DCF0C4D7fdcB5b6",
-            "sendLib302": "0xc1B621b18187F74c8F6D52a6F709Dd2780C09821"
-        },
-        {
             "RPC": "https://metis-mainnet.public.blastapi.io",
             "chainid": 1088,
             "delegate": "0xF4A4F32732F9B2fB84Ee28c58616946F3bF80F7d",
@@ -32,6 +21,17 @@
             "endpoint": "0x1a44076050125825900e736c501f859c50fE728c",
             "receiveLib302": "0x5539Eb17a84E1D59d37C222Eb2CC4C81b502D1Ac",
             "sendLib302": "0x63e39ccB510926d05a0ae7817c8f1CC61C5BdD6c"
+        },
+        {
+            "RPC": "https://rpc.blast.io",
+            "chainid": 81457,
+            "delegate": "0x33A133020b2C2CD41a24F74033B11EC2fC0bF97a",
+            "dvnHorizen": "0xc097ab8cd7b053326dfe9fb3e3a31a0cce3b526f",
+            "dvnL0": "0x70BF42C69173d6e33b834f59630DAC592C70b369",
+            "eid": 30243,
+            "endpoint": "0x1a44076050125825900e736c501f859c50fE728c",
+            "receiveLib302": "0x377530cdA84DFb2673bF4d145DCF0C4D7fdcB5b6",
+            "sendLib302": "0xc1B621b18187F74c8F6D52a6F709Dd2780C09821"
         },
         {
             "RPC": "https://mainnet.base.org",
@@ -188,19 +188,63 @@
             "endpoint": "0x1a44076050125825900e736c501f859c50fE728c",
             "receiveLib302": "0xc02Ab410f0734EFa3F14628780e6e695156024C2",
             "sendLib302": "0xbB2Ea70C9E858123480642Cf96acbcCE1372dCe1"
+        },
+        {
+            "RPC": "https://rpc.blast.io",
+            "chainid": 81457,
+            "delegate": "0x33A133020b2C2CD41a24F74033B11EC2fC0bF97a",
+            "dvnHorizen": "0xc097ab8cd7b053326dfe9fb3e3a31a0cce3b526f",
+            "dvnL0": "0x70BF42C69173d6e33b834f59630DAC592C70b369",
+            "eid": 30243,
+            "endpoint": "0x1a44076050125825900e736c501f859c50fE728c",
+            "receiveLib302": "0x377530cdA84DFb2673bF4d145DCF0C4D7fdcB5b6",
+            "sendLib302": "0xc1B621b18187F74c8F6D52a6F709Dd2780C09821"
+        },
+        {
+            "RPC": "https://mainnet.base.org",
+            "chainid": 8453,
+            "delegate": "0xCBfd4Ef00a8cf91Fd1e1Fe97dC05910772c15E53",
+            "dvnHorizen": "0x9e059a54699a285714207b43B055483E78FAac25",
+            "dvnL0": "0xa7b5189bcA84Cd304D8553977c7C614329750d99",
+            "eid": 30184,
+            "endpoint": "0x1a44076050125825900e736c501f859c50fE728c",
+            "receiveLib302": "0xc70AB6f32772f59fBfc23889Caf4Ba3376C84bAf",
+            "sendLib302": "0xB5320B0B3a13cC860893E2Bd79FCd7e13484Dda2"
+        },
+        {
+            "RPC": "https://rpc.berachain.com",
+            "chainid": 80094,
+            "delegate": "0x436b303dAf4b95e94ad86cA3821d5E50eB0De3aA",
+            "dvnHorizen": "0xecbaa45c33ce6fa284995e5f8314f5bc7f1c2008",
+            "dvnL0": "0x282b3386571f7f794450d5789911a9804fa346b4",
+            "eid": 30362,
+            "endpoint": "0x6F475642a6e85809B1c36Fa62763669b1b48DD5B",
+            "receiveLib302": "0xe1844c5D63a9543023008D332Bd3d2e6f1FE1043",
+            "sendLib302": "0xC39161c743D0307EB9BCc9FEF03eeb9Dc4802de7"
+        },
+        {
+            "RPC": "https://rpc.linea.build",
+            "chainid": 59144,
+            "delegate": "0x0E5a5284820E350ffce7fe7ba3364FaC1C53eaFD",
+            "dvnHorizen": "0x7fe673201724925b5c477d4e1a4bd3e954688cf5",
+            "dvnL0": "0x129ee430cb2ff2708ccaddbdb408a88fe4ffd480",
+            "eid": 30183,
+            "endpoint": "0x1a44076050125825900e736c501f859c50fE728c",
+            "receiveLib302": "0xE22ED54177CE1148C557de74E4873619e6c6b205",
+            "sendLib302": "0x32042142DD551b4EbE17B6FEd53131dd4b4eEa06"
         }
     ],
     "Non-EVM": [
         {
             "RPC": "Solana",
             "chainid": 9999999999,
-            "delegate": "0x0000000000000000000000000000000000000000",
-            "dvnHorizen": "0x0000000000000000000000000000000000000000",
-            "dvnL0": "0x0000000000000000000000000000000000000000",
+            "delegate": "FSRTW4KPGifKL8yKcZ8mfoR9mKtAjwZiTHbHwgix8AQo",
+            "dvnHorizen": "HR9NQKK1ynW9NzgdM37dU5CBtqRHTukmbMKS7qkwSkHX",
+            "dvnL0": "4VDjp6XQaxoZf5RGwiPU9NR1EXSZn2TP4ATMmiSzLfhb",
             "eid": 30168,
-            "endpoint": "0x0000000000000000000000000000000000000000",
-            "receiveLib302": "0x0000000000000000000000000000000000000000",
-            "sendLib302": "0x0000000000000000000000000000000000000000"
+            "endpoint": "76y77prsiCMvXMjuoZ5VRrhG5qYBrUMYTE5WgHqgjEn6",
+            "receiveLib302": "7a4WjyR8VZ7yZz5XJAKm39BUGn5iT9CKcv2pmG9tdXVH",
+            "sendLib302": "7a4WjyR8VZ7yZz5XJAKm39BUGn5iT9CKcv2pmG9tdXVH"
         }
     ]
 }

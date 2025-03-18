@@ -1,0 +1,10 @@
+{
+  "name": "Frax Ether",
+  "symbol": "frxETH",
+  "description": "Frax Ether Token",
+  "image": "https://static.frax.com/images/tokens/frxeth.png",
+  "extensions": {
+    "website": "https://frax.finance/",
+    "twitter": "https://x.com/fraxfinance"
+  }
+}

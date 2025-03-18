@@ -3,21 +3,22 @@ pragma solidity ^0.8.19;
 
 import "scripts/BaseL0Script.sol";
 
-// forge script scripts/UpgradeFrax/test/setup/Send.s.sol --rpc-url https://mainnet.base.org --broadcast
+// forge script scripts/ops/UpgradeFrxUsd/test/setup/Send.s.sol --rpc-url https://rpc.frax.com --broadcast
 contract Send is BaseL0Script {
     using OptionsBuilder for bytes;
 
-    uint256 amount = 100_000e18;
+    uint256 amount = 1e18;
     address public oft;
     uint32 public dstEid;
 
     constructor() {
         if (block.chainid == 252) {
             oft = 0x103C430c9Fcaa863EA90386e3d0d5cd53333876e; // fraxtal addr of oft
-            dstEid = uint32(30274); // x-layer
+            // dstEid = uint32(30274); // x-layer
+            dstEid = uint32(30255);
         } else {
             oft = 0xa536976c9cA36e74Af76037af555eefa632ce469; // base addr of adapter
-            dstEid = uint32(30255); // fraxtal eid
+            // dstEid = uint32(30255); // fraxtal eid
         }
     }
 

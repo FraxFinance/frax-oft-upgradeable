@@ -66,16 +66,7 @@ contract DeployRandomAddressOFTs is DeployFraxOFTProtocol {
         string memory _name,
         string memory _symbol
     ) public override returns (address implementation, address proxy) {
-        bytes memory bytecode = bytes.concat(
-            abi.encodePacked(type(FraxOFTUpgradeable).creationCode),
-            abi.encode(broadcastConfig.endpoint)
-        );
-        assembly {
-            implementation := create(0, add(bytecode, 0x20), mload(bytecode))
-            if iszero(extcodesize(implementation)) {
-                revert(0, 0)
-            }
-        }
+        address implementation = address(new FraxOFTUpgradeable(broadcastConfig.endpoint)); 
         /// @dev: create semi-pre-deterministic proxy address, then initialize with correct implementation
         proxy = address(new TransparentUpgradeableProxy(implementationMock, vm.addr(configDeployerPK), ""));
 

@@ -14,7 +14,7 @@ contract DeployFraxOFTProtocol is BaseL0Script {
     using Strings for uint256;
 
     function version() public virtual override pure returns (uint256, uint256, uint256) {
-        return (1, 2, 7);
+        return (1, 2, 8);
     }
 
     function setUp() public virtual override {
@@ -204,16 +204,7 @@ contract DeployFraxOFTProtocol is BaseL0Script {
         string memory _name,
         string memory _symbol
     ) public virtual returns (address implementation, address proxy) {
-        bytes memory bytecode = bytes.concat(
-            abi.encodePacked(type(FraxOFTUpgradeable).creationCode),
-            abi.encode(broadcastConfig.endpoint)
-        );
-        assembly {
-            implementation := create(0, add(bytecode, 0x20), mload(bytecode))
-            if iszero(extcodesize(implementation)) {
-                revert(0, 0)
-            }
-        }
+        address implementation = address(new FraxOFTUpgradeable(broadcastConfig.endpoint)); 
         /// @dev: create semi-pre-deterministic proxy address, then initialize with correct implementation
         proxy = address(new TransparentUpgradeableProxy(implementationMock, vm.addr(oftDeployerPK), ""));
 
@@ -315,18 +306,24 @@ contract DeployFraxOFTProtocol is BaseL0Script {
                 _oftArray: ethLockboxes
             });
             require(peer != address(0), "Invalid ethereum peer");
-        } else if (_chainid == 8453) {
-            peer = getPeerFromArray({
-                _oft: _oft,
-                _oftArray: baseProxyOfts
-            });
-            require(peer != address(0), "Invalid base peer");
         } else if (_chainid == 59144) {
             peer = getPeerFromArray({
                 _oft: _oft,
                 _oftArray: lineaProxyOfts
             });
             require(peer != address(0), "Invalid linea peer");
+        } else if (_chainid == 8453) {
+            peer = getPeerFromArray({
+                _oft: _oft,
+                _oftArray: baseProxyOfts
+            });
+            require(peer != address(0), "Invalid base peer");
+        } else if (_chainid == 2741 || _chainid == 324) {
+            peer = getPeerFromArray({
+                _oft: _oft,
+                _oftArray: zkEraProxyOfts
+            });
+            require(peer != address(0), "Invalid Zk Era peer");
         } else {
             peer = getPeerFromArray({
                 _oft: _oft,

@@ -4,8 +4,9 @@ pragma solidity ^0.8.19;
 contract L0Constants {
 
     address[] public expectedProxyOfts;
-    address[] public baseProxyOfts;
     address[] public lineaProxyOfts;
+    address[] public baseProxyOfts;
+    address[] public zkEraProxyOfts;
     address[] public fraxtalLockboxes;
     address[] public ethLockboxes;
     address[] public connectedOfts;
@@ -32,6 +33,13 @@ contract L0Constants {
     address public lineaSFrxEthOft = 0x383Eac7CcaA89684b8277cBabC25BCa8b13B7Aa2;
     address public lineaFxsOft = 0x5217Ab28ECE654Aab2C68efedb6A22739df6C3D5;
     address public lineaFpiOft = 0xDaF72Aa849d3C4FAA8A9c8c99f240Cf33dA02fc4;
+
+    address public zkEraFrxUsdOft = 0xEa77c590Bb36c43ef7139cE649cFBCFD6163170d;
+    address public zkEraSFrxUsdOft = 0x9F87fbb47C33Cd0614E43500b9511018116F79eE;
+    address public zkEraFrxEthOft = 0xc7Ab797019156b543B7a3fBF5A99ECDab9eb4440;
+    address public zkEraSFrxEthOft = 0xFD78FD3667DeF2F1097Ed221ec503AE477155394;
+    address public zkEraFxsOft = 0xAf01aE13Fb67AD2bb2D76f29A83961069a5F245F;
+    address public zkEraFpiOft = 0x580F2ee1476eDF4B1760bd68f6AaBaD57dec420E;
 
     address public fraxtalFrxUsdLockbox = 0x96A394058E2b84A89bac9667B19661Ed003cF5D4;
     address public fraxtalSFrxUsdLockbox = 0x88Aa7854D3b2dAA5e37E7Ce73A1F39669623a361;
@@ -77,6 +85,21 @@ contract L0Constants {
         lineaProxyOfts.push(lineaFrxUsdOft);
         lineaProxyOfts.push(lineaFrxEthOft);
         lineaProxyOfts.push(lineaFpiOft);
+
+         // array of base OFTs
+        baseProxyOfts.push(baseFxsOft);
+        baseProxyOfts.push(baseSFrxUsdOft);
+        baseProxyOfts.push(baseSFrxEthOft);
+        baseProxyOfts.push(baseFrxUsdOft);
+        baseProxyOfts.push(baseFrxEthOft);
+        baseProxyOfts.push(baseFpiOft);
+
+        zkEraProxyOfts.push(zkEraFxsOft);
+        zkEraProxyOfts.push(zkEraSFrxUsdOft);
+        zkEraProxyOfts.push(zkEraSFrxEthOft);
+        zkEraProxyOfts.push(zkEraFrxUsdOft);
+        zkEraProxyOfts.push(zkEraFrxEthOft);
+        zkEraProxyOfts.push(zkEraFpiOft);
 
         fraxtalLockboxes.push(fraxtalFxsLockbox);
         fraxtalLockboxes.push(fraxtalSFrxUsdLockbox);

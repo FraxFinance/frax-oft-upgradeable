@@ -4,12 +4,15 @@ coverage
 coverage.json
 typechain
 typechain-types
-out
 
 # Hardhat files
 cache
 artifacts
 
+# Foundry compiles
+out
+zkout
+foundryup-zksync
 
 # LayerZero specific files
 .layerzero

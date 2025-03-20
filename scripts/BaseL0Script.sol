@@ -65,6 +65,7 @@ contract BaseL0Script is L0Constants, Script {
         bytes32 fpi;
         bytes32 frxUSD;
         bytes32 frxEth;
+        bytes32 frxUsd;
         bytes32 fxs;
         bytes32 sfrxUSD;
         bytes32 sFrxEth;

@@ -3,11 +3,6 @@ import { EndpointId } from '@layerzerolabs/lz-definitions'
 import type { OAppOmniGraphHardhat, OmniPointHardhat } from '@layerzerolabs/toolbox-hardhat'
 import { connectionConfig } from './l0-movement-connection-config'
 
-enum MsgType {
-    SEND = 1,
-    SEND_AND_CALL = 2,
-}
-
 const fraxtalContract: OmniPointHardhat = {
     eid: EndpointId.FRAXTAL_V2_MAINNET,
     address: "0x96A394058E2b84A89bac9667B19661Ed003cF5D4",
@@ -40,9 +35,7 @@ const config: OAppOmniGraphHardhat = {
         {
             from: movementContract,
             to: fraxtalContract,
-            config:{
-                ...connectionConfig
-            }
+            config: connectionConfig
         },
     ],
 }

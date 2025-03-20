@@ -1,4 +1,6 @@
-const oftMetadata = {
+import { OFTFaInitParams } from '@layerzerolabs/oft-move'
+
+const oftMetadata: OFTFaInitParams = {
     token_name: 'Staked Frax USD',
     token_symbol: 'sfrxUSD',
     icon_uri: 'https://static.frax.com/images/tokens/sfrxusd.png',
@@ -7,4 +9,4 @@ const oftMetadata = {
     localDecimals: 6,
 }
 
-export { oftMetadata }
+export default oftMetadata

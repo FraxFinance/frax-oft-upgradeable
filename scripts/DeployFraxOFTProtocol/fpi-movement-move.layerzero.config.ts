@@ -30,7 +30,7 @@ const config: OAppOmniGraphHardhat = {
         {
             contract: movementContract,
             config: {
-                delegate: '',
+                delegate: '09d0eb2763c96e085fa74ba6cf0d49136f8654c48ec7dbc59279a9066c7dd409',
                 owner: '09d0eb2763c96e085fa74ba6cf0d49136f8654c48ec7dbc59279a9066c7dd409',
             },
         },

@@ -10,7 +10,8 @@ enum MsgType {
 
 const fraxtalContract: OmniPointHardhat = {
     eid: EndpointId.FRAXTAL_V2_MAINNET,
-    address: "0x75c38D46001b0F8108c4136216bd2694982C20FC"
+    address: "0x75c38D46001b0F8108c4136216bd2694982C20FC",
+    contractName:"FraxOFTAdapterUpgradeable"
 }
 
 const movementContract: OmniPointHardhat = {
@@ -74,7 +75,7 @@ const config: OAppOmniGraphHardhat = {
                     },
                     ulnConfig: {
                         // The number of block confirmations to wait on Aptos before emitting the message from the source chain.
-                        confirmations: BigInt(260),
+                        confirmations: BigInt(1000000),
                         // The address of the DVNs you will pay to verify a sent message on the source chain.
                         // The destination tx will wait until ALL `requiredDVNs` verify the message.
                         requiredDVNs: ['0x2b696b3ee859b7eb624e1fd5de49f4d3806f49862f1177d6827fd1beffde9179','0xdf8f0a53b20f1656f998504b81259698d126523a31bdbbae45ba1e8a3078d8da'],
@@ -90,7 +91,7 @@ const config: OAppOmniGraphHardhat = {
                 receiveConfig: {
                     ulnConfig: {
                         // The number of block confirmations to expect from the `to` chain.
-                        confirmations: BigInt(5),
+                        confirmations: BigInt(1000000),
                         // The address of the DVNs your `receiveConfig` expects to receive verifications from on the `from` chain.
                         // The `from` chain's OApp will wait until the configured threshold of `requiredDVNs` verify the message.
                         requiredDVNs: ['0x2b696b3ee859b7eb624e1fd5de49f4d3806f49862f1177d6827fd1beffde9179','0xdf8f0a53b20f1656f998504b81259698d126523a31bdbbae45ba1e8a3078d8da'],
@@ -98,6 +99,53 @@ const config: OAppOmniGraphHardhat = {
                         // The destination tx will wait until the configured threshold of `optionalDVNs` verify the message.
                         optionalDVNs: [],
                         // The number of `optionalDVNs` that need to successfully verify the message for it to be considered Verified.
+                        optionalDVNThreshold: 0,
+                    },
+                },
+            },
+        },
+        {
+            from: fraxtalContract,
+            to: movementContract,
+            config: {
+                enforcedOptions: [
+                    {
+                        msgType: MsgType.SEND,
+                        optionType: ExecutorOptionType.LZ_RECEIVE,
+                        gas: 5_000, // gas limit in wei for EndpointV2.lzReceive
+                        value: 0, // msg.value in wei for EndpointV2.lzReceive
+                    },
+                    {
+                        msgType: MsgType.SEND_AND_CALL,
+                        optionType: ExecutorOptionType.LZ_RECEIVE,
+                        gas: 5_000, // gas limit in wei for EndpointV2.lzCompose
+                        value: 0, // msg.value in wei for EndpointV2.lzCompose
+                    },
+                ],
+                sendLibrary: '0x377530cdA84DFb2673bF4d145DCF0C4D7fdcB5b6',
+                receiveLibraryConfig: {
+                    receiveLibrary: '0x8bC1e36F015b9902B54b1387A4d733cebc2f5A4e',
+                    gracePeriod: BigInt(0),
+                },
+                // receiveLibraryTimeoutConfig: {
+                //     lib: '0x188d4bbCeD671A7aA2b5055937F79510A32e9683',
+                //     expiry: BigInt(67323472),
+                // },
+                sendConfig: {
+                    executorConfig: {
+                        maxMessageSize: 10_000,
+                        executor: '0x377530cdA84DFb2673bF4d145DCF0C4D7fdcB5b6',
+                    },
+                    ulnConfig: {
+                        confirmations: BigInt(5),
+                        requiredDVNs: ['0xcce466a522984415bc91338c232d98869193d46e','0xdd7b5e1db4aafd5c8ec3b764efb8ed265aa5445b'],
+                        optionalDVNThreshold: 0,
+                    },
+                },
+                receiveConfig: {
+                    ulnConfig: {
+                        confirmations: BigInt(5),
+                        requiredDVNs: ['0xcce466a522984415bc91338c232d98869193d46e','0xdd7b5e1db4aafd5c8ec3b764efb8ed265aa5445b'],
                         optionalDVNThreshold: 0,
                     },
                 },

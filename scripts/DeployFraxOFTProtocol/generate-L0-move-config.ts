@@ -39,7 +39,7 @@ function getContractConfig(lzConfig: lzConfigType[]): OmniNodeHardhat[] {
     return lzConfig.map(config => ({
         contract: {
             eid: config.eid,
-            contractName: 'FraxOFTUpgradeable'
+            contractName: 'FraxOFTAdapterUpgradeable'
         },
         config: {
             owner: config.delegate,

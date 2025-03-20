@@ -10,7 +10,8 @@ enum MsgType {
 
 const fraxtalContract: OmniPointHardhat = {
     eid: EndpointId.FRAXTAL_V2_MAINNET,
-    address: "0x9aBFE1F8a999B0011ecD6116649AEe8D575F5604"
+    address: "0x9aBFE1F8a999B0011ecD6116649AEe8D575F5604",
+    contractName: "FraxOFTAdapterUpgradeable"
 }
 
 const movementContract: OmniPointHardhat = {
@@ -30,8 +31,8 @@ const config: OAppOmniGraphHardhat = {
         {
             contract: movementContract,
             config: {
-                delegate: '',
-                owner: '',
+                delegate: '09d0eb2763c96e085fa74ba6cf0d49136f8654c48ec7dbc59279a9066c7dd409',
+                owner: '09d0eb2763c96e085fa74ba6cf0d49136f8654c48ec7dbc59279a9066c7dd409',
             },
         },
     ],
@@ -74,10 +75,10 @@ const config: OAppOmniGraphHardhat = {
                     },
                     ulnConfig: {
                         // The number of block confirmations to wait on Aptos before emitting the message from the source chain.
-                        confirmations: BigInt(260),
+                        confirmations: BigInt(1000000),
                         // The address of the DVNs you will pay to verify a sent message on the source chain.
                         // The destination tx will wait until ALL `requiredDVNs` verify the message.
-                        requiredDVNs: ['0x2b696b3ee859b7eb624e1fd5de49f4d3806f49862f1177d6827fd1beffde9179','0xdf8f0a53b20f1656f998504b81259698d126523a31bdbbae45ba1e8a3078d8da'],
+                        requiredDVNs: ['0x2b696b3ee859b7eb624e1fd5de49f4d3806f49862f1177d6827fd1beffde9179', '0xdf8f0a53b20f1656f998504b81259698d126523a31bdbbae45ba1e8a3078d8da'],
                         // The address of the DVNs you will pay to verify a sent message on the source chain.
                         // The destination tx will wait until the configured threshold of `optionalDVNs` verify a message.
                         optionalDVNs: [],
@@ -90,10 +91,10 @@ const config: OAppOmniGraphHardhat = {
                 receiveConfig: {
                     ulnConfig: {
                         // The number of block confirmations to expect from the `to` chain.
-                        confirmations: BigInt(5),
+                        confirmations: BigInt(1000000),
                         // The address of the DVNs your `receiveConfig` expects to receive verifications from on the `from` chain.
                         // The `from` chain's OApp will wait until the configured threshold of `requiredDVNs` verify the message.
-                        requiredDVNs: ['0x2b696b3ee859b7eb624e1fd5de49f4d3806f49862f1177d6827fd1beffde9179','0xdf8f0a53b20f1656f998504b81259698d126523a31bdbbae45ba1e8a3078d8da'],
+                        requiredDVNs: ['0x2b696b3ee859b7eb624e1fd5de49f4d3806f49862f1177d6827fd1beffde9179', '0xdf8f0a53b20f1656f998504b81259698d126523a31bdbbae45ba1e8a3078d8da'],
                         // The address of the `optionalDVNs` you expect to receive verifications from on the `from` chain.
                         // The destination tx will wait until the configured threshold of `optionalDVNs` verify the message.
                         optionalDVNs: [],

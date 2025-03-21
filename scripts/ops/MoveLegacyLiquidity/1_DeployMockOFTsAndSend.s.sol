@@ -101,10 +101,9 @@ contract DeployMockOFTsAndSend is DeployFraxOFTProtocol {
 
         deploySource();
         setupSource();
-        setupDestinations();
-
         buildCustodianInitialSendTx();
         buildCustodianFullSendTx();
+        setupDestinations();
     }
 
     function buildCustodianInitialSendTx() public simulateAndWriteTxs(broadcastConfig) {

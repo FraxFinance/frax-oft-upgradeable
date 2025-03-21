@@ -4,8 +4,8 @@ pragma solidity ^0.8.22;
 import "scripts/DeployFraxOFTProtocol/DeployFraxOFTProtocol.s.sol";
 import { Strings } from "@openzeppelin/contracts/utils/Strings.sol";
 
-// Used to setup a single destination to Aptos, for example BSC <> Aptos
-// forge script scripts/ops/SetupAptos/SetupAptosSingle.s.sol --rpc-url https://bsc-dataseed.bnbchain.org
+// Used to setup a single destination to Aptos, for example Fraxtal <> Aptos
+// forge script scripts/ops/SetupAptos/SetupAptosSingle.s.sol --rpc-url https://rpc.frax.com
 contract SetupAptosSingle is DeployFraxOFTProtocol {
 
     L0Config[] public aptosConfigArray;
@@ -21,11 +21,22 @@ contract SetupAptosSingle is DeployFraxOFTProtocol {
     }
 
     function run() public override {
-        aptosConfigArray.push(nonEvmConfigs[1]);
+        aptosConfigArray.push(nonEvmConfigs[2]);
         require(aptosConfigArray.length == 1, "Aptos config not added");
         require(aptosConfigArray[0].eid == 30108, "Not aptos config");
 
         setupAptosDestinations();
+    }
+
+    function _populateConnectedOfts() public override {
+        // TODO: modify this readme to "Fraxtal Lockboxes"
+        // https://github.com/FraxFinance/frax-oft-upgradeable?tab=readme-ov-file#fraxtal-standalone-frxusdsfrxusd-lockboxes
+        connectedOfts[0] = fraxtalLockboxes[0];
+        connectedOfts[1] = fraxtalLockboxes[1];
+        connectedOfts[2] = fraxtalLockboxes[2];
+        connectedOfts[3] = fraxtalLockboxes[3];
+        connectedOfts[4] = fraxtalLockboxes[4];
+        connectedOfts[5] = fraxtalLockboxes[5];
     }
 
     function setupAptosDestinations() public virtual {
@@ -40,7 +51,7 @@ contract SetupAptosSingle is DeployFraxOFTProtocol {
         });
 
         setAptosPeers({
-            _connectedConfig: _simulateConfig,
+            _connectedConfig: nonEvmConfigs[2], // maps to aptos
             _connectedOfts: connectedOfts
         });
 

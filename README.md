@@ -123,7 +123,7 @@ You can expect to use (1) unless you are holding OFTs on Base, Blast, or Metis p
   - SPL Token: `8xKX8CRH9LxriRUNCPittu1jiovyQQr4EonWQjHZjWyH`
     - As bytes32: `0xd3cee058686107cc51844f331ee213a33142ab299b5ce473c1cf3a8ddaa721a0`
 
-### Movement
+### Movement, Aptos
 - Admin: Chain-respective msig
 - `frxUSD`
   - OFT Package: `0xe067037681385b86d8344e6b7746023604c6ac90ddc997ba3c58396c258ad17b`

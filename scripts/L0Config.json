@@ -259,48 +259,37 @@
     "Non-EVM": [
         {
             "RPC": "Solana",
-            "chainid": 9999999999,
-            "delegate": "FSRTW4KPGifKL8yKcZ8mfoR9mKtAjwZiTHbHwgix8AQo",
-            "dvnHorizen": "HR9NQKK1ynW9NzgdM37dU5CBtqRHTukmbMKS7qkwSkHX",
-            "dvnL0": "4VDjp6XQaxoZf5RGwiPU9NR1EXSZn2TP4ATMmiSzLfhb",
-            "eid": 30168,
-            "endpoint": "76y77prsiCMvXMjuoZ5VRrhG5qYBrUMYTE5WgHqgjEn6",
-            "receiveLib302": "7a4WjyR8VZ7yZz5XJAKm39BUGn5iT9CKcv2pmG9tdXVH",
-            "sendLib302": "7a4WjyR8VZ7yZz5XJAKm39BUGn5iT9CKcv2pmG9tdXVH"
-        },
-        {
-            "RPC": "Aptos",
-            "chainid": 123456789,
+            "chainid": 111111111,
             "delegate": "0x0000000000000000000000000000000000000000",
-            "dvnHorizen": "0x93adea241d46ddebc207d74402ff9a150f70b9de828b8b2208d69b7d08e90bd7",
-            "dvnL0": "0xdf8f0a53b20f1656f998504b81259698d126523a31bdbbae45ba1e8a3078d8da",
-            "eid": 30108,
-            "endpoint": "0xe60045e20fc2c99e869c1c34a65b9291c020cd12a0d37a00a53ac1348af4f43c",
-            "receiveLib302": "0xc33752e0220faf79e45385dd73fb28d681dcd9f1569a1480725507c1f3c3aba9",
-            "sendLib302": "0xc33752e0220faf79e45385dd73fb28d681dcd9f1569a1480725507c1f3c3aba9",
-            "executor":"0x15a5bbf1eb7998a22c9f23810d424abe40bd59ddd8e6ab7e59529853ebed41c4"
+            "dvnHorizen": "0x0000000000000000000000000000000000000000",
+            "dvnL0": "0x0000000000000000000000000000000000000000",
+            "eid": 30168,
+            "endpoint": "0x0000000000000000000000000000000000000000",
+            "receiveLib302": "0x0000000000000000000000000000000000000000",
+            "sendLib302": "0x0000000000000000000000000000000000000000"
         },
         {
             "RPC": "Movement",
-            "chainid": 123456789,
+            "chainid": 22222222,
             "delegate": "0x0000000000000000000000000000000000000000",
-            "dvnHorizen": "0x2b696b3ee859b7eb624e1fd5de49f4d3806f49862f1177d6827fd1beffde9179",
-            "dvnL0": "0xdf8f0a53b20f1656f998504b81259698d126523a31bdbbae45ba1e8a3078d8da",
+            "dvnHorizen": "0x0000000000000000000000000000000000000000",
+            "dvnL0": "0x0000000000000000000000000000000000000000",
             "eid": 30325,
-            "endpoint": "0xe60045e20fc2c99e869c1c34a65b9291c020cd12a0d37a00a53ac1348af4f43c",
-            "receiveLib302": "0xc33752e0220faf79e45385dd73fb28d681dcd9f1569a1480725507c1f3c3aba9",
-            "sendLib302": "0xc33752e0220faf79e45385dd73fb28d681dcd9f1569a1480725507c1f3c3aba9"
+            "endpoint": "0x0000000000000000000000000000000000000000",
+            "receiveLib302": "0x0000000000000000000000000000000000000000",
+            "sendLib302": "0x0000000000000000000000000000000000000000"
         },
         {
-            "RPC": "Initia",
-            "chainid": 123456789,
+            "RPC": "Aptos",
+            "chainid": 33333333,
             "delegate": "0x0000000000000000000000000000000000000000",
             "dvnHorizen": "0x0000000000000000000000000000000000000000",
             "dvnL0": "0x0000000000000000000000000000000000000000",
             "eid": 30108,
-            "endpoint": "76y77prsiCMvXMjuoZ5VRrhG5qYBrUMYTE5WgHqgjEn6",
-            "receiveLib302": "7a4WjyR8VZ7yZz5XJAKm39BUGn5iT9CKcv2pmG9tdXVH",
-            "sendLib302": "7a4WjyR8VZ7yZz5XJAKm39BUGn5iT9CKcv2pmG9tdXVH"
+            "endpoint": "0x0000000000000000000000000000000000000000",
+            "receiveLib302": "0x0000000000000000000000000000000000000000",
+            "sendLib302": "0x0000000000000000000000000000000000000000",
+            "executor": "0x0000000000000000000000000000000000000000"
         }
     ]
 }

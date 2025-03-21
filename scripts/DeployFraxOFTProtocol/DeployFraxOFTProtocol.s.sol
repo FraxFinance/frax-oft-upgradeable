@@ -432,7 +432,24 @@ contract DeployFraxOFTProtocol is BaseL0Script {
         });
     }
 
-    function setAptosEnforcedOptions(
+    function setMovementEnforcedOptions(
+        address[] memory _connectedOfts
+    ) public virtual {
+        bytes memory optionsTypeOne = OptionsBuilder.newOptions().addExecutorLzReceiveOption(5_000, 0);
+        bytes memory optionsTypeTwo = OptionsBuilder.newOptions().addExecutorLzReceiveOption(5_000, 0);
+
+        L0Config[] memory configs = new L0Config[](1);
+        configs[0] = nonEvmConfigs[1]; // mapped to movement
+
+        setEnforcedOptions({
+            _connectedOfts: _connectedOfts,
+            _configs: configs,
+            _optionsTypeOne: optionsTypeOne,
+            _optionsTypeTwo: optionsTypeTwo
+        });
+    }
+
+        function setAptosEnforcedOptions(
         address[] memory _connectedOfts
     ) public virtual {
         // TODO: change these, [200_000, 2_500_000] is solana config
@@ -440,7 +457,7 @@ contract DeployFraxOFTProtocol is BaseL0Script {
         bytes memory optionsTypeTwo = OptionsBuilder.newOptions().addExecutorLzReceiveOption(200_000, 2_500_000);
 
         L0Config[] memory configs = new L0Config[](1);
-        configs[0] = nonEvmConfigs[1]; // mapped to Aptos
+        configs[0] = nonEvmConfigs[2]; // mapped to Aptos
 
         setEnforcedOptions({
             _connectedOfts: _connectedOfts,

@@ -121,8 +121,8 @@ importers:
         specifier: ~0.5.1
         version: 0.5.2(hardhat@2.22.19(bufferutil@4.0.9)(ts-node@10.9.2(@swc/core@1.11.11(@swc/helpers@0.5.15))(@types/node@18.18.14)(typescript@5.8.2))(typescript@5.8.2)(utf-8-validate@5.0.10))(solidity-bytes-utils@0.8.3)
       '@layerzerolabs/toolbox-foundry':
-        specifier: ~0.1.12
-        version: 0.1.12
+        specifier: 0.1.5
+        version: 0.1.5
       '@layerzerolabs/toolbox-hardhat':
         specifier: ~0.6.9
         version: 0.6.9(d8e521d1a03ca36cbb74b9b3616746ab)
@@ -1432,8 +1432,8 @@ packages:
       hardhat: ^2.22.10
       solidity-bytes-utils: ^0.8.2
 
-  '@layerzerolabs/toolbox-foundry@0.1.12':
-    resolution: {integrity: sha512-sod5pk9yOSMTLR/qIdxJmH3i/X7CSK1g7F9S2u4Osv8k4YKKXe0IyChrYtQns/BKdv1ey5MiqnlS5afEO/OPlg==}
+  '@layerzerolabs/toolbox-foundry@0.1.5':
+    resolution: {integrity: sha512-Ucg11Sn3Zy7IWjDfl2RMNSZUbMkllxsd+hHc72uKVMZ64I7jEfI1j1hUbZE47g/k9cc4OH+nd7lVhLbX9A+19Q==}
 
   '@layerzerolabs/toolbox-hardhat@0.6.9':
     resolution: {integrity: sha512-BaYoLNbj/JZe29nj6s3FN3Y/sGqKiLRLyJ+Ed+zZRgzubLCg2WOf8hNf+69GKgOcaQ7nu0l1MEkX8iDcx1d6vg==}
@@ -9144,7 +9144,7 @@ snapshots:
       hardhat: 2.22.19(bufferutil@4.0.9)(ts-node@10.9.2(@swc/core@1.11.11(@swc/helpers@0.5.15))(@types/node@18.18.14)(typescript@5.8.2))(typescript@5.8.2)(utf-8-validate@5.0.10)
       solidity-bytes-utils: 0.8.3
 
-  '@layerzerolabs/toolbox-foundry@0.1.12': {}
+  '@layerzerolabs/toolbox-foundry@0.1.5': {}
 
   '@layerzerolabs/toolbox-hardhat@0.6.9(d8e521d1a03ca36cbb74b9b3616746ab)':
     dependencies:

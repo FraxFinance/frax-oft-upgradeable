@@ -2,12 +2,15 @@
 pragma solidity ^0.8.22;
 
 import "scripts/DeployFraxOFTProtocol/DeployFraxOFTProtocol.s.sol";
+import { Strings } from "@openzeppelin/contracts/utils/Strings.sol";
 
 // Used to setup a single destination to Aptos, for example BSC <> Aptos
 // forge script scripts/ops/SetupAptos/SetupAptosSingle.s.sol --rpc-url https://bsc-dataseed.bnbchain.org
 contract SetupAptosSingle is DeployFraxOFTProtocol {
 
     L0Config[] public aptosConfigArray;
+    using Strings for uint256;
+
 
     function filename() public view override returns (string memory) {
         string memory root = vm.projectRoot();

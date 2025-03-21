@@ -23,6 +23,7 @@ contract DeployMockOFTsAndSend is DeployFraxOFTProtocol {
 
     L0Config public ethConfig;
     CustodianMock public custodian;
+    uint256 public fraxtalTxCnt;
 
     /*
     How balances were determined:
@@ -68,7 +69,15 @@ contract DeployMockOFTsAndSend is DeployFraxOFTProtocol {
         string memory root = vm.projectRoot();
         root = string.concat(root, "/scripts/ops/MoveLegacyLiquidity/txs/1_DeployMockOFTsAndSend-");
 
-        string memory file = string.concat(simulateConfig.chainid.toString(), ".json");
+        string memory file;
+        if (simulateConfig.chainid == 252) {
+            fraxtalTxCnt == 1 ?
+                file = string.concat(simulateConfig.chainid.toString(), "-initialSend.json") :
+                file = string.concat(simulateConfig.chainid.toString(), "-fullSend.json");
+        } else {
+            file = string.concat(simulateConfig.chainid.toString(), ".json");
+        }
+
         return string.concat(root, file);
     }
 
@@ -92,37 +101,60 @@ contract DeployMockOFTsAndSend is DeployFraxOFTProtocol {
 
         deploySource();
         setupSource();
-        buildCustodianSendTx();
         setupDestinations();
+
+        buildCustodianInitialSendTx();
+        buildCustodianFullSendTx();
     }
 
-    function buildCustodianSendTx() public simulateAndWriteTxs(broadcastConfig) {
-        bytes memory data = abi.encodeCall(
-            CustodianMock.send,
-            (
-                address(frxUsdOft),
-                address(sfrxUsdOft),
-                address(frxEthOft),
-                address(sfrxEthOft),
-                address(fxsOft)
-            )
-        );
+    function buildCustodianInitialSendTx() public simulateAndWriteTxs(broadcastConfig) {
         uint256 value = 0.1e18;
+        bytes memory data = abi.encodeWithSelector(CustodianMock.initialSend.selector);
         (bool success, ) = address(custodian).call{value: value}(data);
-        require(success, "CustodianMock.send failed");
+        require(success, "CustodianMock.initialSend failed");
         serializedTxs.push(
             SerializedTx({
-                name: "CustodianMock.send",
+                name: "CustodianMock.initialSend",
                 to: address(custodian),
                 value: value,
                 data: data
             })
         );
+
+        fraxtalTxCnt++;
+    }
+
+    function buildCustodianFullSendTx() public simulateAndWriteTxs(broadcastConfig) {
+        bytes memory data = abi.encodeWithSelector(CustodianMock.fullSend.selector);
+        (bool success, ) = address(custodian).call(data);
+        require(success, "CustodianMock.fullSend failed");
+        serializedTxs.push(
+            SerializedTx({
+                name: "CustodianMock.fullSend",
+                to: address(custodian),
+                value: 0,
+                data: data
+            })
+        );
+
+        fraxtalTxCnt++;
     }
 
     function deploySource() public override {
         deployCustodianMock();
         deployFraxOFTUpgradeablesAndProxies();
+        initCustodian();
+    }
+
+    function initCustodian() public broadcastAs(configDeployerPK) {
+        custodian.initialize({
+            _mockFrxUsdOft: frxUsdOft,
+            _mockSfrxUsdOft: sfrxUsdOft,
+            _mockFrxEthOft: frxEthOft,
+            _mockSfrxEthOft: sfrxEthOft,
+            _mockFxsOft: fxsOft,
+            _initialOwner: broadcastConfig.delegate
+        });
     }
 
     /// @dev override to maintain connectedOfts as configured in run()
@@ -157,7 +189,7 @@ contract DeployMockOFTsAndSend is DeployFraxOFTProtocol {
     }
 
     /// @notice skip proxyAdmin ownership transfer
-    function setPriviledgedRoles() public virtual {
+    function setPriviledgedRoles() public override {
         /// @dev transfer ownership of OFT
         for (uint256 o=0; o<proxyOfts.length; o++) {
             address proxyOft = proxyOfts[o];
@@ -234,9 +266,7 @@ contract DeployMockOFTsAndSend is DeployFraxOFTProtocol {
 
     function deployCustodianMock() public broadcastAs(configDeployerPK) {
         // Deploy the mock custodian
-        custodian = new CustodianMock({
-            _initialOwner: broadcastConfig.delegate
-        });
+        custodian = new CustodianMock();
         console.log("CustodianMock deployed at:", address(custodian));
     }
 

@@ -38,9 +38,9 @@ contract DeployMockOFTsAndSend is DeployFraxOFTProtocol {
                                         0.001e18 -      // blast
                                         0.01e18;        // metis
 
-    uint256 initialSfrxUsdSupply = 288_442.533e18 -    // ethereum
-                                        31_816.103e18 - // base
-                                        3_496.227e18 -  // blast
+    uint256 initialSfrxUsdSupply = 283_288.062e18 -    // ethereum
+                                        26_920.645e18 - // base
+                                        3_237.214e18 -  // blast
                                         102.138e18;     // metis
 
     uint256 initialFrxEthSupply = 257.507e18 -         // ethereum
@@ -48,14 +48,14 @@ contract DeployMockOFTsAndSend is DeployFraxOFTProtocol {
                                         0.0057e18 -     // blast
                                         0;              // metis
 
-    uint256 initialSfrxEthSupply = 199.12e18 -         // ethereum
-                                        45.7842e18 -    // base
-                                        23.7698e18 -    // blast
-                                        3.9053e18;      // metis
+    uint256 initialSfrxEthSupply = 180.7854e18 -         // ethereum
+                                        27.2246e18 -    // base
+                                        24.0212e18 -    // blast
+                                        3.8789e18;      // metis
 
-    uint256 initialFxsSupply = 131_950.021e18 -        // ethereum
-                                    27_477.41e18 -      // base
-                                    3_557.605e18 -      // blast
+    uint256 initialFxsSupply = 130_945.028e18 -        // ethereum
+                                    26_471.417e18 -      // base
+                                    3_558.605e18 -      // blast
                                     111.127e18;         // metis
 
     constructor() {
@@ -63,6 +63,13 @@ contract DeployMockOFTsAndSend is DeployFraxOFTProtocol {
         implementationMock = 0x8f1B9c1fd67136D525E14D96Efb3887a33f16250;
         // doesn't matter what address the proxyAdmin is- just needs to be non-zero for `deployFraxOFTUpgradeableAndProxy()`
         proxyAdmin = address(0x11);
+
+        // ensure supply is accurate
+        require(initialFrxUsdSupply == 294_602.034e18, "incorrect frxUSD supply");
+        require(initialSfrxUsdSupply == 253_028.065e18, "incorrect sFrxUSD supply");
+        require(initialFrxEthSupply == 257.309e18, "incorrect frxETH supply");
+        require(initialSfrxEthSupply == 125.6607e18, "incorect sFrxETH supply");
+        require(initialFxsSupply == 100_803.879e18, "incorrect fxs supply");
     }
 
     function filename() public view override returns (string memory) {

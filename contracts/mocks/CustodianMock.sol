@@ -12,9 +12,8 @@ contract CustodianMock is Ownable, Initializable {
     
     uint32 public constant dstEid = 30101; // Ethereum
 
+    address public constant ethComptroller = 0xB1748C79709f4Ba2Dd82834B8c82D4a505003f27;
     // Copied from L0Constants.sol
-    address public constant ethFrxUsdLockbox = 0x566a6442A5A6e9895B9dCA97cC7879D632c6e4B0;
-    address public constant ethSFrxUsdLockbox = 0x7311CEA93ccf5f4F7b789eE31eBA5D9B9290E126;
     address public constant ethFrxEthLockbox = 0x1c1649A38f4A3c5A0c4a24070f688C525AB7D6E6;
     address public constant ethSFrxEthLockbox = 0xbBc424e58ED38dd911309611ae2d7A23014Bd960;
     address public constant ethFxsLockbox = 0xC6F59a4fD50cAc677B51558489E03138Ac1784EC;
@@ -58,16 +57,16 @@ contract CustodianMock is Ownable, Initializable {
 
     function initialSend() external payable onlyOwner reinitializer(2) {
         // send 1 frxUSD, 1 sfrxUSD, 0.001 frxETH, 0.001 sfrxETH, 1 FXS
-        _send(mockFrxUsdOft, ethFrxUsdLockbox, 1e18);
-        _send(mockSfrxUsdOft, ethSFrxUsdLockbox, 1e18);
+        _send(mockFrxUsdOft, ethComptroller, 1e18);
+        _send(mockSfrxUsdOft, ethComptroller, 1e18);
         _send(mockFrxEthOft, ethFrxEthLockbox, 0.001e18);
         _send(mockSfrxEthOft, ethSFrxEthLockbox, 0.001e18);
         _send(mockFxsOft, ethFxsLockbox, 1e18);
     }
 
     function fullSend() external onlyOwner reinitializer(3){
-        _send(mockFrxUsdOft, ethFrxUsdLockbox, IERC20(mockFrxUsdOft).balanceOf(address(this)));
-        _send(mockSfrxUsdOft, ethSFrxUsdLockbox, IERC20(mockSfrxUsdOft).balanceOf(address(this)));
+        _send(mockFrxUsdOft, ethComptroller, IERC20(mockFrxUsdOft).balanceOf(address(this)));
+        _send(mockSfrxUsdOft, ethComptroller, IERC20(mockSfrxUsdOft).balanceOf(address(this)));
         _send(mockFrxEthOft, ethFrxEthLockbox, IERC20(mockFrxEthOft).balanceOf(address(this)));
         _send(mockSfrxEthOft, ethSFrxEthLockbox, IERC20(mockSfrxEthOft).balanceOf(address(this)));
         _send(mockFxsOft, ethFxsLockbox, IERC20(mockFxsOft).balanceOf(address(this)));

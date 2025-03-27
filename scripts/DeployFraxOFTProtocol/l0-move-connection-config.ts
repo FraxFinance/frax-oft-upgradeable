@@ -12,13 +12,13 @@ export const movementToFraxtalconnectionConfig: OAppEdgeConfig = {
         {
             msgType: MsgType.SEND,
             optionType: ExecutorOptionType.LZ_RECEIVE,
-            gas: 80_000, // gas limit in wei for EndpointV2.lzReceive
+            gas: 200_000, // gas limit in wei for EndpointV2.lzReceive
             value: 0, // msg.value in wei for EndpointV2.lzReceive
         },
         {
             msgType: MsgType.SEND_AND_CALL,
             optionType: ExecutorOptionType.LZ_RECEIVE,
-            gas: 80_000, // gas limit in wei for EndpointV2.lzReceive
+            gas: 200_000, // gas limit in wei for EndpointV2.lzReceive
             value: 0, // msg.value in wei for EndpointV2.lzReceive
         },
     ],
@@ -42,7 +42,7 @@ export const movementToFraxtalconnectionConfig: OAppEdgeConfig = {
         },
         ulnConfig: {
             // The number of block confirmations to wait on Aptos before emitting the message from the source chain.
-            confirmations: BigInt(1000000),
+            confirmations: BigInt(30000),
             // The address of the DVNs you will pay to verify a sent message on the source chain.
             // The destination tx will wait until ALL `requiredDVNs` verify the message.
             requiredDVNs: ['0x2b696b3ee859b7eb624e1fd5de49f4d3806f49862f1177d6827fd1beffde9179', '0xdf8f0a53b20f1656f998504b81259698d126523a31bdbbae45ba1e8a3078d8da'],
@@ -77,13 +77,13 @@ export const aptosToFraxtalconnectionConfig: OAppEdgeConfig = {
         {
             msgType: MsgType.SEND,
             optionType: ExecutorOptionType.LZ_RECEIVE,
-            gas: 80_000, // gas limit in wei for EndpointV2.lzReceive
+            gas: 200_000, // gas limit in wei for EndpointV2.lzReceive
             value: 0, // msg.value in wei for EndpointV2.lzReceive
         },
         {
             msgType: MsgType.SEND_AND_CALL,
             optionType: ExecutorOptionType.LZ_RECEIVE,
-            gas: 80_000, // gas limit in wei for EndpointV2.lzReceive
+            gas: 200_000, // gas limit in wei for EndpointV2.lzReceive
             value: 0, // msg.value in wei for EndpointV2.lzReceive
         },
     ],
@@ -107,7 +107,7 @@ export const aptosToFraxtalconnectionConfig: OAppEdgeConfig = {
         },
         ulnConfig: {
             // The number of block confirmations to wait on Aptos before emitting the message from the source chain.
-            confirmations: BigInt(1000000),
+            confirmations: BigInt(30000),
             // The address of the DVNs you will pay to verify a sent message on the source chain.
             // The destination tx will wait until ALL `requiredDVNs` verify the message.
             requiredDVNs: ['0x93adea241d46ddebc207d74402ff9a150f70b9de828b8b2208d69b7d08e90bd7', '0xdf8f0a53b20f1656f998504b81259698d126523a31bdbbae45ba1e8a3078d8da'],
@@ -142,11 +142,11 @@ export const fraxtalContractConfig = {
 }
 
 export const movementContractConfig = {
-    delegate: '09d0eb2763c96e085fa74ba6cf0d49136f8654c48ec7dbc59279a9066c7dd409',
-    owner: '09d0eb2763c96e085fa74ba6cf0d49136f8654c48ec7dbc59279a9066c7dd409',
+    delegate: '0xda80fe6404a059e99569ba06f8d87814b3a9521c8d6c78ac5ed4ca75ad867ab3',
+    owner: '0xda80fe6404a059e99569ba06f8d87814b3a9521c8d6c78ac5ed4ca75ad867ab3',
 }
 
 export const aptosContractConfig = {
-    delegate: '09d0eb2763c96e085fa74ba6cf0d49136f8654c48ec7dbc59279a9066c7dd409',
-    owner: '09d0eb2763c96e085fa74ba6cf0d49136f8654c48ec7dbc59279a9066c7dd409',
+    delegate: '0x6f9e27569fb34873f13a6868b3732b384f81c89fb525a623a969fdba155de21c',
+    owner: '0x6f9e27569fb34873f13a6868b3732b384f81c89fb525a623a969fdba155de21c',
 }

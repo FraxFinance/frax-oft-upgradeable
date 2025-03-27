@@ -21,7 +21,8 @@
     "lz:sdk:move:set-delegate": "ts-node scripts/DeployFraxOFTProtocol/move-cli.ts --vm move --op set-delegate",
     "lz:sdk:move:transfer-oapp-owner": "ts-node scripts/DeployFraxOFTProtocol/move-cli.ts --vm move --op transfer-oapp-owner",
     "lz:sdk:move:transfer-object-owner": "ts-node scripts/DeployFraxOFTProtocol/move-cli.ts --vm move --op transfer-object-owner",
-    "lz:sdk:move:wire": "ts-node scripts/DeployFraxOFTProtocol/move-cli.ts --vm move --op wire"
+    "lz:sdk:move:wire": "ts-node scripts/DeployFraxOFTProtocol/move-cli.ts --vm move --op wire",
+    "lz:sdk:move:send-from-move-oft": "ts-node scripts/DeployFraxOFTProtocol/move-cli.ts --vm move --op send-from-move-oft"
   },
   "resolutions": {
     "ethers": "^5.7.2",

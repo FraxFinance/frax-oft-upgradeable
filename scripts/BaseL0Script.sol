@@ -48,6 +48,7 @@ contract BaseL0Script is L0Constants, Script {
         address dvnL0;
         uint256 eid;
         address endpoint;
+        address executor;
         address receiveLib302;
         address sendLib302;
     }

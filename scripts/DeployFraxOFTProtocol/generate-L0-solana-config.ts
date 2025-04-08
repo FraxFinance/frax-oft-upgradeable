@@ -78,13 +78,13 @@ function getConnectionConfig(lzConfig: lzConfigType[], sourceContract: OmniPoint
                 {
                     msgType: MsgType.SEND,
                     optionType: ExecutorOptionType.LZ_RECEIVE,
-                    gas: 80_000,
+                    gas: 200_000,
                     value: 0
                 },
                 {
                     msgType: MsgType.SEND_AND_CALL,
                     optionType: ExecutorOptionType.LZ_RECEIVE,
-                    gas: 80_000,
+                    gas: 200_000,
                     value: 0
                 },
             ],

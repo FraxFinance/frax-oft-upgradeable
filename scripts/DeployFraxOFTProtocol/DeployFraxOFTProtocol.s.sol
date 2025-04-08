@@ -57,28 +57,28 @@ contract DeployFraxOFTProtocol is SetDVNs, BaseL0Script {
     function setupDestination(
         L0Config memory _connectedConfig
     ) public virtual simulateAndWriteTxs(_connectedConfig) {
-        // setEvmEnforcedOptions({
-        //     _connectedOfts: connectedOfts,
-        //     _configs: broadcastConfigArray
-        // });
+        setEvmEnforcedOptions({
+            _connectedOfts: connectedOfts,
+            _configs: broadcastConfigArray
+        });
 
-        // setEvmPeers({
-        //     _connectedOfts: connectedOfts,
-        //     _peerOfts: proxyOfts,
-        //     _configs: broadcastConfigArray 
-        // });
+        setEvmPeers({
+            _connectedOfts: connectedOfts,
+            _peerOfts: proxyOfts,
+            _configs: broadcastConfigArray 
+        });
 
-        // setDVNs({
-        //     _connectedConfig: _connectedConfig,
-        //     _connectedOfts: connectedOfts,
-        //     _configs: broadcastConfigArray
-        // });
+        setDVNs({
+            _connectedConfig: _connectedConfig,
+            _connectedOfts: connectedOfts,
+            _configs: broadcastConfigArray
+        });
 
-        // setLibs({
-        //     _connectedConfig: _connectedConfig,
-        //     _connectedOfts: connectedOfts,
-        //     _configs: broadcastConfigArray
-        // });
+        setLibs({
+            _connectedConfig: _connectedConfig,
+            _connectedOfts: connectedOfts,
+            _configs: broadcastConfigArray
+        });
     }
 
     function setupSource() public virtual broadcastAs(configDeployerPK) {
@@ -206,16 +206,7 @@ contract DeployFraxOFTProtocol is SetDVNs, BaseL0Script {
         string memory _name,
         string memory _symbol
     ) public virtual returns (address implementation, address proxy) {
-        bytes memory bytecode = bytes.concat(
-            abi.encodePacked(type(FraxOFTUpgradeable).creationCode),
-            abi.encode(broadcastConfig.endpoint)
-        );
-        assembly {
-            implementation := create(0, add(bytecode, 0x20), mload(bytecode))
-            if iszero(extcodesize(implementation)) {
-                revert(0, 0)
-            }
-        }
+        implementation = address(new FraxOFTUpgradeable(broadcastConfig.endpoint)); 
         /// @dev: create semi-pre-deterministic proxy address, then initialize with correct implementation
         proxy = address(new TransparentUpgradeableProxy(implementationMock, vm.addr(oftDeployerPK), ""));
 
@@ -329,6 +320,12 @@ contract DeployFraxOFTProtocol is SetDVNs, BaseL0Script {
                 _oftArray: baseProxyOfts
             });
             require(peer != address(0), "Invalid base peer");
+        } else if (_chainid == 2741 || _chainid == 324) {
+            peer = getPeerFromArray({
+                _oft: _oft,
+                _oftArray: zkEraProxyOfts
+            });
+            require(peer != address(0), "Invalid Zk Era peer");
         } else {
             peer = getPeerFromArray({
                 _oft: _oft,

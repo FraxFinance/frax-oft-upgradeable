@@ -23,6 +23,7 @@ contract SetDVNs is BaseInherited, Script {
 
     struct DvnStack {
         address bcwGroup;
+        address frax;
         address horizen;
         address lz;
         address nethermind;
@@ -159,6 +160,14 @@ contract SetDVNs is BaseInherited, Script {
                 incorrectDvnMatchMsg("bcwGroup", _srcChainId, _dstChainId)
             );
             dvnStackTemp.push(srcDVNs.bcwGroup);
+        }
+
+        if (srcDVNs.frax != address(0) || dstDVNs.frax != address(0)) {
+            require(
+                srcDVNs.frax != address(0) && dstDVNs.frax != address(0),
+                incorrectDvnMatchMsg("frax", _srcChainId, _dstChainId)
+            );
+            dvnStackTemp.push(srcDVNs.frax);
         }
 
         if (srcDVNs.horizen != address(0) || dstDVNs.horizen != address(0)) {

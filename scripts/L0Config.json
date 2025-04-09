@@ -259,7 +259,7 @@
     "Non-EVM": [
         {
             "RPC": "Solana",
-            "chainid": 9999999999,
+            "chainid": 111111111,
             "delegate": "FSRTW4KPGifKL8yKcZ8mfoR9mKtAjwZiTHbHwgix8AQo",
             "dvnHorizen": "HR9NQKK1ynW9NzgdM37dU5CBtqRHTukmbMKS7qkwSkHX",
             "dvnL0": "4VDjp6XQaxoZf5RGwiPU9NR1EXSZn2TP4ATMmiSzLfhb",

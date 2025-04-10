@@ -380,7 +380,7 @@ async function main() {
     for (let chainArrIndex = 0; chainArrIndex < chainArr.length; chainArrIndex++) {
         const srcChain = chainArr[chainArrIndex];
         if (chains[srcChain].oApps === undefined) { continue }
-        if (srcChain == "ink") { continue } // TODO : ink doesn't support multicall3
+
         for (const oAppName of Object.keys(chains[srcChain].oApps as assetListType)) {
             let contractCalls: any[] = [];
             const oApp = chains[srcChain].oApps?.[oAppName as keyof assetListType]
@@ -389,33 +389,56 @@ async function main() {
                 abi: OFT_ADAPTER_ABI,
             } as const;
 
-            // get peers
-            Object.keys(chains).forEach(async (destChainName) => {
-                contractCalls.push({
-                    ...oftContract,
-                    functionName: "peers",
-                    args: [chains[destChainName].peerId],
-                });
-            });
-
-            const peers = await chains[srcChain].client.multicall({
-                contracts: contractCalls,
-            });
-
             if (ofts[oAppName] === undefined) {
                 ofts[oAppName] = {} as Record<string, Record<string, OFTInfo>>
             }
             if (ofts[oAppName][srcChain] === undefined) {
                 ofts[oAppName][srcChain] = {} as Record<string, OFTInfo>
             }
-            // add to ofts
-            Object.keys(chains).forEach((destChainName, index) => {
-                if (peers[index].result) {
-                    if (peers[index].result != bytes32Zero) {
+
+            if (srcChain !== "ink") {// get peers
+                Object.keys(chains).forEach(async (destChainName) => {
+                    contractCalls.push({
+                        ...oftContract,
+                        functionName: "peers",
+                        args: [chains[destChainName].peerId],
+                    });
+                });
+
+                const peers = await chains[srcChain].client.multicall({
+                    contracts: contractCalls,
+                });
+
+                // add to ofts
+                Object.keys(chains).forEach((destChainName, index) => {
+                    if (peers[index].result) {
+                        if (peers[index].result != bytes32Zero) {
+                            ofts[oAppName][srcChain][destChainName] = {} as OFTInfo
+                            ofts[oAppName][srcChain][destChainName].peerAddressBytes32 = peers[index].result
+                            ofts[oAppName][srcChain][destChainName].peerAddress = getAddress(
+                                "0x" + peers[index].result.slice(-40)
+                            );
+                            if (chains[destChainName].oApps === undefined) {
+                                chains[destChainName].oApps = {} as assetListType
+                            }
+                            chains[destChainName].oApps[oAppName as keyof assetListType] = ofts[oAppName][srcChain][destChainName].peerAddress
+                        }
+                    }
+                });
+            } else {
+                // add to ofts
+                for (const destChainName of Object.keys(chains)) {
+                    const peerInfo = await chains[srcChain].client.readContract({
+                        ...oftContract,
+                        functionName: "peers",
+                        args: [chains[destChainName].peerId]
+                    })
+
+                    if (peerInfo && peerInfo !== bytes32Zero) {
                         ofts[oAppName][srcChain][destChainName] = {} as OFTInfo
-                        ofts[oAppName][srcChain][destChainName].peerAddressBytes32 = peers[index].result
+                        ofts[oAppName][srcChain][destChainName].peerAddressBytes32 = peerInfo
                         ofts[oAppName][srcChain][destChainName].peerAddress = getAddress(
-                            "0x" + peers[index].result.slice(-40)
+                            "0x" + peerInfo.slice(-40)
                         );
                         if (chains[destChainName].oApps === undefined) {
                             chains[destChainName].oApps = {} as assetListType
@@ -423,67 +446,102 @@ async function main() {
                         chains[destChainName].oApps[oAppName as keyof assetListType] = ofts[oAppName][srcChain][destChainName].peerAddress
                     }
                 }
-            });
+            }
 
-            contractCalls = [];
-            Object.keys(ofts[oAppName][srcChain]).forEach(async (destChainName) => {
-                // oft.combineOptions (_eid (uint32), _msgType (uint16), _extraOptions (bytes)) : bytes
-                contractCalls.push({
-                    ...oftContract,
-                    functionName: "combineOptions",
-                    args: [chains[destChainName].peerId, 1, "0x"],
+            if (srcChain !== "ink") {
+                contractCalls = [];
+                Object.keys(ofts[oAppName][srcChain]).forEach(async (destChainName) => {
+                    // oft.combineOptions (_eid (uint32), _msgType (uint16), _extraOptions (bytes)) : bytes
+                    contractCalls.push({
+                        ...oftContract,
+                        functionName: "combineOptions",
+                        args: [chains[destChainName].peerId, 1, "0x"],
+                    });
+                    contractCalls.push({
+                        ...oftContract,
+                        functionName: "combineOptions",
+                        args: [chains[destChainName].peerId, 2, "0x"],
+                    });
+                    // oft.enforcedOptions (_eid (uint32), _msgType (uint16)) : bytes
+                    contractCalls.push({
+                        ...oftContract,
+                        functionName: "enforcedOptions",
+                        args: [chains[destChainName].peerId, 3],
+                    });
+                    // oft.isPeer (_eid (uint32), _peer (bytes32)) : bool
+                    contractCalls.push({
+                        ...oftContract,
+                        functionName: "isPeer",
+                        args: [chains[destChainName].peerId, ofts[oAppName][srcChain][destChainName].peerAddressBytes32],
+                    });
                 });
-                contractCalls.push({
-                    ...oftContract,
-                    functionName: "combineOptions",
-                    args: [chains[destChainName].peerId, 2, "0x"],
-                });
-                // oft.enforcedOptions (_eid (uint32), _msgType (uint16)) : bytes
-                contractCalls.push({
-                    ...oftContract,
-                    functionName: "enforcedOptions",
-                    args: [chains[destChainName].peerId, 3],
-                });
-                // oft.isPeer (_eid (uint32), _peer (bytes32)) : bool
-                contractCalls.push({
-                    ...oftContract,
-                    functionName: "isPeer",
-                    args: [chains[destChainName].peerId, ofts[oAppName][srcChain][destChainName].peerAddressBytes32],
-                });
-            });
 
-            const oftOptions = await chains[srcChain].client.multicall({
-                contracts: contractCalls,
-            });
+                const oftOptions = await chains[srcChain].client.multicall({
+                    contracts: contractCalls,
+                });
 
-            // add to ofts
-            Object.keys(ofts[oAppName][srcChain]).forEach(async (destChainName, index) => {
-                let oftres = oftOptions[index * 4]
-                let opt
-                if (oftres.result) {
-                    opt = decodeLzReceiveOption(oftres.result)
-                    ofts[oAppName][srcChain][destChainName].combinedOptionsSend = {} as OFTEnforcedOptions
-                    if (oftres.result !== "0x") {
+                // add to ofts
+                Object.keys(ofts[oAppName][srcChain]).forEach(async (destChainName, index) => {
+                    let oftres = oftOptions[index * 4]
+                    let opt
+                    if (oftres.result) {
+                        opt = decodeLzReceiveOption(oftres.result)
+                        ofts[oAppName][srcChain][destChainName].combinedOptionsSend = {} as OFTEnforcedOptions
+                        if (oftres.result !== "0x") {
+                            ofts[oAppName][srcChain][destChainName].combinedOptionsSend.gas = opt.gas.toString()
+                            ofts[oAppName][srcChain][destChainName].combinedOptionsSend.value = opt.value.toString()
+                        }
+                    }
+                    // TODO
+                    // oftres = oftOptions[(index * 4) + 1]
+                    // opt = decodeLzReceiveOption(oftres.result)
+                    // ofts[destChainName].combinedOptionsSendAndCall = {} as OFTEnforceedOptions
+                    // ofts[destChainName].combinedOptionsSendAndCall.gas = opt.gas.toString()
+                    // ofts[destChainName].combinedOptionsSendAndCall.value = opt.value.toString()
+                    oftres = oftOptions[(index * 4) + 2]
+                    if (oftres.result) {
+                        ofts[oAppName][srcChain][destChainName].enforcedOptions = {} as OFTEnforcedOptions
+                        if (oftres.result !== "0x") {
+                            opt = decodeLzReceiveOption(oftres.result)
+                            ofts[oAppName][srcChain][destChainName].enforcedOptions.gas = opt.gas.toString()
+                            ofts[oAppName][srcChain][destChainName].enforcedOptions.value = opt.value.toString()
+                        }
+                    }
+                })
+            } else {
+                for (const destChainName of Object.keys(ofts[oAppName][srcChain])) {
+                    let oftres = await chains[srcChain].client.readContract({
+                        ...oftContract,
+                        functionName: "combineOptions",
+                        args: [chains[destChainName].peerId, 1, "0x"],
+                    })
+                    let opt
+                    if (oftres !== "0x") {
+                        opt = decodeLzReceiveOption(oftres)
+                        ofts[oAppName][srcChain][destChainName].combinedOptionsSend = {} as OFTEnforcedOptions
                         ofts[oAppName][srcChain][destChainName].combinedOptionsSend.gas = opt.gas.toString()
                         ofts[oAppName][srcChain][destChainName].combinedOptionsSend.value = opt.value.toString()
                     }
-                }
-                // TODO
-                // oftres = oftOptions[(index * 4) + 1]
-                // opt = decodeLzReceiveOption(oftres.result)
-                // ofts[destChainName].combinedOptionsSendAndCall = {} as OFTEnforceedOptions
-                // ofts[destChainName].combinedOptionsSendAndCall.gas = opt.gas.toString()
-                // ofts[destChainName].combinedOptionsSendAndCall.value = opt.value.toString()
-                oftres = oftOptions[(index * 4) + 2]
-                if (oftres.result) {
-                    ofts[oAppName][srcChain][destChainName].enforcedOptions = {} as OFTEnforcedOptions
-                    if (oftres.result !== "0x") {
-                        opt = decodeLzReceiveOption(oftres.result)
+
+                    // TODO
+                    // oftres = oftOptions[(index * 4) + 1]
+                    // opt = decodeLzReceiveOption(oftres.result)
+                    // ofts[destChainName].combinedOptionsSendAndCall = {} as OFTEnforceedOptions
+                    // ofts[destChainName].combinedOptionsSendAndCall.gas = opt.gas.toString()
+                    // ofts[destChainName].combinedOptionsSendAndCall.value = opt.value.toString()
+                    oftres = await chains[srcChain].client.readContract({
+                        ...oftContract,
+                        functionName: "enforcedOptions",
+                        args: [chains[destChainName].peerId, 3],
+                    })
+                    if (oftres !== "0x") {
+                        opt = decodeLzReceiveOption(oftres)
+                        ofts[oAppName][srcChain][destChainName].enforcedOptions = {} as OFTEnforcedOptions
                         ofts[oAppName][srcChain][destChainName].enforcedOptions.gas = opt.gas.toString()
                         ofts[oAppName][srcChain][destChainName].enforcedOptions.value = opt.value.toString()
                     }
                 }
-            })
+            }
 
             // OFT
             // TODO oft.sharedDecimals : uint8
@@ -507,324 +565,578 @@ async function main() {
                 address: endpointAddress,
                 abi: ENDPOINT_ABI,
             } as const;
-            contractCalls = [];
-            Object.keys(ofts[oAppName][srcChain]).forEach(async (destChainName) => {
+            if (srcChain !== "ink") {
+                contractCalls = [];
+                Object.keys(ofts[oAppName][srcChain]).forEach(async (destChainName) => {
 
-                // endpoint.defaultReceiveLibrary (srcEid (uint32)) : lib address
-                contractCalls.push({
-                    ...endpointContract,
-                    functionName: "defaultReceiveLibrary",
-                    args: [chains[destChainName].peerId],
+                    // endpoint.defaultReceiveLibrary (srcEid (uint32)) : lib address
+                    contractCalls.push({
+                        ...endpointContract,
+                        functionName: "defaultReceiveLibrary",
+                        args: [chains[destChainName].peerId],
+                    });
+                    // endpoint.defaultReceiveLibraryTimeout (srcEid (uint32)) : lib address, expiry uint256
+                    contractCalls.push({
+                        ...endpointContract,
+                        functionName: "defaultReceiveLibraryTimeout",
+                        args: [chains[destChainName].peerId],
+                    });
+                    // endpoint.defaultSendLibrary (dstEid (uint32)) : lib address
+                    contractCalls.push({
+                        ...endpointContract,
+                        functionName: "defaultSendLibrary",
+                        args: [chains[destChainName].peerId],
+                    });
                 });
-                // endpoint.defaultReceiveLibraryTimeout (srcEid (uint32)) : lib address, expiry uint256
-                contractCalls.push({
-                    ...endpointContract,
-                    functionName: "defaultReceiveLibraryTimeout",
-                    args: [chains[destChainName].peerId],
-                });
-                // endpoint.defaultSendLibrary (dstEid (uint32)) : lib address
-                contractCalls.push({
-                    ...endpointContract,
-                    functionName: "defaultSendLibrary",
-                    args: [chains[destChainName].peerId],
-                });
-            });
 
-            const endpointInfo = await chains[srcChain].client.multicall({
-                contracts: contractCalls,
-            });
+                const endpointInfo = await chains[srcChain].client.multicall({
+                    contracts: contractCalls,
+                });
 
-            // add to ofts
-            Object.keys(ofts[oAppName][srcChain]).forEach(async (destChainName, index) => {
-                let oftres = endpointInfo[index * 3]
-                ofts[oAppName][srcChain][destChainName].defaultReceiveLibrary = oftres.result
-                oftres = endpointInfo[(index * 3) + 1]
-                ofts[oAppName][srcChain][destChainName].defaultReceiveLibraryTimeOut = {} as ReceiveLibraryTimeOutInfo
-                ofts[oAppName][srcChain][destChainName].defaultReceiveLibraryTimeOut.libAddress = oftres.result[0]
-                ofts[oAppName][srcChain][destChainName].defaultReceiveLibraryTimeOut.expiry = oftres.result[1].toString()
-                oftres = endpointInfo[(index * 3) + 2]
-                ofts[oAppName][srcChain][destChainName].defaultSendLibrary = oftres.result
-            })
+                // add to ofts
+                Object.keys(ofts[oAppName][srcChain]).forEach(async (destChainName, index) => {
+                    let oftres = endpointInfo[index * 3]
+                    ofts[oAppName][srcChain][destChainName].defaultReceiveLibrary = oftres.result
+                    oftres = endpointInfo[(index * 3) + 1]
+                    ofts[oAppName][srcChain][destChainName].defaultReceiveLibraryTimeOut = {} as ReceiveLibraryTimeOutInfo
+                    ofts[oAppName][srcChain][destChainName].defaultReceiveLibraryTimeOut.libAddress = oftres.result[0]
+                    ofts[oAppName][srcChain][destChainName].defaultReceiveLibraryTimeOut.expiry = oftres.result[1].toString()
+                    oftres = endpointInfo[(index * 3) + 2]
+                    ofts[oAppName][srcChain][destChainName].defaultSendLibrary = oftres.result
+                })
+            } else {
+                // add to ofts
+                for (const destChainName of Object.keys(ofts[oAppName][srcChain])) {
+                    let oftres = await chains[srcChain].client.readContract({
+                        ...endpointContract,
+                        functionName: "defaultReceiveLibrary",
+                        args: [chains[destChainName].peerId],
+                    })
+                    ofts[oAppName][srcChain][destChainName].defaultReceiveLibrary = oftres
+                    oftres = await chains[srcChain].client.readContract({
+                        ...endpointContract,
+                        functionName: "defaultReceiveLibraryTimeout",
+                        args: [chains[destChainName].peerId],
+                    })
+                    ofts[oAppName][srcChain][destChainName].defaultReceiveLibraryTimeOut = {} as ReceiveLibraryTimeOutInfo
+                    ofts[oAppName][srcChain][destChainName].defaultReceiveLibraryTimeOut.libAddress = oftres[0]
+                    ofts[oAppName][srcChain][destChainName].defaultReceiveLibraryTimeOut.expiry = oftres[1].toString()
+                    oftres = await chains[srcChain].client.readContract({
+                        ...endpointContract,
+                        functionName: "defaultSendLibrary",
+                        args: [chains[destChainName].peerId],
+                    })
+                    ofts[oAppName][srcChain][destChainName].defaultSendLibrary = oftres
+                }
+            }
 
             // TODO endpoint.eid : 30101 uint32
             // TODO endpoint.getRegisteredLibraries : address[]
 
-            contractCalls = [];
-            Object.keys(ofts[oAppName][srcChain]).forEach(async (destChainName) => {
-                // endpoint.getReceiveLibrary (_receiver (address), _srcEid (uint32)) : lib address, isDefault bool
-                contractCalls.push({
-                    ...endpointContract,
-                    functionName: "getReceiveLibrary",
-                    args: [oApp, chains[destChainName].peerId],
+            if (srcChain !== "ink") {
+                contractCalls = [];
+                Object.keys(ofts[oAppName][srcChain]).forEach(async (destChainName) => {
+                    // endpoint.getReceiveLibrary (_receiver (address), _srcEid (uint32)) : lib address, isDefault bool
+                    contractCalls.push({
+                        ...endpointContract,
+                        functionName: "getReceiveLibrary",
+                        args: [oApp, chains[destChainName].peerId],
+                    });
+                    // endpoint.getSendLibrary (_sender (address),_dstEid (uint32)) : lib address
+                    contractCalls.push({
+                        ...endpointContract,
+                        functionName: "getSendLibrary",
+                        args: [oApp, chains[destChainName].peerId],
+                    });
+                    // endpoint.isDefaultSendLibrary (_sender (address),_dstEid (uint32)) : bool
+                    contractCalls.push({
+                        ...endpointContract,
+                        functionName: "isDefaultSendLibrary",
+                        args: [oApp, chains[destChainName].peerId],
+                    });
+                    // endpoint.receiveLibraryTimeout (receiver (address), srcEid (uint32)) : lib address, expiry uint256
+                    contractCalls.push({
+                        ...endpointContract,
+                        functionName: "receiveLibraryTimeout",
+                        args: [oApp, chains[destChainName].peerId],
+                    });
                 });
-                // endpoint.getSendLibrary (_sender (address),_dstEid (uint32)) : lib address
-                contractCalls.push({
-                    ...endpointContract,
-                    functionName: "getSendLibrary",
-                    args: [oApp, chains[destChainName].peerId],
-                });
-                // endpoint.isDefaultSendLibrary (_sender (address),_dstEid (uint32)) : bool
-                contractCalls.push({
-                    ...endpointContract,
-                    functionName: "isDefaultSendLibrary",
-                    args: [oApp, chains[destChainName].peerId],
-                });
-                // endpoint.receiveLibraryTimeout (receiver (address), srcEid (uint32)) : lib address, expiry uint256
-                contractCalls.push({
-                    ...endpointContract,
-                    functionName: "receiveLibraryTimeout",
-                    args: [oApp, chains[destChainName].peerId],
-                });
-            });
 
-            // TODO endpoint.getSendContext : eid uint32, sender address
+                // TODO endpoint.getSendContext : eid uint32, sender address
 
-            const endpointInfo2 = await chains[srcChain].client.multicall({
-                contracts: contractCalls,
-            });
+                const endpointInfo2 = await chains[srcChain].client.multicall({
+                    contracts: contractCalls,
+                });
 
-            // add to ofts
-            Object.keys(ofts[oAppName][srcChain]).forEach(async (destChainName, index) => {
-                ofts[oAppName][srcChain][destChainName].receiveLibrary = {} as ReceiveLibraryType
-                ofts[oAppName][srcChain][destChainName].receiveLibraryTimeOut = {} as ReceiveLibraryTimeOutInfo
-                // let oftres = endpointInfo2[index * 6]
-                // let decoded = decodeUlnConfig(oftres.result)
-                // ofts[oAppName][srcChain][destChainName].config.receive.confirmations = Number(decoded.confirmations)
-                // ofts[oAppName][srcChain][destChainName].config.receive.requiredDVNCount = decoded.requiredDVNCount
-                // ofts[oAppName][srcChain][destChainName].config.receive.optionalDVNCount = decoded.optionalDVNCount
-                // ofts[oAppName][srcChain][destChainName].config.receive.optionalDVNThreshold = decoded.optionalDVNThreshold
-                // oftres = endpointInfo2[(index * 6) + 1]
-                // decoded = decodeUlnConfig(oftres.result)
-                // ofts[oAppName][srcChain][destChainName].config.send.confirmations = Number(decoded.confirmations)
-                // ofts[oAppName][srcChain][destChainName].config.send.requiredDVNCount = decoded.requiredDVNCount
-                // ofts[oAppName][srcChain][destChainName].config.send.optionalDVNCount = decoded.optionalDVNCount
-                // ofts[oAppName][srcChain][destChainName].config.send.optionalDVNThreshold = decoded.optionalDVNThreshold
-                let oftres = endpointInfo2[(index * 4)]
-                ofts[oAppName][srcChain][destChainName].receiveLibrary.receiveLibraryAddress = oftres.result[0]
-                ofts[oAppName][srcChain][destChainName].receiveLibrary.isDefault = oftres.result[1]
-                oftres = endpointInfo2[(index * 4) + 1]
-                ofts[oAppName][srcChain][destChainName].sendLibrary = oftres.result
-                oftres = endpointInfo2[(index * 4) + 2]
-                ofts[oAppName][srcChain][destChainName].isDefaultSendLibrary = oftres.result
-                oftres = endpointInfo2[(index * 4) + 3]
-                ofts[oAppName][srcChain][destChainName].receiveLibraryTimeOut.libAddress = oftres.result[0]
-                ofts[oAppName][srcChain][destChainName].receiveLibraryTimeOut.expiry = oftres.result[1].toString()
-            })
+                // add to ofts
+                Object.keys(ofts[oAppName][srcChain]).forEach(async (destChainName, index) => {
+                    ofts[oAppName][srcChain][destChainName].receiveLibrary = {} as ReceiveLibraryType
+                    ofts[oAppName][srcChain][destChainName].receiveLibraryTimeOut = {} as ReceiveLibraryTimeOutInfo
+                    // let oftres = endpointInfo2[index * 6]
+                    // let decoded = decodeUlnConfig(oftres.result)
+                    // ofts[oAppName][srcChain][destChainName].config.receive.confirmations = Number(decoded.confirmations)
+                    // ofts[oAppName][srcChain][destChainName].config.receive.requiredDVNCount = decoded.requiredDVNCount
+                    // ofts[oAppName][srcChain][destChainName].config.receive.optionalDVNCount = decoded.optionalDVNCount
+                    // ofts[oAppName][srcChain][destChainName].config.receive.optionalDVNThreshold = decoded.optionalDVNThreshold
+                    // oftres = endpointInfo2[(index * 6) + 1]
+                    // decoded = decodeUlnConfig(oftres.result)
+                    // ofts[oAppName][srcChain][destChainName].config.send.confirmations = Number(decoded.confirmations)
+                    // ofts[oAppName][srcChain][destChainName].config.send.requiredDVNCount = decoded.requiredDVNCount
+                    // ofts[oAppName][srcChain][destChainName].config.send.optionalDVNCount = decoded.optionalDVNCount
+                    // ofts[oAppName][srcChain][destChainName].config.send.optionalDVNThreshold = decoded.optionalDVNThreshold
+                    let oftres = endpointInfo2[(index * 4)]
+                    ofts[oAppName][srcChain][destChainName].receiveLibrary.receiveLibraryAddress = oftres.result[0]
+                    ofts[oAppName][srcChain][destChainName].receiveLibrary.isDefault = oftres.result[1]
+                    oftres = endpointInfo2[(index * 4) + 1]
+                    ofts[oAppName][srcChain][destChainName].sendLibrary = oftres.result
+                    oftres = endpointInfo2[(index * 4) + 2]
+                    ofts[oAppName][srcChain][destChainName].isDefaultSendLibrary = oftres.result
+                    oftres = endpointInfo2[(index * 4) + 3]
+                    ofts[oAppName][srcChain][destChainName].receiveLibraryTimeOut.libAddress = oftres.result[0]
+                    ofts[oAppName][srcChain][destChainName].receiveLibraryTimeOut.expiry = oftres.result[1].toString()
+                })
+            } else {
+                // add to ofts
+                for (const destChainName of Object.keys(ofts[oAppName][srcChain])) {
+                    // endpoint.getReceiveLibrary (_receiver (address), _srcEid (uint32)) : lib address, isDefault bool
+                    contractCalls.push();
+                    // endpoint.getSendLibrary (_sender (address),_dstEid (uint32)) : lib address
+                    contractCalls.push();
+                    // endpoint.isDefaultSendLibrary (_sender (address),_dstEid (uint32)) : bool
+                    contractCalls.push();
+                    // endpoint.receiveLibraryTimeout (receiver (address), srcEid (uint32)) : lib address, expiry uint256
+                    contractCalls.push();
+                    ofts[oAppName][srcChain][destChainName].receiveLibrary = {} as ReceiveLibraryType
+                    ofts[oAppName][srcChain][destChainName].receiveLibraryTimeOut = {} as ReceiveLibraryTimeOutInfo
+
+                    let oftres = await chains[srcChain].client.readContract({
+                        ...endpointContract,
+                        functionName: "getReceiveLibrary",
+                        args: [oApp, chains[destChainName].peerId],
+                    })
+                    ofts[oAppName][srcChain][destChainName].receiveLibrary.receiveLibraryAddress = oftres[0]
+                    ofts[oAppName][srcChain][destChainName].receiveLibrary.isDefault = oftres[1]
+                    oftres = await chains[srcChain].client.readContract({
+                        ...endpointContract,
+                        functionName: "getSendLibrary",
+                        args: [oApp, chains[destChainName].peerId],
+                    })
+                    ofts[oAppName][srcChain][destChainName].sendLibrary = oftres
+                    oftres = await chains[srcChain].client.readContract({
+                        ...endpointContract,
+                        functionName: "isDefaultSendLibrary",
+                        args: [oApp, chains[destChainName].peerId],
+                    })
+                    ofts[oAppName][srcChain][destChainName].isDefaultSendLibrary = oftres
+                    oftres = await chains[srcChain].client.readContract({
+                        ...endpointContract,
+                        functionName: "receiveLibraryTimeout",
+                        args: [oApp, chains[destChainName].peerId],
+                    })
+                    ofts[oAppName][srcChain][destChainName].receiveLibraryTimeOut.libAddress = oftres[0]
+                    ofts[oAppName][srcChain][destChainName].receiveLibraryTimeOut.expiry = oftres[1].toString()
+                }
+            }
 
 
 
             // ReceiveUln302
-            contractCalls = [];
-            Object.keys(ofts[oAppName][srcChain]).forEach(async (destChainName) => {
-                // receiveUln302.getAppUlnConfig (_oapp (address), _remoteEid (uint32)) : tuple
-                contractCalls.push({
-                    address: ofts[oAppName][srcChain][destChainName].defaultReceiveLibrary,
-                    abi: RECEIVE_ULN302_ABI,
-                    functionName: "getAppUlnConfig",
-                    args: [oApp, chains[destChainName].peerId],
+            if (srcChain !== "ink") {
+                contractCalls = [];
+                Object.keys(ofts[oAppName][srcChain]).forEach(async (destChainName) => {
+                    // receiveUln302.getAppUlnConfig (_oapp (address), _remoteEid (uint32)) : tuple
+                    contractCalls.push({
+                        address: ofts[oAppName][srcChain][destChainName].defaultReceiveLibrary,
+                        abi: RECEIVE_ULN302_ABI,
+                        functionName: "getAppUlnConfig",
+                        args: [oApp, chains[destChainName].peerId],
+                    });
+                    contractCalls.push({
+                        address: ofts[oAppName][srcChain][destChainName].receiveLibrary.receiveLibraryAddress,
+                        abi: RECEIVE_ULN302_ABI,
+                        functionName: "getAppUlnConfig",
+                        args: [oApp, chains[destChainName].peerId],
+                    });
+                    // receiveUln302.getUlnConfig (_oapp (address), _remoteEid (uint32)) : rtnConfig tuple
+                    contractCalls.push({
+                        address: ofts[oAppName][srcChain][destChainName].defaultReceiveLibrary,
+                        abi: RECEIVE_ULN302_ABI,
+                        functionName: "getUlnConfig",
+                        args: [oApp, chains[destChainName].peerId],
+                    });
+                    contractCalls.push({
+                        address: ofts[oAppName][srcChain][destChainName].receiveLibrary.receiveLibraryAddress,
+                        abi: RECEIVE_ULN302_ABI,
+                        functionName: "getUlnConfig",
+                        args: [oApp, chains[destChainName].peerId],
+                    });
+                    // receiveUln302.isSupportedEid (_eid (uint32)) : bool
+                    contractCalls.push({
+                        address: ofts[oAppName][srcChain][destChainName].defaultReceiveLibrary,
+                        abi: RECEIVE_ULN302_ABI,
+                        functionName: "isSupportedEid",
+                        args: [chains[destChainName].peerId],
+                    });
+                    contractCalls.push({
+                        address: ofts[oAppName][srcChain][destChainName].receiveLibrary.receiveLibraryAddress,
+                        abi: RECEIVE_ULN302_ABI,
+                        functionName: "isSupportedEid",
+                        args: [chains[destChainName].peerId],
+                    });
                 });
-                contractCalls.push({
-                    address: ofts[oAppName][srcChain][destChainName].receiveLibrary.receiveLibraryAddress,
-                    abi: RECEIVE_ULN302_ABI,
-                    functionName: "getAppUlnConfig",
-                    args: [oApp, chains[destChainName].peerId],
-                });
-                // receiveUln302.getUlnConfig (_oapp (address), _remoteEid (uint32)) : rtnConfig tuple
-                contractCalls.push({
-                    address: ofts[oAppName][srcChain][destChainName].defaultReceiveLibrary,
-                    abi: RECEIVE_ULN302_ABI,
-                    functionName: "getUlnConfig",
-                    args: [oApp, chains[destChainName].peerId],
-                });
-                contractCalls.push({
-                    address: ofts[oAppName][srcChain][destChainName].receiveLibrary.receiveLibraryAddress,
-                    abi: RECEIVE_ULN302_ABI,
-                    functionName: "getUlnConfig",
-                    args: [oApp, chains[destChainName].peerId],
-                });
-                // receiveUln302.isSupportedEid (_eid (uint32)) : bool
-                contractCalls.push({
-                    address: ofts[oAppName][srcChain][destChainName].defaultReceiveLibrary,
-                    abi: RECEIVE_ULN302_ABI,
-                    functionName: "isSupportedEid",
-                    args: [chains[destChainName].peerId],
-                });
-                contractCalls.push({
-                    address: ofts[oAppName][srcChain][destChainName].receiveLibrary.receiveLibraryAddress,
-                    abi: RECEIVE_ULN302_ABI,
-                    functionName: "isSupportedEid",
-                    args: [chains[destChainName].peerId],
-                });
-            });
 
-            const receiveULN302Info = await chains[srcChain].client.multicall({
-                contracts: contractCalls,
-            });
+                const receiveULN302Info = await chains[srcChain].client.multicall({
+                    contracts: contractCalls,
+                });
 
-            // add to ofts
-            Object.keys(ofts[oAppName][srcChain]).forEach(async (destChainName, index) => {
-                ofts[oAppName][srcChain][destChainName].appUlnDefaultConfig = {} as EndpointConfig
-                ofts[oAppName][srcChain][destChainName].appUlnDefaultConfig.receive = {} as UlnConfig
-                ofts[oAppName][srcChain][destChainName].appUlnConfig = {} as EndpointConfig
-                ofts[oAppName][srcChain][destChainName].appUlnConfig.receive = {} as UlnConfig
+                // add to ofts
+                Object.keys(ofts[oAppName][srcChain]).forEach(async (destChainName, index) => {
+                    ofts[oAppName][srcChain][destChainName].appUlnDefaultConfig = {} as EndpointConfig
+                    ofts[oAppName][srcChain][destChainName].appUlnDefaultConfig.receive = {} as UlnConfig
+                    ofts[oAppName][srcChain][destChainName].appUlnConfig = {} as EndpointConfig
+                    ofts[oAppName][srcChain][destChainName].appUlnConfig.receive = {} as UlnConfig
 
-                ofts[oAppName][srcChain][destChainName].ulnDefaultConfig = {} as EndpointConfig
-                ofts[oAppName][srcChain][destChainName].ulnDefaultConfig.receive = {} as UlnConfig
-                ofts[oAppName][srcChain][destChainName].ulnConfig = {} as EndpointConfig
-                ofts[oAppName][srcChain][destChainName].ulnConfig.receive = {} as UlnConfig
+                    ofts[oAppName][srcChain][destChainName].ulnDefaultConfig = {} as EndpointConfig
+                    ofts[oAppName][srcChain][destChainName].ulnDefaultConfig.receive = {} as UlnConfig
+                    ofts[oAppName][srcChain][destChainName].ulnConfig = {} as EndpointConfig
+                    ofts[oAppName][srcChain][destChainName].ulnConfig.receive = {} as UlnConfig
 
-                let oftres = receiveULN302Info[index * 6]
-                ofts[oAppName][srcChain][destChainName].appUlnDefaultConfig.receive.confirmations = Number(oftres.result.confirmations)
-                ofts[oAppName][srcChain][destChainName].appUlnDefaultConfig.receive.requiredDVNCount = oftres.result.requiredDVNCount
-                ofts[oAppName][srcChain][destChainName].appUlnDefaultConfig.receive.optionalDVNCount = oftres.result.optionalDVNCount
-                ofts[oAppName][srcChain][destChainName].appUlnDefaultConfig.receive.optionalDVNThreshold = oftres.result.optionalDVNThreshold
-                ofts[oAppName][srcChain][destChainName].appUlnDefaultConfig.receive.requiredDVNs = [...oftres.result.requiredDVNs]
-                ofts[oAppName][srcChain][destChainName].appUlnDefaultConfig.receive.optionalDVNs = [...oftres.result.optionalDVNs]
-                oftres = receiveULN302Info[(index * 6) + 1]
-                ofts[oAppName][srcChain][destChainName].appUlnConfig.receive.confirmations = Number(oftres.result.confirmations)
-                ofts[oAppName][srcChain][destChainName].appUlnConfig.receive.requiredDVNCount = oftres.result.requiredDVNCount
-                ofts[oAppName][srcChain][destChainName].appUlnConfig.receive.optionalDVNCount = oftres.result.optionalDVNCount
-                ofts[oAppName][srcChain][destChainName].appUlnConfig.receive.optionalDVNThreshold = oftres.result.optionalDVNThreshold
-                ofts[oAppName][srcChain][destChainName].appUlnConfig.receive.requiredDVNs = [...oftres.result.requiredDVNs]
-                ofts[oAppName][srcChain][destChainName].appUlnConfig.receive.optionalDVNs = [...oftres.result.optionalDVNs]
-                oftres = receiveULN302Info[(index * 6) + 2]
-                ofts[oAppName][srcChain][destChainName].ulnConfig.receive.confirmations = Number(oftres.result.confirmations)
-                ofts[oAppName][srcChain][destChainName].ulnConfig.receive.requiredDVNCount = oftres.result.requiredDVNCount
-                ofts[oAppName][srcChain][destChainName].ulnConfig.receive.optionalDVNCount = oftres.result.optionalDVNCount
-                ofts[oAppName][srcChain][destChainName].ulnConfig.receive.optionalDVNThreshold = oftres.result.optionalDVNThreshold
-                ofts[oAppName][srcChain][destChainName].ulnConfig.receive.requiredDVNs = [...oftres.result.requiredDVNs]
-                ofts[oAppName][srcChain][destChainName].ulnConfig.receive.optionalDVNs = [...oftres.result.optionalDVNs]
-                oftres = receiveULN302Info[(index * 6) + 3]
-                ofts[oAppName][srcChain][destChainName].ulnDefaultConfig.receive.confirmations = Number(oftres.result.confirmations)
-                ofts[oAppName][srcChain][destChainName].ulnDefaultConfig.receive.requiredDVNCount = oftres.result.requiredDVNCount
-                ofts[oAppName][srcChain][destChainName].ulnDefaultConfig.receive.optionalDVNCount = oftres.result.optionalDVNCount
-                ofts[oAppName][srcChain][destChainName].ulnDefaultConfig.receive.optionalDVNThreshold = oftres.result.optionalDVNThreshold
-                ofts[oAppName][srcChain][destChainName].ulnDefaultConfig.receive.requiredDVNs = [...oftres.result.requiredDVNs]
-                ofts[oAppName][srcChain][destChainName].ulnDefaultConfig.receive.optionalDVNs = [...oftres.result.optionalDVNs]
-                oftres = receiveULN302Info[(index * 6) + 4]
-                ofts[oAppName][srcChain][destChainName].defaultReceiveLibSupportEid = oftres.result
-                oftres = receiveULN302Info[(index * 6) + 5]
-                ofts[oAppName][srcChain][destChainName].receiveLibSupportEid = oftres.result
-            })
+                    let oftres = receiveULN302Info[index * 6]
+                    ofts[oAppName][srcChain][destChainName].appUlnDefaultConfig.receive.confirmations = Number(oftres.result.confirmations)
+                    ofts[oAppName][srcChain][destChainName].appUlnDefaultConfig.receive.requiredDVNCount = oftres.result.requiredDVNCount
+                    ofts[oAppName][srcChain][destChainName].appUlnDefaultConfig.receive.optionalDVNCount = oftres.result.optionalDVNCount
+                    ofts[oAppName][srcChain][destChainName].appUlnDefaultConfig.receive.optionalDVNThreshold = oftres.result.optionalDVNThreshold
+                    ofts[oAppName][srcChain][destChainName].appUlnDefaultConfig.receive.requiredDVNs = [...oftres.result.requiredDVNs]
+                    ofts[oAppName][srcChain][destChainName].appUlnDefaultConfig.receive.optionalDVNs = [...oftres.result.optionalDVNs]
+                    oftres = receiveULN302Info[(index * 6) + 1]
+                    ofts[oAppName][srcChain][destChainName].appUlnConfig.receive.confirmations = Number(oftres.result.confirmations)
+                    ofts[oAppName][srcChain][destChainName].appUlnConfig.receive.requiredDVNCount = oftres.result.requiredDVNCount
+                    ofts[oAppName][srcChain][destChainName].appUlnConfig.receive.optionalDVNCount = oftres.result.optionalDVNCount
+                    ofts[oAppName][srcChain][destChainName].appUlnConfig.receive.optionalDVNThreshold = oftres.result.optionalDVNThreshold
+                    ofts[oAppName][srcChain][destChainName].appUlnConfig.receive.requiredDVNs = [...oftres.result.requiredDVNs]
+                    ofts[oAppName][srcChain][destChainName].appUlnConfig.receive.optionalDVNs = [...oftres.result.optionalDVNs]
+                    oftres = receiveULN302Info[(index * 6) + 2]
+                    ofts[oAppName][srcChain][destChainName].ulnConfig.receive.confirmations = Number(oftres.result.confirmations)
+                    ofts[oAppName][srcChain][destChainName].ulnConfig.receive.requiredDVNCount = oftres.result.requiredDVNCount
+                    ofts[oAppName][srcChain][destChainName].ulnConfig.receive.optionalDVNCount = oftres.result.optionalDVNCount
+                    ofts[oAppName][srcChain][destChainName].ulnConfig.receive.optionalDVNThreshold = oftres.result.optionalDVNThreshold
+                    ofts[oAppName][srcChain][destChainName].ulnConfig.receive.requiredDVNs = [...oftres.result.requiredDVNs]
+                    ofts[oAppName][srcChain][destChainName].ulnConfig.receive.optionalDVNs = [...oftres.result.optionalDVNs]
+                    oftres = receiveULN302Info[(index * 6) + 3]
+                    ofts[oAppName][srcChain][destChainName].ulnDefaultConfig.receive.confirmations = Number(oftres.result.confirmations)
+                    ofts[oAppName][srcChain][destChainName].ulnDefaultConfig.receive.requiredDVNCount = oftres.result.requiredDVNCount
+                    ofts[oAppName][srcChain][destChainName].ulnDefaultConfig.receive.optionalDVNCount = oftres.result.optionalDVNCount
+                    ofts[oAppName][srcChain][destChainName].ulnDefaultConfig.receive.optionalDVNThreshold = oftres.result.optionalDVNThreshold
+                    ofts[oAppName][srcChain][destChainName].ulnDefaultConfig.receive.requiredDVNs = [...oftres.result.requiredDVNs]
+                    ofts[oAppName][srcChain][destChainName].ulnDefaultConfig.receive.optionalDVNs = [...oftres.result.optionalDVNs]
+                    oftres = receiveULN302Info[(index * 6) + 4]
+                    ofts[oAppName][srcChain][destChainName].defaultReceiveLibSupportEid = oftres.result
+                    oftres = receiveULN302Info[(index * 6) + 5]
+                    ofts[oAppName][srcChain][destChainName].receiveLibSupportEid = oftres.result
+                })
+            } else {
+                for (const destChainName of Object.keys(ofts[oAppName][srcChain])) {
+
+                    ofts[oAppName][srcChain][destChainName].appUlnDefaultConfig = {} as EndpointConfig
+                    ofts[oAppName][srcChain][destChainName].appUlnDefaultConfig.receive = {} as UlnConfig
+                    ofts[oAppName][srcChain][destChainName].appUlnConfig = {} as EndpointConfig
+                    ofts[oAppName][srcChain][destChainName].appUlnConfig.receive = {} as UlnConfig
+
+                    ofts[oAppName][srcChain][destChainName].ulnDefaultConfig = {} as EndpointConfig
+                    ofts[oAppName][srcChain][destChainName].ulnDefaultConfig.receive = {} as UlnConfig
+                    ofts[oAppName][srcChain][destChainName].ulnConfig = {} as EndpointConfig
+                    ofts[oAppName][srcChain][destChainName].ulnConfig.receive = {} as UlnConfig
+
+                    let oftres = await chains[srcChain].client.readContract({
+                        address: ofts[oAppName][srcChain][destChainName].defaultReceiveLibrary,
+                        abi: RECEIVE_ULN302_ABI,
+                        functionName: "getAppUlnConfig",
+                        args: [oApp, chains[destChainName].peerId],
+                    })
+                    ofts[oAppName][srcChain][destChainName].appUlnDefaultConfig.receive.confirmations = Number(oftres.confirmations)
+                    ofts[oAppName][srcChain][destChainName].appUlnDefaultConfig.receive.requiredDVNCount = oftres.requiredDVNCount
+                    ofts[oAppName][srcChain][destChainName].appUlnDefaultConfig.receive.optionalDVNCount = oftres.optionalDVNCount
+                    ofts[oAppName][srcChain][destChainName].appUlnDefaultConfig.receive.optionalDVNThreshold = oftres.optionalDVNThreshold
+                    ofts[oAppName][srcChain][destChainName].appUlnDefaultConfig.receive.requiredDVNs = [...oftres.requiredDVNs]
+                    ofts[oAppName][srcChain][destChainName].appUlnDefaultConfig.receive.optionalDVNs = [...oftres.optionalDVNs]
+
+                    oftres = await chains[srcChain].client.readContract({
+                        address: ofts[oAppName][srcChain][destChainName].receiveLibrary.receiveLibraryAddress,
+                        abi: RECEIVE_ULN302_ABI,
+                        functionName: "getAppUlnConfig",
+                        args: [oApp, chains[destChainName].peerId],
+                    })
+                    ofts[oAppName][srcChain][destChainName].appUlnConfig.receive.confirmations = Number(oftres.confirmations)
+                    ofts[oAppName][srcChain][destChainName].appUlnConfig.receive.requiredDVNCount = oftres.requiredDVNCount
+                    ofts[oAppName][srcChain][destChainName].appUlnConfig.receive.optionalDVNCount = oftres.optionalDVNCount
+                    ofts[oAppName][srcChain][destChainName].appUlnConfig.receive.optionalDVNThreshold = oftres.optionalDVNThreshold
+                    ofts[oAppName][srcChain][destChainName].appUlnConfig.receive.requiredDVNs = [...oftres.requiredDVNs]
+                    ofts[oAppName][srcChain][destChainName].appUlnConfig.receive.optionalDVNs = [...oftres.optionalDVNs]
+
+                    oftres = await chains[srcChain].client.readContract({
+                        address: ofts[oAppName][srcChain][destChainName].defaultReceiveLibrary,
+                        abi: RECEIVE_ULN302_ABI,
+                        functionName: "getUlnConfig",
+                        args: [oApp, chains[destChainName].peerId],
+                    })
+                    ofts[oAppName][srcChain][destChainName].ulnConfig.receive.confirmations = Number(oftres.confirmations)
+                    ofts[oAppName][srcChain][destChainName].ulnConfig.receive.requiredDVNCount = oftres.requiredDVNCount
+                    ofts[oAppName][srcChain][destChainName].ulnConfig.receive.optionalDVNCount = oftres.optionalDVNCount
+                    ofts[oAppName][srcChain][destChainName].ulnConfig.receive.optionalDVNThreshold = oftres.optionalDVNThreshold
+                    ofts[oAppName][srcChain][destChainName].ulnConfig.receive.requiredDVNs = [...oftres.requiredDVNs]
+                    ofts[oAppName][srcChain][destChainName].ulnConfig.receive.optionalDVNs = [...oftres.optionalDVNs]
+
+                    oftres = await chains[srcChain].client.readContract({
+                        address: ofts[oAppName][srcChain][destChainName].receiveLibrary.receiveLibraryAddress,
+                        abi: RECEIVE_ULN302_ABI,
+                        functionName: "getUlnConfig",
+                        args: [oApp, chains[destChainName].peerId],
+                    })
+                    ofts[oAppName][srcChain][destChainName].ulnDefaultConfig.receive.confirmations = Number(oftres.confirmations)
+                    ofts[oAppName][srcChain][destChainName].ulnDefaultConfig.receive.requiredDVNCount = oftres.requiredDVNCount
+                    ofts[oAppName][srcChain][destChainName].ulnDefaultConfig.receive.optionalDVNCount = oftres.optionalDVNCount
+                    ofts[oAppName][srcChain][destChainName].ulnDefaultConfig.receive.optionalDVNThreshold = oftres.optionalDVNThreshold
+                    ofts[oAppName][srcChain][destChainName].ulnDefaultConfig.receive.requiredDVNs = [...oftres.requiredDVNs]
+                    ofts[oAppName][srcChain][destChainName].ulnDefaultConfig.receive.optionalDVNs = [...oftres.optionalDVNs]
+
+                    oftres = await chains[srcChain].client.readContract({
+                        address: ofts[oAppName][srcChain][destChainName].defaultReceiveLibrary,
+                        abi: RECEIVE_ULN302_ABI,
+                        functionName: "isSupportedEid",
+                        args: [chains[destChainName].peerId],
+                    })
+                    ofts[oAppName][srcChain][destChainName].defaultReceiveLibSupportEid = oftres
+
+                    oftres = await chains[srcChain].client.readContract({
+                        address: ofts[oAppName][srcChain][destChainName].receiveLibrary.receiveLibraryAddress,
+                        abi: RECEIVE_ULN302_ABI,
+                        functionName: "isSupportedEid",
+                        args: [chains[destChainName].peerId],
+                    })
+                    ofts[oAppName][srcChain][destChainName].receiveLibSupportEid = oftres
+
+                }
+            }
 
             // SendUln302
-            contractCalls = [];
-            Object.keys(ofts[oAppName][srcChain]).forEach(async (destChainName) => {
-                // senduln302.getAppUlnConfig (_oapp (address), _remoteEid (uint32)) : tuple
-                contractCalls.push({
-                    address: ofts[oAppName][srcChain][destChainName].defaultSendLibrary,
-                    abi: SEND_ULN302_ABI,
-                    functionName: "getAppUlnConfig",
-                    args: [oApp, chains[destChainName].peerId],
+            if (srcChain !== "ink") {
+                contractCalls = [];
+                Object.keys(ofts[oAppName][srcChain]).forEach(async (destChainName) => {
+                    // senduln302.getAppUlnConfig (_oapp (address), _remoteEid (uint32)) : tuple
+                    contractCalls.push({
+                        address: ofts[oAppName][srcChain][destChainName].defaultSendLibrary,
+                        abi: SEND_ULN302_ABI,
+                        functionName: "getAppUlnConfig",
+                        args: [oApp, chains[destChainName].peerId],
+                    });
+                    contractCalls.push({
+                        address: ofts[oAppName][srcChain][destChainName].sendLibrary,
+                        abi: SEND_ULN302_ABI,
+                        functionName: "getAppUlnConfig",
+                        args: [oApp, chains[destChainName].peerId],
+                    });
+                    // senduln302.getExecutorConfig (_oapp (address) , _remoteEid (uint32)) :  rtnConfig tuple
+                    contractCalls.push({
+                        address: ofts[oAppName][srcChain][destChainName].defaultSendLibrary,
+                        abi: SEND_ULN302_ABI,
+                        functionName: "getExecutorConfig",
+                        args: [oApp, chains[destChainName].peerId],
+                    });
+                    contractCalls.push({
+                        address: ofts[oAppName][srcChain][destChainName].sendLibrary,
+                        abi: SEND_ULN302_ABI,
+                        functionName: "getExecutorConfig",
+                        args: [oApp, chains[destChainName].peerId],
+                    });
+                    // senduln302.getUlnConfig (_oapp (address), _remoteEid (uint32)) : rtnConfig tuple
+                    contractCalls.push({
+                        address: ofts[oAppName][srcChain][destChainName].defaultSendLibrary,
+                        abi: SEND_ULN302_ABI,
+                        functionName: "getUlnConfig",
+                        args: [oApp, chains[destChainName].peerId],
+                    });
+                    contractCalls.push({
+                        address: ofts[oAppName][srcChain][destChainName].sendLibrary,
+                        abi: SEND_ULN302_ABI,
+                        functionName: "getUlnConfig",
+                        args: [oApp, chains[destChainName].peerId],
+                    });
+                    // senduln302.isSupportedEid (_eid (uint32)) : bool
+                    contractCalls.push({
+                        address: ofts[oAppName][srcChain][destChainName].defaultSendLibrary,
+                        abi: SEND_ULN302_ABI,
+                        functionName: "isSupportedEid",
+                        args: [chains[destChainName].peerId],
+                    });
+                    contractCalls.push({
+                        address: ofts[oAppName][srcChain][destChainName].sendLibrary,
+                        abi: SEND_ULN302_ABI,
+                        functionName: "isSupportedEid",
+                        args: [chains[destChainName].peerId],
+                    });
                 });
-                contractCalls.push({
-                    address: ofts[oAppName][srcChain][destChainName].sendLibrary,
-                    abi: SEND_ULN302_ABI,
-                    functionName: "getAppUlnConfig",
-                    args: [oApp, chains[destChainName].peerId],
+
+                const sendULN302Info = await chains[srcChain].client.multicall({
+                    contracts: contractCalls,
                 });
-                // senduln302.getExecutorConfig (_oapp (address) , _remoteEid (uint32)) :  rtnConfig tuple
-                contractCalls.push({
-                    address: ofts[oAppName][srcChain][destChainName].defaultSendLibrary,
-                    abi: SEND_ULN302_ABI,
-                    functionName: "getExecutorConfig",
-                    args: [oApp, chains[destChainName].peerId],
-                });
-                contractCalls.push({
-                    address: ofts[oAppName][srcChain][destChainName].sendLibrary,
-                    abi: SEND_ULN302_ABI,
-                    functionName: "getExecutorConfig",
-                    args: [oApp, chains[destChainName].peerId],
-                });
-                // senduln302.getUlnConfig (_oapp (address), _remoteEid (uint32)) : rtnConfig tuple
-                contractCalls.push({
-                    address: ofts[oAppName][srcChain][destChainName].defaultSendLibrary,
-                    abi: SEND_ULN302_ABI,
-                    functionName: "getUlnConfig",
-                    args: [oApp, chains[destChainName].peerId],
-                });
-                contractCalls.push({
-                    address: ofts[oAppName][srcChain][destChainName].sendLibrary,
-                    abi: SEND_ULN302_ABI,
-                    functionName: "getUlnConfig",
-                    args: [oApp, chains[destChainName].peerId],
-                });
-                // senduln302.isSupportedEid (_eid (uint32)) : bool
-                contractCalls.push({
-                    address: ofts[oAppName][srcChain][destChainName].defaultSendLibrary,
-                    abi: SEND_ULN302_ABI,
-                    functionName: "isSupportedEid",
-                    args: [chains[destChainName].peerId],
-                });
-                contractCalls.push({
-                    address: ofts[oAppName][srcChain][destChainName].sendLibrary,
-                    abi: SEND_ULN302_ABI,
-                    functionName: "isSupportedEid",
-                    args: [chains[destChainName].peerId],
-                });
-            });
 
-            const sendULN302Info = await chains[srcChain].client.multicall({
-                contracts: contractCalls,
-            });
+                // add to ofts
+                Object.keys(ofts[oAppName][srcChain]).forEach(async (destChainName, index) => {
+                    ofts[oAppName][srcChain][destChainName].appUlnDefaultConfig.send = {} as UlnConfig
+                    ofts[oAppName][srcChain][destChainName].appUlnConfig.send = {} as UlnConfig
 
-            // add to ofts
-            Object.keys(ofts[oAppName][srcChain]).forEach(async (destChainName, index) => {
-                ofts[oAppName][srcChain][destChainName].appUlnDefaultConfig.send = {} as UlnConfig
-                ofts[oAppName][srcChain][destChainName].appUlnConfig.send = {} as UlnConfig
+                    ofts[oAppName][srcChain][destChainName].defaultExecutorConfig = {} as ExecutorConfigType
+                    ofts[oAppName][srcChain][destChainName].executorConfig = {} as ExecutorConfigType
 
-                ofts[oAppName][srcChain][destChainName].defaultExecutorConfig = {} as ExecutorConfigType
-                ofts[oAppName][srcChain][destChainName].executorConfig = {} as ExecutorConfigType
+                    ofts[oAppName][srcChain][destChainName].ulnDefaultConfig.send = {} as UlnConfig
+                    ofts[oAppName][srcChain][destChainName].ulnConfig.send = {} as UlnConfig
 
-                ofts[oAppName][srcChain][destChainName].ulnDefaultConfig.send = {} as UlnConfig
-                ofts[oAppName][srcChain][destChainName].ulnConfig.send = {} as UlnConfig
+                    let oftres = sendULN302Info[index * 8]
+                    ofts[oAppName][srcChain][destChainName].appUlnDefaultConfig.send.confirmations = Number(oftres.result.confirmations)
+                    ofts[oAppName][srcChain][destChainName].appUlnDefaultConfig.send.requiredDVNCount = oftres.result.requiredDVNCount
+                    ofts[oAppName][srcChain][destChainName].appUlnDefaultConfig.send.optionalDVNCount = oftres.result.optionalDVNCount
+                    ofts[oAppName][srcChain][destChainName].appUlnDefaultConfig.send.optionalDVNThreshold = oftres.result.optionalDVNThreshold
+                    ofts[oAppName][srcChain][destChainName].appUlnDefaultConfig.send.requiredDVNs = [...oftres.result.requiredDVNs]
+                    ofts[oAppName][srcChain][destChainName].appUlnDefaultConfig.send.optionalDVNs = [...oftres.result.optionalDVNs]
 
-                let oftres = sendULN302Info[index * 8]
-                ofts[oAppName][srcChain][destChainName].appUlnDefaultConfig.send.confirmations = Number(oftres.result.confirmations)
-                ofts[oAppName][srcChain][destChainName].appUlnDefaultConfig.send.requiredDVNCount = oftres.result.requiredDVNCount
-                ofts[oAppName][srcChain][destChainName].appUlnDefaultConfig.send.optionalDVNCount = oftres.result.optionalDVNCount
-                ofts[oAppName][srcChain][destChainName].appUlnDefaultConfig.send.optionalDVNThreshold = oftres.result.optionalDVNThreshold
-                ofts[oAppName][srcChain][destChainName].appUlnDefaultConfig.send.requiredDVNs = [...oftres.result.requiredDVNs]
-                ofts[oAppName][srcChain][destChainName].appUlnDefaultConfig.send.optionalDVNs = [...oftres.result.optionalDVNs]
+                    oftres = sendULN302Info[(index * 8) + 1]
+                    ofts[oAppName][srcChain][destChainName].appUlnConfig.send.confirmations = Number(oftres.result.confirmations)
+                    ofts[oAppName][srcChain][destChainName].appUlnConfig.send.requiredDVNCount = oftres.result.requiredDVNCount
+                    ofts[oAppName][srcChain][destChainName].appUlnConfig.send.optionalDVNCount = oftres.result.optionalDVNCount
+                    ofts[oAppName][srcChain][destChainName].appUlnConfig.send.optionalDVNThreshold = oftres.result.optionalDVNThreshold
+                    ofts[oAppName][srcChain][destChainName].appUlnConfig.send.requiredDVNs = [...oftres.result.requiredDVNs]
+                    ofts[oAppName][srcChain][destChainName].appUlnConfig.send.optionalDVNs = [...oftres.result.optionalDVNs]
 
-                oftres = sendULN302Info[(index * 8) + 1]
-                ofts[oAppName][srcChain][destChainName].appUlnConfig.send.confirmations = Number(oftres.result.confirmations)
-                ofts[oAppName][srcChain][destChainName].appUlnConfig.send.requiredDVNCount = oftres.result.requiredDVNCount
-                ofts[oAppName][srcChain][destChainName].appUlnConfig.send.optionalDVNCount = oftres.result.optionalDVNCount
-                ofts[oAppName][srcChain][destChainName].appUlnConfig.send.optionalDVNThreshold = oftres.result.optionalDVNThreshold
-                ofts[oAppName][srcChain][destChainName].appUlnConfig.send.requiredDVNs = [...oftres.result.requiredDVNs]
-                ofts[oAppName][srcChain][destChainName].appUlnConfig.send.optionalDVNs = [...oftres.result.optionalDVNs]
+                    oftres = sendULN302Info[(index * 8) + 2]
+                    ofts[oAppName][srcChain][destChainName].defaultExecutorConfig.maxMessageSize = oftres.result.maxMessageSize
+                    ofts[oAppName][srcChain][destChainName].defaultExecutorConfig.executorAddress = oftres.result.executor
 
-                oftres = sendULN302Info[(index * 8) + 2]
-                ofts[oAppName][srcChain][destChainName].defaultExecutorConfig.maxMessageSize = oftres.result.maxMessageSize
-                ofts[oAppName][srcChain][destChainName].defaultExecutorConfig.executorAddress = oftres.result.executor
+                    oftres = sendULN302Info[(index * 8) + 3]
+                    ofts[oAppName][srcChain][destChainName].executorConfig.maxMessageSize = oftres.result.maxMessageSize
+                    ofts[oAppName][srcChain][destChainName].executorConfig.executorAddress = oftres.result.executor
 
-                oftres = sendULN302Info[(index * 8) + 3]
-                ofts[oAppName][srcChain][destChainName].executorConfig.maxMessageSize = oftres.result.maxMessageSize
-                ofts[oAppName][srcChain][destChainName].executorConfig.executorAddress = oftres.result.executor
+                    oftres = sendULN302Info[(index * 8) + 4]
+                    ofts[oAppName][srcChain][destChainName].ulnDefaultConfig.send.confirmations = Number(oftres.result.confirmations)
+                    ofts[oAppName][srcChain][destChainName].ulnDefaultConfig.send.requiredDVNCount = oftres.result.requiredDVNCount
+                    ofts[oAppName][srcChain][destChainName].ulnDefaultConfig.send.optionalDVNCount = oftres.result.optionalDVNCount
+                    ofts[oAppName][srcChain][destChainName].ulnDefaultConfig.send.optionalDVNThreshold = oftres.result.optionalDVNThreshold
+                    ofts[oAppName][srcChain][destChainName].ulnDefaultConfig.send.requiredDVNs = [...oftres.result.requiredDVNs]
+                    ofts[oAppName][srcChain][destChainName].ulnDefaultConfig.send.optionalDVNs = [...oftres.result.optionalDVNs]
 
-                oftres = sendULN302Info[(index * 8) + 4]
-                ofts[oAppName][srcChain][destChainName].ulnDefaultConfig.send.confirmations = Number(oftres.result.confirmations)
-                ofts[oAppName][srcChain][destChainName].ulnDefaultConfig.send.requiredDVNCount = oftres.result.requiredDVNCount
-                ofts[oAppName][srcChain][destChainName].ulnDefaultConfig.send.optionalDVNCount = oftres.result.optionalDVNCount
-                ofts[oAppName][srcChain][destChainName].ulnDefaultConfig.send.optionalDVNThreshold = oftres.result.optionalDVNThreshold
-                ofts[oAppName][srcChain][destChainName].ulnDefaultConfig.send.requiredDVNs = [...oftres.result.requiredDVNs]
-                ofts[oAppName][srcChain][destChainName].ulnDefaultConfig.send.optionalDVNs = [...oftres.result.optionalDVNs]
+                    oftres = sendULN302Info[(index * 8) + 5]
+                    ofts[oAppName][srcChain][destChainName].ulnConfig.send.confirmations = Number(oftres.result.confirmations)
+                    ofts[oAppName][srcChain][destChainName].ulnConfig.send.requiredDVNCount = oftres.result.requiredDVNCount
+                    ofts[oAppName][srcChain][destChainName].ulnConfig.send.optionalDVNCount = oftres.result.optionalDVNCount
+                    ofts[oAppName][srcChain][destChainName].ulnConfig.send.optionalDVNThreshold = oftres.result.optionalDVNThreshold
+                    ofts[oAppName][srcChain][destChainName].ulnConfig.send.requiredDVNs = [...oftres.result.requiredDVNs]
+                    ofts[oAppName][srcChain][destChainName].ulnConfig.send.optionalDVNs = [...oftres.result.optionalDVNs]
 
-                oftres = sendULN302Info[(index * 8) + 5]
-                ofts[oAppName][srcChain][destChainName].ulnConfig.send.confirmations = Number(oftres.result.confirmations)
-                ofts[oAppName][srcChain][destChainName].ulnConfig.send.requiredDVNCount = oftres.result.requiredDVNCount
-                ofts[oAppName][srcChain][destChainName].ulnConfig.send.optionalDVNCount = oftres.result.optionalDVNCount
-                ofts[oAppName][srcChain][destChainName].ulnConfig.send.optionalDVNThreshold = oftres.result.optionalDVNThreshold
-                ofts[oAppName][srcChain][destChainName].ulnConfig.send.requiredDVNs = [...oftres.result.requiredDVNs]
-                ofts[oAppName][srcChain][destChainName].ulnConfig.send.optionalDVNs = [...oftres.result.optionalDVNs]
+                    oftres = sendULN302Info[(index * 8) + 6]
+                    ofts[oAppName][srcChain][destChainName].defaultSendLibSupportEid = oftres.result
 
-                oftres = sendULN302Info[(index * 8) + 6]
-                ofts[oAppName][srcChain][destChainName].defaultSendLibSupportEid = oftres.result
+                    oftres = sendULN302Info[(index * 8) + 7]
+                    ofts[oAppName][srcChain][destChainName].sendLibSupportEid = oftres.result
+                })
+            } else {
+                // add to ofts
+                for (const destChainName of Object.keys(ofts[oAppName][srcChain])) {
 
-                oftres = sendULN302Info[(index * 8) + 7]
-                ofts[oAppName][srcChain][destChainName].sendLibSupportEid = oftres.result
-            })
+                    ofts[oAppName][srcChain][destChainName].appUlnDefaultConfig.send = {} as UlnConfig
+                    ofts[oAppName][srcChain][destChainName].appUlnConfig.send = {} as UlnConfig
+
+                    ofts[oAppName][srcChain][destChainName].defaultExecutorConfig = {} as ExecutorConfigType
+                    ofts[oAppName][srcChain][destChainName].executorConfig = {} as ExecutorConfigType
+
+                    ofts[oAppName][srcChain][destChainName].ulnDefaultConfig.send = {} as UlnConfig
+                    ofts[oAppName][srcChain][destChainName].ulnConfig.send = {} as UlnConfig
+
+                    let oftres = await chains[srcChain].client.readContract({
+                        address: ofts[oAppName][srcChain][destChainName].defaultSendLibrary,
+                        abi: SEND_ULN302_ABI,
+                        functionName: "getAppUlnConfig",
+                        args: [oApp, chains[destChainName].peerId],
+                    })
+                    ofts[oAppName][srcChain][destChainName].appUlnDefaultConfig.send.confirmations = Number(oftres.confirmations)
+                    ofts[oAppName][srcChain][destChainName].appUlnDefaultConfig.send.requiredDVNCount = oftres.requiredDVNCount
+                    ofts[oAppName][srcChain][destChainName].appUlnDefaultConfig.send.optionalDVNCount = oftres.optionalDVNCount
+                    ofts[oAppName][srcChain][destChainName].appUlnDefaultConfig.send.optionalDVNThreshold = oftres.optionalDVNThreshold
+                    ofts[oAppName][srcChain][destChainName].appUlnDefaultConfig.send.requiredDVNs = [...oftres.requiredDVNs]
+                    ofts[oAppName][srcChain][destChainName].appUlnDefaultConfig.send.optionalDVNs = [...oftres.optionalDVNs]
+
+                    oftres = await chains[srcChain].client.readContract({
+                        address: ofts[oAppName][srcChain][destChainName].sendLibrary,
+                        abi: SEND_ULN302_ABI,
+                        functionName: "getAppUlnConfig",
+                        args: [oApp, chains[destChainName].peerId],
+                    })
+                    ofts[oAppName][srcChain][destChainName].appUlnConfig.send.confirmations = Number(oftres.confirmations)
+                    ofts[oAppName][srcChain][destChainName].appUlnConfig.send.requiredDVNCount = oftres.requiredDVNCount
+                    ofts[oAppName][srcChain][destChainName].appUlnConfig.send.optionalDVNCount = oftres.optionalDVNCount
+                    ofts[oAppName][srcChain][destChainName].appUlnConfig.send.optionalDVNThreshold = oftres.optionalDVNThreshold
+                    ofts[oAppName][srcChain][destChainName].appUlnConfig.send.requiredDVNs = [...oftres.requiredDVNs]
+                    ofts[oAppName][srcChain][destChainName].appUlnConfig.send.optionalDVNs = [...oftres.optionalDVNs]
+
+                    oftres = await chains[srcChain].client.readContract({
+                        address: ofts[oAppName][srcChain][destChainName].defaultSendLibrary,
+                        abi: SEND_ULN302_ABI,
+                        functionName: "getExecutorConfig",
+                        args: [oApp, chains[destChainName].peerId],
+                    })
+                    ofts[oAppName][srcChain][destChainName].defaultExecutorConfig.maxMessageSize = oftres.maxMessageSize
+                    ofts[oAppName][srcChain][destChainName].defaultExecutorConfig.executorAddress = oftres.executor
+
+                    oftres = await chains[srcChain].client.readContract({
+                        address: ofts[oAppName][srcChain][destChainName].sendLibrary,
+                        abi: SEND_ULN302_ABI,
+                        functionName: "getExecutorConfig",
+                        args: [oApp, chains[destChainName].peerId],
+                    })
+                    ofts[oAppName][srcChain][destChainName].executorConfig.maxMessageSize = oftres.maxMessageSize
+                    ofts[oAppName][srcChain][destChainName].executorConfig.executorAddress = oftres.executor
+
+                    oftres = await chains[srcChain].client.readContract({
+                        address: ofts[oAppName][srcChain][destChainName].defaultSendLibrary,
+                        abi: SEND_ULN302_ABI,
+                        functionName: "getUlnConfig",
+                        args: [oApp, chains[destChainName].peerId],
+                    })
+                    ofts[oAppName][srcChain][destChainName].ulnDefaultConfig.send.confirmations = Number(oftres.confirmations)
+                    ofts[oAppName][srcChain][destChainName].ulnDefaultConfig.send.requiredDVNCount = oftres.requiredDVNCount
+                    ofts[oAppName][srcChain][destChainName].ulnDefaultConfig.send.optionalDVNCount = oftres.optionalDVNCount
+                    ofts[oAppName][srcChain][destChainName].ulnDefaultConfig.send.optionalDVNThreshold = oftres.optionalDVNThreshold
+                    ofts[oAppName][srcChain][destChainName].ulnDefaultConfig.send.requiredDVNs = [...oftres.requiredDVNs]
+                    ofts[oAppName][srcChain][destChainName].ulnDefaultConfig.send.optionalDVNs = [...oftres.optionalDVNs]
+
+                    oftres = await chains[srcChain].client.readContract({
+                        address: ofts[oAppName][srcChain][destChainName].sendLibrary,
+                        abi: SEND_ULN302_ABI,
+                        functionName: "getUlnConfig",
+                        args: [oApp, chains[destChainName].peerId],
+                    })
+                    ofts[oAppName][srcChain][destChainName].ulnConfig.send.confirmations = Number(oftres.confirmations)
+                    ofts[oAppName][srcChain][destChainName].ulnConfig.send.requiredDVNCount = oftres.requiredDVNCount
+                    ofts[oAppName][srcChain][destChainName].ulnConfig.send.optionalDVNCount = oftres.optionalDVNCount
+                    ofts[oAppName][srcChain][destChainName].ulnConfig.send.optionalDVNThreshold = oftres.optionalDVNThreshold
+                    ofts[oAppName][srcChain][destChainName].ulnConfig.send.requiredDVNs = [...oftres.requiredDVNs]
+                    ofts[oAppName][srcChain][destChainName].ulnConfig.send.optionalDVNs = [...oftres.optionalDVNs]
+
+                    oftres = await chains[srcChain].client.readContract({
+                        address: ofts[oAppName][srcChain][destChainName].defaultSendLibrary,
+                        abi: SEND_ULN302_ABI,
+                        functionName: "isSupportedEid",
+                        args: [chains[destChainName].peerId],
+                    })
+                    ofts[oAppName][srcChain][destChainName].defaultSendLibSupportEid = oftres.result
+
+                    oftres = await chains[srcChain].client.readContract({
+                        address: ofts[oAppName][srcChain][destChainName].sendLibrary,
+                        abi: SEND_ULN302_ABI,
+                        functionName: "isSupportedEid",
+                        args: [chains[destChainName].peerId],
+                    })
+                    ofts[oAppName][srcChain][destChainName].sendLibSupportEid = oftres.result
+                }
+            }
         };
     }
     // Assuming `ofts` is already defined

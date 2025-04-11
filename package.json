@@ -21,11 +21,9 @@
     "hardhat-deploy": "^0.12.1"
   },
   "devDependencies": {
-    "@fraxfinance/layerzero-v2-upgradeable": "git://github.com/fraxfinance/LayerZero-v2-upgradeable.git#v1.0.0",
-    "frax-standard-solidity": "github:FraxFinance/frax-standard-solidity",
-    "frax-template": "github:FraxFinance/frax-template",
     "@coral-xyz/anchor": "^0.29.0",
     "@ethersproject/bytes": "^5.7.0",
+    "@fraxfinance/layerzero-v2-upgradeable": "git://github.com/fraxfinance/LayerZero-v2-upgradeable.git#v1.0.0",
     "@layerzerolabs/devtools": "~0.4.6",
     "@layerzerolabs/devtools-evm": "~1.0.5",
     "@layerzerolabs/devtools-evm-hardhat": "^2.0.7",
@@ -87,6 +85,8 @@
     "ethers": "^5.7.2",
     "exponential-backoff": "~3.1.1",
     "fp-ts": "^2.16.2",
+    "frax-standard-solidity": "github:FraxFinance/frax-standard-solidity",
+    "frax-template": "github:FraxFinance/frax-template",
     "hardhat": "^2.22.10",
     "hardhat-contract-sizer": "^2.10.0",
     "hardhat-deploy": "^0.12.1",
@@ -111,5 +111,8 @@
   "overrides": {
     "ethers": "^5.7.2",
     "hardhat-deploy": "^0.12.1"
+  },
+  "dependencies": {
+    "viem": "^2.26.2"
   }
 }

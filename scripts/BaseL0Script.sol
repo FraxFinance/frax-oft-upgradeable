@@ -44,6 +44,7 @@ contract BaseL0Script is L0Constants, Script {
         string RPC;
         uint256 chainid;
         address delegate;
+        address dvnFrax;
         address dvnHorizen;
         address dvnL0;
         uint256 eid;

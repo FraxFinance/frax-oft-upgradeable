@@ -4,7 +4,7 @@ pragma solidity ^0.8.0;
 import "scripts/DeployFraxOFTProtocol/DeployFraxOFTProtocol.s.sol";
 import "contracts/FraxOFTMintableUpgradeable.sol";
 
-// forge script scripts/ops/deploy/DeployTestOFT/DeployMintableTestOFT.s.sol --broadcast --verify
+// forge script scripts/ops/dvn/test/1_DeployMintableTestOFT.s.sol --rpc-url https://ethereum-sepolia-rpc.publicnode.com --broadcast --verify
 
 contract DeployMintableTestOFT is DeployFraxOFTProtocol {
     address[] public connectedTestOfts;

@@ -2,7 +2,7 @@
 pragma solidity ^0.8.19;
 
 import { Script } from "forge-std/Script.sol";
-import { DVN } from "@layerzerolabs/lz-evm-messagelib-v2/contracts/uln/dvn/DVN.sol";
+import { FraxDVN } from "contracts/FraxDVN.sol";
 import { console } from "frax-std/FraxTest.sol";
 import { OptionsBuilder } from "@fraxfinance/layerzero-v2-upgradeable/oapp/contracts/oapp/libs/OptionsBuilder.sol";
 import "forge-std/StdJson.sol";
@@ -77,7 +77,7 @@ abstract contract BaseL0FraxDVNScript is Script {
     }
 
     function deployFraxDVN() public virtual broadcastAs(dvnDeployerPK) {
-        DVN _dvn = new DVN(
+        FraxDVN _dvn = new FraxDVN(
             dvnConfig.eid,
             dvnConfig.vid,
             dvnConfig.messageLibs,

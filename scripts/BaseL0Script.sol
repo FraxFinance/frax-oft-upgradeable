@@ -97,7 +97,7 @@ contract BaseL0Script is L0Constants, Script {
     string public json;
 
     function version() public virtual pure returns (uint256, uint256, uint256) {
-        return (1, 2, 9);
+        return (1, 2, 10);
     }
 
     modifier broadcastAs(uint256 privateKey) {
@@ -127,7 +127,9 @@ contract BaseL0Script is L0Constants, Script {
         vm.stopPrank();
 
         // serialized txs were pushed within the modified function- write to storage
-        new SafeTxUtil().writeTxs(serializedTxs, filename());
+        if (serializedTxs.length > 0) {
+            new SafeTxUtil().writeTxs(serializedTxs, filename());
+        }
     }
 
     // Configure destination OFT addresses as they may be different per chain

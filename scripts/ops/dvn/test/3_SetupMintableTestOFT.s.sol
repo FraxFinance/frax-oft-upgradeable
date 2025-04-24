@@ -4,7 +4,7 @@ pragma solidity ^0.8.22;
 import "scripts/DeployFraxOFTProtocol/DeployFraxOFTProtocol.s.sol";
 
 /// @dev now that the oft is deployed, setup the adapter
-// forge script scripts/ops/dv/test/3_SetupMintableTestOFT.s.sol --rpc-url https://ethereum-sepolia-rpc.publicnode.com --broadcast
+// forge script scripts/ops/dvn/test/3_SetupMintableTestOFT.s.sol --rpc-url https://ethereum-sepolia-rpc.publicnode.com --broadcast
 contract SetupMintableTestOFT is DeployFraxOFTProtocol {
     address sepoliaOFT = 0x29a5134D3B22F47AD52e0A22A63247363e9F35c2;
     address arbSepoliaOFT = 0x0768C16445B41137F98Ab68CA545C0afD65A7513;

@@ -168,7 +168,7 @@
             "sendLib302": "0x9F8C645f2D0b2159767Bd6E0839DE4BE49e823DE"
         },
         {
-            "RPC": "https://zkevm-rpc.com",
+            "RPC": "https://polygon-zkevm-mainnet.public.blastapi.io",
             "chainid": 1101,
             "delegate": "0x57445fD8d544e5D313e4f715220103b091814df4",
             "dvnHorizen": "0x7fe673201724925b5c477d4e1a4bd3e954688cf5",

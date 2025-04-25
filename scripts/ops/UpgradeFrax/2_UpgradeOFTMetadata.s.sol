@@ -5,6 +5,7 @@ import "scripts/DeployFraxOFTProtocol/DeployFraxOFTProtocol.s.sol";
 import { IERC20Metadata } from "@openzeppelin/contracts/token/ERC20/extensions/IERC20Metadata.sol";
 
 contract UpgradeOFTMetadata is DeployFraxOFTProtocol {
+    using Strings for uint256;
 
     address public fxsImplementation;
 
@@ -50,6 +51,15 @@ contract UpgradeOFTMetadata is DeployFraxOFTProtocol {
         } else {
             revert("Unsupported chain");
         }
+    }
+
+    function filename() public view override returns (string memory) {
+        string memory root = vm.projectRoot();
+        root = string.concat(root, "/scripts/ops/UpgradeFrax/txs/");
+        string memory name = string.concat("2_UpgradeOFTMetadata-", simulateConfig.chainid.toString());
+        name = string.concat(name, ".json");
+
+        return string.concat(root, name);
     }
 
     function run() public override simulateAndWriteTxs(broadcastConfig) {

@@ -43,7 +43,7 @@ contract UpgradeOFTMetadata is DeployFraxOFTProtocol {
         } else if (block.chainid == 80094) { // berachain
             fxsImplementation = 0xCd18b5A6Dff9a8be40e81b494b9cC112698dDc4B;
         } else if (block.chainid == 59144) { // linea
-            fxsImplementation = 0xec74a123fC45e5d8e36abD09B736010ba8fC0Eda;
+            fxsImplementation = 0x370DD74Dd32d8D47d3Cd0Abc5fcf2Cd1e9912a97;
         } else if (block.chainid == 324) { // abstract
             fxsImplementation = address(0); // TODO
         } else if (block.chainid == 2741) { // zksync

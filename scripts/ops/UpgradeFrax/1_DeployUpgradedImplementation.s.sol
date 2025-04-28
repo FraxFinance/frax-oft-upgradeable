@@ -54,6 +54,7 @@ Linea (etherscan) (NOTE: needs evm-version paris)
 forge script scripts/ops/UpgradeFrax/1_DeployUpgradedImplementation.s.sol --rpc-url https://rpc.linea.build --broadcast --legacy --verify --verifier etherscan --etherscan-api-key $LINEASCAN_API_KEY
 
 Abstract (TODO)
+forge script scripts/ops/UpgradeFrax/1_DeployUpgradedImplementation.s.sol --rpc-url https://api.mainnet.abs.xyz  --zksync --broadcast --verify --verifier etherscan --etherscan-api-key $ABSTRACT_ETHERSCAN_API_KEY
 
 ZkSync (TODO)
 

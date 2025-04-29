@@ -139,7 +139,7 @@ You can expect to use (1) unless you are holding OFTs on Base, Blast, or Metis p
 - `sfrxETH`
   - OFT Package: `0x28b7264258592031a024ed8e1632090648ec53797c269ac91aa0c9ed94268356`
     - OFT FA: `0x80d729c4632bcc6279b7bed2542e01e2cebd34ca9f3f15963c29d1621efc221a`
-- `FXS`
+- `FXS` (depreacted)
   - OFT Package: `0x687dd7e354df73a46a98cc81cfbf51d46e540560b840591eca9ee054f9a2e34c`
     - OFT FA: `0xb5660995134dc2cb90d615928c37b2a67c3e006c88d222b23a455cffb14202b9`
 - `FRAX`

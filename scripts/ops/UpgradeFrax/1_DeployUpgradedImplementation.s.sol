@@ -57,7 +57,7 @@ Abstract (TODO)
 forge script scripts/ops/UpgradeFrax/1_DeployUpgradedImplementation.s.sol --rpc-url https://api.mainnet.abs.xyz  --zksync --broadcast --verify --verifier etherscan --etherscan-api-key $ABSTRACT_ETHERSCAN_API_KEY
 
 ZkSync (TODO)
-forge script scripts/ops/UpgradeFrax/1_DeployUpgradedImplementation.s.sol --rpc-url https://rpc.ankr.com/zksync_era  --zksync --broadcast --verify --verifier etherscan --etherscan-api-key ZKSYNC_ERA_ETHERSCAN_API_KEY
+forge script scripts/ops/UpgradeFrax/1_DeployUpgradedImplementation.s.sol --rpc-url https://rpc.ankr.com/zksync_era  --zksync --broadcast --verify --verifier etherscan --etherscan-api-key $ZKSYNC_ERA_ETHERSCAN_API_KEY
 */
 
 contract DeployUpgradedImplementation is DeployFraxOFTProtocol {

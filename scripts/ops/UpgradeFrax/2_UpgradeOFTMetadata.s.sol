@@ -44,10 +44,10 @@ contract UpgradeOFTMetadata is DeployFraxOFTProtocol {
             fxsImplementation = 0xCd18b5A6Dff9a8be40e81b494b9cC112698dDc4B;
         } else if (block.chainid == 59144) { // linea
             fxsImplementation = 0x370DD74Dd32d8D47d3Cd0Abc5fcf2Cd1e9912a97;
-        } else if (block.chainid == 324) { // abstract
-            fxsImplementation = address(0); // TODO
-        } else if (block.chainid == 2741) { // zksync
-            fxsImplementation = address(0); // TODO
+        } else if (block.chainid == 324) { // zksync
+            fxsImplementation = 0xFc329f4f94CCe9e10Cc005dA2350fBef0746820e; 
+        } else if (block.chainid == 2741) { // abstract
+            fxsImplementation = 0xFc329f4f94CCe9e10Cc005dA2350fBef0746820e;
         } else {
             revert("Unsupported chain");
         }

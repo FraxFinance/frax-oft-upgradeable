@@ -121,7 +121,7 @@ export async function GenerateConfig(sourceContract: OmniPointHardhat, assetName
                 contract: sourceContract,
                 config: {
                     delegate: 'FSRTW4KPGifKL8yKcZ8mfoR9mKtAjwZiTHbHwgix8AQo',
-                    owner: 'FSRTW4KPGifKL8yKcZ8mfoR9mKtAjwZiTHbHwgix8AQo',
+                    owner: '3gDtP4XdePHqoo1Ghuw5pLLeXxpenEkQYsQtntJTsHSh',
                 }
             },
             ...getContractConfig(LOCOnfig4L0.Legacy.filter(configItem => configItem.contractName != ""), assetName),

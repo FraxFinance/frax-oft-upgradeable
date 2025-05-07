@@ -4,7 +4,7 @@
   "description": "Staked Frax Ether Token",
   "image": "https://static.frax.com/images/tokens/sfrxeth.png",
   "extensions": {
-    "website": "https://frax.finance/",
+    "website": "https://frax.com/",
     "twitter": "https://x.com/fraxfinance"
   }
 }

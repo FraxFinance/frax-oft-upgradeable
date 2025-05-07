@@ -63,34 +63,34 @@ contract UpgradeOFTMetadata is DeployFraxOFTProtocol {
     }
 
     function run() public override simulateAndWriteTxs(broadcastConfig) {
-        fxsOft = connectedOfts[0]; // fxs
+        fraxOft = connectedOfts[0]; // fxs
         // OZ contracts/proxy/ERC1967/ERC1967Upgrade.sol `_ADMIN_SLOT`
-        proxyAdmin = address(uint160(uint256(vm.load(fxsOft, 0xb53127684a568b3173ae13b9f8a6016e243e63b6e8ee1178d6a717850b5d6103))));
+        proxyAdmin = address(uint160(uint256(vm.load(fraxOft, 0xb53127684a568b3173ae13b9f8a6016e243e63b6e8ee1178d6a717850b5d6103))));
 
         // verify OFT is FXS
-        require(isStringEqual("Frax Share", IERC20Metadata(fxsOft).name()), "OFT is not FXS");
-        require(isStringEqual("FXS", IERC20Metadata(fxsOft).symbol()), "OFT is not FXS");
+        require(isStringEqual("Frax Share", IERC20Metadata(fraxOft).name()), "OFT is not FXS");
+        require(isStringEqual("FXS", IERC20Metadata(fraxOft).symbol()), "OFT is not FXS");
 
-        uint256 supplyBefore = IERC20(fxsOft).totalSupply();
+        uint256 supplyBefore = IERC20(fraxOft).totalSupply();
 
         bytes memory upgrade = abi.encodeCall(
             ProxyAdmin.upgrade,
-            (TransparentUpgradeableProxy(payable(fxsOft)), fxsImplementation)
+            (TransparentUpgradeableProxy(payable(fraxOft)), fxsImplementation)
         );
         (bool success, ) = proxyAdmin.call(upgrade);
         require(success, "Unable to upgrade proxy");
 
         // state checks
-        require(supplyBefore == IERC20(fxsOft).totalSupply(), "total supply changed");
-        require(isStringEqual("Frax", IERC20Metadata(fxsOft).name()), "name not changed");
-        require(isStringEqual("FRAX", IERC20Metadata(fxsOft).symbol()), "symbol not changed");
+        require(supplyBefore == IERC20(fraxOft).totalSupply(), "total supply changed");
+        require(isStringEqual("Frax", IERC20Metadata(fraxOft).name()), "name not changed");
+        require(isStringEqual("FRAX", IERC20Metadata(fraxOft).symbol()), "symbol not changed");
 
         // make sure contract cannot be re-initialized
         bytes memory initialize = abi.encodeCall(
             FraxOFTUpgradeable.initialize,
             ("Mock name", "mName", address(1))
         );
-        (success, ) = fxsOft.call(initialize);
+        (success, ) = fraxOft.call(initialize);
         require(!success, "should not be able to initialize");
 
         serializedTxs.push(

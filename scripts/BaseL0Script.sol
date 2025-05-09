@@ -63,9 +63,10 @@ contract BaseL0Script is L0Constants, Script {
     /// @dev alphabetical order as json is read in by keys alphabetically.
     struct NonEvmPeer {
         bytes32 fpi;
-        bytes32 frxEth;
+        bytes32 frax;
         bytes32 frxUSD;
-        bytes32 fxs;
+        bytes32 frxEth;
+        bytes32 sfrxUSD;
         bytes32 sFrxEth;
         bytes32 sfrxUSD;
     }
@@ -76,7 +77,7 @@ contract BaseL0Script is L0Constants, Script {
 
     // Deployed proxies
     address public proxyAdmin;
-    address public fxsOft;
+    address public fraxOft;
     address public sfrxUsdOft;
     address public sfrxEthOft;
     address public frxUsdOft;
@@ -97,7 +98,7 @@ contract BaseL0Script is L0Constants, Script {
     string public json;
 
     function version() public virtual pure returns (uint256, uint256, uint256) {
-        return (1, 2, 9);
+        return (1, 3, 0);
     }
 
     modifier broadcastAs(uint256 privateKey) {
@@ -269,11 +270,11 @@ contract BaseL0Script is L0Constants, Script {
         for (uint256 i=0; i<nonEvmPeers.length; i++) {
             NonEvmPeer memory peer = nonEvmPeers[i];
             bytes32[] memory peerArray = new bytes32[](6);
-            peerArray[0] = peer.fxs;
-            peerArray[1] = peer.sfrxUSD;
-            peerArray[2] = peer.sFrxEth;
-            peerArray[3] = peer.frxUSD;
-            peerArray[4] = peer.frxEth;
+            peerArray[0] = peer.frax;
+            peerArray[1] = peer.sFrxEth;
+            peerArray[2] = peer.sfrxUSD;
+            peerArray[3] = peer.frxEth;
+            peerArray[4] = peer.frxUSD;
             peerArray[5] = peer.fpi;
 
             nonEvmPeersArrays.push(peerArray);

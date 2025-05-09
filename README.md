@@ -47,7 +47,7 @@ This repository contains all of the contracts and deployment code used to manage
     - `sfrxUSD`: `0x5Bff88cA1442c2496f7E475E9e7786383Bc070c0`
     - `frxETH`: `0x43eDD7f3831b08FE70B7555ddD373C8bF65a9050`
     - `sfrxETH`: `0x3Ec3849C33291a9eF4c5dB86De593EB4A37fDe45`
-    - `FXS`: `0x64445f0aecC51E94aD52d8AC56b7190e764E561a`
+    - `FRAX`: `0x64445f0aecC51E94aD52d8AC56b7190e764E561a`
     - `FPI` : `0x90581eCa9469D8D7F5D3B60f4715027aDFCf7927`
 - Chain: `Base`
   - OFTs
@@ -55,7 +55,7 @@ This repository contains all of the contracts and deployment code used to manage
     - `sfrxUSD`: `0x91A3f8a8d7a881fBDfcfEcd7A2Dc92a46DCfa14e`
     - `frxETH`: `0x7eb8d1E4E2D0C8b9bEDA7a97b305cF49F3eeE8dA`
     - `sfrxETH`: `0x192e0C7Cc9B263D93fa6d472De47bBefe1Fb12bA`
-    - `FXS`: `0x0CEAC003B0d2479BebeC9f4b2EBAd0a803759bbf`
+    - `FRAX`: `0x0CEAC003B0d2479BebeC9f4b2EBAd0a803759bbf`
     - `FPI` : `0xEEdd3A0DDDF977462A97C1F0eBb89C3fbe8D084B`
 - Chain: `Linea`
   - OFTs:
@@ -63,7 +63,7 @@ This repository contains all of the contracts and deployment code used to manage
       - `sfrxUSD`: `0x592a48c0FB9c7f8BF1701cB0136b90DEa2A5B7B6`
       - `frxETH`: `0xB1aFD04774c02AE84692619448B08BA79F19b1ff`
       - `sfrxETH`: `0x383Eac7CcaA89684b8277cBabC25BCa8b13B7Aa2`
-      - `FXS`: `0x5217Ab28ECE654Aab2C68efedb6A22739df6C3D5`
+      - `FRAX`: `0x5217Ab28ECE654Aab2C68efedb6A22739df6C3D5`
       - `FPI`:  `0xDaF72Aa849d3C4FAA8A9c8c99f240Cf33dA02fc4`
 - Chain: `ZkSync`,`Abstract`
   - OFTs:
@@ -71,7 +71,7 @@ This repository contains all of the contracts and deployment code used to manage
       - `sfrxUSD`: `0x9F87fbb47C33Cd0614E43500b9511018116F79eE`
       - `frxETH`: `0xc7Ab797019156b543B7a3fBF5A99ECDab9eb4440`
       - `sfrxETH`: `0xFD78FD3667DeF2F1097Ed221ec503AE477155394`
-      - `FXS`: `0xAf01aE13Fb67AD2bb2D76f29A83961069a5F245F`
+      - `FRAX`: `0xAf01aE13Fb67AD2bb2D76f29A83961069a5F245F`
       - `FPI`: `0x580F2ee1476eDF4B1760bd68f6AaBaD57dec420E`
 
 
@@ -83,7 +83,7 @@ Frax operates a dual-lockbox design where users can exit their OFT token into th
 - `sfrxUSD`: `0x88Aa7854D3b2dAA5e37E7Ce73A1F39669623a361`
 - `frxETH`: `0x9aBFE1F8a999B0011ecD6116649AEe8D575F5604`
 - `sfrxETH`: `0x999dfAbe3b1cc2EF66eB032Eea42FeA329bBa168`
-- `FXS`: `0xd86fBBd0c8715d2C1f40e451e5C3514e65E7576A`
+- `FRAX`: `0xd86fBBd0c8715d2C1f40e451e5C3514e65E7576A`
 - `FPI`: `0x75c38D46001b0F8108c4136216bd2694982C20FC`
 
 #### Ethereum Lockboxes
@@ -94,14 +94,14 @@ You can expect to use (1) unless you are holding OFTs on Base, Blast, or Metis p
   - `sfrxUSD`: `0x7311CEA93ccf5f4F7b789eE31eBA5D9B9290E126`
   - `frxETH` : `0x1c1649A38f4A3c5A0c4a24070f688C525AB7D6E6`
   - `sfrxETH`: `0xbBc424e58ED38dd911309611ae2d7A23014Bd960`
-  - `FXS`: `0xC6F59a4fD50cAc677B51558489E03138Ac1784EC`
+  - `FRAX`: `0xC6F59a4fD50cAc677B51558489E03138Ac1784EC`
   - `FPI`: `0x9033BAD7aA130a2466060A2dA71fAe2219781B4b`
 2. Immutable (legacy) Lockboxes
   - `FRAX`: `0x909DBdE1eBE906Af95660033e478D59EFe831fED`
   - `sFRAX`: `0xe4796cCB6bB5DE2290C417Ac337F2b66CA2E770E`
   - `frxETH` : `0xF010a7c8877043681D59AD125EbF575633505942`
   - `sfrxETH`: `0x1f55a02A049033E3419a8E2975cF3F572F4e6E9A`
-  - `FXS`: `0x23432452B720C80553458496D4D9d7C5003280d0`
+  - `FRAX`: `0x23432452B720C80553458496D4D9d7C5003280d0`
   - `FPI`: `0x6Eca253b102D41B6B69AC815B9CC6bD47eF1979d`
 
 ### Solana
@@ -118,7 +118,7 @@ You can expect to use (1) unless you are holding OFTs on Base, Blast, or Metis p
 - `sfrxETH`
   - SPL Token: `58zpC9acE6F4FBtd88L64NoWHJcmzLsQSy5bjz35Ydgv`
     - As bytes32: `0xbf2f1fc27286a43f25b05bd843a74a5478c4246343fa90c1fcb641a1caf46c61`
-- `FXS`
+- `FRAX`
   - SPL Token: `zZbQjiRg8uSxZaPu996XuviuZeSY6nsaMuutKZQBJga`
     - As bytes32: `0x4939035f8dd13d15a9386e28b6705519aa6f488791323466a3c0116a201e51aa`
 - `FPI`
@@ -158,7 +158,7 @@ You can expect to use (1) unless you are holding OFTs on Base, Blast, or Metis p
   - `sFRAX`: `0xe4796cCB6bB5DE2290C417Ac337F2b66CA2E770E`
   - `frxETH` : `0xF010a7c8877043681D59AD125EbF575633505942`
   - `sfrxETH`: `0x1f55a02A049033E3419a8E2975cF3F572F4e6E9A`
-  - `FXS`: `0x23432452B720C80553458496D4D9d7C5003280d0`
+  - `FRAX`: `0x23432452B720C80553458496D4D9d7C5003280d0`
   - `FPI`: `0x6Eca253b102D41B6B69AC815B9CC6bD47eF1979d`
 
 

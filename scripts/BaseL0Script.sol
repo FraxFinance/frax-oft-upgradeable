@@ -68,6 +68,7 @@ contract BaseL0Script is L0Constants, Script {
         bytes32 frxEth;
         bytes32 sfrxUSD;
         bytes32 sFrxEth;
+        bytes32 sfrxUSD;
     }
     bytes32[][] public nonEvmPeersArrays;
 

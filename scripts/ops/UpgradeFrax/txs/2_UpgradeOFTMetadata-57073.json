@@ -1,17 +1,10 @@
 {
-    "chainId": 57073,
-    "createdAt": 1745620773000,
-    "meta": {
-        "description": "",
-        "name": "Transactions Batch"
-    },
-    "transactions": [
-        {
-            "data": "0x99a88ec400000000000000000000000064445f0aecc51e94ad52d8ac56b7190e764e561a0000000000000000000000009671b991615a9550fbe04791fac71d3d091e5dfa",
-            "operation": "0",
-            "to": "0x223a681fc5c5522c85C96157c0efA18cd6c5405c",
-            "value": "0"
-        }
-    ],
-    "version": "1.0"
+  "chainId": 57073,
+  "createdAt": 1746825957000,
+  "meta": {
+    "description": "",
+    "name": "Transactions Batch"
+  },
+  "transactions": [{"data":"0x99a88ec400000000000000000000000064445f0aecc51e94ad52d8ac56b7190e764e561a000000000000000000000000742109450e2466421b00a2bf61d513d2616a74fc","operation":"0","to":"0x223a681fc5c5522c85C96157c0efA18cd6c5405c","value":"0"}],
+  "version": "1.0"
 }

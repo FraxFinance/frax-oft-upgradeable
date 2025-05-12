@@ -15,39 +15,39 @@ contract UpgradeOFTMetadata is DeployFraxOFTProtocol {
         }
 
         if (block.chainid == 34443) { // mode
-            fxsImplementation = 0x8f6F4359090BbF65938392874Cac44dcE165A285;
+            fxsImplementation = 0x36076294472DaF59391a7dDbEDeBf4b681D823c7;
         } else if (block.chainid == 1329) { // sei
-            fxsImplementation = 0x27E751C568111C3BDbAd705B25b14D1322E4213C;
+            fxsImplementation = 0x36076294472DaF59391a7dDbEDeBf4b681D823c7;
         } else if (block.chainid == 196) { // xlayer
-            fxsImplementation = 0x40f713Fb5b4054d1A3d4158913C6409Fb32384B4;
+            fxsImplementation = 0xa574095bb0Cf76dc1E08C9428C2B59Ebc1FcF1fF;
         } else if (block.chainid == 146) { // sonic
-            fxsImplementation = 0xEb5E8F69d1A05D2A2cFc418cb6f56aC54230bbc3;
+            fxsImplementation = 0x5217Ab28ECE654Aab2C68efedb6A22739df6C3D5;
         } else if (block.chainid == 57073) { // ink
-            fxsImplementation = 0x9671B991615a9550FBe04791FAC71d3d091e5dfa;
+            fxsImplementation = 0x742109450E2466421b00A2Bf61D513D2616a74FC;
         } else if (block.chainid == 42161) { // arbitrum
-            fxsImplementation = 0xb2Dd76CD8484146C4D3205853327Bf9F5cb68Fb6;
+            fxsImplementation = 0xc6C20B1bDBda2AED8444111a735780a4f208c062;
         } else if (block.chainid == 10) { // optimism
-            fxsImplementation = 0x5Bfd5AecF3c474217eE50Fb696b897fA22915a3b;
+            fxsImplementation = 0x9af0d1cf192bC0b12336c44aE1be62263f8fa117;
         } else if (block.chainid == 137) { // polygon
-            fxsImplementation = 0xBfb4e31D365A4816AfE52b280087028D7b5f3b9E;
+            fxsImplementation = 0xBB47c4046a73d0b3a9520833e4673C0a3fc03a7A;
         } else if (block.chainid == 43114) { // avalanche
-            fxsImplementation = 0xc1f81f22e3A502A2071b7f9D45675D8D8315b894;
+            fxsImplementation = 0x3596FCA443e34D638aCf253D87240BDAb559AF93;
         } else if (block.chainid == 56) { // bsc
-            fxsImplementation = 0xEA8A307c3eB6E68E136A9b94A5d9cb995b6ACEc0;
+            fxsImplementation = 0x80cE6E31fCF84A06923aB58bDCe1eB833C7a359a;
         } else if (block.chainid == 1101) { // polygon zkevm
-            fxsImplementation = 0x78F175e220eff8129EA50B0CeF432B5058890cCC;
+            fxsImplementation = 0xEAf6C10a5660f3f73aC8340A1f726bcDaeE1b419;
         } else if (block.chainid == 81457) { // blast
-            fxsImplementation = 0x96A7dd70799f8962Ea256a14DDaa120d19de7D8a;
+            fxsImplementation = 0x8612a9fdf219Ab6C0E92bDD69E2266572c7D893B;
         } else if (block.chainid == 8453) { // base
-            fxsImplementation = 0x9c245a6bBc9F946993Ba3777641dDCeAC259CD6A;
+            fxsImplementation = 0x31E1c1a72e608557ceEEdb4d12d4033baAF4aFB2;
         } else if (block.chainid == 80094) { // berachain
-            fxsImplementation = 0xCd18b5A6Dff9a8be40e81b494b9cC112698dDc4B;
+            fxsImplementation = 0xfecBe17dC010Fe68A2b4FcE199A1e289ceE74c2a;
         } else if (block.chainid == 59144) { // linea
-            fxsImplementation = 0x370DD74Dd32d8D47d3Cd0Abc5fcf2Cd1e9912a97;
+            fxsImplementation = 0xEA12Ae50E998D2551eFABE01c569Be4274a6a684;
         } else if (block.chainid == 324) { // zksync
-            fxsImplementation = 0xFc329f4f94CCe9e10Cc005dA2350fBef0746820e; 
+            fxsImplementation = 0x619cc437e9F57f9008a54c5467f3D454a99be435; 
         } else if (block.chainid == 2741) { // abstract
-            fxsImplementation = 0xFc329f4f94CCe9e10Cc005dA2350fBef0746820e;
+            fxsImplementation = 0x619cc437e9F57f9008a54c5467f3D454a99be435;
         } else {
             revert("Unsupported chain");
         }
@@ -67,9 +67,9 @@ contract UpgradeOFTMetadata is DeployFraxOFTProtocol {
         // OZ contracts/proxy/ERC1967/ERC1967Upgrade.sol `_ADMIN_SLOT`
         proxyAdmin = address(uint160(uint256(vm.load(fraxOft, 0xb53127684a568b3173ae13b9f8a6016e243e63b6e8ee1178d6a717850b5d6103))));
 
-        // verify OFT is FXS
-        require(isStringEqual("Frax Share", IERC20Metadata(fraxOft).name()), "OFT is not FXS");
-        require(isStringEqual("FXS", IERC20Metadata(fraxOft).symbol()), "OFT is not FXS");
+        // verify OFT is FRAX
+        require(isStringEqual("Frax", IERC20Metadata(fraxOft).name()), "OFT is not FRAX");
+        require(isStringEqual("FRAX", IERC20Metadata(fraxOft).symbol()), "OFT is not FRAX");
 
         uint256 supplyBefore = IERC20(fraxOft).totalSupply();
 
@@ -82,8 +82,8 @@ contract UpgradeOFTMetadata is DeployFraxOFTProtocol {
 
         // state checks
         require(supplyBefore == IERC20(fraxOft).totalSupply(), "total supply changed");
-        require(isStringEqual("Frax", IERC20Metadata(fraxOft).name()), "name not changed");
-        require(isStringEqual("FRAX", IERC20Metadata(fraxOft).symbol()), "symbol not changed");
+        require(isStringEqual("Wrapped Frax", IERC20Metadata(fraxOft).name()), "name not changed");
+        require(isStringEqual("WFRAX", IERC20Metadata(fraxOft).symbol()), "symbol not changed");
 
         // make sure contract cannot be re-initialized
         bytes memory initialize = abi.encodeCall(

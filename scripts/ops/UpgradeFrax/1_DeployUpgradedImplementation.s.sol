@@ -3,7 +3,7 @@ pragma solidity ^0.8.22;
 
 import "scripts/DeployFraxOFTProtocol/DeployFraxOFTProtocol.s.sol";
 
-import { FRAXOFTUpgradeable } from "contracts/FRAXOFTUpgradeable.sol";
+import { WFRAXTokenOFTUpgradeable } from "contracts/WFRAXTokenOFTUpgradeable.sol";
 
 /*
 Scripts to deploy the upgrade FRAX OFT implementation
@@ -12,13 +12,13 @@ Mode (routescan)
 forge script scripts/ops/UpgradeFrax/1_DeployUpgradedImplementation.s.sol --rpc-url https://mainnet.mode.network --broadcast --verify --verifier-url 'https://api.routescan.io/v2/network/mainnet/evm/34443/etherscan' --etherscan-api-key "verifyContract" --verifier etherscan
 
 Sei (seitrace)
-forge script scripts/ops/UpgradeFrax/1_DeployUpgradedImplementation.s.sol --rpc-url https://evm-rpc.sei-apis.com --broadcast --verify --verifier-url https://seitrace.com/pacific-1/api --verifier-api-key $SEITRACE_API_KEY --retries 10 --verifier custom
+forge script scripts/ops/UpgradeFrax/1_DeployUpgradedImplementation.s.sol --rpc-url https://evm-rpc.sei-apis.com --broadcast --verify --verifier-url https://seitrace.com/pacific-1/api --verifier custom --verifier-api-key $SEITRACE_API_KEY 
 
 X-Layer (oklink)
-forge script scripts/ops/UpgradeFrax/1_DeployUpgradedImplementation.s.sol --rpc-url https://xlayerrpc.okx.com --legacy --broadcast --verify --verifier-url https://www.oklink.com/api/v5/explorer/contract/verify-source-code-plugin/XLAYER --verifier-api-key $OKLINK_API_KEY --retries 10 --verifier oklink
+forge script scripts/ops/UpgradeFrax/1_DeployUpgradedImplementation.s.sol --rpc-url https://xlayerrpc.okx.com --legacy --broadcast --verify --verifier-url https://www.oklink.com/api/v5/explorer/contract/verify-source-code-plugin/XLAYER --verifier oklink --verifier-api-key $OKLINK_API_KEY
 
 Sonic (etherscan)
-forge script scripts/ops/UpgradeFrax/1_DeployUpgradedImplementation.s.sol --rpc-url https://rpc.soniclabs.com --broadcast --verify --etherscan-api-key $SONICSCAN_API_KEY --verifier etherscan
+forge script scripts/ops/UpgradeFrax/1_DeployUpgradedImplementation.s.sol --rpc-url https://rpc.soniclabs.com --broadcast --verify --verifier etherscan --etherscan-api-key $SONICSCAN_API_KEY
 
 Ink (blockscout)
 forge script scripts/ops/UpgradeFrax/1_DeployUpgradedImplementation.s.sol --rpc-url https://rpc-gel.inkonchain.com --broadcast --verify --verifier blockscout --verifier-url https://explorer.inkonchain.com/api/
@@ -53,16 +53,16 @@ forge script scripts/ops/UpgradeFrax/1_DeployUpgradedImplementation.s.sol --rpc-
 Linea (etherscan) (NOTE: needs evm-version paris)
 forge script scripts/ops/UpgradeFrax/1_DeployUpgradedImplementation.s.sol --rpc-url https://rpc.linea.build --broadcast --legacy --verify --verifier etherscan --etherscan-api-key $LINEASCAN_API_KEY
 
-Abstract (TODO)
+Abstract
 forge script scripts/ops/UpgradeFrax/1_DeployUpgradedImplementation.s.sol --rpc-url https://api.mainnet.abs.xyz  --zksync --broadcast --verify --verifier etherscan --etherscan-api-key $ABSTRACT_ETHERSCAN_API_KEY
 
-ZkSync (TODO)
+ZkSync
 forge script scripts/ops/UpgradeFrax/1_DeployUpgradedImplementation.s.sol --rpc-url https://rpc.ankr.com/zksync_era  --zksync --broadcast --verify --verifier etherscan --etherscan-api-key $ZKSYNC_ERA_ETHERSCAN_API_KEY
 */
 
 contract DeployUpgradedImplementation is DeployFraxOFTProtocol {
     function run() public override broadcastAs(configDeployerPK) {
-        address fraxImplementation = address(new FRAXOFTUpgradeable(broadcastConfig.endpoint));
+        address fraxImplementation = address(new WFRAXTokenOFTUpgradeable(broadcastConfig.endpoint));
         console.log("FRAX Imp. @ ", fraxImplementation);
     }
 }

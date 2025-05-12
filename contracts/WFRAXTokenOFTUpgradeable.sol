@@ -4,7 +4,7 @@ pragma solidity ^0.8.22;
 import { OFTUpgradeable } from "@fraxfinance/layerzero-v2-upgradeable/oapp/contracts/oft/OFTUpgradeable.sol";
 import { SendParam } from "@fraxfinance/layerzero-v2-upgradeable/oapp/contracts/oft/interfaces/IOFT.sol";
 
-contract FRAXOFTUpgradeable is OFTUpgradeable {
+contract WFRAXTokenOFTUpgradeable is OFTUpgradeable {
     constructor(address _lzEndpoint) OFTUpgradeable(_lzEndpoint) {
         _disableInitializers();
     }
@@ -12,15 +12,15 @@ contract FRAXOFTUpgradeable is OFTUpgradeable {
     function version() external pure returns (uint256 major, uint256 minor, uint256 patch) {
         major = 1;
         minor = 1;
-        patch = 0;
+        patch = 1;
     }
 
     function name() public pure override returns (string memory) {
-        return "Frax";
+        return "Wrapped Frax";
     }
 
     function symbol() public pure override returns (string memory) {
-        return "FRAX";
+        return "WFRAX";
     }
 
     // Helper views

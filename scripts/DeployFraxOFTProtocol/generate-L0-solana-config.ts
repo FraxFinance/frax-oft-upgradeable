@@ -37,7 +37,7 @@ type lzConfigType = {
     contractName: string,
     frxUSD: string,
     sfrxUSD: string,
-    fxs: string,
+    frax: string,
     fpi: string,
     frxeth: string,
     sfrxeth: string

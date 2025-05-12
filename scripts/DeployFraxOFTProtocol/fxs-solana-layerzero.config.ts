@@ -4,7 +4,7 @@ import type { OmniPointHardhat } from '@layerzerolabs/toolbox-hardhat'
 
 import { GenerateConfig } from './generate-L0-solana-config';
 
-const assetName = "fxs"
+const assetName = "frax"
 
 const solanaContract: OmniPointHardhat = {
     eid: EndpointId.SOLANA_V2_MAINNET,

@@ -1,8 +1,8 @@
 {
-  "name": "Frax Share",
-  "symbol": "FXS",
-  "description": "Frax Share Token",
-  "image": "https://static.frax.com/images/tokens/fxs.png",
+  "name": "Frax",
+  "symbol": "FRAX",
+  "description": "Frax",
+  "image": "https://static.frax.com/images/tokens/frax.png",
   "extensions": {
     "website": "https://frax.com/",
     "twitter": "https://x.com/fraxfinance"

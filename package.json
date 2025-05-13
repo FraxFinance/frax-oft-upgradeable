@@ -82,11 +82,11 @@
     "tsup": "^8.0.1",
     "typescript": "^5.4.4",
     "yaml": "^2.6.1",
-    "@fraxfinance/layerzero-v2-upgradeable": "git://github.com/fraxfinance/LayerZero-v2-upgradeable.git#v1.0.0",
     "frax-standard-solidity": "github:FraxFinance/frax-standard-solidity",
     "frax-template": "github:FraxFinance/frax-template",
     "@coral-xyz/anchor": "^0.29.0",
     "@ethersproject/bytes": "^5.7.0",
+    "@fraxfinance/layerzero-v2-upgradeable": "git://github.com/fraxfinance/LayerZero-v2-upgradeable.git#v1.0.0",
     "@layerzerolabs/devtools": "~0.4.6",
     "@layerzerolabs/devtools-evm": "~1.0.5",
     "@layerzerolabs/devtools-evm-hardhat": "^2.0.8",
@@ -121,8 +121,7 @@
     "bs58": "^6.0.0",
     "ethereumjs-util": "^7.1.5",
     "exponential-backoff": "~3.1.1",
-    "fp-ts": "^2.16.2",
-    "hardhat-deploy-ethers": "^0.4.2"
+    "fp-ts": "^2.16.2"
   },
   "engines": {
     "node": ">=18.16.0"
@@ -136,5 +135,8 @@
   "overrides": {
     "ethers": "^5.7.2",
     "hardhat-deploy": "^0.12.1"
+  },
+  "dependencies": {
+    "viem": "^2.26.2"
   }
 }

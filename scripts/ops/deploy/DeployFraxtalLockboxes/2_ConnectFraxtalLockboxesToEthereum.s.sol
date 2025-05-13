@@ -24,13 +24,13 @@ contract ConnectFraxtalLockboxesToEthereum is DeployFraxOFTProtocol {
         delete fraxtalLockboxes;
         fraxtalLockboxes.push(fraxtalFrxEthLockbox);
         fraxtalLockboxes.push(fraxtalSFrxEthLockbox);
-        fraxtalLockboxes.push(fraxtalFxsLockbox);
+        fraxtalLockboxes.push(fraxtalFraxLockbox);
         fraxtalLockboxes.push(fraxtalFpiLockbox);
 
         delete ethLockboxes;
         ethLockboxes.push(ethFrxEthLockbox);
         ethLockboxes.push(ethSFrxEthLockbox);
-        ethLockboxes.push(ethFxsLockbox);
+        ethLockboxes.push(ethFraxLockbox);
         ethLockboxes.push(ethFpiLockbox);
 
         // populate ethConfigArray with length 1 of eth config

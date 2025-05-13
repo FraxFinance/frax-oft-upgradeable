@@ -7,6 +7,8 @@ import "scripts/DeployFraxOFTProtocol/DeployFraxOFTProtocol.s.sol";
 // forge script scripts/ops/deploy/BatchDeploy/3a_ResumeDeployPolygon.s.sol --rpc-url https://polygon-rpc.com --verifier-url $POLYSCAN_API_URL --etherscan-api-key $POLYSCAN_API_KEY --verify --broadcast
 contract ResumeDeployPolygon is DeployFraxOFTProtocol {
 
+    address fxsOft;
+
     // push the already-deployed addresses / ofts (only FPI remains)
     function run() public override {
         fxsOft = expectedProxyOfts[0];

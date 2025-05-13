@@ -55,6 +55,7 @@
     "@layerzerolabs/solhint-config": "^3.0.12",
     "@layerzerolabs/test-devtools-evm-foundry": "~6.0.3",
     "@layerzerolabs/test-devtools-evm-hardhat": "~0.5.2",
+    "@layerzerolabs/toolbox-foundry": "~0.1.12",
     "@layerzerolabs/toolbox-hardhat": "^0.6.9",
     "@layerzerolabs/ua-devtools": "~3.0.6",
     "@layerzerolabs/ua-devtools-evm": "~5.0.7",
@@ -107,7 +108,6 @@
     "ts-node": "^10.9.2",
     "typescript": "^5.4.4",
     "@layerzerolabs/metadata-tools": "^0.4.1",
-
     "@aptos-labs/ts-sdk": "^1.33.1",
     "@babel/core": "^7.23.9",
     "@jest/globals": "^29.7.0",
@@ -119,7 +119,6 @@
     "@layerzerolabs/lz-serdes": "^3.0.19",
     "@layerzerolabs/move-definitions": "^3.0.15",
     "@layerzerolabs/oft-move": "^1.0.1",
-    "@layerzerolabs/toolbox-foundry": "0.1.5",
     "@types/argparse": "^2.0.17",
     "argparse": "^2.0.1",
     "install": "^0.13.0",
@@ -132,15 +131,17 @@
   },
   "pnpm": {
     "overrides": {
+      "@solana/web3.js": "^1.98.0",
       "ethers": "^5.7.2",
       "hardhat-deploy": "^0.12.1"
     }
   },
   "overrides": {
     "ethers": "^5.7.2",
-    "hardhat-deploy": "^0.12.1"
-  },
-  "dependencies": {
-    "viem": "^2.26.2"
+    "hardhat-deploy": "^0.12.1",
+    "@solana/web3.js": "^1.98.0",
+    "dependencies": {
+      "viem": "^2.26.2"
+    }
   }
 }

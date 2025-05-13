@@ -79,7 +79,7 @@ const config: HardhatUserConfig = {
         },
         sei:{
             eid: EndpointId.SEI_V2_MAINNET,
-            url: process.env.RPC_URL_SEI || 'https://twilight-crimson-grass.sei-pacific.quiknode.pro/1fe7cb5c6950df0f3ebceead37f8eefdf41ddbe9/',
+            url: process.env.RPC_URL_SEI || 'https://evm-rpc.sei-apis.com',
             accounts,
         },
         xlayer:{
@@ -99,7 +99,7 @@ const config: HardhatUserConfig = {
         },
         arbitrum:{
             eid: EndpointId.ARBITRUM_V2_MAINNET,
-            url: process.env.RPC_URL_ARBITRUM || 'https://endpoints.omniatech.io/v1/arbitrum/one/public',
+            url: process.env.RPC_URL_ARBITRUM || 'https://arbitrum.meowrpc.com',
             accounts,
         },
         optimism:{

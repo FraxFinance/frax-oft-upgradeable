@@ -158,7 +158,7 @@ contract DeployMockOFTsAndSend is DeployFraxOFTProtocol {
             _mockSfrxUsdOft: sfrxUsdOft,
             _mockFrxEthOft: frxEthOft,
             _mockSfrxEthOft: sfrxEthOft,
-            _mockFxsOft: fraxOft,
+            _mockFxsOft: wfraxOft,
             _initialOwner: broadcastConfig.delegate
         });
     }
@@ -263,7 +263,7 @@ contract DeployMockOFTsAndSend is DeployFraxOFTProtocol {
         });
 
         // Deploy FRAX
-        (,fraxOft) = deployFraxOFTUpgradeableAndProxy({
+        (,wfraxOft) = deployFraxOFTUpgradeableAndProxy({
             _name: "Mock Frax Share",
             _symbol: "mFXS",
             _initialSupply: initialFraxSupply

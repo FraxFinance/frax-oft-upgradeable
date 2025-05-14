@@ -114,7 +114,7 @@ contract DeployMockFXSAndSend is DeployFraxOFTProtocol {
 
     function initCustodian() public broadcastAs(configDeployerPK) {
         custodian.initialize({
-            _mockFxsOft: fraxOft,
+            _mockFxsOft: wfraxOft,
             _initialOwner: broadcastConfig.delegate
         });
     }
@@ -189,7 +189,7 @@ contract DeployMockFXSAndSend is DeployFraxOFTProtocol {
 
     // Deploy the mock FXS
     function deployFraxOFTUpgradeablesAndProxies() broadcastAs(configDeployerPK) public override {
-        (, fraxOft) = deployFraxOFTUpgradeableAndProxy({
+        (, wfraxOft) = deployFraxOFTUpgradeableAndProxy({
             _name: "Mock Frax",
             _symbol: "mFRAX",
             _initialSupply: initialFxsLockboxBalance

@@ -7,7 +7,7 @@ import { GenerateConfig } from './generate-L0-move-config';
 
 const aptosContract: OmniPointHardhat = {
     eid: EndpointId.INITIA_V2_MAINNET,
-    contractName: 'FRAX',
+    contractName: 'WFRAX',
 }
 
 const config = GenerateConfig(aptosContract);

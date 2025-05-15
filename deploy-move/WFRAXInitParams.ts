@@ -1,10 +1,10 @@
 import { OFTFaInitParams } from '@layerzerolabs/oft-move'
 
 const oftMetadata: OFTFaInitParams = {
-    token_name: 'Frax',
-    token_symbol: 'FRAX',
-    icon_uri: 'https://static.frax.com/images/tokens/frax.png',
-    project_uri: 'https://frax.finance/',
+    token_name: 'Wrapped Frax',
+    token_symbol: 'WFRAX',
+    icon_uri: 'https://static.frax.com/images/tokens/wfrax.png',
+    project_uri: 'https://frax.com/',
     sharedDecimals: 6,
     localDecimals: 6,
 }

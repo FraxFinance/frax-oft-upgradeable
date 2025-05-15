@@ -1,7 +1,7 @@
 import { EndpointId } from '@layerzerolabs/lz-definitions'
 
 import type { OAppOmniGraphHardhat, OmniPointHardhat } from '@layerzerolabs/toolbox-hardhat'
-import { fraxtalContractConfig, movementContractConfig, movementToFraxtalconnectionConfig } from './l0-move-connection-config'
+import { aptosContractConfig, aptosToFraxtalconnectionConfig, fraxtalContractConfig } from './l0-move-connection-config'
 
 const fraxtalContract: OmniPointHardhat = {
     eid: EndpointId.FRAXTAL_V2_MAINNET,
@@ -9,9 +9,9 @@ const fraxtalContract: OmniPointHardhat = {
     contractName: "FraxOFTAdapterUpgradeable"
 }
 
-const movementContract: OmniPointHardhat = {
-    eid: EndpointId.MOVEMENT_V2_MAINNET,
-    contractName: 'FRAX',
+const aptosContract: OmniPointHardhat = {
+    eid: EndpointId.APTOS_V2_MAINNET,
+    contractName: 'WFRAX',
 }
 
 const config: OAppOmniGraphHardhat = {
@@ -21,15 +21,15 @@ const config: OAppOmniGraphHardhat = {
             config: fraxtalContractConfig,
         },
         {
-            contract: movementContract,
-            config: movementContractConfig,
+            contract: aptosContract,
+            config: aptosContractConfig,
         },
     ],
     connections: [
         {
-            from: movementContract,
+            from: aptosContract,
             to: fraxtalContract,
-            config: movementToFraxtalconnectionConfig,
+            config: aptosToFraxtalconnectionConfig,
         },
     ],
 }

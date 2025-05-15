@@ -142,9 +142,9 @@ You can expect to use (1) unless you are holding OFTs on Base, Blast, or Metis p
 - `FXS` (depreacted)
   - OFT Package: `0x687dd7e354df73a46a98cc81cfbf51d46e540560b840591eca9ee054f9a2e34c`
     - OFT FA: `0xb5660995134dc2cb90d615928c37b2a67c3e006c88d222b23a455cffb14202b9`
-- `FRAX`
-  - OFT Package: `0x56fd759e231f08c64c73321e2d469efcb0cf0ab03ceb250c8d604bbb35fa69f8`
-    - OFT FA: `0x9c17ea63cd4aa39d60a2cc6ebdd8d4079c584453647173d875b708d660f987cd`
+- `WFRAX`
+  - OFT Package: `0x267749b1a80d9d582019e6b0572c1dbc98648e24101b0861395cdbed095ceff2`
+    - OFT FA: `0x4e4cce8f877d7ad45c896c1823017fe07874f3d8db6e15960eda26e211151300`
 - `FPI`
   - OFT Package: `0xadf0ffffa5ee44a94f0c65be05e701951e65e276419f7460286a139d9403e864`
     - OFT FA: `0x15607151cc023512886f5af24d4f77e6e7a5d6fb8a482dfb56b9c4f5c1fca0b2`

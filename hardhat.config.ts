@@ -13,7 +13,8 @@ import { HardhatUserConfig, HttpNetworkAccountsUserConfig } from 'hardhat/types'
 
 import { EndpointId } from '@layerzerolabs/lz-definitions'
 
-import './tasks/index'
+// TODO: uncomment while performing Solana ops
+// import './tasks/index'
 
 // Set your preferred authentication method
 //

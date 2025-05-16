@@ -16,6 +16,7 @@ import { FXSCustodianMock } from "contracts/mocks/FXSCustodianMock.sol";
     b. Execute fullSend()
 */
 
+// forge script scripts/ops/DeprecateEthereumFXSLockbox/3_DeployMockFXSAndSend.s.sol --rpc-url https://rpc.frax.com --broadcast --verifier etherscan --etherscan-api-key $FRAXSCAN_API_KEY
 contract DeployMockFXSAndSend is DeployFraxOFTProtocol {
     using OptionsBuilder for bytes;
     using stdJson for string;
@@ -26,7 +27,7 @@ contract DeployMockFXSAndSend is DeployFraxOFTProtocol {
     uint256 public fraxtalTxCnt;
 
     // TODO: set balance
-    uint256 initialFxsLockboxBalance = 0; // TODO
+    uint256 initialFxsLockboxBalance = 2e18; // TODO
 
     constructor() {
         // already deployed
@@ -37,7 +38,7 @@ contract DeployMockFXSAndSend is DeployFraxOFTProtocol {
 
     function filename() public view override returns (string memory) {
         string memory root = vm.projectRoot();
-        root = string.concat(root, "/scripts/ops/DeprecateEthereumFXSLockbox/txs/2_DeployMockFXSAndSend-");
+        root = string.concat(root, "/scripts/ops/DeprecateEthereumFXSLockbox/txs/3_DeployMockFXSAndSend-");
 
         string memory file;
         if (simulateConfig.chainid == 252) {
@@ -74,7 +75,7 @@ contract DeployMockFXSAndSend is DeployFraxOFTProtocol {
     }
 
     function buildCustodianInitialSendTx() public simulateAndWriteTxs(broadcastConfig) {
-        uint256 value = 1e18;
+        uint256 value = 10e18;
         bytes memory data = abi.encodeWithSelector(FXSCustodianMock.initialSend.selector);
         (bool success, ) = address(custodian).call{value: value}(data);
         require(success, "FXSCustodianMock.initialSend failed");

@@ -8,24 +8,23 @@ interface IEndpointV2 {
 }
 
 /// @notice halt FXS bridging through setting the send library to the blocked send library.  This allows in-flight bridges to settle.
+// forge script scripts/ops/DeprecateEthereumFXSLockbox/1_BlockFxsSends.s.sol
 contract BlockFxsSends is DeployFraxOFTProtocol {
     using Strings for uint256;
-
-    constructor() {
-        for (uint256 i=0; i<expectedProxyOfts.length; i++) {
-            proxyOfts.push(expectedProxyOfts[i]);
-        }
-    }
 
     function filename() public view override returns (string memory) {
         string memory root = vm.projectRoot();
         root = string.concat(root, "/scripts/ops/DeprecateEthereumFXSLockbox/txs/");
         string memory name = string.concat("1_BlockFxsSends-", simulateConfig.chainid.toString());
         name = string.concat(name, ".json");
-        return name;
+        return string.concat(root, name);
     }
 
     function run() public override {
+        for (uint256 i=0; i<expectedProxyOfts.length; i++) {
+            proxyOfts.push(expectedProxyOfts[i]);
+        }
+
         setSendLibs();
     }
 
@@ -37,27 +36,35 @@ contract BlockFxsSends is DeployFraxOFTProtocol {
                 ethConfigAsArray[0] = proxyConfigs[i];
             }
         }
+        require(ethConfigAsArray[0].eid == 30101, "incorrect eth config");
 
-        for (uint256 c=0; c<proxyConfigs.length; c++) {
+        // push solana to proxyConfigs
+        proxyConfigs.push(nonEvmConfigs[0]);
+
+        // loop through all configs minus solana
+        for (uint256 c=0; c<proxyConfigs.length - 1; c++) {
             // skip zk-chains
             if (proxyConfigs[c].chainid == 324 || proxyConfigs[c].chainid == 2741) continue;
 
+            // skip fraxtal- maintain bridgeability
+            if (proxyConfigs[c].chainid == 252) continue;
+
             if (proxyConfigs[c].chainid == 1) {
                 // For Ethereum lockbox, block sending to all chains
-                setSendLib(proxyConfigs, proxyConfigs[c]);
+                setSendLib(proxyConfigs[c], proxyConfigs);
             } else {
                 // For all other chains, block sending to Ethereum lockbox
-                setSendLib(ethConfigAsArray, proxyConfigs[c]);
+                setSendLib(proxyConfigs[c], ethConfigAsArray);
             }
         }
     }
 
     function setSendLib(
-        L0Config[] memory _dstConfigs,
-        L0Config memory _config
+        L0Config memory _config,
+        L0Config[] memory _dstConfigs
     ) simulateAndWriteTxs(_config) public virtual {
         address blockedLibrary = IEndpointV2(_config.endpoint).blockedLibrary();
-        address fxsOft = connectedOfts[0]; // position 0 is always FRAX/FXS
+        wfraxOft = connectedOfts[0]; // position 0 is always WFRAX/FXS
     
         // for each destination
         for (uint256 i=0; i<_dstConfigs.length; i++) {
@@ -65,7 +72,7 @@ contract BlockFxsSends is DeployFraxOFTProtocol {
 
             bytes memory data = abi.encodeCall(
                 IMessageLibManager.setSendLibrary,
-                (fxsOft, uint32(dstConfig.eid), blockedLibrary)
+                (wfraxOft, uint32(dstConfig.eid), blockedLibrary)
             );
             (bool success, ) = _config.endpoint.call(data);
             require(success, "unable to block send library");

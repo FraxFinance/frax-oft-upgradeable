@@ -76,7 +76,7 @@ contract BaseL0Script is L0Constants, Script {
 
     // Deployed proxies
     address public proxyAdmin;
-    address public fraxOft;
+    address public wfraxOft;
     address public sfrxUsdOft;
     address public sfrxEthOft;
     address public frxUsdOft;

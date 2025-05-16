@@ -36,24 +36,24 @@ contract FXSCustodianMock is Ownable, Initializable {
 
     function initialSend() external payable onlyOwner reinitializer(2) {
         // send 1 FXS
-        _send(mockFxsOft, ethComptroller, 1e18);
+        _send(mockFxsOft, 1e18);
     }
 
     function fullSend() external onlyOwner reinitializer(3) {
-        _send(mockFxsOft, ethComptroller, IERC20(mockFxsOft).balanceOf(address(this)));
+        _send(mockFxsOft, IERC20(mockFxsOft).balanceOf(address(this)));
 
         // withdraw any remaining FRAX
         (bool success, ) = payable(owner()).call{value:address(this).balance}("");
         require(success);
     }
 
-    function _send(address _oft, address _to, uint256 amount) internal {
+    function _send(address _oft, uint256 amount) internal {
         require(amount > 0, "CustodianMock: zero amount");
 
         bytes memory options = OptionsBuilder.newOptions();
         SendParam memory sendParam = SendParam({
             dstEid: dstEid,
-            to: bytes32(uint256(uint160(_to))),
+            to: bytes32(uint256(uint160(ethComptroller))),
             amountLD: amount,
             minAmountLD: amount,
             extraOptions: options,

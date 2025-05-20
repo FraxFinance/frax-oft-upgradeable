@@ -59,7 +59,7 @@ contract DeployEthereumWFRAX is DeployFraxOFTProtocol {
 
         setEvmPeers({
             _connectedOfts: proxyOfts,
-            _peerOfts: proxyOfts,
+            _peerOfts: connectedOfts,
             _configs: proxyConfigs
         });
 

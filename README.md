@@ -47,6 +47,9 @@ This repository contains all of the contracts and deployment code used to manage
     - `sfrxETH`: `0x3Ec3849C33291a9eF4c5dB86De593EB4A37fDe45`
     - `WFRAX`: `0x64445f0aecC51E94aD52d8AC56b7190e764E561a`
     - `FPI` : `0x90581eCa9469D8D7F5D3B60f4715027aDFCf7927`
+- Chain: `Ethereum`
+  - OFTs
+    - `WFRAX`: `0x04ACaF8D2865c0714F79da09645C13FD2888977f`
 - Chain: `Base`
   - OFTs
     - `frxUSD`: `0xe5020A6d073a794B6E7f05678707dE47986Fb0b6`
@@ -76,6 +79,8 @@ This repository contains all of the contracts and deployment code used to manage
 ### Lockbox design
 Frax operates a dual-lockbox design where users can exit their OFT token into the native Frax-asset token on both Ethereum and Fraxtal.  Utilizing a dual-lockbox design is a novel solution to bridging as liquidity is  unlocked from more than one location.  More about this solution is be explained in the [docs](TODO).
 
+*NOTE*: The exception is WFRAX, which only contains a lockbox on Fraxtal.  Bridging to Ethereum receives the WFRAX OFT instead of locked liquidity.
+
 #### Fraxtal Lockboxes
 - `frxUSD`: `0x96A394058E2b84A89bac9667B19661Ed003cF5D4`
 - `sfrxUSD`: `0x88Aa7854D3b2dAA5e37E7Ce73A1F39669623a361`
@@ -92,7 +97,6 @@ You can expect to use (1) unless you are holding OFTs on Base, Blast, or Metis p
   - `sfrxUSD`: `0x7311CEA93ccf5f4F7b789eE31eBA5D9B9290E126`
   - `frxETH` : `0x1c1649A38f4A3c5A0c4a24070f688C525AB7D6E6`
   - `sfrxETH`: `0xbBc424e58ED38dd911309611ae2d7A23014Bd960`
-  - `WFRAX`: `0xC6F59a4fD50cAc677B51558489E03138Ac1784EC`
   - `FPI`: `0x9033BAD7aA130a2466060A2dA71fAe2219781B4b`
 2. Immutable (legacy) Lockboxes
   - `FRAX`: `0x909DBdE1eBE906Af95660033e478D59EFe831fED`
@@ -128,11 +132,11 @@ You can expect to use (1) unless you are holding OFTs on Base, Blast, or Metis p
 - Chain to convert from native token into OFT: Ethereum
 - Admin: Chain-respective msig
 - OFTs
-  - `FXS`: `0x909DBdE1eBE906Af95660033e478D59EFe831fED`
+  - `LFRAX`: `0x909DBdE1eBE906Af95660033e478D59EFe831fED`
   - `sFRAX`: `0xe4796cCB6bB5DE2290C417Ac337F2b66CA2E770E`
   - `frxETH` : `0xF010a7c8877043681D59AD125EbF575633505942`
   - `sfrxETH`: `0x1f55a02A049033E3419a8E2975cF3F572F4e6E9A`
-  - `FRAX`: `0x23432452B720C80553458496D4D9d7C5003280d0`
+  - `FXS`: `0x23432452B720C80553458496D4D9d7C5003280d0`
   - `FPI`: `0x6Eca253b102D41B6B69AC815B9CC6bD47eF1979d`
 
 

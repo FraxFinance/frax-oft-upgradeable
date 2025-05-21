@@ -84,7 +84,7 @@ contract DeployLinea_2 is DeployFraxOFTProtocol {
 
         // / @dev: follows deployment order of legacy OFTs found at https://etherscan.io/address/0xded884435f2db0169010b3c325e733df0038e51d
         // Deploy FXS
-        (,fraxOft) = deployFraxOFTUpgradeableAndProxy({
+        (,wfraxOft) = deployFraxOFTUpgradeableAndProxy({
             _name: "Frax Share",
             _symbol: "FXS"
         });
@@ -127,7 +127,7 @@ contract DeployLinea_2 is DeployFraxOFTProtocol {
             _symbol: "FPI"
         });
 
-        require(fraxOft == proxyFraxOft, "fraxOft address incorrect");
+        require(wfraxOft == proxyFraxOft, "wfraxOft address incorrect");
         require(sfrxUsdOft == proxySFrxUsdOft, "sfrxUsdOft address incorrect");
         require(sfrxEthOft == proxySFrxEthOft, "sfrxEthOft address incorrect");
         require(frxUsdOft == proxyFrxUsdOft, "frxUsdOft address incorrect");

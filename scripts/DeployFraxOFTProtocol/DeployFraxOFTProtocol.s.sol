@@ -14,7 +14,7 @@ contract DeployFraxOFTProtocol is BaseL0Script {
     using Strings for uint256;
 
     function version() public virtual override pure returns (uint256, uint256, uint256) {
-        return (1, 2, 8);
+        return (1, 3, 0);
     }
 
     function setUp() public virtual override {
@@ -153,10 +153,10 @@ contract DeployFraxOFTProtocol is BaseL0Script {
         implementationMock = address(new ImplementationMock());
 
         // / @dev: follows deployment order of legacy OFTs found at https://etherscan.io/address/0xded884435f2db0169010b3c325e733df0038e51d
-        // Deploy FXS
-        (,fxsOft) = deployFraxOFTUpgradeableAndProxy({
-            _name: "Frax Share",
-            _symbol: "FXS"
+        // Deploy FRAX
+        (,fraxOft) = deployFraxOFTUpgradeableAndProxy({
+            _name: "Frax",
+            _symbol: "FRAX"
         });
 
         // Deploy sfrxUSD
@@ -204,7 +204,7 @@ contract DeployFraxOFTProtocol is BaseL0Script {
         string memory _name,
         string memory _symbol
     ) public virtual returns (address implementation, address proxy) {
-        address implementation = address(new FraxOFTUpgradeable(broadcastConfig.endpoint)); 
+        implementation = address(new FraxOFTUpgradeable(broadcastConfig.endpoint)); 
         /// @dev: create semi-pre-deterministic proxy address, then initialize with correct implementation
         proxy = address(new TransparentUpgradeableProxy(implementationMock, vm.addr(oftDeployerPK), ""));
 
@@ -336,7 +336,7 @@ contract DeployFraxOFTProtocol is BaseL0Script {
     function getPeerFromArray(address _oft, address[] memory _oftArray) public virtual view returns (address peer) {
         require(_oftArray.length == 6, "getPeerFromArray index mismatch");
         /// @dev maintains array of deployFraxOFTUpgradeablesAndProxies(), where proxyOfts is pushed to in the respective order
-        if (_oft == fxsOft || _oft == proxyFxsOft) {
+        if (_oft == fraxOft || _oft == proxyFraxOft) {
             peer = _oftArray[0];
         } else if (_oft == sfrxUsdOft || _oft == proxySFrxUsdOft) {
             peer = _oftArray[1];

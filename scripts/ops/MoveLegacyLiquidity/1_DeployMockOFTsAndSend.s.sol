@@ -53,7 +53,7 @@ contract DeployMockOFTsAndSend is DeployFraxOFTProtocol {
                                         24.0212e18 -    // blast
                                         3.8789e18;      // metis
 
-    uint256 initialFxsSupply = 130_945.028e18 -        // ethereum
+    uint256 initialFraxSupply = 130_945.028e18 -        // ethereum
                                     26_471.417e18 -      // base
                                     3_558.605e18 -      // blast
                                     111.127e18;         // metis
@@ -69,7 +69,7 @@ contract DeployMockOFTsAndSend is DeployFraxOFTProtocol {
         require(initialSfrxUsdSupply == 253_028.065e18, "incorrect sFrxUSD supply");
         require(initialFrxEthSupply == 257.309e18, "incorrect frxETH supply");
         require(initialSfrxEthSupply == 125.6607e18, "incorect sFrxETH supply");
-        require(initialFxsSupply == 100_803.879e18, "incorrect fxs supply");
+        require(initialFraxSupply == 100_803.879e18, "incorrect frax supply");
     }
 
     function filename() public view override returns (string memory) {
@@ -95,7 +95,7 @@ contract DeployMockOFTsAndSend is DeployFraxOFTProtocol {
         connectedOfts.push(ethSFraxLockboxLegacy);
         connectedOfts.push(ethFrxEthLockboxLegacy);
         connectedOfts.push(ethSFrxEthLockboxLegacy);
-        connectedOfts.push(ethFxsLockboxLegacy);
+        connectedOfts.push(ethFraxLockboxLegacy);
 
         for (uint256 i=0; i<proxyConfigs.length; i++) {
             if (proxyConfigs[i].chainid == 1) {
@@ -158,7 +158,7 @@ contract DeployMockOFTsAndSend is DeployFraxOFTProtocol {
             _mockSfrxUsdOft: sfrxUsdOft,
             _mockFrxEthOft: frxEthOft,
             _mockSfrxEthOft: sfrxEthOft,
-            _mockFxsOft: fxsOft,
+            _mockFxsOft: fraxOft,
             _initialOwner: broadcastConfig.delegate
         });
     }
@@ -262,11 +262,11 @@ contract DeployMockOFTsAndSend is DeployFraxOFTProtocol {
             _initialSupply: initialSfrxEthSupply
         });
 
-        // Deploy FXS
-        (,fxsOft) = deployFraxOFTUpgradeableAndProxy({
+        // Deploy FRAX
+        (,fraxOft) = deployFraxOFTUpgradeableAndProxy({
             _name: "Mock Frax Share",
             _symbol: "mFXS",
-            _initialSupply: initialFxsSupply
+            _initialSupply: initialFraxSupply
         });
     }
 

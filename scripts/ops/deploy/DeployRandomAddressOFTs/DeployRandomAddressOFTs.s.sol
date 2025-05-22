@@ -16,10 +16,10 @@ contract DeployRandomAddressOFTs is DeployFraxOFTProtocol {
         implementationMock = address(new ImplementationMock());
 
         // / @dev: follows deployment order of legacy OFTs found at https://etherscan.io/address/0xded884435f2db0169010b3c325e733df0038e51d
-        // Deploy FXS
-        (,fxsOft) = deployFraxOFTUpgradeableAndProxy({
-            _name: "Frax Share",
-            _symbol: "FXS"
+        // Deploy FRAX
+        (,fraxOft) = deployFraxOFTUpgradeableAndProxy({
+            _name: "Frax",
+            _symbol: "FRAX"
         });
 
         // Deploy sfrxUSD
@@ -66,7 +66,7 @@ contract DeployRandomAddressOFTs is DeployFraxOFTProtocol {
         string memory _name,
         string memory _symbol
     ) public override returns (address implementation, address proxy) {
-        address implementation = address(new FraxOFTUpgradeable(broadcastConfig.endpoint)); 
+        implementation = address(new FraxOFTUpgradeable(broadcastConfig.endpoint)); 
         /// @dev: create semi-pre-deterministic proxy address, then initialize with correct implementation
         proxy = address(new TransparentUpgradeableProxy(implementationMock, vm.addr(configDeployerPK), ""));
 

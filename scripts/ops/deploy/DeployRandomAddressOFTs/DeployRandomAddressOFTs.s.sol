@@ -17,7 +17,7 @@ contract DeployRandomAddressOFTs is DeployFraxOFTProtocol {
 
         // / @dev: follows deployment order of legacy OFTs found at https://etherscan.io/address/0xded884435f2db0169010b3c325e733df0038e51d
         // Deploy FRAX
-        (,fraxOft) = deployFraxOFTUpgradeableAndProxy({
+        (,wfraxOft) = deployFraxOFTUpgradeableAndProxy({
             _name: "Frax",
             _symbol: "FRAX"
         });

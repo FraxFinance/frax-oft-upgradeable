@@ -5,6 +5,6 @@
     "description": "",
     "name": "Transactions Batch"
   },
-  "transactions": "[]",
+  "transactions": [],
   "version": "1.0"
 }

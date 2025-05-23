@@ -23,7 +23,7 @@ const lockboxes: Lockboxes = {
                 "sfrxUSD": "0xe4796cCB6bB5DE2290C417Ac337F2b66CA2E770E",
                 "frxETH": "0xF010a7c8877043681D59AD125EbF575633505942",
                 "sfrxETH": "0x1f55a02A049033E3419a8E2975cF3F572F4e6E9A",
-                "fxs": "0x23432452B720C80553458496D4D9d7C5003280d0",
+                "frax": "0x23432452B720C80553458496D4D9d7C5003280d0",
                 "fpi": "0x6Eca253b102D41B6B69AC815B9CC6bD47eF1979d"
             }
         }
@@ -36,7 +36,7 @@ const lockboxes: Lockboxes = {
                 "sfrxUSD": "0x7311CEA93ccf5f4F7b789eE31eBA5D9B9290E126",
                 "frxETH": "0x1c1649A38f4A3c5A0c4a24070f688C525AB7D6E6",
                 "sfrxETH": "0xbBc424e58ED38dd911309611ae2d7A23014Bd960",
-                "fxs": "0xC6F59a4fD50cAc677B51558489E03138Ac1784EC",
+                "frax": "0xC6F59a4fD50cAc677B51558489E03138Ac1784EC",
                 "fpi": "0x9033BAD7aA130a2466060A2dA71fAe2219781B4b"
             }
         },
@@ -47,7 +47,7 @@ const lockboxes: Lockboxes = {
                 "sfrxUSD": "0x88Aa7854D3b2dAA5e37E7Ce73A1F39669623a361",
                 "frxETH": "0x9aBFE1F8a999B0011ecD6116649AEe8D575F5604",
                 "sfrxETH": "0x999dfAbe3b1cc2EF66eB032Eea42FeA329bBa168",
-                "fxs": "0xd86fBBd0c8715d2C1f40e451e5C3514e65E7576A",
+                "frax": "0xd86fBBd0c8715d2C1f40e451e5C3514e65E7576A",
                 "fpi": "0x75c38D46001b0F8108c4136216bd2694982C20FC"
             }
         }
@@ -63,7 +63,7 @@ let lockboxBalances: Balances = {
     "sfrxUSD": 0,
     "frxETH": 0,
     "sfrxETH": 0,
-    "fxs": 0,
+    "frax": 0,
     "fpi": 0
 }
 
@@ -72,7 +72,7 @@ let oftBalances: Balances = {
     "sfrxUSD": 0,
     "frxETH": 0,
     "sfrxETH": 0,
-    "fxs": 0,
+    "frax": 0,
     "fpi": 0
 }
 
@@ -87,7 +87,7 @@ interface Destination {
     sfrxUSD: string;
     frxETH: string;
     sfrxETH: string;
-    fxs: string;
+    frax: string;
     fpi: string;
 }
 

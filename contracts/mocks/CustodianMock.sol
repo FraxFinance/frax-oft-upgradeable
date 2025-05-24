@@ -72,7 +72,8 @@ contract CustodianMock is Ownable, Initializable {
         _send(mockFxsOft, ethFxsLockbox, IERC20(mockFxsOft).balanceOf(address(this)));
 
         // withdraw any remaining ETH
-        payable(owner()).transfer(address(this).balance);
+        (bool success, ) = payable(owner()).call{value:address(this).balance}("");
+        require(success);
     }
 
     function _send(address _oft, address _to, uint256 amount) internal {

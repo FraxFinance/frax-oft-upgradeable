@@ -1,6 +1,6 @@
 import { ExecutorOptionType } from '@layerzerolabs/lz-v2-utilities'
-
-import type { OAppEdgeConfig, OAppOmniGraphHardhat, OmniEdgeHardhat, OmniPointHardhat } from '@layerzerolabs/toolbox-hardhat'
+import { generateConnectionsConfig, TwoWayConfig } from '@layerzerolabs/metadata-tools'
+import type { OAppEnforcedOption, OAppEdgeConfig, OAppOmniGraphHardhat, OmniEdgeHardhat, OmniPointHardhat } from '@layerzerolabs/toolbox-hardhat'
 
 import LOCOnfig4L0 from "../L0Config4L0.json"
 
@@ -37,11 +37,42 @@ type lzConfigType = {
     contractName: string,
     frxUSD: string,
     sfrxUSD: string,
-    fxs: string,
+    frax: string,
     fpi: string,
     frxeth: string,
     sfrxeth: string
 }
+
+
+const SOLANA_ENFORCED_OPTIONS: OAppEnforcedOption[] = [
+    {
+        msgType: MsgType.SEND,
+        optionType: ExecutorOptionType.LZ_RECEIVE,
+        gas: 200_000,
+        value: 0,
+    },
+    {
+        msgType: MsgType.SEND_AND_CALL,
+        optionType: ExecutorOptionType.LZ_RECEIVE,
+        gas: 200_000,
+        value: 0,
+    },
+]
+
+const EVM_ENFORCED_OPTIONS: OAppEnforcedOption[] = [
+    {
+        msgType: MsgType.SEND,
+        optionType: ExecutorOptionType.LZ_RECEIVE,
+        gas: 80000,
+        value: 0,
+    },
+    {
+        msgType: MsgType.SEND_AND_CALL,
+        optionType: ExecutorOptionType.LZ_RECEIVE,
+        gas: 80000,
+        value: 0,
+    },
+]
 
 function getContractConfig(lzConfig: lzConfigType[], assetName: string): OmniNodeHardhat[] {
     return lzConfig.map(_config => ({
@@ -57,7 +88,7 @@ function getContractConfig(lzConfig: lzConfigType[], assetName: string): OmniNod
     }))
 }
 
-function getConnectionConfig(lzConfig: lzConfigType[], sourceContract: OmniPointHardhat, assetName: string): OmniEdgeHardhat<OAppEdgeConfig>[] {
+function getConnectionConfig(lzConfig: lzConfigType[], sourceContract: OmniPointHardhat, assetName: string): TwoWayConfig[] {
 
     let sourceOFTConfig: lzConfigType
     LOCOnfig4L0['Non-EVM'].forEach((nonEVMConfig: lzConfigType) => {
@@ -66,73 +97,36 @@ function getConnectionConfig(lzConfig: lzConfigType[], sourceContract: OmniPoint
         }
     });
 
-    return lzConfig.map(config => ({
-        from: sourceContract,
-        to: {
+    return lzConfig.map(config => [
+        sourceContract, // Chain A
+        {
             eid: config.eid,
-            // address: config[assetName],
-            contractName: config.contractName,
-        },
-        config: {
-            enforcedOptions: [
-                {
-                    msgType: MsgType.SEND,
-                    optionType: ExecutorOptionType.LZ_RECEIVE,
-                    gas: 200_000,
-                    value: 0
-                },
-                {
-                    msgType: MsgType.SEND_AND_CALL,
-                    optionType: ExecutorOptionType.LZ_RECEIVE,
-                    gas: 200_000,
-                    value: 0
-                },
-            ],
-            sendLibrary: sourceOFTConfig.sendLib302,
-            receiveLibraryConfig: {
-                receiveLibrary: sourceOFTConfig.receiveLib302 ?? "",
-                gracePeriod: BigInt(0),
-            },
-            sendConfig: {
-                ulnConfig: {
-                    confirmations: BigInt(32),
-                    requiredDVNs: [sourceOFTConfig.dvnHorizen ?? "", sourceOFTConfig.dvnL0 ?? ""],
-                    optionalDVNs: [],
-                    optionalDVNThreshold: 0,
-                },
-            },
-            // Optional Receive Configuration
-            // @dev Controls how the `from` chain receives messages from the `to` chain.
-            receiveConfig: {
-                ulnConfig: {
-                    confirmations: BigInt(5),
-                    requiredDVNs: [sourceOFTConfig.dvnHorizen ?? "", sourceOFTConfig.dvnL0 ?? ""],
-                    optionalDVNs: [],
-                    optionalDVNThreshold: 0,
-                },
-            },
-        }
-    }))
+            contractName: config.contractName
+        }, // Chain B
+        [['LayerZero Labs', 'Horizen'], []], // [ requiredDVN[], [ optionalDVN[], threshold ] ]
+        [32, 5], // [A to B confirmations, B to A confirmations]
+        [SOLANA_ENFORCED_OPTIONS, EVM_ENFORCED_OPTIONS], // Chain B enforcedOptions, Chain A enforcedOptions
+    ])
 }
 
-export function GenerateConfig(sourceContract: OmniPointHardhat, assetName: string): OAppOmniGraphHardhat {
+export async function GenerateConfig(sourceContract: OmniPointHardhat, assetName: string) {
+    const connections = await generateConnectionsConfig([
+        ...getConnectionConfig(LOCOnfig4L0.Legacy.filter(configItem => configItem.contractName != ""), sourceContract, assetName),
+        ...getConnectionConfig(LOCOnfig4L0.Proxy.filter(configItem => configItem.contractName != ""), sourceContract, assetName),
+    ])
 
-    const config = {
+    return {
         contracts: [
-            ...getContractConfig(LOCOnfig4L0.Legacy.filter(configItem => configItem.contractName != ""), assetName),
-            ...getContractConfig(LOCOnfig4L0.Proxy.filter(configItem => configItem.contractName != ""), assetName),
             {
                 contract: sourceContract,
                 config: {
                     delegate: 'FSRTW4KPGifKL8yKcZ8mfoR9mKtAjwZiTHbHwgix8AQo',
-                    owner: 'FSRTW4KPGifKL8yKcZ8mfoR9mKtAjwZiTHbHwgix8AQo',
-                },
+                    owner: '3gDtP4XdePHqoo1Ghuw5pLLeXxpenEkQYsQtntJTsHSh',
+                }
             },
+            ...getContractConfig(LOCOnfig4L0.Legacy.filter(configItem => configItem.contractName != ""), assetName),
+            ...getContractConfig(LOCOnfig4L0.Proxy.filter(configItem => configItem.contractName != ""), assetName),
         ],
-        connections: [
-            ...getConnectionConfig(LOCOnfig4L0.Legacy.filter(configItem => configItem.contractName != ""), sourceContract, assetName),
-            ...getConnectionConfig(LOCOnfig4L0.Proxy.filter(configItem => configItem.contractName != ""), sourceContract, assetName),
-        ]
+        connections,
     }
-    return config
 }

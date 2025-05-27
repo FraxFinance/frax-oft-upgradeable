@@ -6,7 +6,9 @@ import { OFTUpgradeable } from "@fraxfinance/layerzero-v2-upgradeable/oapp/contr
 
 contract OFTUpgradeableMockMint is OFTUpgradeable {
 
-    constructor(address _lzEndpoint) OFTUpgradeable(_lzEndpoint) {}
+    constructor(address _lzEndpoint) OFTUpgradeable(_lzEndpoint) {
+        _disableInitializers();
+    }
 
     function initialize(
         string memory _name,

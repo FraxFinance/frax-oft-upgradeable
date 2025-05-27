@@ -265,6 +265,28 @@
             "endpoint": "0xd07C30aF3Ff30D96BDc9c6044958230Eb797DDBF",
             "receiveLib302": "0x04830f6deCF08Dec9eD6C3fCAD215245B78A59e1",
             "sendLib302": "0x07fD0e370B49919cA8dA0CE842B8177263c0E12c"
+        },
+        {
+            "RPC": "https://ethereum-sepolia-rpc.publicnode.com",
+            "chainid": 11155111,
+            "delegate": "0x009fF4940727C274424c16999F9632223d820b0b",
+            "dvnHorizen": "0x4386167355cda5dbb434e6997fe38fe1f4822c12",
+            "dvnL0": "0x8eebf8b423b73bfca51a1db4b7354aa0bfca9193",
+            "eid": 40161,
+            "endpoint": "0x6EDCE65403992e310A62460808c4b910D972f10f",
+            "receiveLib302": "0xdAf00F5eE2158dD58E0d3857851c432E34A3A851",
+            "sendLib302": "0xcc1ae8Cf5D3904Cef3360A9532B477529b177cCE"
+        },
+        {
+            "RPC": "https://arbitrum-sepolia.drpc.org",
+            "chainid": 421614,
+            "delegate": "0x009fF4940727C274424c16999F9632223d820b0b",
+            "dvnHorizen": "0xcdb4933d7f37560186aca8fdadfd5a3b3e27b088",
+            "dvnL0": "0x53f488e93b4f1b60e8e83aa374dbe1780a1ee8a8",
+            "eid": 40231,
+            "endpoint": "0x6EDCE65403992e310A62460808c4b910D972f10f",
+            "receiveLib302": "0x75Db67CDab2824970131D5aa9CECfC9F69c69636",
+            "sendLib302": "0x4f7cd4DA19ABB31b0eC98b9066B9e857B1bf9C0E"
         }
     ],
     "Non-EVM": [

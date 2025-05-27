@@ -16,7 +16,7 @@ import { FXSCustodianMock } from "contracts/mocks/FXSCustodianMock.sol";
     b. Execute fullSend()
 */
 
-// forge script scripts/ops/DeprecateEthereumFXSLockbox/3_DeployMockFXSAndSend.s.sol --rpc-url https://rpc.frax.com --broadcast --verifier etherscan --etherscan-api-key $FRAXSCAN_API_KEY
+// forge script scripts/ops/DeprecateEthereumFXSLockbox/3_DeployMockFXSAndSend.s.sol --rpc-url https://rpc.frax.com --broadcast --verify --verifier etherscan --etherscan-api-key $FRAXSCAN_API_KEY
 contract DeployMockFXSAndSend is DeployFraxOFTProtocol {
     using OptionsBuilder for bytes;
     using stdJson for string;
@@ -26,8 +26,7 @@ contract DeployMockFXSAndSend is DeployFraxOFTProtocol {
     FXSCustodianMock public custodian;
     uint256 public fraxtalTxCnt;
 
-    // TODO: set balance
-    uint256 initialFxsLockboxBalance = 2e18; // TODO
+    uint256 initialFxsLockboxBalance = 244293293609000000000000;
 
     constructor() {
         // already deployed
@@ -56,7 +55,7 @@ contract DeployMockFXSAndSend is DeployFraxOFTProtocol {
 
     function run() public override {
         delete connectedOfts;
-        connectedOfts.push(ethFraxLockboxLegacy);
+        connectedOfts.push(ethFraxLockbox);
 
         for (uint256 i=0; i<proxyConfigs.length; i++) {
             if (proxyConfigs[i].chainid == 1) {
@@ -66,6 +65,7 @@ contract DeployMockFXSAndSend is DeployFraxOFTProtocol {
         require(ethConfig.chainid == 1, "Ethereum config not found");
         delete proxyConfigs;
         proxyConfigs.push(ethConfig);
+        require(proxyConfigs.length == 1, "Only Eth dest config should be set");
 
         deploySource();
         setupSource();

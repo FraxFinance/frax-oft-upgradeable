@@ -11,6 +11,7 @@ const solanaContract: OmniPointHardhat = {
     address: '7LS6y37WXXCyBHkBU6zVpiqaqbkXLr4P85ZhQi3eonSp', // NOTE: update this with the OFTStore address.
 }
 
-const config = GenerateConfig(solanaContract,assetName);
-
-export default config
+export default async function () {
+    const config = await GenerateConfig(solanaContract, assetName);
+    return config
+}

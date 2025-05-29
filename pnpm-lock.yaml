@@ -5968,12 +5968,12 @@ packages:
   solidity-bytes-utils@0.8.2:
     resolution: {integrity: sha512-cqXPYAV2auhpdKSTPuqji0CwpSceZDu95CzqSM/9tDJ2MoMaMsdHTpOIWtVw31BIqqGPNmIChCswzbw0tHaMTw==}
 
-  solidity-bytes-utils@0.8.3:
-    resolution: {integrity: sha512-sbOHjKF9miqASaqYYC1vvxNnBrzA/wuFPQlOle7rZOSkDiFmCd5x8wQfx2vN95tNGfy8Cf1e5QumW8ZwcByBuQ==}
+  solidity-bytes-utils@0.8.4:
+    resolution: {integrity: sha512-/bjac5YR12i0plOKvGlhE51F5IWGP6rI8DJetCQlXcnwKWz/Hgf/vr+Qlk1BWz56xVcwVhmhCaDkTMnx5xvt0g==}
 
-  solidity-bytes-utils@https://codeload.github.com/GNSPS/solidity-bytes-utils/tar.gz/b66afa93c6ba12bb91bac100fc35e8c8c1abae78:
-    resolution: {tarball: https://codeload.github.com/GNSPS/solidity-bytes-utils/tar.gz/b66afa93c6ba12bb91bac100fc35e8c8c1abae78}
-    version: 0.8.3
+  solidity-bytes-utils@https://codeload.github.com/GNSPS/solidity-bytes-utils/tar.gz/fc502455bb2a7e26a743378df042612dd50d1eb9:
+    resolution: {tarball: https://codeload.github.com/GNSPS/solidity-bytes-utils/tar.gz/fc502455bb2a7e26a743378df042612dd50d1eb9}
+    version: 0.8.4
 
   solidity-comments-extractor@0.0.8:
     resolution: {integrity: sha512-htM7Vn6LhHreR+EglVMd2s+sZhcXAirB1Zlyrv5zBuTxieCvjfnRpd7iZk75m/u6NOlEyQ94C6TWbBn2cY7w8g==}
@@ -11783,7 +11783,7 @@ snapshots:
       solc: 0.8.26(debug@4.3.4)
       solhint: 3.6.2(typescript@5.4.5)
       solhint-plugin-prettier: 0.1.0(prettier-plugin-solidity@1.3.1(prettier@3.2.5))(prettier@3.2.5)
-      solidity-bytes-utils: 0.8.3
+      solidity-bytes-utils: 0.8.4
       toml: 3.0.0
       ts-node: 10.9.2(@swc/core@1.11.11(@swc/helpers@0.5.15))(@types/node@18.19.33)(typescript@5.4.5)
       typescript: 5.4.5
@@ -11835,7 +11835,7 @@ snapshots:
       ds-test: https://codeload.github.com/dapphub/ds-test/tar.gz/e282159d5170298eb2455a6c05280ab5a73a4ef0
       forge-std: https://codeload.github.com/foundry-rs/forge-std/tar.gz/e8a047e3f40f13fa37af6fe14e6e06283d9a060e
       frax-standard-solidity: https://codeload.github.com/FraxFinance/frax-standard-solidity/tar.gz/c951978a3fbcbcfe9ed65c9e99e420facdee772f(@swc/core@1.11.11(@swc/helpers@0.5.15))(bufferutil@4.0.8)(enquirer@2.4.1)(ethers@5.7.2(bufferutil@4.0.8)(utf-8-validate@5.0.10))(utf-8-validate@5.0.10)
-      solidity-bytes-utils: https://codeload.github.com/GNSPS/solidity-bytes-utils/tar.gz/b66afa93c6ba12bb91bac100fc35e8c8c1abae78
+      solidity-bytes-utils: https://codeload.github.com/GNSPS/solidity-bytes-utils/tar.gz/fc502455bb2a7e26a743378df042612dd50d1eb9
     transitivePeerDependencies:
       - '@swc/core'
       - '@swc/wasm'
@@ -14456,9 +14456,9 @@ snapshots:
       ds-test: https://codeload.github.com/dapphub/ds-test/tar.gz/e282159d5170298eb2455a6c05280ab5a73a4ef0
       forge-std: 1.1.2
 
-  solidity-bytes-utils@0.8.3: {}
+  solidity-bytes-utils@0.8.4: {}
 
-  solidity-bytes-utils@https://codeload.github.com/GNSPS/solidity-bytes-utils/tar.gz/b66afa93c6ba12bb91bac100fc35e8c8c1abae78: {}
+  solidity-bytes-utils@https://codeload.github.com/GNSPS/solidity-bytes-utils/tar.gz/fc502455bb2a7e26a743378df042612dd50d1eb9: {}
 
   solidity-comments-extractor@0.0.8: {}
 

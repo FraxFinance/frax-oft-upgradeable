@@ -153,10 +153,10 @@ contract DeployFraxOFTProtocol is BaseL0Script {
         implementationMock = address(new ImplementationMock());
 
         // / @dev: follows deployment order of legacy OFTs found at https://etherscan.io/address/0xded884435f2db0169010b3c325e733df0038e51d
-        // Deploy FRAX
-        (,fraxOft) = deployFraxOFTUpgradeableAndProxy({
-            _name: "Frax",
-            _symbol: "FRAX"
+        // Deploy WFRAX
+        (,wfraxOft) = deployFraxOFTUpgradeableAndProxy({
+            _name: "Wrapped Frax",
+            _symbol: "WFRAX"
         });
 
         // Deploy sfrxUSD
@@ -336,7 +336,7 @@ contract DeployFraxOFTProtocol is BaseL0Script {
     function getPeerFromArray(address _oft, address[] memory _oftArray) public virtual view returns (address peer) {
         require(_oftArray.length == 6, "getPeerFromArray index mismatch");
         /// @dev maintains array of deployFraxOFTUpgradeablesAndProxies(), where proxyOfts is pushed to in the respective order
-        if (_oft == fraxOft || _oft == proxyFraxOft) {
+        if (_oft == wfraxOft || _oft == proxyFraxOft) {
             peer = _oftArray[0];
         } else if (_oft == sfrxUsdOft || _oft == proxySFrxUsdOft) {
             peer = _oftArray[1];

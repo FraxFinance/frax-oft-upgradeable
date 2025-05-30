@@ -3,3 +3,8 @@
     - Initial supply must equal the [circulating supply on Arbitrum Sepolia](https://sepolia.arbiscan.io/token/0x0768c16445b41137f98ab68ca545c0afd65a7513#readProxyContract#F33).
 2. Upgrade the Eth Sepolia [OFT](https://sepolia.etherscan.io/address/0x29a5134D3B22F47AD52e0A22A63247363e9F35c2) to a lockbox with the frxUSD from (1) as the backed token
    - Deposit the initial supply into the OFT.
+
+### Sepolia addresses
+#### frxUSD
+- [Proxy](https://sepolia.etherscan.io/address/0xca35c3fe456a87e6ce7827d1d784741613463204)
+- [Implementation](https://sepolia.etherscan.io/address/0x509728dc748586214fa30cef61359f136523f24d#code)

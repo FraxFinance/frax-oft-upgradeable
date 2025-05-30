@@ -6,6 +6,7 @@ import {ERC20BurnableUpgradeable} from "@openzeppelin/contracts-upgradeable/toke
 import {ERC20PermitUpgradeable} from "@openzeppelin/contracts-upgradeable/token/ERC20/extensions/ERC20PermitUpgradeable.sol";
 import {AccessControlUpgradeable} from "@openzeppelin/contracts-upgradeable/access/AccessControlUpgradeable.sol";
 
+/// @notice This contract uses OZ 4.x, which does not namespace storage.  Upgrades to this contract must be done carefully to avoid storage clashing.
 contract FrxUsdImplementationMock is ERC20Upgradeable, ERC20BurnableUpgradeable, ERC20PermitUpgradeable, AccessControlUpgradeable {
     
     bytes32 public constant MINTER_ROLE = keccak256("MINTER_ROLE");

@@ -4,6 +4,7 @@ import { Script } from "forge-std/Script.sol";
 import { FrxUsdImplementationMock } from "contracts/mocks/FrxUsdImplementationMock.sol";
 import { TransparentUpgradeableProxy } from "@fraxfinance/layerzero-v2-upgradeable/messagelib/contracts/upgradeable/proxy/ProxyAdmin.sol";
 
+// forge script scripts/ops/UpgradeTestnetFrxUsdOft/1_DeployFrxUsd.s.sol --rpc-url https://eth-sepolia.public.blastapi.io
 contract DeployFrxUsd is Script {
 
     uint256 deployerPK = vm.envUint("PK_SENDER_DEPLOYER");

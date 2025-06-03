@@ -18,6 +18,12 @@ contract UpgradeOFT is DeployFraxOFTProtocol {
     address frxUsd = 0xcA35C3FE456a87E6CE7827D1D784741613463204;
 
     function run() public override {
+
+        // validate the configDeployerPK is the admin of the proxy
+        bytes32 adminSlot = vm.load(oft, ERC1967Utils.ADMIN_SLOT);
+        address admin = address(uint160(uint256(adminSlot)));
+        require(admin == vm.addr(configDeployerPK), "Upgrade failed: configDeployerPK is not the admin of the proxy");
+
         // broadcast the implementation and ownership transfer
         vm.startBroadcast(configDeployerPK);
 

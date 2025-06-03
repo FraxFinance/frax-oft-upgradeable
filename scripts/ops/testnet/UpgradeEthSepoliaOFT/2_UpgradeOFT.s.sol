@@ -2,6 +2,7 @@ pragma solidity ^0.8.0;
 
 import "scripts/DeployFraxOFTProtocol/DeployFraxOFTProtocol.s.sol";
 import { Script } from "forge-std/Script.sol";
+import { FraxOFTAdapterUpgradeableStorageGap } from "contracts/mocks/FraxOFTAdapterUpgradeableStorageGap.sol";
 import { FraxOFTAdapterUpgradeable } from "contracts/FraxOFTAdapterUpgradeable.sol";
 
 import { ERC1967Utils } from "@openzeppelin-5/contracts/proxy/ERC1967/ERC1967Utils.sol";
@@ -28,7 +29,7 @@ contract UpgradeOFT is DeployFraxOFTProtocol {
         vm.startBroadcast(configDeployerPK);
 
         // deploy the lockbox implementation
-        address implementation = address(new FraxOFTAdapterUpgradeable(frxUsd, broadcastConfig.endpoint));
+        address implementation = address(new FraxOFTAdapterUpgradeableStorageGap(frxUsd, broadcastConfig.endpoint));
 
         // upgrade the oft to lockbox
         TransparentUpgradeableProxy(payable(oft)).upgradeTo(implementation);

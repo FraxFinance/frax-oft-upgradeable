@@ -6,5 +6,5 @@
 
 ### Sepolia addresses
 #### frxUSD
-- [Proxy](https://sepolia.etherscan.io/address/0xca35c3fe456a87e6ce7827d1d784741613463204)
-- [Implementation](https://sepolia.etherscan.io/address/0x509728dc748586214fa30cef61359f136523f24d#code)
+- [Proxy](https://sepolia.etherscan.io/address/0xcA35C3FE456a87E6CE7827D1D784741613463204)
+- [Implementation](https://sepolia.etherscan.io/address/0x509728dC748586214Fa30cEF61359f136523F24d#code)

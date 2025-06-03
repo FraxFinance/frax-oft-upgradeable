@@ -282,6 +282,18 @@ contract BaseL0Script is L0Constants, Script {
             allConfigs.push(config_);
         }
 
+        // testnet
+        L0Config[] memory testnetConfigs_ = abi.decode(json.parseRaw(".Testnet"), (L0Config[]));
+        for (uint256 i=0; i<testnetConfigs_.length; i++) {
+            L0Config memory config_ = testnetConfigs_[i];
+            if (config_.chainid == block.chainid) {
+                isMainnet = false; // validate we're on testnet
+                broadcastConfig = config_;
+                broadcastConfigArray.push(config_);
+            }
+            testnetConfigs.push(config_);
+        }
+
         // NonEvmPeers.json
 
         path = string.concat(root, "/scripts/NonEvmPeers.json");
@@ -303,17 +315,6 @@ contract BaseL0Script is L0Constants, Script {
             nonEvmPeersArrays.push(peerArray);
         }
 
-        // testnet
-        L0Config[] memory testnetConfigs_ = abi.decode(json.parseRaw(".Testnet"), (L0Config[]));
-        for (uint256 i=0; i<testnetConfigs_.length; i++) {
-            L0Config memory config_ = testnetConfigs_[i];
-            if (config_.chainid == block.chainid) {
-                isMainnet = false; // validate we're on testnet
-                broadcastConfig = config_;
-                broadcastConfigArray.push(config_);
-            }
-            testnetConfigs.push(config_);
-        }
     }
 
     function isStringEqual(string memory _a, string memory _b) public pure returns (bool) {

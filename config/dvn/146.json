@@ -21,7 +21,7 @@
         "horizen": "0x54dd79f5ce72b51fcbbcb170dd01e32034323565",
         "lz": "0x282b3386571f7f794450d5789911a9804fa346b4",
         "nethermind": "0x05aaefdf9db6e0f7d27fa3b6ee099edb33da029e",
-        "stargate": "0xdd7b5e1db4aafd5c8ec3b764efb8ed265aa5445b"
+        "stargate": "0x0000000000000000000000000000000000000000"
     },
     "196": {
         "bcwGroup": "0x0000000000000000000000000000000000000000",
@@ -29,7 +29,7 @@
         "horizen": "0x54dd79f5ce72b51fcbbcb170dd01e32034323565",
         "lz": "0x282b3386571f7f794450d5789911a9804fa346b4",
         "nethermind": "0x05aaefdf9db6e0f7d27fa3b6ee099edb33da029e",
-        "stargate": "0xdd7b5e1db4aafd5c8ec3b764efb8ed265aa5445b"
+        "stargate": "0x0000000000000000000000000000000000000000"
     },
     "146": {
         "bcwGroup": "0x0000000000000000000000000000000000000000",

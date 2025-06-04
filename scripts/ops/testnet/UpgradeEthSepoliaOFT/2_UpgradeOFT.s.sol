@@ -7,11 +7,6 @@ import { FraxOFTAdapterUpgradeable } from "contracts/FraxOFTAdapterUpgradeable.s
 
 import { ERC1967Utils } from "@openzeppelin-5/contracts/proxy/ERC1967/ERC1967Utils.sol";
 
-interface MockIOft {
-    function token() external view returns (address);
-    function admin() external view returns (address);
-}
-
 // forge script scripts/ops/testnet/UpgradeEthSepoliaOFT/2_UpgradeOFT.s.sol --rpc-url https://eth-sepolia.public.blastapi.io --broadcast --verify --verifier etherscan --etherscan-api-key $SEPOLIA_API_KEY
 contract UpgradeOFT is DeployFraxOFTProtocol {
 

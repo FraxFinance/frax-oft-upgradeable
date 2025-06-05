@@ -5,7 +5,7 @@ This repository contains all of the contracts and deployment code used to manage
 ## Contracts & Addresses
 ### Admin
 - `ProxyAdmin`
-  - `Mode`, `Sei`, `Fraxtal`, `X-Layer`, `Ink`, `Sonic`, `Arbitrum`, `Optimism`, `Polygon`, `Avalanche`, `BSC`, `Polygon zkEvm`
+  - `Mode`, `Sei`, `Fraxtal`, `X-Layer`, `Ink`, `Sonic`, `Arbitrum`, `Optimism`, `Polygon`, `Avalanche`, `BSC`, `Polygon zkEvm`, `Blast`, `Berachain`, `Worldchain`
     - `0x223a681fc5c5522c85c96157c0efa18cd6c5405c`
   - `Base`
     - `0xF59C41A57AB4565AF7424F64981523DfD7A453c5`
@@ -37,9 +37,10 @@ This repository contains all of the contracts and deployment code used to manage
   - [`Solana`](https://app.squads.so/squads/FSRTW4KPGifKL8yKcZ8mfoR9mKtAjwZiTHbHwgix8AQo/home)
   - [`ZkSync`](https://app.safe.global/home?safe=zksync:0x66716ae60898dD4479B52aC4d92ef16C1821f420)
   - [`Abstract`](https://abstract-safe.protofire.io/home?safe=abstract:0xcC20eAE3CdC554E96291708B362dF349CC443808)
+  - [`Worldchain`](https://app.safe.global/home?safe=wc:0xf57d47c3EA11c12253dBc0BeAf097d5c206e8773)
 
 ### Proxy (upgradeable) OFTs
-- Chain: `Mode`, `Sei`, `X-Layer`, `Ink`, `Sonic`, `Arbitrum`, `Optimism`, `Polygon`, `BSC`, `Avalanche`, `Polygon zkEvm`, `Blast`, `Berachain`
+- Chain: `Mode`, `Sei`, `X-Layer`, `Ink`, `Sonic`, `Arbitrum`, `Optimism`, `Polygon`, `BSC`, `Avalanche`, `Polygon zkEvm`, `Blast`, `Berachain`, `Worldchain`
   - OFTs
     - `frxUSD`: `0x80Eede496655FB9047dd39d9f418d5483ED600df`
     - `sfrxUSD`: `0x5Bff88cA1442c2496f7E475E9e7786383Bc070c0`
@@ -77,16 +78,16 @@ This repository contains all of the contracts and deployment code used to manage
 
 
 ### Lockbox design
-Frax operates a dual-lockbox design where users can exit their OFT token into the native Frax-asset token on both Ethereum and Fraxtal.  Utilizing a dual-lockbox design is a novel solution to bridging as liquidity is  unlocked from more than one location.  More about this solution is be explained in the [docs](TODO).
+Frax operates a dual-lockbox design where users can exit their OFT token into the native Frax-asset token on both Ethereum and Fraxtal.  Utilizing a dual-lockbox design is a novel solution to bridging as liquidity is  unlocked from more than one location.  More about this solution is be explained in the [docs](https://docs.frax.com/protocol/crosschain/overview).
 
-*NOTE*: The exception is WFRAX, which only contains a lockbox on Fraxtal.  Bridging to Ethereum receives the WFRAX OFT instead of locked liquidity.
+*NOTE*: The exception is WFRAX, which only contains a lockbox on Fraxtal.  Bridging to Ethereum via LZ receives the WFRAX OFT instead of locked liquidity.
 
 #### Fraxtal Lockboxes
 - `frxUSD`: `0x96A394058E2b84A89bac9667B19661Ed003cF5D4`
 - `sfrxUSD`: `0x88Aa7854D3b2dAA5e37E7Ce73A1F39669623a361`
 - `frxETH`: `0x9aBFE1F8a999B0011ecD6116649AEe8D575F5604`
 - `sfrxETH`: `0x999dfAbe3b1cc2EF66eB032Eea42FeA329bBa168`
-- `FRAX`: `0xd86fBBd0c8715d2C1f40e451e5C3514e65E7576A`
+- `WFRAX`: `0xd86fBBd0c8715d2C1f40e451e5C3514e65E7576A`
 - `FPI`: `0x75c38D46001b0F8108c4136216bd2694982C20FC`
 
 #### Ethereum Lockboxes
@@ -99,7 +100,7 @@ You can expect to use (1) unless you are holding OFTs on Base, Blast, or Metis p
   - `sfrxETH`: `0xbBc424e58ED38dd911309611ae2d7A23014Bd960`
   - `FPI`: `0x9033BAD7aA130a2466060A2dA71fAe2219781B4b`
 2. Immutable (legacy) Lockboxes
-  - `FRAX`: `0x909DBdE1eBE906Af95660033e478D59EFe831fED`
+  - `LFRAX`: `0x909DBdE1eBE906Af95660033e478D59EFe831fED`
   - `sFRAX`: `0xe4796cCB6bB5DE2290C417Ac337F2b66CA2E770E`
   - `frxETH` : `0xF010a7c8877043681D59AD125EbF575633505942`
   - `sfrxETH`: `0x1f55a02A049033E3419a8E2975cF3F572F4e6E9A`
@@ -146,114 +147,7 @@ You can expect to use (1) unless you are holding OFTs on Base, Blast, or Metis p
 - Add an item to `scripts/L0Config.json:Proxy` with the new chain details (incorrect data will cause the script to fail).
 - `source .env && forge script scripts/DeployFraxOFTProtocol.s.sol --rpc-url $RPC_URL`
 - Verify files created within `scripts/txs/{SOURCE_CHAIN_ID}-{DESTINATION_CHAIN_ID}.json` are correct peers, config
-  - Notably, Fraxtal OFTs are the (s)frxUSD lockbox contracts
-- `source .env && forge script scripts/DeployFraxOFTProtocol.s.sol --rpc-url $RPC_URL --broadcast --slow`
+- `source .env && forge script scripts/DeployFraxOFTProtocol.s.sol --rpc-url $RPC_URL --broadcast`
 - Manually verify each contract on the deployed chain (do not need to verify ImplementationMock)
-  - Use `contracts/flat`, Solidity version 0.8.22, default compiler, 200 optimizer runs
-- Modify `scripts/tx/{SOURCE_CHAIN_ID}-{DESTINATION_CHAIN_ID}.json` values to so that:
-  - `\"` => `"`
-  - `"[` => `[`
-  - `]"` => `]`
-
-TODO: automatically save as strings.
-
+  - Use `contracts/flat`, Solidity version 0.8.22, Shanghai compiler, 200 optimizer runs
 - Submit each newly crafted json to the respective `DESTINATION_CHAIN_ID` msig. 
-
-## TODO
-- Ink, Sonic, Arbitrum, Optimism, Polygon, Avalanche, BSC, Polygon zkEvm
-  - Wire (s)frxETH/FPI to legacy Ethereum lockbox
-- Solana
-  - Configure for Ink, Sonic, Arbitrum, Optimism, Polygon, Avalanche, BSC, Polygon zkEvm, Ethereum (s)frxUSD, Fraxtal lockboxes
-
-## 1) Developing Contracts
-
-#### Installing dependencies
-
-We recommend using `pnpm` as a package manager (but you can of course use a package manager of your choice):
-
-```bash
-pnpm install
-```
-
-#### Compiling your contracts
-
-This project supports both `hardhat` and `forge` compilation. By default, the `compile` command will execute both:
-
-```bash
-pnpm compile
-```
-
-If you prefer one over the other, you can use the tooling-specific commands:
-
-```bash
-pnpm compile:forge
-pnpm compile:hardhat
-```
-
-Or adjust the `package.json` to for example remove `forge` build:
-
-```diff
-- "compile": "$npm_execpath run compile:forge && $npm_execpath run compile:hardhat",
-- "compile:forge": "forge build",
-- "compile:hardhat": "hardhat compile",
-+ "compile": "hardhat compile"
-```
-
-#### Running tests
-
-Similarly to the contract compilation, we support both `hardhat` and `forge` tests. By default, the `test` command will execute both:
-
-```bash
-pnpm test
-```
-
-If you prefer one over the other, you can use the tooling-specific commands:
-
-```bash
-pnpm test:forge
-pnpm test:hardhat
-```
-
-Or adjust the `package.json` to for example remove `hardhat` tests:
-
-```diff
-- "test": "$npm_execpath test:forge && $npm_execpath test:hardhat",
-- "test:forge": "forge test",
-- "test:hardhat": "$npm_execpath hardhat test"
-+ "test": "forge test"
-```
-
-## 2) Deploying Contracts
-
-Set up deployer wallet/account:
-
-- Rename `.env.example` -> `.env`
-- Choose your preferred means of setting up your deployer wallet/account:
-
-```
-MNEMONIC="test test test test test test test test test test test junk"
-or...
-PRIVATE_KEY="0xabc...def"
-```
-
-- Fund this address with the corresponding chain's native tokens you want to deploy to.
-
-To deploy your contracts to your desired blockchains, run the following command in your project's folder:
-
-```bash
-npx hardhat lz:deploy
-```
-
-More information about available CLI arguments can be found using the `--help` flag:
-
-```bash
-npx hardhat lz:deploy --help
-```
-
-By following these steps, you can focus more on creating innovative omnichain solutions and less on the complexities of cross-chain communication.
-
-<br></br>
-
-<p align="center">
-  Join our community on <a href="https://discord-layerzero.netlify.app/discord" style="color: #a77dff">Discord</a> | Follow us on <a href="https://twitter.com/LayerZero_Labs" style="color: #a77dff">Twitter</a>
-</p>

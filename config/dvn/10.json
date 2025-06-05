@@ -40,7 +40,7 @@
         "stargate": "0xfe6507f094155cabb4784403cd784c2df04122dd"
     },
     "57073": {
-        "bcwGroup": "0x73ddc92e39aeda95feb8d3e0008016d9f1268c76",
+        "bcwGroup": "0x0000000000000000000000000000000000000000",
         "frax": "0x7240264781aa2f97cb994c6231297a8606483242",
         "horizen": "0x9e930731cb4a6bf7ecc11f695a295c60bdd212eb",
         "lz": "0x6a02d83e8d433304bba74ef1c427913958187142",
@@ -93,7 +93,7 @@
         "horizen": "0x9e930731cb4a6bf7ecc11f695a295c60bdd212eb",
         "lz": "0x6a02d83e8d433304bba74ef1c427913958187142",
         "nethermind": "0xa7b5189bca84cd304d8553977c7c614329750d99",
-        "stargate": "0xfe6507f094155cabb4784403cd784c2df04122dd"
+        "stargate": "0x0000000000000000000000000000000000000000"
     },
     "1": {
         "bcwGroup": "0x73ddc92e39aeda95feb8d3e0008016d9f1268c76",
@@ -104,12 +104,12 @@
         "stargate": "0xfe6507f094155cabb4784403cd784c2df04122dd"
     },
     "81457": {
-        "bcwGroup": "0x73ddc92e39aeda95feb8d3e0008016d9f1268c76",
+        "bcwGroup": "0x0000000000000000000000000000000000000000",
         "frax": "0x7240264781aa2f97cb994c6231297a8606483242",
         "horizen": "0x9e930731cb4a6bf7ecc11f695a295c60bdd212eb",
         "lz": "0x6a02d83e8d433304bba74ef1c427913958187142",
         "nethermind": "0xa7b5189bca84cd304d8553977c7c614329750d99",
-        "stargate": "0xfe6507f094155cabb4784403cd784c2df04122dd"
+        "stargate": "0x0000000000000000000000000000000000000000"
     },
     "8453": {
         "bcwGroup": "0x73ddc92e39aeda95feb8d3e0008016d9f1268c76",

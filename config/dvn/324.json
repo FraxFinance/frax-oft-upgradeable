@@ -16,12 +16,12 @@
         "stargate": "0x62aa89bad332788021f6f4f4fb196d5fe59c27a6"
     },
     "252": {
-        "bcwGroup": "0x0d1bc4efd08940eb109ef3040c1386d09b6334e0",
+        "bcwGroup": "0x0000000000000000000000000000000000000000",
         "frax": "0x2eb85384cad49a67ebd8e2afb0f72b3f586baf03",
         "horizen": "0x1253e268bc04bb43cb96d2f7ee858b8a1433cf6d",
         "lz": "0x620a9df73d2f1015ea75aea1067227f9013f5c51",
         "nethermind": "0xb183c2b91cf76cad13602b32ada2fd273f19009c",
-        "stargate": "0x62aa89bad332788021f6f4f4fb196d5fe59c27a6"
+        "stargate": "0x0000000000000000000000000000000000000000"
     },
     "196": {
         "bcwGroup": "0x0d1bc4efd08940eb109ef3040c1386d09b6334e0",

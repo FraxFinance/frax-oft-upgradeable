@@ -5,6 +5,8 @@ import {IOAppCore} from "@fraxfinance/layerzero-v2-upgradeable/oapp/contracts/oa
 
 interface IEndpointV2 {
     function blockedLibrary() external view returns (address);
+
+    function getSendLibrary(address _sender, uint32 _dstEid) external view returns (address lib);
 }
 
 contract SetBlockSendLib is FixDVNsInherited {
@@ -60,6 +62,13 @@ contract SetBlockSendLib is FixDVNsInherited {
                     if (!hasPeer(connectedOft, proxyConfigs[i])) {
                         continue;
                     }
+
+                    address existingSendLibrary = IEndpointV2(_config.endpoint).getSendLibrary(
+                        connectedOft,
+                        uint32(proxyConfigs[i].eid)
+                    );
+
+                    if (existingSendLibrary == blockedLibrary) continue;
 
                     // set the blocked library for the connected OFT
                     bytes memory data = abi.encodeCall(

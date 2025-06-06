@@ -8,8 +8,8 @@
 
 ### Fraxtal Testnet addresses
 #### frxUSD
-- [Proxy](TODO)
-- [Implementation](TODO)
+- [Proxy](https://holesky.fraxscan.com/address/0x452420df4ac1e3db5429b5fd629f3047482c543c)
+- [Implementation](https://holesky.fraxscan.com/address/0x7a07d606c87b7251c2953a30fa445d8c5f856c7a#code)
 #### Lockbox
 - [Proxy](TODO)
 - [Implementation](TODO)

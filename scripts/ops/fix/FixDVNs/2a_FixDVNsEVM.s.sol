@@ -18,28 +18,6 @@ contract FixDVNs is FixDVNsInherited {
         return string.concat(root, name);
     }
 
-    function setChainList() public override {
-        chainIds = [
-            // 34443, // mode
-            // 1329, // sei
-            252, // fraxtal
-            // 196, // xlayer
-            // 146, // sonic
-            // 57073, // ink
-            // 42161, // arbitrum
-            // 10, // optimism
-            // 137, // polygon
-            43114, // avalanche
-            56, // bsc
-            1101, // polygon zkevm
-            // 1 // ethereum,
-            // 81457, // blast
-            8453, // base
-            80094, // berachain
-            59144 // linea
-        ];
-    }
-
     function run() public override {
         for (uint256 i = 0; i < expectedProxyOfts.length; i++) {
             proxyOfts.push(expectedProxyOfts[i]);
@@ -68,8 +46,6 @@ contract FixDVNs is FixDVNsInherited {
                 tempConfigs[0] = proxyConfigs[i];
 
                 setDVNs({ _connectedConfig: _config, _connectedOfts: connectedOfts, _configs: tempConfigs });
-                console.log("proxyConfigs.chainid", proxyConfigs[i].chainid);
-                console.log("chainIds[j]", chainIds[j]);
             }
         }
     }

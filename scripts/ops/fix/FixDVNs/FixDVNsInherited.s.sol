@@ -12,30 +12,26 @@ contract FixDVNsInherited is DeployFraxOFTProtocol {
 
     constructor() {
         // Initialize the chainIds array with the desired chain IDs
-        setChainList();
-    }
-
-    function setChainList() public virtual {
         chainIds = [
-            34443, // mode
-            1329, // sei
-            252, // fraxtal
-            196, // xlayer
-            146, // sonic
-            57073, // ink
-            42161, // arbitrum
-            10, // optimism
-            137, // polygon
-            43114, // avalanche
-            56, // bsc
-            1101, // polygon zkevm
             1, // ethereum,
-            81457, // blast
+            10, // optimism
+            56, // bsc
+            137, // polygon
+            146, // sonic
+            196, // xlayer
+            252, // fraxtal
+            324, // zksync : skip
+            1101, // polygon zkevm
+            1329, // sei
+            2741, // abstract :skip
             8453, // base
-            80094, // berachain
+            34443, // mode
+            42161, // arbitrum
+            43114, // avalanche
+            57073, // ink
             59144, // linea
-            324, // abstract
-            2741 // zksync
+            80094, // berachain
+            81457 // blast
         ];
     }
 }

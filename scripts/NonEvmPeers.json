@@ -8,6 +8,14 @@
             "frax": "0x4939035f8dd13d15a9386e28b6705519aa6f488791323466a3c0116a201e51aa",
             "sfrxUSD": "0x8602f005ca65b6da46a3c6ce66ecd1d15be911ca650d5f418d369df184b584cf",
             "sFrxEth": "0xbf2f1fc27286a43f25b05bd843a74a5478c4246343fa90c1fcb641a1caf46c61"
+        },
+        {
+            "fpi": "0xadf0ffffa5ee44a94f0c65be05e701951e65e276419f7460286a139d9403e864",
+            "frxUSD": "0xe067037681385b86d8344e6b7746023604c6ac90ddc997ba3c58396c258ad17b",
+            "frxEth": "0xecb3a766f12981919158fc8ec3b98dd3f8b39a59280e62e80c600cea1b2c0f9c",
+            "wfrax": "0x267749b1a80d9d582019e6b0572c1dbc98648e24101b0861395cdbed095ceff2",
+            "sfrxUSD": "0xc9bdfdc965bb7fcdcfa6b45870eab33bfaf8f4e8e3f6b89d3e0203aba634a1c9",
+            "sfrxEth": "0x28b7264258592031a024ed8e1632090648ec53797c269ac91aa0c9ed94268356"
         }
-    ] 
+    ]
 }

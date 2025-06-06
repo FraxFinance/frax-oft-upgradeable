@@ -131,7 +131,9 @@ contract BaseL0Script is L0Constants, Script {
         vm.stopPrank();
 
         // serialized txs were pushed within the modified function- write to storage
-        new SafeTxUtil().writeTxs(serializedTxs, filename());
+        if (serializedTxs.length > 0) {
+            new SafeTxUtil().writeTxs(serializedTxs, filename());
+        }
     }
 
     // Configure destination OFT addresses as they may be different per chain

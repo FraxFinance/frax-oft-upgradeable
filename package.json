@@ -114,12 +114,10 @@
   "overrides": {
     "ethers": "^5.7.2",
     "hardhat-deploy": "^0.12.1",
-    "@solana/web3.js": "^1.98.0",
-    "dependencies": {
-      "viem": "^2.26.2"
-    }
+    "@solana/web3.js": "^1.98.0"
   },
   "dependencies": {
+    "viem": "^2.26.2",
     "@openzeppelin-5/contracts": "npm:@openzeppelin/contracts@^5.3.0",
     "@openzeppelin-5/contracts-upgradeable": "npm:@openzeppelin/contracts-upgradeable@^5.3.0"
   }

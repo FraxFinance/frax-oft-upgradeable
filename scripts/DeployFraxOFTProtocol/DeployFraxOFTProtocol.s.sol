@@ -153,7 +153,7 @@ contract DeployFraxOFTProtocol is BaseL0Script {
         implementationMock = address(new ImplementationMock());
 
         // / @dev: follows deployment order of legacy OFTs found at https://etherscan.io/address/0xded884435f2db0169010b3c325e733df0038e51d
-        // Deploy FRAX
+        // Deploy WFRAX
         (,wfraxOft) = deployFraxOFTUpgradeableAndProxy({
             _name: "Wrapped Frax",
             _symbol: "WFRAX"

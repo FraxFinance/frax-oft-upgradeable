@@ -124,6 +124,21 @@ You can expect to use (1) unless you are holding OFTs on Base, Blast, or Metis p
   - SPL Token: `8xKX8CRH9LxriRUNCPittu1jiovyQQr4EonWQjHZjWyH`
     - As bytes32: `0xd3cee058686107cc51844f331ee213a33142ab299b5ce473c1cf3a8ddaa721a0`
 
+### Testnet
+Frax operates a lightweight LZ stack on testnets, replicating the dual-lockbox approach.  Below are the following addresses:
+
+#### Ethereum Sepolia
+- [frxUSD](https://sepolia.etherscan.io/address/0xcA35C3FE456a87E6CE7827D1D784741613463204)
+- [frxUSD lockbox](https://sepolia.etherscan.io/address/0x29a5134D3B22F47AD52e0A22A63247363e9F35c2)
+
+#### Fraxtal Testnet
+TODO
+
+#### Arbitrum Sepolia
+- [frxUSD OFT](https://sepolia.arbiscan.io/address/0x0768c16445b41137f98ab68ca545c0afd65a7513)
+
+
+
 ### Legacy (non-upgradeable) OFTs
 - Chain: `Ethereum`, `Metis`, `Blast`, `Base`
 - Chain to convert from native token into OFT: Ethereum

@@ -75,6 +75,14 @@ contract L0Constants {
     address public ethFraxLockboxLegacy = 0x23432452B720C80553458496D4D9d7C5003280d0;
     address public ethFpiLockboxLegacy = 0x6Eca253b102D41B6B69AC815B9CC6bD47eF1979d;
 
+    // testnet addresses
+    address[] public ethSepoliaLockboxes;
+    address[] public arbitrumSepoliaOfts;
+
+    address public ethSepoliaFrxUsdLockbox = 0x29a5134D3B22F47AD52e0A22A63247363e9F35c2;
+
+    address public arbitrumSepoliaFrxUsdOft = 0x0768C16445B41137F98Ab68CA545C0afD65A7513;
+
     constructor() {
         // array of semi-pre-determined upgradeable OFTs
         /// @dev: this array maintains the same token order as proxyOfts
@@ -136,5 +144,10 @@ contract L0Constants {
         ethLockboxesLegacy.push(ethFrxUsdLockboxLegacy);
         ethLockboxesLegacy.push(ethFrxEthLockboxLegacy);
         ethLockboxesLegacy.push(ethFpiLockboxLegacy);
+
+        // testnet addresses
+        ethSepoliaLockboxes.push(ethSepoliaFrxUsdLockbox);
+
+        arbitrumSepoliaOfts.push(arbitrumSepoliaFrxUsdOft);
     }
 }

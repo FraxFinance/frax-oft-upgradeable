@@ -93,7 +93,7 @@
         "horizen": "0x395b14700812cccc38b8e64f0a06ce2045fe9ba3",
         "lz": "0x174f2ba26f8adeafa82663bcf908288d5dbca649",
         "nethermind": "0xdd7b5e1db4aafd5c8ec3b764efb8ed265aa5445b",
-        "stargate": "0xe900e073badafdc6f72541f34e6b701bde835487"
+        "stargate": "0x0000000000000000000000000000000000000000"
     },
     "1": {
         "bcwGroup": "0x0000000000000000000000000000000000000000",

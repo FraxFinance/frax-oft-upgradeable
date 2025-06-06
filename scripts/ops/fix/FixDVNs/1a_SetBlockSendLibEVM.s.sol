@@ -1,4 +1,4 @@
-// pragma solidity ^0.8.19;
+pragma solidity ^0.8.19;
 
 import "./FixDVNsInherited.s.sol";
 import {IOAppCore} from "@fraxfinance/layerzero-v2-upgradeable/oapp/contracts/oapp/interfaces/IOAppCore.sol";

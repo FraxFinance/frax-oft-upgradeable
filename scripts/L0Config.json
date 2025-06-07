@@ -72,8 +72,8 @@
             "RPC": "https://rpc.frax.com",
             "chainid": 252,
             "delegate": "0x5f25218ed9474b721d6a38c115107428E832fA2E",
-            "dvn1": "0xcCE466a522984415bC91338c232d98869193D46e",
-            "dvn2": "0xDd7B5E1dB4AaFd5C8EC3b764eFB8ed265Aa5445B",
+            "dvnHorizen": "0xDd7B5E1dB4AaFd5C8EC3b764eFB8ed265Aa5445B",
+            "dvnL0": "0xcCE466a522984415bC91338c232d98869193D46e",
             "eid": 30255,
             "endpoint": "0x1a44076050125825900e736c501f859c50fE728c",
             "receiveLib302": "0x8bC1e36F015b9902B54b1387A4d733cebc2f5A4e",
@@ -234,6 +234,17 @@
             "sendLib302": "0x32042142DD551b4EbE17B6FEd53131dd4b4eEa06"
         },
         {
+            "RPC": "https://worldchain-mainnet.g.alchemy.com/public",
+            "chainid": 480,
+            "delegate": "0xf57d47c3EA11c12253dBc0BeAf097d5c206e8773",
+            "dvnHorizen": "0x95729ea44326f8add8a9b1d987279dbdc1dd3dff",
+            "dvnL0": "0x6788f52439aca6bff597d3eec2dc9a44b8fee842",
+            "eid": 30319,
+            "endpoint": "0x6F475642a6e85809B1c36Fa62763669b1b48DD5B",
+            "receiveLib302": "0xe1844c5D63a9543023008D332Bd3d2e6f1FE1043",
+            "sendLib302": "0xC39161c743D0307EB9BCc9FEF03eeb9Dc4802de7"
+        },
+        {
             "RPC": "https://api.mainnet.abs.xyz",
             "chainid": 2741,
             "delegate": "0xcC20eAE3CdC554E96291708B362dF349CC443808",
@@ -267,6 +278,30 @@
             "endpoint": "76y77prsiCMvXMjuoZ5VRrhG5qYBrUMYTE5WgHqgjEn6",
             "receiveLib302": "7a4WjyR8VZ7yZz5XJAKm39BUGn5iT9CKcv2pmG9tdXVH",
             "sendLib302": "7a4WjyR8VZ7yZz5XJAKm39BUGn5iT9CKcv2pmG9tdXVH"
+        }
+    ],
+    "Testnet": [
+        {
+            "RPC": "https://ethereum-sepolia-rpc.publicnode.com",
+            "chainid": 11155111,
+            "delegate": "0x0990be6dB8c785FBbF9deD8bAEc612A10CaE814b",
+            "dvnHorizen": "0x4386167355cda5dbb434e6997fe38fe1f4822c12",
+            "dvnL0": "0x8eebf8b423b73bfca51a1db4b7354aa0bfca9193",
+            "eid": 40161,
+            "endpoint": "0x6EDCE65403992e310A62460808c4b910D972f10f",
+            "receiveLib302": "0xdAf00F5eE2158dD58E0d3857851c432E34A3A851",
+            "sendLib302": "0xcc1ae8Cf5D3904Cef3360A9532B477529b177cCE"
+        },
+        {
+            "RPC": "https://arbitrum-sepolia.drpc.org",
+            "chainid": 421614,
+            "delegate": "0x0990be6dB8c785FBbF9deD8bAEc612A10CaE814b",
+            "dvnHorizen": "0xcdb4933d7f37560186aca8fdadfd5a3b3e27b088",
+            "dvnL0": "0x53f488e93b4f1b60e8e83aa374dbe1780a1ee8a8",
+            "eid": 40231,
+            "endpoint": "0x6EDCE65403992e310A62460808c4b910D972f10f",
+            "receiveLib302": "0x75Db67CDab2824970131D5aa9CECfC9F69c69636",
+            "sendLib302": "0x4f7cd4DA19ABB31b0eC98b9066B9e857B1bf9C0E"
         }
     ]
 }

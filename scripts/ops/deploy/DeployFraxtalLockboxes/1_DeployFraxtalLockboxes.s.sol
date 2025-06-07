@@ -32,7 +32,7 @@ contract DeployFraxtalLockboxes is DeployFraxOFTProtocol {
         delete expectedProxyOfts;
         expectedProxyOfts.push(proxyFrxEthOft);
         expectedProxyOfts.push(proxySFrxEthOft);
-        expectedProxyOfts.push(proxyFxsOft);
+        expectedProxyOfts.push(proxyFraxOft);
         expectedProxyOfts.push(proxyFpiOft);
 
         deploySource();
@@ -119,7 +119,7 @@ contract DeployFraxtalLockboxes is DeployFraxOFTProtocol {
         (fraxtalSFrxEthLockbox, ) = deployFraxOFTUpgradeableAndProxy(sfrxEth);
 
         // deploy fxs lockbox
-        (fraxtalFxsLockbox, ) = deployFraxOFTUpgradeableAndProxy(fxs);
+        (fraxtalFraxLockbox, ) = deployFraxOFTUpgradeableAndProxy(fxs);
 
         // deploy fpi lockbox
         (fraxtalFpiLockbox, ) = deployFraxOFTUpgradeableAndProxy(fpi);

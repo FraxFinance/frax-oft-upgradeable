@@ -324,6 +324,25 @@ contract DeployFraxOFTProtocol is BaseL0Script {
                 _oftArray: zkEraProxyOfts
             });
             require(peer != address(0), "Invalid Zk Era peer");
+        } else if (_chainid == 11155111) {
+            peer = getTestnetPeerFromArray({
+                _oft: _oft,
+                _oftArray: ethSepoliaLockboxes
+            });
+            require(peer != address(0), "Invalid eth sepolia peer");
+        } else if (_chainid == 421614) {
+            peer = getTestnetPeerFromArray({
+                _oft: _oft,
+                _oftArray: arbitrumSepoliaOfts
+            });
+            require(peer != address(0), "Invalid arbitrum sepolia peer");
+        } else if (_chainid == 2522) {
+            // TODO: update once lockbox is deployed and set within L0Constants.sol
+            peer = getTestnetPeerFromArray({
+                _oft: _oft,
+                _oftArray: proxyOfts // TODO: edit this
+            });
+            require(peer != address(0), "Invalid fraxtal testnet peer");
         } else {
             peer = getPeerFromArray({
                 _oft: _oft,
@@ -348,6 +367,14 @@ contract DeployFraxOFTProtocol is BaseL0Script {
             peer = _oftArray[4];
         } else if (_oft == fpiOft || _oft == proxyFpiOft) {
             peer = _oftArray[5];
+        }
+    }
+
+    function getTestnetPeerFromArray(address _oft, address[] memory _oftArray) public virtual view returns (address peer) {
+        require(_oftArray.length == 1, "getPeerFromTestnetArray index mismatch");
+        // should only be frxUsd
+        if (_oft == frxUsdOft || _oft == proxyFrxUsdOft) {
+            peer = _oftArray[0];
         }
     }
 

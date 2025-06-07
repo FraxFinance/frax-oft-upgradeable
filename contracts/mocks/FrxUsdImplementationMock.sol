@@ -42,4 +42,9 @@ contract FrxUsdImplementationMock is ERC20Upgradeable, ERC20BurnableUpgradeable,
         super._mint(m_address, m_amount);
         emit TokenMinterMinted(msg.sender, m_address, m_amount);
     }
+
+    /// @dev extra function to manage supply on chain without the approval that super.burnFrom() requires.
+    function burn(address b_address, uint256 b_amount) external onlyRole(MINTER_ROLE) {
+        super._burn(b_address, b_amount);
+    }
 }

@@ -337,10 +337,9 @@ contract DeployFraxOFTProtocol is BaseL0Script {
             });
             require(peer != address(0), "Invalid arbitrum sepolia peer");
         } else if (_chainid == 2522) {
-            // TODO: update once lockbox is deployed and set within L0Constants.sol
             peer = getTestnetPeerFromArray({
                 _oft: _oft,
-                _oftArray: proxyOfts // TODO: edit this
+                _oftArray: fraxtalTestnetLockboxes
             });
             require(peer != address(0), "Invalid fraxtal testnet peer");
         } else {
@@ -354,6 +353,7 @@ contract DeployFraxOFTProtocol is BaseL0Script {
 
     function getPeerFromArray(address _oft, address[] memory _oftArray) public virtual view returns (address peer) {
         require(_oftArray.length == 6, "getPeerFromArray index mismatch");
+        require(_oft != address(0), "getPeerFromArray() OFT == address(0)");
         /// @dev maintains array of deployFraxOFTUpgradeablesAndProxies(), where proxyOfts is pushed to in the respective order
         if (_oft == wfraxOft || _oft == proxyFraxOft) {
             peer = _oftArray[0];
@@ -372,6 +372,7 @@ contract DeployFraxOFTProtocol is BaseL0Script {
 
     function getTestnetPeerFromArray(address _oft, address[] memory _oftArray) public virtual view returns (address peer) {
         require(_oftArray.length == 1, "getPeerFromTestnetArray index mismatch");
+        require(_oft != address(0), "getPeerFromTestnetArray() OFT == address(0)");
         // should only be frxUsd
         if (_oft == frxUsdOft || _oft == proxyFrxUsdOft) {
             peer = _oftArray[0];

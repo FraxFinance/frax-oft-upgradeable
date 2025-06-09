@@ -12,13 +12,6 @@ overrides:
 importers:
 
   .:
-    dependencies:
-      '@openzeppelin-5/contracts':
-        specifier: npm:@openzeppelin/contracts@^5.3.0
-        version: '@openzeppelin/contracts@5.3.0'
-      '@openzeppelin-5/contracts-upgradeable':
-        specifier: npm:@openzeppelin/contracts-upgradeable@^5.3.0
-        version: '@openzeppelin/contracts-upgradeable@5.3.0(@openzeppelin/contracts@4.9.6)'
     devDependencies:
       '@coral-xyz/anchor':
         specifier: ^0.29.0

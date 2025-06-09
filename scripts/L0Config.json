@@ -282,7 +282,7 @@
     ],
     "Testnet": [
         {
-            "RPC": "https://sepolia.drpc.org",
+            "RPC": "https://eth-sepolia.public.blastapi.io",
             "chainid": 11155111,
             "delegate": "0x0990be6dB8c785FBbF9deD8bAEc612A10CaE814b",
             "dvnHorizen": "0x000bfb182cc999879ffb5cd7cf9f1db18a454248",
@@ -293,7 +293,7 @@
             "sendLib302": "0xcc1ae8Cf5D3904Cef3360A9532B477529b177cCE"
         },
         {
-            "RPC": "https://arbitrum-sepolia.drpc.org",
+            "RPC": "https://arbitrum-sepolia-rpc.publicnode.com",
             "chainid": 421614,
             "delegate": "0x0990be6dB8c785FBbF9deD8bAEc612A10CaE814b",
             "dvnHorizen": "0xbc0c3eaee5d759f0ce13a59ad3113080ed7bd941",

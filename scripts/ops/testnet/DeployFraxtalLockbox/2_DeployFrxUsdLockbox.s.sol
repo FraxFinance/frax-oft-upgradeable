@@ -26,16 +26,6 @@ contract DeployFrxUsdLockbox is DeployFraxOFTProtocol {
 
     address frxUsd = 0x452420df4AC1e3db5429b5FD629f3047482C543C; // frxUSD on Fraxtal testnet
 
-    function filename() public view override returns (string memory) {
-        string memory root = vm.projectRoot();
-        root = string.concat(root, "/scripts/ops/testnet/DeployFraxtalLockbox/txs/2_");
-
-        string memory name = string.concat(broadcastConfig.chainid.toString(), "-");
-        name = string.concat(name, simulateConfig.chainid.toString());
-        name = string.concat(name, ".json");
-        return string.concat(root, name);
-    }
-
     /// @notice broadcast instead of simulate
     modifier simulateAndWriteTxs(
         L0Config memory _simulateConfig

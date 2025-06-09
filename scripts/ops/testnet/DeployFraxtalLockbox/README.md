@@ -8,11 +8,11 @@
 
 ### Fraxtal Testnet addresses
 #### frxUSD
-- [Proxy](https://holesky.fraxscan.com/address/0x452420df4ac1e3db5429b5fd629f3047482c543c)
-- [Implementation](https://holesky.fraxscan.com/address/0x7a07d606c87b7251c2953a30fa445d8c5f856c7a#code)
+- [Proxy](https://holesky.fraxscan.com/address/0x452420df4AC1e3db5429b5FD629f3047482C543C)
+- [Implementation](https://holesky.fraxscan.com/address/0x7a07D606c87b7251c2953A30Fa445d8c5F856C7A#code)
 #### Lockbox
-- [Proxy](TODO)
-- [Implementation](TODO)
+- [Proxy](https://holesky.fraxscan.com/address/0x7C9DF6704Ec6E18c5E656A2db542c23ab73CB24d)
+- [Implementation](https://holesky.fraxscan.com/address/0x7FB2Dc5f485E01E0c627de86f7324c136F65eBB4#code)
 
-TODO: update README with address
+TODO: update main README with address
 - Should docs repo contain testnet addresses?

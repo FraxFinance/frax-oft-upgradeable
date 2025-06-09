@@ -36,6 +36,21 @@ contract DeployFrxUsdLockbox is DeployFraxOFTProtocol {
         return string.concat(root, name);
     }
 
+    /// @notice broadcast instead of simulate
+    modifier simulateAndWriteTxs(
+        L0Config memory _simulateConfig
+    ) override {
+        simulateConfig = _simulateConfig;
+
+        // Use the correct OFT addresses given the chain we're simulating
+        _populateConnectedOfts();
+
+        vm.createSelectFork(_simulateConfig.RPC);
+        vm.startBroadcast(configDeployerPK);
+        _;
+        vm.stopBroadcast();
+    }
+
     function preDeployChecks() public view override {}
     function postDeployChecks() internal view override {}
 

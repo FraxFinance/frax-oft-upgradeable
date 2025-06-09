@@ -2,6 +2,17 @@
 pragma solidity ^0.8.22;
 
 import "scripts/DeployFraxOFTProtocol/DeployFraxOFTProtocol.s.sol";
+import { Constant } from "@fraxfinance/layerzero-v2-upgradeable/messagelib/test/util/Constant.sol";
+
+struct UlnConfig {
+    uint64 confirmations;
+    // we store the length of required DVNs and optional DVNs instead of using DVN.length directly to save gas
+    uint8 requiredDVNCount; // 0 indicate DEFAULT, NIL_DVN_COUNT indicate NONE (to override the value of default)
+    uint8 optionalDVNCount; // 0 indicate DEFAULT, NIL_DVN_COUNT indicate NONE (to override the value of default)
+    uint8 optionalDVNThreshold; // (0, optionalDVNCount]
+    address[] requiredDVNs; // no duplicates. sorted an an ascending order. allowed overlap with optionalDVNs
+    address[] optionalDVNs; // no duplicates. sorted an an ascending order. allowed overlap with requiredDVNs
+}
 
 /// @dev now that the oft is deployed, setup the adapter
 // forge script scripts/ops/dvn/test/4_SetupTestOFT.s.sol --rpc-url https://arbitrum-sepolia.drpc.org --broadcast
@@ -9,6 +20,8 @@ contract SetupTestOFT is DeployFraxOFTProtocol {
     address sepoliaOFT = 0x29a5134D3B22F47AD52e0A22A63247363e9F35c2;
     address arbSepoliaOFT = 0x0768C16445B41137F98Ab68CA545C0afD65A7513;
     uint256 sepoliaPeerId = 40161;
+
+    SetConfigParam[] public setConfigParams;
 
     constructor() {
         delete connectedOfts;

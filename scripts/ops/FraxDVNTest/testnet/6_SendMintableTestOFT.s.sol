@@ -15,7 +15,6 @@ contract SendMintableTestOFT is BaseL0Script {
     uint32 public dstEid = arbSepoliaPeerId;
 
     function run() public broadcastAs(configDeployerPK) {
-        bytes memory options = OptionsBuilder.newOptions();
         SendParam memory sendParam = SendParam({
             dstEid: dstEid,
             to: addressToBytes32(vm.addr(configDeployerPK)),

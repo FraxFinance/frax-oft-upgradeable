@@ -62,7 +62,6 @@ contract SetBlockSendLib is FixDVNsInherited {
                         _config.sendLib302
                     )
                 );
-                (bool success, ) = _config.endpoint.call(data);
                 
                 (bool success, bytes memory returnData) = _config.endpoint.call(data);
 

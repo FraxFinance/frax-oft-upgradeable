@@ -132,7 +132,8 @@ Frax operates a lightweight LZ stack on testnets, replicating the dual-lockbox a
 - [frxUSD lockbox](https://sepolia.etherscan.io/address/0x29a5134D3B22F47AD52e0A22A63247363e9F35c2)
 
 #### Fraxtal Testnet
-TODO
+- [frxUSD](https://holesky.fraxscan.com/address/0x452420df4AC1e3db5429b5FD629f3047482C543C)
+- [frxUSD lockbox](https://holesky.fraxscan.com/address/0x7C9DF6704Ec6E18c5E656A2db542c23ab73CB24d)
 
 #### Arbitrum Sepolia
 - [frxUSD OFT](https://sepolia.arbiscan.io/address/0x0768c16445b41137f98ab68ca545c0afd65a7513)

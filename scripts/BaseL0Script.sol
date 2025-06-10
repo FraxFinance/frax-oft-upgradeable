@@ -211,9 +211,11 @@ contract BaseL0Script is L0Constants, Script {
         connectedOfts = new address[](1);
 
         if (simulateConfig.chainid == 11155111) {
-            connectedOfts[0] = ethSepoliaFrxUsdLockbox;
+            connectedOfts[0] = ethSepoliaLockboxes[0];
         } else if (simulateConfig.chainid == 421614) {
-            connectedOfts[0] = arbitrumSepoliaFrxUsdOft;
+            connectedOfts[0] = arbitrumSepoliaOfts[0];
+        } else if (simulateConfig.chainid == 2522) {
+            connectedOfts[0] = fraxtalTestnetLockboxes[0];
         } else {
             revert("Testnet mismatch. Configure _validateAndPopulateTestnetOfts() for this chain");
         }

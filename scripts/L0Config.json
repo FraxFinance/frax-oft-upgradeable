@@ -282,10 +282,10 @@
     ],
     "Testnet": [
         {
-            "RPC": "https://ethereum-sepolia-rpc.publicnode.com",
+            "RPC": "https://eth-sepolia.public.blastapi.io",
             "chainid": 11155111,
             "delegate": "0x0990be6dB8c785FBbF9deD8bAEc612A10CaE814b",
-            "dvnHorizen": "0x4386167355cda5dbb434e6997fe38fe1f4822c12",
+            "dvnHorizen": "0x000bfb182cc999879ffb5cd7cf9f1db18a454248",
             "dvnL0": "0x8eebf8b423b73bfca51a1db4b7354aa0bfca9193",
             "eid": 40161,
             "endpoint": "0x6EDCE65403992e310A62460808c4b910D972f10f",
@@ -293,15 +293,26 @@
             "sendLib302": "0xcc1ae8Cf5D3904Cef3360A9532B477529b177cCE"
         },
         {
-            "RPC": "https://arbitrum-sepolia.drpc.org",
+            "RPC": "https://arbitrum-sepolia-rpc.publicnode.com",
             "chainid": 421614,
             "delegate": "0x0990be6dB8c785FBbF9deD8bAEc612A10CaE814b",
-            "dvnHorizen": "0xcdb4933d7f37560186aca8fdadfd5a3b3e27b088",
+            "dvnHorizen": "0xbc0c3eaee5d759f0ce13a59ad3113080ed7bd941",
             "dvnL0": "0x53f488e93b4f1b60e8e83aa374dbe1780a1ee8a8",
             "eid": 40231,
             "endpoint": "0x6EDCE65403992e310A62460808c4b910D972f10f",
             "receiveLib302": "0x75Db67CDab2824970131D5aa9CECfC9F69c69636",
             "sendLib302": "0x4f7cd4DA19ABB31b0eC98b9066B9e857B1bf9C0E"
+        },
+        {
+            "RPC": "https://rpc.testnet.frax.com",
+            "chainid": 2522,
+            "delegate": "0x0990be6dB8c785FBbF9deD8bAEc612A10CaE814b",
+            "dvnHorizen": "0x560a78eae34d9f184a5c65dbfbdc53d2b8b96563",
+            "dvnL0": "0xf49d162484290eaead7bb8c2c7e3a6f8f52e32d6",
+            "eid": 40255,
+            "endpoint": "0x6EDCE65403992e310A62460808c4b910D972f10f",
+            "receiveLib302": "0xcF1B0F4106B0324F96fEfcC31bA9498caa80701C",
+            "sendLib302": "0xd682ECF100f6F4284138AA925348633B0611Ae21"
         }
     ]
 }

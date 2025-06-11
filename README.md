@@ -104,7 +104,7 @@ You can expect to use (1) unless you are holding OFTs on Base, Blast, or Metis p
   - `sFRAX`: `0xe4796cCB6bB5DE2290C417Ac337F2b66CA2E770E`
   - `frxETH` : `0xF010a7c8877043681D59AD125EbF575633505942`
   - `sfrxETH`: `0x1f55a02A049033E3419a8E2975cF3F572F4e6E9A`
-  - `FXS`: `0x23432452B720C80553458496D4D9d7C5003280d0`
+  - `FRAX`: `0x23432452B720C80553458496D4D9d7C5003280d0`
   - `FPI`: `0x6Eca253b102D41B6B69AC815B9CC6bD47eF1979d`
 
 ### Solana
@@ -128,6 +128,22 @@ You can expect to use (1) unless you are holding OFTs on Base, Blast, or Metis p
   - SPL Token: `8xKX8CRH9LxriRUNCPittu1jiovyQQr4EonWQjHZjWyH`
     - As bytes32: `0xd3cee058686107cc51844f331ee213a33142ab299b5ce473c1cf3a8ddaa721a0`
 
+### Testnet
+Frax operates a lightweight LZ stack on testnets, replicating the dual-lockbox approach.  Below are the following addresses:
+
+#### Ethereum Sepolia
+- [frxUSD](https://sepolia.etherscan.io/address/0xcA35C3FE456a87E6CE7827D1D784741613463204)
+- [frxUSD lockbox](https://sepolia.etherscan.io/address/0x29a5134D3B22F47AD52e0A22A63247363e9F35c2)
+
+#### Fraxtal Testnet
+- [frxUSD](https://holesky.fraxscan.com/address/0x452420df4AC1e3db5429b5FD629f3047482C543C)
+- [frxUSD lockbox](https://holesky.fraxscan.com/address/0x7C9DF6704Ec6E18c5E656A2db542c23ab73CB24d)
+
+#### Arbitrum Sepolia
+- [frxUSD OFT](https://sepolia.arbiscan.io/address/0x0768c16445b41137f98ab68ca545c0afd65a7513)
+
+
+
 ### Legacy (non-upgradeable) OFTs
 - Chain: `Ethereum`, `Metis`, `Blast`, `Base`
 - Chain to convert from native token into OFT: Ethereum
@@ -137,7 +153,7 @@ You can expect to use (1) unless you are holding OFTs on Base, Blast, or Metis p
   - `sFRAX`: `0xe4796cCB6bB5DE2290C417Ac337F2b66CA2E770E`
   - `frxETH` : `0xF010a7c8877043681D59AD125EbF575633505942`
   - `sfrxETH`: `0x1f55a02A049033E3419a8E2975cF3F572F4e6E9A`
-  - `FXS`: `0x23432452B720C80553458496D4D9d7C5003280d0`
+  - `FRAX`: `0x23432452B720C80553458496D4D9d7C5003280d0`
   - `FPI`: `0x6Eca253b102D41B6B69AC815B9CC6bD47eF1979d`
 
 

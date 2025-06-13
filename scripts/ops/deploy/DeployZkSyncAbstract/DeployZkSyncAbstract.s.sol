@@ -23,11 +23,11 @@ contract DeployZkSyncAbstract is DeployFraxOFTProtocol {
         sfrxUsdOft = fraxtalSFrxUsdLockbox;
         frxEthOft = fraxtalFrxEthLockbox;
         sfrxEthOft = fraxtalSFrxEthLockbox;
-        fxsOft = fraxtalFxsLockbox;
+        wfraxOft = fraxtalFraxLockbox;
         fpiOft = fraxtalFpiLockbox;
 
         // populate proxyOfts to the fraxtal lockboxes in order of deployment
-        proxyOfts.push(fraxtalFxsLockbox);
+        proxyOfts.push(fraxtalFraxLockbox);
         proxyOfts.push(fraxtalSFrxUsdLockbox);
         proxyOfts.push(fraxtalSFrxEthLockbox);
         proxyOfts.push(fraxtalFrxUsdLockbox);

@@ -5,7 +5,7 @@ import "scripts/DeployFraxOFTProtocol/DeployFraxOFTProtocol.s.sol";
 import "contracts/FraxOFTMintableUpgradeable.sol";
 import { FraxOFTWalletUpgradeable } from "contracts/FraxOFTWalletUpgradeable.sol";
 
-// TODO : pending deployment, abstract : forge script ./scripts/ops/FraxDVNTest/mainnet/1b_DeployMockFrax.s.sol --rpc-url https://api.mainnet.abs.xyz --zksync --verifier-url $ABSTRACT_ETHERSCAN_API_URL --etherscan-api-key $ABSTRACT_ETHERSCAN_API_KEY --verifier etherscan --verify --broadcast
+// abstract : forge script ./scripts/ops/FraxDVNTest/mainnet/2d_DeployFraxOFTWalletUpgradeableAbstract.s.sol --rpc-url https://api.mainnet.abs.xyz --zksync --verifier-url $ABSTRACT_ETHERSCAN_API_URL --etherscan-api-key $ABSTRACT_ETHERSCAN_API_KEY --verifier etherscan --verify --broadcast
 
 contract DeployFraxOFTWalletUpgradeableAbstract is DeployFraxOFTProtocol {
     address[] public proxyOftWallets;

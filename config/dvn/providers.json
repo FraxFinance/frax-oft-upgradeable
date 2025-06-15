@@ -189,5 +189,15 @@
             "https://blast.din.dev/rpc"
         ],
         "quorum": 2
+    },
+    "worldchain": {
+        "uris": [
+            "https://worldchain.drpc.org",
+            "https://worldchain-mainnet.g.alchemy.com/public",
+            "https://480.rpc.thirdweb.com",
+            "https://sparkling-autumn-dinghy.worldchain-mainnet.quiknode.pro",
+            "https://worldchain-mainnet.gateway.tenderly.co"
+        ],
+        "quorum": 2
     }
 }

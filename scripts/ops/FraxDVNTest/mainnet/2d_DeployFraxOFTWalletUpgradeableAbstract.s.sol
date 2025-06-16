@@ -22,7 +22,7 @@ contract DeployFraxOFTWalletUpgradeableAbstract is DeployFraxOFTProtocol {
         deployFraxOFTWalletUpgradeableAndProxy();
     }
 
-    function deployFraxOFTWalletUpgradeableAndProxy() public returns (address implementation, address proxy) {
+    function deployFraxOFTWalletUpgradeableAndProxy() public returns (address implementation, address) {
         proxyAdmin = mFraxProxyAdmin;
 
         implementation = address(new FraxOFTWalletUpgradeable());

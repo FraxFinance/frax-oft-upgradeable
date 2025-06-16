@@ -15,21 +15,20 @@ contract deployFraxOFTUpgradeableAbstract is DeployFraxOFTProtocol {
         deploySource();
     }
 
-    function postDeployChecks() internal view override {
-    }
+    function postDeployChecks() internal view override {}
 
     function deployFraxOFTUpgradeablesAndProxies() public override broadcastAs(oftDeployerPK) {
         // / @dev: follows deployment order of legacy OFTs found at https://etherscan.io/address/0xded884435f2db0169010b3c325e733df0038e51d
         // Deploy FRAX
-        deployFraxOFTUpgradeableAndProxy({ _name: "Mock Frax", _symbol: "mFRAX" });
+        deployFraxOFTUpgradeableAndProxy("Mock Frax", "mFRAX");
     }
 
     /// @notice Sourced from https://github.com/FraxFinance/LayerZero-v2-upgradeable/blob/e1470197e0cffe0d89dd9c776762c8fdcfc1e160/oapp/test/TestHelper.sol#L266
     ///     With state checks
     function deployFraxOFTUpgradeableAndProxy(
-        string memory _name,
-        string memory _symbol
-    ) public override returns (address implementation, address proxy) {
+        string memory,
+        string memory
+    ) public override returns (address implementation, address) {
         proxyAdmin = mFraxProxyAdmin;
 
         implementation = address(new FraxOFTUpgradeable(broadcastConfig.endpoint));

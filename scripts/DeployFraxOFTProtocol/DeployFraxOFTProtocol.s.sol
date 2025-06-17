@@ -157,10 +157,10 @@ contract DeployFraxOFTProtocol is BaseL0Script {
         implementationMock = address(new ImplementationMock());
 
         // / @dev: follows deployment order of legacy OFTs found at https://etherscan.io/address/0xded884435f2db0169010b3c325e733df0038e51d
-        // Deploy FRAX
-        (,fraxOft) = deployFraxOFTUpgradeableAndProxy({
-            _name: "Frax",
-            _symbol: "FRAX"
+        // Deploy WFRAX
+        (,wfraxOft) = deployFraxOFTUpgradeableAndProxy({
+            _name: "Wrapped Frax",
+            _symbol: "WFRAX"
         });
 
         // Deploy sfrxUSD
@@ -328,6 +328,24 @@ contract DeployFraxOFTProtocol is BaseL0Script {
                 _oftArray: zkEraProxyOfts
             });
             require(peer != address(0), "Invalid Zk Era peer");
+        } else if (_chainid == 11155111) {
+            peer = getTestnetPeerFromArray({
+                _oft: _oft,
+                _oftArray: ethSepoliaLockboxes
+            });
+            require(peer != address(0), "Invalid eth sepolia peer");
+        } else if (_chainid == 421614) {
+            peer = getTestnetPeerFromArray({
+                _oft: _oft,
+                _oftArray: arbitrumSepoliaOfts
+            });
+            require(peer != address(0), "Invalid arbitrum sepolia peer");
+        } else if (_chainid == 2522) {
+            peer = getTestnetPeerFromArray({
+                _oft: _oft,
+                _oftArray: fraxtalTestnetLockboxes
+            });
+            require(peer != address(0), "Invalid fraxtal testnet peer");
         } else {
             peer = getPeerFromArray({
                 _oft: _oft,
@@ -339,8 +357,9 @@ contract DeployFraxOFTProtocol is BaseL0Script {
 
     function getPeerFromArray(address _oft, address[] memory _oftArray) public virtual view returns (address peer) {
         require(_oftArray.length == 6, "getPeerFromArray index mismatch");
+        require(_oft != address(0), "getPeerFromArray() OFT == address(0)");
         /// @dev maintains array of deployFraxOFTUpgradeablesAndProxies(), where proxyOfts is pushed to in the respective order
-        if (_oft == fraxOft || _oft == proxyFraxOft) {
+        if (_oft == wfraxOft || _oft == proxyFraxOft) {
             peer = _oftArray[0];
         } else if (_oft == sfrxUsdOft || _oft == proxySFrxUsdOft) {
             peer = _oftArray[1];
@@ -352,6 +371,15 @@ contract DeployFraxOFTProtocol is BaseL0Script {
             peer = _oftArray[4];
         } else if (_oft == fpiOft || _oft == proxyFpiOft) {
             peer = _oftArray[5];
+        }
+    }
+
+    function getTestnetPeerFromArray(address _oft, address[] memory _oftArray) public virtual view returns (address peer) {
+        require(_oftArray.length == 1, "getPeerFromTestnetArray index mismatch");
+        require(_oft != address(0), "getPeerFromTestnetArray() OFT == address(0)");
+        // should only be frxUsd
+        if (_oft == frxUsdOft || _oft == proxyFrxUsdOft) {
+            peer = _oftArray[0];
         }
     }
 

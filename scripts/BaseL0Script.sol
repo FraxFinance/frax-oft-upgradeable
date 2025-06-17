@@ -56,9 +56,13 @@ contract BaseL0Script is L0Constants, Script {
     L0Config[] public evmConfigs;
     L0Config[] public nonEvmConfigs;
     L0Config[] public allConfigs; // legacy, proxy, and non-evm allConfigs
+    L0Config[] public testnetConfigs;
     L0Config public broadcastConfig; // config of actively-connected (broadcasting) chain
     L0Config public simulateConfig;  // Config of the simulated chain
     L0Config[] public broadcastConfigArray; // length of 1 of broadcastConfig
+
+    // assume we're deploying to mainnet unless the broadcastConfig is set to a testnet
+    bool public isMainnet = true;
 
     /// @dev alphabetical order as json is read in by keys alphabetically.
     struct NonEvmPeer {
@@ -76,7 +80,7 @@ contract BaseL0Script is L0Constants, Script {
 
     // Deployed proxies
     address public proxyAdmin;
-    address public fraxOft;
+    address public wfraxOft;
     address public sfrxUsdOft;
     address public sfrxEthOft;
     address public frxUsdOft;
@@ -97,7 +101,7 @@ contract BaseL0Script is L0Constants, Script {
     string public json;
 
     function version() public virtual pure returns (uint256, uint256, uint256) {
-        return (1, 3, 0);
+        return (1, 3, 1);
     }
 
     modifier broadcastAs(uint256 privateKey) {
@@ -127,12 +131,20 @@ contract BaseL0Script is L0Constants, Script {
         vm.stopPrank();
 
         // serialized txs were pushed within the modified function- write to storage
-        new SafeTxUtil().writeTxs(serializedTxs, filename());
+        if (serializedTxs.length > 0) {
+            new SafeTxUtil().writeTxs(serializedTxs, filename());
+        }
     }
 
     // Configure destination OFT addresses as they may be different per chain
     // `connectedOfts` is used within DeployfraxOFTProtocol.setupDestination()
     function _populateConnectedOfts() public virtual {
+        isMainnet ?
+            _validateAndPopulateMainnetOfts() :
+            _validateAndPopulateTestnetOfts();
+    }
+
+    function _validateAndPopulateMainnetOfts() internal virtual {
         // check to prevent array mismatch.  This will trigger when, for example, managing peers of 2 of 6 OFTs as
         // this method asumes we're managing all 6 OFTs
         require (proxyOfts.length == 6, "Must override. be careful");
@@ -190,6 +202,22 @@ contract BaseL0Script is L0Constants, Script {
             connectedOfts[3] = expectedProxyOfts[3];
             connectedOfts[4] = expectedProxyOfts[4];
             connectedOfts[5] = expectedProxyOfts[5];
+        }
+    }
+
+    function _validateAndPopulateTestnetOfts() internal virtual {
+        require(proxyOfts.length == 1, "Must override. be careful"); // only frxUSD OFT
+
+        connectedOfts = new address[](1);
+
+        if (simulateConfig.chainid == 11155111) {
+            connectedOfts[0] = ethSepoliaLockboxes[0];
+        } else if (simulateConfig.chainid == 421614) {
+            connectedOfts[0] = arbitrumSepoliaOfts[0];
+        } else if (simulateConfig.chainid == 2522) {
+            connectedOfts[0] = fraxtalTestnetLockboxes[0];
+        } else {
+            revert("Testnet mismatch. Configure _validateAndPopulateTestnetOfts() for this chain");
         }
     }
 
@@ -258,6 +286,18 @@ contract BaseL0Script is L0Constants, Script {
             allConfigs.push(config_);
         }
 
+        // testnet
+        L0Config[] memory testnetConfigs_ = abi.decode(json.parseRaw(".Testnet"), (L0Config[]));
+        for (uint256 i=0; i<testnetConfigs_.length; i++) {
+            L0Config memory config_ = testnetConfigs_[i];
+            if (config_.chainid == block.chainid) {
+                isMainnet = false; // validate we're on testnet
+                broadcastConfig = config_;
+                broadcastConfigArray.push(config_);
+            }
+            testnetConfigs.push(config_);
+        }
+
         // NonEvmPeers.json
 
         path = string.concat(root, "/scripts/NonEvmPeers.json");
@@ -278,6 +318,7 @@ contract BaseL0Script is L0Constants, Script {
 
             nonEvmPeersArrays.push(peerArray);
         }
+
     }
 
     function isStringEqual(string memory _a, string memory _b) public pure returns (bool) {

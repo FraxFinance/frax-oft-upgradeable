@@ -76,7 +76,7 @@ contract DeployRemainingEthereumLockboxes is DeployFraxOFTProtocol {
             peer = _oftArray[0];
         } else if (_oft == sfrxEthOft || _oft == proxySFrxEthOft) {
             peer = _oftArray[1];
-        } else if (_oft == fraxOft || _oft == proxyFraxOft) {
+        } else if (_oft == wfraxOft || _oft == proxyFraxOft) {
             peer = _oftArray[2];
         } else if (_oft == fpiOft || _oft == proxyFpiOft) {
             peer = _oftArray[3];
@@ -84,7 +84,7 @@ contract DeployRemainingEthereumLockboxes is DeployFraxOFTProtocol {
     }
 
     function run() public override {
-        // [frxEthOft, sfrxEthOft, fraxOft, fpiOft]
+        // [frxEthOft, sfrxEthOft, wfraxOft, fpiOft]
         delete fraxtalLockboxes;
         fraxtalLockboxes.push(fraxtalFrxEthLockbox);
         fraxtalLockboxes.push(fraxtalSFrxEthLockbox);
@@ -133,7 +133,7 @@ contract DeployRemainingEthereumLockboxes is DeployFraxOFTProtocol {
             _token: sfrxEth
         });
 
-        (, fraxOft) = deployFraxOFTUpgradeableAndProxy({
+        (, wfraxOft) = deployFraxOFTUpgradeableAndProxy({
             _token: fxs
         });
 

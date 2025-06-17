@@ -37,6 +37,8 @@ This repository contains all of the contracts and deployment code used to manage
   - [`Solana`](https://app.squads.so/squads/FSRTW4KPGifKL8yKcZ8mfoR9mKtAjwZiTHbHwgix8AQo/home)
   - [`ZkSync`](https://app.safe.global/home?safe=zksync:0x66716ae60898dD4479B52aC4d92ef16C1821f420)
   - [`Abstract`](https://abstract-safe.protofire.io/home?safe=abstract:0xcC20eAE3CdC554E96291708B362dF349CC443808)
+  - [`Movement`](https://movement.m-safe.io/assets?msafe=0xda80fe6404a059e99569ba06f8d87814b3a9521c8d6c78ac5ed4ca75ad867ab3)
+  - [`Aptos`](https://aptos.m-safe.io/assets?msafe=0x6f9e27569fb34873f13a6868b3732b384f81c89fb525a623a969fdba155de21c)
   - [`Worldchain`](https://app.safe.global/home?safe=wc:0xf57d47c3EA11c12253dBc0BeAf097d5c206e8773)
 
 ### Proxy (upgradeable) OFTs
@@ -128,6 +130,29 @@ You can expect to use (1) unless you are holding OFTs on Base, Blast, or Metis p
   - SPL Token: `8xKX8CRH9LxriRUNCPittu1jiovyQQr4EonWQjHZjWyH`
     - As bytes32: `0xd3cee058686107cc51844f331ee213a33142ab299b5ce473c1cf3a8ddaa721a0`
 
+### Movement, Aptos
+- Admin: Chain-respective msig
+- `frxUSD`
+  - OFT Package: `0xe067037681385b86d8344e6b7746023604c6ac90ddc997ba3c58396c258ad17b`
+    - OFT FA: `0xe4354602aa4311f36240dd57f3f3435ffccdbd0cd2963f1a69da39a2dbcd59b5`
+- `sfrxUSD`
+  - OFT Package: `0xc9bdfdc965bb7fcdcfa6b45870eab33bfaf8f4e8e3f6b89d3e0203aba634a1c9`
+    - OFT FA: `0xbf2efbffbbd7083aaf006379d96b866b73bb4eb9684a7504c62feafe670962c2`
+- `frxETH`
+  - OFT Package: `0xecb3a766f12981919158fc8ec3b98dd3f8b39a59280e62e80c600cea1b2c0f9c`
+    - OFT FA: `0x8645126a60d36e138d435a28875a2aeef253bf80aae22bebcd411ad4251f1585`
+- `sfrxETH`
+  - OFT Package: `0x28b7264258592031a024ed8e1632090648ec53797c269ac91aa0c9ed94268356`
+    - OFT FA: `0x80d729c4632bcc6279b7bed2542e01e2cebd34ca9f3f15963c29d1621efc221a`
+- `FXS` (depreacted)
+  - OFT Package: `0x687dd7e354df73a46a98cc81cfbf51d46e540560b840591eca9ee054f9a2e34c`
+    - OFT FA: `0xb5660995134dc2cb90d615928c37b2a67c3e006c88d222b23a455cffb14202b9`
+- `WFRAX`
+  - OFT Package: `0x267749b1a80d9d582019e6b0572c1dbc98648e24101b0861395cdbed095ceff2`
+    - OFT FA: `0x4e4cce8f877d7ad45c896c1823017fe07874f3d8db6e15960eda26e211151300`
+- `FPI`
+  - OFT Package: `0xadf0ffffa5ee44a94f0c65be05e701951e65e276419f7460286a139d9403e864`
+    - OFT FA: `0x15607151cc023512886f5af24d4f77e6e7a5d6fb8a482dfb56b9c4f5c1fca0b2`
 ### Testnet
 Frax operates a lightweight LZ stack on testnets, replicating the dual-lockbox approach.  Below are the following addresses:
 

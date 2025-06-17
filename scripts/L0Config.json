@@ -157,7 +157,7 @@
             "sendLib302": "0x197D1333DEA5Fe0D6600E9b396c7f1B1cFCc558a"
         },
         {
-            "RPC": "https://neat-lingering-orb.bsc.quiknode.pro/a9e1547db6f8261bf94f92603eec0cc3d0c66605",
+            "RPC": "https://bsc-dataseed.bnbchain.org",
             "chainid": 56,
             "delegate": "0xB1eff95B323D60cc04B1a44Ca1dBcbC935ae2C84",
             "dvnHorizen": "0x247624e2143504730aec22912ed41f092498bef2",
@@ -270,14 +270,37 @@
     "Non-EVM": [
         {
             "RPC": "Solana",
-            "chainid": 9999999999,
-            "delegate": "FSRTW4KPGifKL8yKcZ8mfoR9mKtAjwZiTHbHwgix8AQo",
-            "dvnHorizen": "HR9NQKK1ynW9NzgdM37dU5CBtqRHTukmbMKS7qkwSkHX",
-            "dvnL0": "4VDjp6XQaxoZf5RGwiPU9NR1EXSZn2TP4ATMmiSzLfhb",
+            "chainid": 111111111,
+            "delegate": "0x0000000000000000000000000000000000000000",
+            "dvnHorizen": "0x0000000000000000000000000000000000000000",
+            "dvnL0": "0x0000000000000000000000000000000000000000",
             "eid": 30168,
-            "endpoint": "76y77prsiCMvXMjuoZ5VRrhG5qYBrUMYTE5WgHqgjEn6",
-            "receiveLib302": "7a4WjyR8VZ7yZz5XJAKm39BUGn5iT9CKcv2pmG9tdXVH",
-            "sendLib302": "7a4WjyR8VZ7yZz5XJAKm39BUGn5iT9CKcv2pmG9tdXVH"
+            "endpoint": "0x0000000000000000000000000000000000000000",
+            "receiveLib302": "0x0000000000000000000000000000000000000000",
+            "sendLib302": "0x0000000000000000000000000000000000000000"
+        },
+        {
+            "RPC": "Movement",
+            "chainid": 22222222,
+            "delegate": "0x0000000000000000000000000000000000000000",
+            "dvnHorizen": "0x0000000000000000000000000000000000000000",
+            "dvnL0": "0x0000000000000000000000000000000000000000",
+            "eid": 30325,
+            "endpoint": "0x0000000000000000000000000000000000000000",
+            "receiveLib302": "0x0000000000000000000000000000000000000000",
+            "sendLib302": "0x0000000000000000000000000000000000000000"
+        },
+        {
+            "RPC": "Aptos",
+            "chainid": 33333333,
+            "delegate": "0x0000000000000000000000000000000000000000",
+            "dvnHorizen": "0x0000000000000000000000000000000000000000",
+            "dvnL0": "0x0000000000000000000000000000000000000000",
+            "eid": 30108,
+            "endpoint": "0x0000000000000000000000000000000000000000",
+            "receiveLib302": "0x0000000000000000000000000000000000000000",
+            "sendLib302": "0x0000000000000000000000000000000000000000",
+            "executor": "0x0000000000000000000000000000000000000000"
         }
     ],
     "Testnet": [

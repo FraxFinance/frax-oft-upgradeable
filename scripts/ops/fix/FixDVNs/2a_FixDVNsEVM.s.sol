@@ -25,6 +25,7 @@ contract FixDVNs is FixDVNsInherited {
 
         for (uint256 i = 0; i < proxyConfigs.length; i++) {
             for (uint256 j = 0; j < chainIds.length; j++) {
+                if (proxyConfigs[i].chainid != 324) continue; // Note : uncomment and modify chain id 
                 if (proxyConfigs[i].chainid == chainIds[j]) {
                     fixDVNs(proxyConfigs[i]);
                 }
@@ -44,7 +45,7 @@ contract FixDVNs is FixDVNsInherited {
 
                 L0Config[] memory tempConfigs = new L0Config[](1);
                 tempConfigs[0] = proxyConfigs[i];
-
+                if (tempConfigs[0].chainid != 252) continue; // Note : uncomment and modify chain id to which wiring should be done
                 setDVNs({ _connectedConfig: _config, _connectedOfts: connectedOfts, _configs: tempConfigs });
             }
         }

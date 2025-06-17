@@ -33,6 +33,7 @@ contract SetBlockSendLibZk is FixDVNsInherited {
 
         for (uint256 i=0; i<proxyConfigs.length; i++) {
             for (uint256 j=0; j<chainIds.length; j++) {
+                if(chainIds[j] != 324) continue; 
                 if (proxyConfigs[i].chainid == chainIds[j]) {
                     setSendLibs(proxyConfigs[i]);
                 }

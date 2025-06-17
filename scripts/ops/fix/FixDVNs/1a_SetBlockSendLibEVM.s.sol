@@ -34,6 +34,7 @@ contract SetBlockSendLib is FixDVNsInherited {
                     // skip zksync and abstract, they have a separate script
                     continue;
                 }
+                // if(chainIds[j] != 480) continue; // Note : uncomment this and modify chainId between runs
 
                 if (proxyConfigs[i].chainid == chainIds[j]) {
                     setSendLibs(proxyConfigs[i]);
@@ -52,6 +53,7 @@ contract SetBlockSendLib is FixDVNsInherited {
             // loop through proxy configs, find the proxy config with the given chainID
             for (uint256 i=0; i<proxyConfigs.length; i++) {
                 for (uint256 j=0; j<chainIds.length; j++) {
+                    // if(chainIds[j] != 252) continue; // Note : uncomment this and specify chain where OFT should be wired
                     // only set chains as desired, not equal to the same chain
                     if (
                         proxyConfigs[i].chainid != chainIds[j]

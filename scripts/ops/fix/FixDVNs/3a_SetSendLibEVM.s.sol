@@ -31,11 +31,11 @@ contract SetBlockSendLib is FixDVNsInherited {
 
         for (uint256 i=0; i<proxyConfigs.length; i++) {
             for (uint256 j=0; j<chainIds.length; j++) {
-                if (chainIds[j] == 324 || chainIds[j] == 2741) {
-                    // skip zksync and abstract, they have a separate script
-                    continue;
-                }
-
+                // if (chainIds[j] == 324 || chainIds[j] == 2741) {
+                //     // skip zksync and abstract, they have a separate script
+                //     continue;
+                // }
+                if (chainIds[j] != 2741) continue;
                 if (proxyConfigs[i].chainid == chainIds[j]) {
                     setSendLibs(proxyConfigs[i]);
                 }
@@ -51,6 +51,7 @@ contract SetBlockSendLib is FixDVNsInherited {
             // loop through proxy configs, find the proxy config with the given chainID
             for (uint256 i=0; i<proxyConfigs.length; i++) {
                 for (uint256 j=0; j<chainIds.length; j++) {
+                    if (chainIds[j] != 252) continue;
                     // only set chains as desired, not equal to the same chain
                     if (
                         proxyConfigs[i].chainid != chainIds[j]

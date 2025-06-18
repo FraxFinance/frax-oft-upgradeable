@@ -8,10 +8,35 @@ contract SubmitSends is BaseL0Script {
     using stdJson for string;
     using Strings for uint256;
 
-    bool activeLegacy;
+    uint256[] chaindIds;
+
+    constructor() {
+        chainIds = [
+            1, // ethereum,
+            10, // optimism
+            56, // bsc
+            137, // polygon
+            146, // sonic
+            196, // xlayer
+            252, // fraxtal
+            324, // zksync : skip
+            1101, // polygon zkevm
+            1329, // sei
+            2741, // abstract :skip
+            8453, // base
+            34443, // mode
+            42161, // arbitrum
+            43114, // avalanche
+            57073, // ink
+            59144, // linea
+            80094, // berachain
+            81457, // blast
+            480 // worldchain
+        ];
+    }
 
     function version() public pure override returns (uint256, uint256, uint256) {
-        return (1, 1, 2);
+        return (1, 2, 0);
     }
 
     function setUp() public override {
@@ -19,25 +44,37 @@ contract SubmitSends is BaseL0Script {
     }
 
     function run() public {
+        simulateConfig = broadcastConfig;
+        _populateConnectedOfts();
+
         submitSends();
     }
 
     function submitSends() public {
-        activeLegacy ? 
-            submitSends(ethLockboxesLegacy) :
-            submitSends(expectedProxyOfts);
+        submitSends(connectedOfts);
     }
 
     function submitSends(
         address[] memory _connectedOfts
     ) public {
         for (uint256 c=0; c<allConfigs.length; c++) {
-            // Do not send if the target chain == active chain
+            // skip if the config is the broadcastConfig
             if (allConfigs[c].chainid == broadcastConfig.chainid) {
                 continue;
             }
-            for (uint256 o=0; o<_connectedOfts.length; o++) {
-                submitSend(allConfigs[c], _connectedOfts[o]);
+
+            for (uint256 i=0; i<chainIds.length; i++) {
+                // skip if the chain id is not the active config
+                if allConfigs[c].chainid != chainIds[i] {
+                    continue;
+                }
+
+                for (uint256 o=0; o<_connectedOfts.length; o++) {
+                    submitSend(
+                        allConfigs[c].eid,
+                        _connectedOfts[o]
+                    )
+                }
             }
         }
     }
@@ -45,22 +82,14 @@ contract SubmitSends is BaseL0Script {
     /// Similar methods: https://github.com/angg-lz/my-lz-oft/blob/main/tasks/index.ts
     /// https://github.com/FraxFinance/LayerZero-v2-upgradeable/blob/e1470197e0cffe0d89dd9c776762c8fdcfc1e160/oapp/test/OFT.t.sol#L111
     function submitSend(
-        L0Config memory _connectedConfig,
+        uint256 _dstEid,
         address _connectedOft
     ) public broadcastAs(senderDeployerPK) {
         uint256 amount = 1e14;
         address oftToken = IOFT(_connectedOft).token();
-        
-        // only send FRAX, sFRAX to x-layer
-        if (_connectedConfig.eid != 30274 ||
-            (_connectedOft != 0x5Bff88cA1442c2496f7E475E9e7786383Bc070c0 &&
-             _connectedOft != 0x80Eede496655FB9047dd39d9f418d5483ED600df)
-        ) {
-            return;
-        }
-
+    
         require(
-            IERC20(oftToken).balanceOf(vm.addr(senderDeployerPK)) > amount * 6,
+            IERC20(oftToken).balanceOf(vm.addr(senderDeployerPK)) > amount * chainIds.length,
             "Not enough token balance"
         );
 
@@ -72,7 +101,7 @@ contract SubmitSends is BaseL0Script {
         // bytes memory options = OptionsBuilder.newOptions().addExecutorLzReceiveOption(300_000, 0);
         bytes memory options = OptionsBuilder.newOptions();
         SendParam memory sendParam = SendParam({
-                dstEid: uint32(_connectedConfig.eid),
+                dstEid: uint32(_dstEid),
                 to: addressToBytes32(vm.addr(senderDeployerPK)),
                 amountLD: amount,
                 minAmountLD: amount,

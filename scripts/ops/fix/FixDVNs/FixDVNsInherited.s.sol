@@ -32,7 +32,8 @@ contract FixDVNsInherited is DeployFraxOFTProtocol {
             59144, // linea
             80094, // berachain
             81457, // blast
-            480 // worldchain
+            480, // worldchain
+            130 // unichain
         ];
     }
 }

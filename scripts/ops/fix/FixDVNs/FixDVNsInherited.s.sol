@@ -13,12 +13,6 @@ contract FixDVNsInherited is DeployFraxOFTProtocol {
     constructor() {
         // Initialize the chainIds array with the desired chain IDs
         chainIds = [
-            1, // ethereum,
-            10, // optimism
-            56, // bsc
-            137, // polygon
-            146, // sonic
-            196, // xlayer
             252, // fraxtal
             324, // zksync : skip
             1101, // polygon zkevm

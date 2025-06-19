@@ -66,6 +66,7 @@ contract L0Constants {
     address public ethFrxEthLockbox = 0x1c1649A38f4A3c5A0c4a24070f688C525AB7D6E6;
     address public ethSFrxEthLockbox = 0xbBc424e58ED38dd911309611ae2d7A23014Bd960;
     address public ethFraxOft = 0x04ACaF8D2865c0714F79da09645C13FD2888977f;
+    address public ethFraxLockbox; // Deprecated
     address public ethFpiLockbox = 0x9033BAD7aA130a2466060A2dA71fAe2219781B4b;
 
     address public ethFrxUsdLockboxLegacy = 0x909DBdE1eBE906Af95660033e478D59EFe831fED;

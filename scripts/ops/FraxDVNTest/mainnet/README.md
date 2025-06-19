@@ -27,7 +27,6 @@ Blast : https://layerzeroscan.com/tx/0x1981c1fa2c54efb047ae6590662acb584734552bf
 
 Base  : https://layerzeroscan.com/tx/0xafc7ac9513d37f70ae3bc84170a3b8bb16e68aebc64593bf60fdfc9f638b97ff 
 
-
 Mode : https://layerzeroscan.com/tx/0x39be9865de498168b82b1ed71b539ff9d34f99ee33647ebb3addc8e6b744313e 
 
 Sei : https://layerzeroscan.com/tx/0x5f8f1dfbedf467ee4d4e702e9733c8bac3873d89627e19c68637195027c4917c 
@@ -41,6 +40,8 @@ Arbitrum : https://layerzeroscan.com/tx/0x41b2a0b6574a384ee62cc0cb69294dda673a1b
 Optimism : https://layerzeroscan.com/tx/0x5dea6ee4e0b5b7c432c599f065ad971c2407480a6d58fbf4f1bc75598653b97f 
 
 Polygon : https://layerzeroscan.com/tx/0xe635d80c97d4fed976a98799c2bb2841838e94652cd3171ec2626583ff7855b4 
+
+Avalanche : https://layerzeroscan.com/tx/0x66ea1c3394945498e41a66a82d57c1c721b6b577213e6dd1ece6c2769c027aff 
 
 BNB : https://layerzeroscan.com/tx/0x9dee674687729eb9516f0f4d25fbc52ddd1e47d7cdcf83c0969f442b4497ca9a 
 

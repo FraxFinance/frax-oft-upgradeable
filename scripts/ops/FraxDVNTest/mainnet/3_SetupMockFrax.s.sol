@@ -31,7 +31,7 @@ contract SetupMockFrax is DeployFraxOFTProtocol {
             proxyOfts.push(0x3Fc877008e396FdD7f9Ee3Deb2e8A54d54da705A);
             expectedProxyOfts.push(0x3Fc877008e396FdD7f9Ee3Deb2e8A54d54da705A);
         } else {
-            // 1,81457,8453,34443,1329,252,196,146,57073,42161,10,137,43114,56,1101,80094,480
+            // 1,81457,8453,34443,1329,252,196,146,57073,42161,10,137,43114,56,1101,80094,480,130
             connectedOfts[0] = 0x57558Cb8d6005DE0BAe8a2789d5EfaaE52dba5a8;
             proxyOfts.push(0x57558Cb8d6005DE0BAe8a2789d5EfaaE52dba5a8);
             expectedProxyOfts.push(0x57558Cb8d6005DE0BAe8a2789d5EfaaE52dba5a8);
@@ -44,6 +44,12 @@ contract SetupMockFrax is DeployFraxOFTProtocol {
 
     function setupNonEvms() public override {}
 
+    function setPeer(L0Config memory _config, address _connectedOft, bytes32 _peerOftAsBytes32) public override {
+        if (hasNoPeer(_connectedOft, _config, _peerOftAsBytes32)) {
+            super.setPeer(_config, _connectedOft, _peerOftAsBytes32);
+        }
+    }
+
     function determinePeer(uint256 _chainid, address, address[] memory) public pure override returns (address peer) {
         if (_chainid == 59144) {
             // linea
@@ -55,20 +61,18 @@ contract SetupMockFrax is DeployFraxOFTProtocol {
             // zksync
             peer = 0x3Fc877008e396FdD7f9Ee3Deb2e8A54d54da705A;
         } else {
-            // 1,81457,8453,34443,1329,252,196,146,57073,42161,10,137,43114,56,1101,80094,480
+            // 1,81457,8453,34443,1329,252,196,146,57073,42161,10,137,43114,56,1101,80094,480,130
             peer = 0x57558Cb8d6005DE0BAe8a2789d5EfaaE52dba5a8;
         }
     }
 
     function setPriviledgedRoles() public override {}
 
-    function setLib(
-        L0Config memory _connectedConfig, 
-        address _connectedOft, 
-        L0Config memory _config
-    ) public override {
+    function setLib(L0Config memory _connectedConfig, address _connectedOft, L0Config memory _config) public override {
         if (_config.eid == 30168) return;
         if (_config.eid == 30151) return;
+        // if (_config.eid != 30320) return;
+        // TODO : only set library if it is not same as config
         super.setLib(_connectedConfig, _connectedOft, _config);
     }
 
@@ -77,9 +81,10 @@ contract SetupMockFrax is DeployFraxOFTProtocol {
         L0Config memory _dstConfig,
         address _lib,
         address _oft
-    ) public override { 
+    ) public override {
         if (_dstConfig.eid == 30168) return;
         if (_dstConfig.eid == 30151) return;
+        // if (_dstConfig.eid != 30320) return;
         super.setConfig(_srcConfig, _dstConfig, _lib, _oft);
     }
 
@@ -93,6 +98,7 @@ contract SetupMockFrax is DeployFraxOFTProtocol {
         if (_dstChainId == 1088) return dvnStack;
         if (_srcChainId == 111111111) return dvnStack;
         if (_dstChainId == 111111111) return dvnStack;
+        // if (_srcChainId != 130) return dvnStack;
 
         // craft path
         string memory root = vm.projectRoot();
@@ -106,5 +112,10 @@ contract SetupMockFrax is DeployFraxOFTProtocol {
         // NOTE: a missing key will cause this decoding to revert
         string memory key = string.concat(".", _dstChainId.toString());
         dvnStack = abi.decode(jsonFile.parseRaw(key), (DvnStack));
+    }
+
+    function hasNoPeer(address _oft, L0Config memory _dstConfig, bytes32 _peerOftAsBytes32) internal view returns (bool) {
+        bytes32 peer = IOAppCore(_oft).peers(uint32(_dstConfig.eid));
+        return peer != _peerOftAsBytes32;
     }
 }

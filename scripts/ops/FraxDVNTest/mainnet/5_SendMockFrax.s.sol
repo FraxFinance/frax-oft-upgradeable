@@ -27,9 +27,10 @@ import { FraxOFTUpgradeable } from "contracts/FraxOFTUpgradeable.sol";
 // worldchain : forge script scripts/ops/FraxDVNTest/mainnet/5_SendMockFrax.s.sol --rpc-url https://worldchain-mainnet.g.alchemy.com/public --broadcast
 // zksync era : forge script scripts/ops/FraxDVNTest/mainnet/5_SendMockFrax.s.sol --rpc-url https://mainnet.era.zksync.io --zksync // Note: this was performed directly on etherscan
 // abstract : forge script scripts/ops/FraxDVNTest/mainnet/5_SendMockFrax.s.sol --rpc-url https://api.mainnet.abs.xyz --zksync  // Note: this was performed directly on etherscan
+// unichain : forge script scripts/ops/FraxDVNTest/mainnet/5_SendMockFrax.s.sol --rpc-url https://mainnet.unichain.org --broadcast
 
 contract SendMockFrax is BaseL0Script {
-    // 1,81457,8453,34443,1329,252,196,146,57073,42161,10,137,43114,56,1101,80094,480
+    // 1,81457,8453,34443,1329,252,196,146,57073,42161,10,137,43114,56,1101,80094,480,130
     address public constant mockFrax = 0x57558Cb8d6005DE0BAe8a2789d5EfaaE52dba5a8;
     address public constant mockFraxWallet = 0x741F0d8Bde14140f62107FC60A0EE122B37D4630;
     // 324, zksync, 30165
@@ -69,7 +70,7 @@ contract SendMockFrax is BaseL0Script {
                     sourceOFT = mockFraxZkSync;
                     senderWallet = mockFraxZkSyncWallet;
                 } else {
-                    // 1,81457,8453,34443,1329,252,196,146,57073,42161,10,137,43114,56,1101,80094,480
+                    // 1,81457,8453,34443,1329,252,196,146,57073,42161,10,137,43114,56,1101,80094,480,130
                     sourceOFT = mockFrax;
                     senderWallet = mockFraxWallet;
                 }
@@ -79,6 +80,7 @@ contract SendMockFrax is BaseL0Script {
         require(sourceOFT != address(0), "SendMockFrax: sourceOFT should not be zero");
         require(senderWallet != address(0), "SendMockFrax: senderWallet should not be zero");
         for (uint256 _i; _i < allConfigs.length; _i++) {
+            // if (allConfigs[_i].eid != 30320) continue;
             if (broadcastConfig.chainid == allConfigs[_i].chainid) continue;
             if (allConfigs[_i].eid == 30168) continue;
             if (allConfigs[_i].eid == 30151) continue;
@@ -97,7 +99,7 @@ contract SendMockFrax is BaseL0Script {
                 mockFraxOFT = mockFraxZkSync;
                 recipientWallet = mockFraxZkSyncWallet;
             } else {
-                // 1,81457,8453,34443,1329,252,196,146,57073,42161,10,137,43114,56,1101,80094,480
+                // 1,81457,8453,34443,1329,252,196,146,57073,42161,10,137,43114,56,1101,80094,480,130
                 mockFraxOFT = mockFrax;
                 recipientWallet = mockFraxWallet;
             }

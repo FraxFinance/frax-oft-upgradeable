@@ -1,0 +1,10 @@
+{
+    "name": "Wrapped Frax",
+    "symbol": "WFRAX",
+    "description": "Wrapped Frax Token",
+    "image": "https://static.frax.com/images/tokens/wfrax.png",
+    "extensions": {
+      "website": "https://frax.com/",
+      "twitter": "https://x.com/fraxfinance"
+    }
+  }

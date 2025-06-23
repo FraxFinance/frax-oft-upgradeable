@@ -53,11 +53,11 @@ contract BaseL0Script is L0Constants, Script {
     /// @dev alphabetical order as json is read in by keys alphabetically.
     struct NonEvmPeer {
         bytes32 fpi;
-        bytes32 frax;
-        bytes32 frxUSD;
         bytes32 frxEth;
+        bytes32 frxUSD;
+        bytes32 sfrxEth;
         bytes32 sfrxUSD;
-        bytes32 sFrxEth;
+        bytes32 wfrax;
     }
     bytes32[][] public nonEvmPeersArrays;
 
@@ -113,7 +113,7 @@ contract BaseL0Script is L0Constants, Script {
         _;
         vm.stopPrank();
 
-        // serialized txs may have been pushed within the decorated function- write to file
+        // serialized txs were pushed within the modified function- write to storage
         if (serializedTxs.length > 0) {
             new SafeTxUtil().writeTxs(serializedTxs, filename());
         }
@@ -194,9 +194,11 @@ contract BaseL0Script is L0Constants, Script {
         connectedOfts = new address[](1);
 
         if (simulateConfig.chainid == 11155111) {
-            connectedOfts[0] = ethSepoliaFrxUsdLockbox;
+            connectedOfts[0] = ethSepoliaLockboxes[0];
         } else if (simulateConfig.chainid == 421614) {
-            connectedOfts[0] = arbitrumSepoliaFrxUsdOft;
+            connectedOfts[0] = arbitrumSepoliaOfts[0];
+        } else if (simulateConfig.chainid == 2522) {
+            connectedOfts[0] = fraxtalTestnetLockboxes[0];
         } else {
             revert("Testnet mismatch. Configure _validateAndPopulateTestnetOfts() for this chain");
         }
@@ -290,11 +292,11 @@ contract BaseL0Script is L0Constants, Script {
         for (uint256 i=0; i<nonEvmPeers.length; i++) {
             NonEvmPeer memory peer = nonEvmPeers[i];
             bytes32[] memory peerArray = new bytes32[](6);
-            peerArray[0] = peer.frax;
-            peerArray[1] = peer.sFrxEth;
-            peerArray[2] = peer.sfrxUSD;
-            peerArray[3] = peer.frxEth;
-            peerArray[4] = peer.frxUSD;
+            peerArray[0] = peer.wfrax;
+            peerArray[1] = peer.sfrxUSD;
+            peerArray[2] = peer.sfrxEth;
+            peerArray[3] = peer.frxUSD;
+            peerArray[4] = peer.frxEth;
             peerArray[5] = peer.fpi;
 
             nonEvmPeersArrays.push(peerArray);

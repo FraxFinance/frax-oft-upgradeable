@@ -1,0 +1,17 @@
+{
+    "chainId": 10,
+    "createdAt": 1747427907000,
+    "meta": {
+        "description": "",
+        "name": "Transactions Batch"
+    },
+    "transactions": [
+        {
+            "data": "0x9535ff3000000000000000000000000064445f0aecc51e94ad52d8ac56b7190e764e561a00000000000000000000000000000000000000000000000000000000000075950000000000000000000000001ccbf0db9c192d969de57e25b3ff09a25bb1d862",
+            "operation": "0",
+            "to": "0x1a44076050125825900e736c501f859c50fE728c",
+            "value": "0"
+        }
+    ],
+    "version": "1.0"
+}

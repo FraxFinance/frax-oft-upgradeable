@@ -37,7 +37,10 @@ This repository contains all of the contracts and deployment code used to manage
   - [`Solana`](https://app.squads.so/squads/FSRTW4KPGifKL8yKcZ8mfoR9mKtAjwZiTHbHwgix8AQo/home)
   - [`ZkSync`](https://app.safe.global/home?safe=zksync:0x66716ae60898dD4479B52aC4d92ef16C1821f420)
   - [`Abstract`](https://abstract-safe.protofire.io/home?safe=abstract:0xcC20eAE3CdC554E96291708B362dF349CC443808)
+  - [`Movement`](https://movement.m-safe.io/assets?msafe=0xda80fe6404a059e99569ba06f8d87814b3a9521c8d6c78ac5ed4ca75ad867ab3)
+  - [`Aptos`](https://aptos.m-safe.io/assets?msafe=0x6f9e27569fb34873f13a6868b3732b384f81c89fb525a623a969fdba155de21c)
   - [`Worldchain`](https://app.safe.global/home?safe=wc:0xf57d47c3EA11c12253dBc0BeAf097d5c206e8773)
+  - [`Unichain`](https://app.safe.global/home?safe=unichain:0x6f8FDdfD4F6a1456BA5632C919bEF74b64DD032D)
 
 ### Proxy (upgradeable) OFTs
 - Chain: `Mode`, `Sei`, `X-Layer`, `Ink`, `Sonic`, `Arbitrum`, `Optimism`, `Polygon`, `BSC`, `Avalanche`, `Polygon zkEvm`, `Blast`, `Berachain`, `Worldchain`
@@ -48,6 +51,9 @@ This repository contains all of the contracts and deployment code used to manage
     - `sfrxETH`: `0x3Ec3849C33291a9eF4c5dB86De593EB4A37fDe45`
     - `WFRAX`: `0x64445f0aecC51E94aD52d8AC56b7190e764E561a`
     - `FPI` : `0x90581eCa9469D8D7F5D3B60f4715027aDFCf7927`
+- Chain: `Ethereum`
+  - OFTs
+    - `WFRAX`: `0x04ACaF8D2865c0714F79da09645C13FD2888977f`
 - Chain: `Base`
   - OFTs
     - `frxUSD`: `0xe5020A6d073a794B6E7f05678707dE47986Fb0b6`
@@ -75,7 +81,9 @@ This repository contains all of the contracts and deployment code used to manage
 
 
 ### Lockbox design
-Frax operates a dual-lockbox design where users can exit their OFT token into the native Frax-asset token on both Ethereum and Fraxtal.  Utilizing a dual-lockbox design is a novel solution to bridging as liquidity is  unlocked from more than one location.  More about this solution is be explained in the [docs](TODO).
+Frax operates a dual-lockbox design where users can exit their OFT token into the native Frax-asset token on both Ethereum and Fraxtal.  Utilizing a dual-lockbox design is a novel solution to bridging as liquidity is  unlocked from more than one location.  More about this solution is be explained in the [docs](https://docs.frax.com/protocol/crosschain/overview).
+
+*NOTE*: The exception is WFRAX, which only contains a lockbox on Fraxtal.  Bridging to Ethereum via LZ receives the WFRAX OFT instead of locked liquidity.
 
 #### Fraxtal Lockboxes
 - `frxUSD`: `0x96A394058E2b84A89bac9667B19661Ed003cF5D4`
@@ -93,14 +101,13 @@ You can expect to use (1) unless you are holding OFTs on Base, Blast, or Metis p
   - `sfrxUSD`: `0x7311CEA93ccf5f4F7b789eE31eBA5D9B9290E126`
   - `frxETH` : `0x1c1649A38f4A3c5A0c4a24070f688C525AB7D6E6`
   - `sfrxETH`: `0xbBc424e58ED38dd911309611ae2d7A23014Bd960`
-  - `FXS`: `0xC6F59a4fD50cAc677B51558489E03138Ac1784EC`
   - `FPI`: `0x9033BAD7aA130a2466060A2dA71fAe2219781B4b`
 2. Immutable (legacy) Lockboxes
   - `LFRAX`: `0x909DBdE1eBE906Af95660033e478D59EFe831fED`
   - `sFRAX`: `0xe4796cCB6bB5DE2290C417Ac337F2b66CA2E770E`
   - `frxETH` : `0xF010a7c8877043681D59AD125EbF575633505942`
   - `sfrxETH`: `0x1f55a02A049033E3419a8E2975cF3F572F4e6E9A`
-  - `FXS`: `0x23432452B720C80553458496D4D9d7C5003280d0`
+  - `FRAX`: `0x23432452B720C80553458496D4D9d7C5003280d0`
   - `FPI`: `0x6Eca253b102D41B6B69AC815B9CC6bD47eF1979d`
 
 ### Solana
@@ -124,6 +131,29 @@ You can expect to use (1) unless you are holding OFTs on Base, Blast, or Metis p
   - SPL Token: `8xKX8CRH9LxriRUNCPittu1jiovyQQr4EonWQjHZjWyH`
     - As bytes32: `0xd3cee058686107cc51844f331ee213a33142ab299b5ce473c1cf3a8ddaa721a0`
 
+### Movement, Aptos
+- Admin: Chain-respective msig
+- `frxUSD`
+  - OFT Package: `0xe067037681385b86d8344e6b7746023604c6ac90ddc997ba3c58396c258ad17b`
+    - OFT FA: `0xe4354602aa4311f36240dd57f3f3435ffccdbd0cd2963f1a69da39a2dbcd59b5`
+- `sfrxUSD`
+  - OFT Package: `0xc9bdfdc965bb7fcdcfa6b45870eab33bfaf8f4e8e3f6b89d3e0203aba634a1c9`
+    - OFT FA: `0xbf2efbffbbd7083aaf006379d96b866b73bb4eb9684a7504c62feafe670962c2`
+- `frxETH`
+  - OFT Package: `0xecb3a766f12981919158fc8ec3b98dd3f8b39a59280e62e80c600cea1b2c0f9c`
+    - OFT FA: `0x8645126a60d36e138d435a28875a2aeef253bf80aae22bebcd411ad4251f1585`
+- `sfrxETH`
+  - OFT Package: `0x28b7264258592031a024ed8e1632090648ec53797c269ac91aa0c9ed94268356`
+    - OFT FA: `0x80d729c4632bcc6279b7bed2542e01e2cebd34ca9f3f15963c29d1621efc221a`
+- `FXS` (depreacted)
+  - OFT Package: `0x687dd7e354df73a46a98cc81cfbf51d46e540560b840591eca9ee054f9a2e34c`
+    - OFT FA: `0xb5660995134dc2cb90d615928c37b2a67c3e006c88d222b23a455cffb14202b9`
+- `WFRAX`
+  - OFT Package: `0x267749b1a80d9d582019e6b0572c1dbc98648e24101b0861395cdbed095ceff2`
+    - OFT FA: `0x4e4cce8f877d7ad45c896c1823017fe07874f3d8db6e15960eda26e211151300`
+- `FPI`
+  - OFT Package: `0xadf0ffffa5ee44a94f0c65be05e701951e65e276419f7460286a139d9403e864`
+    - OFT FA: `0x15607151cc023512886f5af24d4f77e6e7a5d6fb8a482dfb56b9c4f5c1fca0b2`
 ### Testnet
 Frax operates a lightweight LZ stack on testnets, replicating the dual-lockbox approach.  Below are the following addresses:
 
@@ -132,7 +162,8 @@ Frax operates a lightweight LZ stack on testnets, replicating the dual-lockbox a
 - [frxUSD lockbox](https://sepolia.etherscan.io/address/0x29a5134D3B22F47AD52e0A22A63247363e9F35c2)
 
 #### Fraxtal Testnet
-TODO
+- [frxUSD](https://holesky.fraxscan.com/address/0x452420df4AC1e3db5429b5FD629f3047482C543C)
+- [frxUSD lockbox](https://holesky.fraxscan.com/address/0x7C9DF6704Ec6E18c5E656A2db542c23ab73CB24d)
 
 #### Arbitrum Sepolia
 - [frxUSD OFT](https://sepolia.arbiscan.io/address/0x0768c16445b41137f98ab68ca545c0afd65a7513)
@@ -148,7 +179,7 @@ TODO
   - `sFRAX`: `0xe4796cCB6bB5DE2290C417Ac337F2b66CA2E770E`
   - `frxETH` : `0xF010a7c8877043681D59AD125EbF575633505942`
   - `sfrxETH`: `0x1f55a02A049033E3419a8E2975cF3F572F4e6E9A`
-  - `FXS`: `0x23432452B720C80553458496D4D9d7C5003280d0`
+  - `FRAX`: `0x23432452B720C80553458496D4D9d7C5003280d0`
   - `FPI`: `0x6Eca253b102D41B6B69AC815B9CC6bD47eF1979d`
 
 

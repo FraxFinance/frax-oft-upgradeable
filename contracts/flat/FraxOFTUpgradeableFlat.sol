@@ -1,426 +1,248 @@
 // SPDX-License-Identifier: UNLICENSED
 pragma solidity >=0.8.0 ^0.8.0 ^0.8.1 ^0.8.2 ^0.8.20 ^0.8.22;
 
-// node_modules/@fraxfinance/layerzero-v2-upgradeable/oapp/contracts/oapp/interfaces/IOAppMsgInspector.sol
+// node_modules/@openzeppelin/contracts/utils/Address.sol
+
+// OpenZeppelin Contracts (last updated v4.9.0) (utils/Address.sol)
 
 /**
- * @title IOAppMsgInspector
- * @dev Interface for the OApp Message Inspector, allowing examination of message and options contents.
+ * @dev Collection of functions related to the address type
  */
-interface IOAppMsgInspector {
-    // Custom error message for inspection failure
-    error InspectionFailed(bytes message, bytes options);
-
+library Address {
     /**
-     * @notice Allows the inspector to examine LayerZero message contents and optionally throw a revert if invalid.
-     * @param _message The message payload to be inspected.
-     * @param _options Additional options or parameters for inspection.
-     * @return valid A boolean indicating whether the inspection passed (true) or failed (false).
+     * @dev Returns true if `account` is a contract.
      *
-     * @dev Optionally done as a revert, OR use the boolean provided to handle the failure.
+     * [IMPORTANT]
+     * ====
+     * It is unsafe to assume that an address for which this function returns
+     * false is an externally-owned account (EOA) and not a contract.
+     *
+     * Among others, `isContract` will return false for the following
+     * types of addresses:
+     *
+     *  - an externally-owned account
+     *  - a contract in construction
+     *  - an address where a contract will be created
+     *  - an address where a contract lived, but was destroyed
+     *
+     * Furthermore, `isContract` will also return true if the target contract within
+     * the same transaction is already scheduled for destruction by `SELFDESTRUCT`,
+     * which only has an effect at the end of a transaction.
+     * ====
+     *
+     * [IMPORTANT]
+     * ====
+     * You shouldn't rely on `isContract` to protect against flash loan attacks!
+     *
+     * Preventing calls from contracts is highly discouraged. It breaks composability, breaks support for smart wallets
+     * like Gnosis Safe, and does not provide security since it can be circumvented by calling from a contract
+     * constructor.
+     * ====
      */
-    function inspect(bytes calldata _message, bytes calldata _options) external view returns (bool valid);
-}
+    function isContract(address account) internal view returns (bool) {
+        // This method relies on extcodesize/address.code.length, which returns 0
+        // for contracts in construction, since the code is only stored at the end
+        // of the constructor execution.
 
-// node_modules/@fraxfinance/layerzero-v2-upgradeable/oapp/contracts/oapp/interfaces/IOAppOptionsType3.sol
-
-/**
- * @dev Struct representing enforced option parameters.
- */
-struct EnforcedOptionParam {
-    uint32 eid; // Endpoint ID
-    uint16 msgType; // Message Type
-    bytes options; // Additional options
-}
-
-/**
- * @title IOAppOptionsType3
- * @dev Interface for the OApp with Type 3 Options, allowing the setting and combining of enforced options.
- */
-interface IOAppOptionsType3 {
-    // Custom error message for invalid options
-    error InvalidOptions(bytes options);
-
-    // Event emitted when enforced options are set
-    event EnforcedOptionSet(EnforcedOptionParam[] _enforcedOptions);
-
-    /**
-     * @notice Sets enforced options for specific endpoint and message type combinations.
-     * @param _enforcedOptions An array of EnforcedOptionParam structures specifying enforced options.
-     */
-    function setEnforcedOptions(EnforcedOptionParam[] calldata _enforcedOptions) external;
-
-    /**
-     * @notice Combines options for a given endpoint and message type.
-     * @param _eid The endpoint ID.
-     * @param _msgType The OApp message type.
-     * @param _extraOptions Additional options passed by the caller.
-     * @return options The combination of caller specified options AND enforced options.
-     */
-    function combineOptions(
-        uint32 _eid,
-        uint16 _msgType,
-        bytes calldata _extraOptions
-    ) external view returns (bytes memory options);
-}
-
-// node_modules/@fraxfinance/layerzero-v2-upgradeable/oapp/contracts/oft/libs/OFTComposeMsgCodec.sol
-
-library OFTComposeMsgCodec {
-    // Offset constants for decoding composed messages
-    uint8 private constant NONCE_OFFSET = 8;
-    uint8 private constant SRC_EID_OFFSET = 12;
-    uint8 private constant AMOUNT_LD_OFFSET = 44;
-    uint8 private constant COMPOSE_FROM_OFFSET = 76;
-
-    /**
-     * @dev Encodes a OFT composed message.
-     * @param _nonce The nonce value.
-     * @param _srcEid The source endpoint ID.
-     * @param _amountLD The amount in local decimals.
-     * @param _composeMsg The composed message.
-     * @return _msg The encoded Composed message.
-     */
-    function encode(
-        uint64 _nonce,
-        uint32 _srcEid,
-        uint256 _amountLD,
-        bytes memory _composeMsg // 0x[composeFrom][composeMsg]
-    ) internal pure returns (bytes memory _msg) {
-        _msg = abi.encodePacked(_nonce, _srcEid, _amountLD, _composeMsg);
+        return account.code.length > 0;
     }
 
     /**
-     * @dev Retrieves the nonce from the composed message.
-     * @param _msg The message.
-     * @return The nonce value.
+     * @dev Replacement for Solidity's `transfer`: sends `amount` wei to
+     * `recipient`, forwarding all available gas and reverting on errors.
+     *
+     * https://eips.ethereum.org/EIPS/eip-1884[EIP1884] increases the gas cost
+     * of certain opcodes, possibly making contracts go over the 2300 gas limit
+     * imposed by `transfer`, making them unable to receive funds via
+     * `transfer`. {sendValue} removes this limitation.
+     *
+     * https://consensys.net/diligence/blog/2019/09/stop-using-soliditys-transfer-now/[Learn more].
+     *
+     * IMPORTANT: because control is transferred to `recipient`, care must be
+     * taken to not create reentrancy vulnerabilities. Consider using
+     * {ReentrancyGuard} or the
+     * https://solidity.readthedocs.io/en/v0.8.0/security-considerations.html#use-the-checks-effects-interactions-pattern[checks-effects-interactions pattern].
      */
-    function nonce(bytes calldata _msg) internal pure returns (uint64) {
-        return uint64(bytes8(_msg[:NONCE_OFFSET]));
+    function sendValue(address payable recipient, uint256 amount) internal {
+        require(address(this).balance >= amount, "Address: insufficient balance");
+
+        (bool success, ) = recipient.call{value: amount}("");
+        require(success, "Address: unable to send value, recipient may have reverted");
     }
 
     /**
-     * @dev Retrieves the source endpoint ID from the composed message.
-     * @param _msg The message.
-     * @return The source endpoint ID.
+     * @dev Performs a Solidity function call using a low level `call`. A
+     * plain `call` is an unsafe replacement for a function call: use this
+     * function instead.
+     *
+     * If `target` reverts with a revert reason, it is bubbled up by this
+     * function (like regular Solidity function calls).
+     *
+     * Returns the raw returned data. To convert to the expected return value,
+     * use https://solidity.readthedocs.io/en/latest/units-and-global-variables.html?highlight=abi.decode#abi-encoding-and-decoding-functions[`abi.decode`].
+     *
+     * Requirements:
+     *
+     * - `target` must be a contract.
+     * - calling `target` with `data` must not revert.
+     *
+     * _Available since v3.1._
      */
-    function srcEid(bytes calldata _msg) internal pure returns (uint32) {
-        return uint32(bytes4(_msg[NONCE_OFFSET:SRC_EID_OFFSET]));
+    function functionCall(address target, bytes memory data) internal returns (bytes memory) {
+        return functionCallWithValue(target, data, 0, "Address: low-level call failed");
     }
 
     /**
-     * @dev Retrieves the amount in local decimals from the composed message.
-     * @param _msg The message.
-     * @return The amount in local decimals.
+     * @dev Same as {xref-Address-functionCall-address-bytes-}[`functionCall`], but with
+     * `errorMessage` as a fallback revert reason when `target` reverts.
+     *
+     * _Available since v3.1._
      */
-    function amountLD(bytes calldata _msg) internal pure returns (uint256) {
-        return uint256(bytes32(_msg[SRC_EID_OFFSET:AMOUNT_LD_OFFSET]));
+    function functionCall(
+        address target,
+        bytes memory data,
+        string memory errorMessage
+    ) internal returns (bytes memory) {
+        return functionCallWithValue(target, data, 0, errorMessage);
     }
 
     /**
-     * @dev Retrieves the composeFrom value from the composed message.
-     * @param _msg The message.
-     * @return The composeFrom value.
+     * @dev Same as {xref-Address-functionCall-address-bytes-}[`functionCall`],
+     * but also transferring `value` wei to `target`.
+     *
+     * Requirements:
+     *
+     * - the calling contract must have an ETH balance of at least `value`.
+     * - the called Solidity function must be `payable`.
+     *
+     * _Available since v3.1._
      */
-    function composeFrom(bytes calldata _msg) internal pure returns (bytes32) {
-        return bytes32(_msg[AMOUNT_LD_OFFSET:COMPOSE_FROM_OFFSET]);
+    function functionCallWithValue(address target, bytes memory data, uint256 value) internal returns (bytes memory) {
+        return functionCallWithValue(target, data, value, "Address: low-level call with value failed");
     }
 
     /**
-     * @dev Retrieves the composed message.
-     * @param _msg The message.
-     * @return The composed message.
+     * @dev Same as {xref-Address-functionCallWithValue-address-bytes-uint256-}[`functionCallWithValue`], but
+     * with `errorMessage` as a fallback revert reason when `target` reverts.
+     *
+     * _Available since v3.1._
      */
-    function composeMsg(bytes calldata _msg) internal pure returns (bytes memory) {
-        return _msg[COMPOSE_FROM_OFFSET:];
-    }
-
-    /**
-     * @dev Converts an address to bytes32.
-     * @param _addr The address to convert.
-     * @return The bytes32 representation of the address.
-     */
-    function addressToBytes32(address _addr) internal pure returns (bytes32) {
-        return bytes32(uint256(uint160(_addr)));
-    }
-
-    /**
-     * @dev Converts bytes32 to an address.
-     * @param _b The bytes32 value to convert.
-     * @return The address representation of bytes32.
-     */
-    function bytes32ToAddress(bytes32 _b) internal pure returns (address) {
-        return address(uint160(uint256(_b)));
-    }
-}
-
-// node_modules/@fraxfinance/layerzero-v2-upgradeable/oapp/contracts/oft/libs/OFTMsgCodec.sol
-
-library OFTMsgCodec {
-    // Offset constants for encoding and decoding OFT messages
-    uint8 private constant SEND_TO_OFFSET = 32;
-    uint8 private constant SEND_AMOUNT_SD_OFFSET = 40;
-
-    /**
-     * @dev Encodes an OFT LayerZero message.
-     * @param _sendTo The recipient address.
-     * @param _amountShared The amount in shared decimals.
-     * @param _composeMsg The composed message.
-     * @return _msg The encoded message.
-     * @return hasCompose A boolean indicating whether the message has a composed payload.
-     */
-    function encode(
-        bytes32 _sendTo,
-        uint64 _amountShared,
-        bytes memory _composeMsg
-    ) internal view returns (bytes memory _msg, bool hasCompose) {
-        hasCompose = _composeMsg.length > 0;
-        // @dev Remote chains will want to know the composed function caller ie. msg.sender on the src.
-        _msg = hasCompose
-            ? abi.encodePacked(_sendTo, _amountShared, addressToBytes32(msg.sender), _composeMsg)
-            : abi.encodePacked(_sendTo, _amountShared);
-    }
-
-    /**
-     * @dev Checks if the OFT message is composed.
-     * @param _msg The OFT message.
-     * @return A boolean indicating whether the message is composed.
-     */
-    function isComposed(bytes calldata _msg) internal pure returns (bool) {
-        return _msg.length > SEND_AMOUNT_SD_OFFSET;
-    }
-
-    /**
-     * @dev Retrieves the recipient address from the OFT message.
-     * @param _msg The OFT message.
-     * @return The recipient address.
-     */
-    function sendTo(bytes calldata _msg) internal pure returns (bytes32) {
-        return bytes32(_msg[:SEND_TO_OFFSET]);
-    }
-
-    /**
-     * @dev Retrieves the amount in shared decimals from the OFT message.
-     * @param _msg The OFT message.
-     * @return The amount in shared decimals.
-     */
-    function amountSD(bytes calldata _msg) internal pure returns (uint64) {
-        return uint64(bytes8(_msg[SEND_TO_OFFSET:SEND_AMOUNT_SD_OFFSET]));
-    }
-
-    /**
-     * @dev Retrieves the composed message from the OFT message.
-     * @param _msg The OFT message.
-     * @return The composed message.
-     */
-    function composeMsg(bytes calldata _msg) internal pure returns (bytes memory) {
-        return _msg[SEND_AMOUNT_SD_OFFSET:];
-    }
-
-    /**
-     * @dev Converts an address to bytes32.
-     * @param _addr The address to convert.
-     * @return The bytes32 representation of the address.
-     */
-    function addressToBytes32(address _addr) internal pure returns (bytes32) {
-        return bytes32(uint256(uint160(_addr)));
-    }
-
-    /**
-     * @dev Converts bytes32 to an address.
-     * @param _b The bytes32 value to convert.
-     * @return The address representation of bytes32.
-     */
-    function bytes32ToAddress(bytes32 _b) internal pure returns (address) {
-        return address(uint160(uint256(_b)));
-    }
-}
-
-// node_modules/@fraxfinance/layerzero-v2-upgradeable/oapp/contracts/precrime/interfaces/IPreCrime.sol
-
-struct PreCrimePeer {
-    uint32 eid;
-    bytes32 preCrime;
-    bytes32 oApp;
-}
-
-// TODO not done yet
-interface IPreCrime {
-    error OnlyOffChain();
-
-    // for simulate()
-    error PacketOversize(uint256 max, uint256 actual);
-    error PacketUnsorted();
-    error SimulationFailed(bytes reason);
-
-    // for preCrime()
-    error SimulationResultNotFound(uint32 eid);
-    error InvalidSimulationResult(uint32 eid, bytes reason);
-    error CrimeFound(bytes crime);
-
-    function getConfig(bytes[] calldata _packets, uint256[] calldata _packetMsgValues) external returns (bytes memory);
-
-    function simulate(
-        bytes[] calldata _packets,
-        uint256[] calldata _packetMsgValues
-    ) external payable returns (bytes memory);
-
-    function buildSimulationResult() external view returns (bytes memory);
-
-    function preCrime(
-        bytes[] calldata _packets,
-        uint256[] calldata _packetMsgValues,
-        bytes[] calldata _simulations
-    ) external;
-
-    function version() external view returns (uint64 major, uint8 minor);
-}
-
-// node_modules/@layerzerolabs/lz-evm-protocol-v2/contracts/interfaces/IMessageLibManager.sol
-
-struct SetConfigParam {
-    uint32 eid;
-    uint32 configType;
-    bytes config;
-}
-
-interface IMessageLibManager {
-    struct Timeout {
-        address lib;
-        uint256 expiry;
-    }
-
-    event LibraryRegistered(address newLib);
-    event DefaultSendLibrarySet(uint32 eid, address newLib);
-    event DefaultReceiveLibrarySet(uint32 eid, address newLib);
-    event DefaultReceiveLibraryTimeoutSet(uint32 eid, address oldLib, uint256 expiry);
-    event SendLibrarySet(address sender, uint32 eid, address newLib);
-    event ReceiveLibrarySet(address receiver, uint32 eid, address newLib);
-    event ReceiveLibraryTimeoutSet(address receiver, uint32 eid, address oldLib, uint256 timeout);
-
-    function registerLibrary(address _lib) external;
-
-    function isRegisteredLibrary(address _lib) external view returns (bool);
-
-    function getRegisteredLibraries() external view returns (address[] memory);
-
-    function setDefaultSendLibrary(uint32 _eid, address _newLib) external;
-
-    function defaultSendLibrary(uint32 _eid) external view returns (address);
-
-    function setDefaultReceiveLibrary(uint32 _eid, address _newLib, uint256 _gracePeriod) external;
-
-    function defaultReceiveLibrary(uint32 _eid) external view returns (address);
-
-    function setDefaultReceiveLibraryTimeout(uint32 _eid, address _lib, uint256 _expiry) external;
-
-    function defaultReceiveLibraryTimeout(uint32 _eid) external view returns (address lib, uint256 expiry);
-
-    function isSupportedEid(uint32 _eid) external view returns (bool);
-
-    function isValidReceiveLibrary(address _receiver, uint32 _eid, address _lib) external view returns (bool);
-
-    /// ------------------- OApp interfaces -------------------
-    function setSendLibrary(address _oapp, uint32 _eid, address _newLib) external;
-
-    function getSendLibrary(address _sender, uint32 _eid) external view returns (address lib);
-
-    function isDefaultSendLibrary(address _sender, uint32 _eid) external view returns (bool);
-
-    function setReceiveLibrary(address _oapp, uint32 _eid, address _newLib, uint256 _gracePeriod) external;
-
-    function getReceiveLibrary(address _receiver, uint32 _eid) external view returns (address lib, bool isDefault);
-
-    function setReceiveLibraryTimeout(address _oapp, uint32 _eid, address _lib, uint256 _expiry) external;
-
-    function receiveLibraryTimeout(address _receiver, uint32 _eid) external view returns (address lib, uint256 expiry);
-
-    function setConfig(address _oapp, address _lib, SetConfigParam[] calldata _params) external;
-
-    function getConfig(
-        address _oapp,
-        address _lib,
-        uint32 _eid,
-        uint32 _configType
-    ) external view returns (bytes memory config);
-}
-
-// node_modules/@layerzerolabs/lz-evm-protocol-v2/contracts/interfaces/IMessagingChannel.sol
-
-interface IMessagingChannel {
-    event InboundNonceSkipped(uint32 srcEid, bytes32 sender, address receiver, uint64 nonce);
-    event PacketNilified(uint32 srcEid, bytes32 sender, address receiver, uint64 nonce, bytes32 payloadHash);
-    event PacketBurnt(uint32 srcEid, bytes32 sender, address receiver, uint64 nonce, bytes32 payloadHash);
-
-    function eid() external view returns (uint32);
-
-    // this is an emergency function if a message cannot be verified for some reasons
-    // required to provide _nextNonce to avoid race condition
-    function skip(address _oapp, uint32 _srcEid, bytes32 _sender, uint64 _nonce) external;
-
-    function nilify(address _oapp, uint32 _srcEid, bytes32 _sender, uint64 _nonce, bytes32 _payloadHash) external;
-
-    function burn(address _oapp, uint32 _srcEid, bytes32 _sender, uint64 _nonce, bytes32 _payloadHash) external;
-
-    function nextGuid(address _sender, uint32 _dstEid, bytes32 _receiver) external view returns (bytes32);
-
-    function inboundNonce(address _receiver, uint32 _srcEid, bytes32 _sender) external view returns (uint64);
-
-    function outboundNonce(address _sender, uint32 _dstEid, bytes32 _receiver) external view returns (uint64);
-
-    function inboundPayloadHash(
-        address _receiver,
-        uint32 _srcEid,
-        bytes32 _sender,
-        uint64 _nonce
-    ) external view returns (bytes32);
-
-    function lazyInboundNonce(address _receiver, uint32 _srcEid, bytes32 _sender) external view returns (uint64);
-}
-
-// node_modules/@layerzerolabs/lz-evm-protocol-v2/contracts/interfaces/IMessagingComposer.sol
-
-interface IMessagingComposer {
-    event ComposeSent(address from, address to, bytes32 guid, uint16 index, bytes message);
-    event ComposeDelivered(address from, address to, bytes32 guid, uint16 index);
-    event LzComposeAlert(
-        address indexed from,
-        address indexed to,
-        address indexed executor,
-        bytes32 guid,
-        uint16 index,
-        uint256 gas,
+    function functionCallWithValue(
+        address target,
+        bytes memory data,
         uint256 value,
-        bytes message,
-        bytes extraData,
-        bytes reason
-    );
+        string memory errorMessage
+    ) internal returns (bytes memory) {
+        require(address(this).balance >= value, "Address: insufficient balance for call");
+        (bool success, bytes memory returndata) = target.call{value: value}(data);
+        return verifyCallResultFromTarget(target, success, returndata, errorMessage);
+    }
 
-    function composeQueue(
-        address _from,
-        address _to,
-        bytes32 _guid,
-        uint16 _index
-    ) external view returns (bytes32 messageHash);
+    /**
+     * @dev Same as {xref-Address-functionCall-address-bytes-}[`functionCall`],
+     * but performing a static call.
+     *
+     * _Available since v3.3._
+     */
+    function functionStaticCall(address target, bytes memory data) internal view returns (bytes memory) {
+        return functionStaticCall(target, data, "Address: low-level static call failed");
+    }
 
-    function sendCompose(address _to, bytes32 _guid, uint16 _index, bytes calldata _message) external;
+    /**
+     * @dev Same as {xref-Address-functionCall-address-bytes-string-}[`functionCall`],
+     * but performing a static call.
+     *
+     * _Available since v3.3._
+     */
+    function functionStaticCall(
+        address target,
+        bytes memory data,
+        string memory errorMessage
+    ) internal view returns (bytes memory) {
+        (bool success, bytes memory returndata) = target.staticcall(data);
+        return verifyCallResultFromTarget(target, success, returndata, errorMessage);
+    }
 
-    function lzCompose(
-        address _from,
-        address _to,
-        bytes32 _guid,
-        uint16 _index,
-        bytes calldata _message,
-        bytes calldata _extraData
-    ) external payable;
-}
+    /**
+     * @dev Same as {xref-Address-functionCall-address-bytes-}[`functionCall`],
+     * but performing a delegate call.
+     *
+     * _Available since v3.4._
+     */
+    function functionDelegateCall(address target, bytes memory data) internal returns (bytes memory) {
+        return functionDelegateCall(target, data, "Address: low-level delegate call failed");
+    }
 
-// node_modules/@layerzerolabs/lz-evm-protocol-v2/contracts/interfaces/IMessagingContext.sol
+    /**
+     * @dev Same as {xref-Address-functionCall-address-bytes-string-}[`functionCall`],
+     * but performing a delegate call.
+     *
+     * _Available since v3.4._
+     */
+    function functionDelegateCall(
+        address target,
+        bytes memory data,
+        string memory errorMessage
+    ) internal returns (bytes memory) {
+        (bool success, bytes memory returndata) = target.delegatecall(data);
+        return verifyCallResultFromTarget(target, success, returndata, errorMessage);
+    }
 
-interface IMessagingContext {
-    function isSendingMessage() external view returns (bool);
+    /**
+     * @dev Tool to verify that a low level call to smart-contract was successful, and revert (either by bubbling
+     * the revert reason or using the provided one) in case of unsuccessful call or if target was not a contract.
+     *
+     * _Available since v4.8._
+     */
+    function verifyCallResultFromTarget(
+        address target,
+        bool success,
+        bytes memory returndata,
+        string memory errorMessage
+    ) internal view returns (bytes memory) {
+        if (success) {
+            if (returndata.length == 0) {
+                // only check isContract if the call was successful and the return data is empty
+                // otherwise we already know that it was a contract
+                require(isContract(target), "Address: call to non-contract");
+            }
+            return returndata;
+        } else {
+            _revert(returndata, errorMessage);
+        }
+    }
 
-    function getSendContext() external view returns (uint32 dstEid, address sender);
+    /**
+     * @dev Tool to verify that a low level call was successful, and revert if it wasn't, either by bubbling the
+     * revert reason or using the provided one.
+     *
+     * _Available since v4.3._
+     */
+    function verifyCallResult(
+        bool success,
+        bytes memory returndata,
+        string memory errorMessage
+    ) internal pure returns (bytes memory) {
+        if (success) {
+            return returndata;
+        } else {
+            _revert(returndata, errorMessage);
+        }
+    }
+
+    function _revert(bytes memory returndata, string memory errorMessage) private pure {
+        // Look for revert reason and bubble it up if present
+        if (returndata.length > 0) {
+            // The easiest way to bubble the revert reason is using memory via assembly
+            /// @solidity memory-safe-assembly
+            assembly {
+                let returndata_size := mload(returndata)
+                revert(add(32, returndata), returndata_size)
+            }
+        } else {
+            revert(errorMessage);
+        }
+    }
 }
 
 // node_modules/@layerzerolabs/lz-evm-protocol-v2/contracts/libs/AddressCast.sol
@@ -463,182 +285,14 @@ library AddressCast {
     }
 }
 
-// node_modules/@openzeppelin/contracts/token/ERC20/IERC20.sol
-
-// OpenZeppelin Contracts (last updated v4.9.0) (token/ERC20/IERC20.sol)
-
-/**
- * @dev Interface of the ERC20 standard as defined in the EIP.
- */
-interface IERC20 {
-    /**
-     * @dev Emitted when `value` tokens are moved from one account (`from`) to
-     * another (`to`).
-     *
-     * Note that `value` may be zero.
-     */
-    event Transfer(address indexed from, address indexed to, uint256 value);
-
-    /**
-     * @dev Emitted when the allowance of a `spender` for an `owner` is set by
-     * a call to {approve}. `value` is the new allowance.
-     */
-    event Approval(address indexed owner, address indexed spender, uint256 value);
-
-    /**
-     * @dev Returns the amount of tokens in existence.
-     */
-    function totalSupply() external view returns (uint256);
-
-    /**
-     * @dev Returns the amount of tokens owned by `account`.
-     */
-    function balanceOf(address account) external view returns (uint256);
-
-    /**
-     * @dev Moves `amount` tokens from the caller's account to `to`.
-     *
-     * Returns a boolean value indicating whether the operation succeeded.
-     *
-     * Emits a {Transfer} event.
-     */
-    function transfer(address to, uint256 amount) external returns (bool);
-
-    /**
-     * @dev Returns the remaining number of tokens that `spender` will be
-     * allowed to spend on behalf of `owner` through {transferFrom}. This is
-     * zero by default.
-     *
-     * This value changes when {approve} or {transferFrom} are called.
-     */
-    function allowance(address owner, address spender) external view returns (uint256);
-
-    /**
-     * @dev Sets `amount` as the allowance of `spender` over the caller's tokens.
-     *
-     * Returns a boolean value indicating whether the operation succeeded.
-     *
-     * IMPORTANT: Beware that changing an allowance with this method brings the risk
-     * that someone may use both the old and the new allowance by unfortunate
-     * transaction ordering. One possible solution to mitigate this race
-     * condition is to first reduce the spender's allowance to 0 and set the
-     * desired value afterwards:
-     * https://github.com/ethereum/EIPs/issues/20#issuecomment-263524729
-     *
-     * Emits an {Approval} event.
-     */
-    function approve(address spender, uint256 amount) external returns (bool);
-
-    /**
-     * @dev Moves `amount` tokens from `from` to `to` using the
-     * allowance mechanism. `amount` is then deducted from the caller's
-     * allowance.
-     *
-     * Returns a boolean value indicating whether the operation succeeded.
-     *
-     * Emits a {Transfer} event.
-     */
-    function transferFrom(address from, address to, uint256 amount) external returns (bool);
-}
-
-// node_modules/@openzeppelin/contracts/token/ERC20/extensions/IERC20Permit.sol
-
-// OpenZeppelin Contracts (last updated v4.9.4) (token/ERC20/extensions/IERC20Permit.sol)
-
-/**
- * @dev Interface of the ERC20 Permit extension allowing approvals to be made via signatures, as defined in
- * https://eips.ethereum.org/EIPS/eip-2612[EIP-2612].
- *
- * Adds the {permit} method, which can be used to change an account's ERC20 allowance (see {IERC20-allowance}) by
- * presenting a message signed by the account. By not relying on {IERC20-approve}, the token holder account doesn't
- * need to send a transaction, and thus is not required to hold Ether at all.
- *
- * ==== Security Considerations
- *
- * There are two important considerations concerning the use of `permit`. The first is that a valid permit signature
- * expresses an allowance, and it should not be assumed to convey additional meaning. In particular, it should not be
- * considered as an intention to spend the allowance in any specific way. The second is that because permits have
- * built-in replay protection and can be submitted by anyone, they can be frontrun. A protocol that uses permits should
- * take this into consideration and allow a `permit` call to fail. Combining these two aspects, a pattern that may be
- * generally recommended is:
- *
- * ```solidity
- * function doThingWithPermit(..., uint256 value, uint256 deadline, uint8 v, bytes32 r, bytes32 s) public {
- *     try token.permit(msg.sender, address(this), value, deadline, v, r, s) {} catch {}
- *     doThing(..., value);
- * }
- *
- * function doThing(..., uint256 value) public {
- *     token.safeTransferFrom(msg.sender, address(this), value);
- *     ...
- * }
- * ```
- *
- * Observe that: 1) `msg.sender` is used as the owner, leaving no ambiguity as to the signer intent, and 2) the use of
- * `try/catch` allows the permit to fail and makes the code tolerant to frontrunning. (See also
- * {SafeERC20-safeTransferFrom}).
- *
- * Additionally, note that smart contract wallets (such as Argent or Safe) are not able to produce permit signatures, so
- * contracts should have entry points that don't rely on permit.
- */
-interface IERC20Permit {
-    /**
-     * @dev Sets `value` as the allowance of `spender` over ``owner``'s tokens,
-     * given ``owner``'s signed approval.
-     *
-     * IMPORTANT: The same issues {IERC20-approve} has related to transaction
-     * ordering also apply here.
-     *
-     * Emits an {Approval} event.
-     *
-     * Requirements:
-     *
-     * - `spender` cannot be the zero address.
-     * - `deadline` must be a timestamp in the future.
-     * - `v`, `r` and `s` must be a valid `secp256k1` signature from `owner`
-     * over the EIP712-formatted function arguments.
-     * - the signature must use ``owner``'s current nonce (see {nonces}).
-     *
-     * For more information on the signature format, see the
-     * https://eips.ethereum.org/EIPS/eip-2612#specification[relevant EIP
-     * section].
-     *
-     * CAUTION: See Security Considerations above.
-     */
-    function permit(
-        address owner,
-        address spender,
-        uint256 value,
-        uint256 deadline,
-        uint8 v,
-        bytes32 r,
-        bytes32 s
-    ) external;
-
-    /**
-     * @dev Returns the current nonce for `owner`. This value must be
-     * included whenever a signature is generated for {permit}.
-     *
-     * Every successful call to {permit} increases ``owner``'s nonce by one. This
-     * prevents a signature from being used multiple times.
-     */
-    function nonces(address owner) external view returns (uint256);
-
-    /**
-     * @dev Returns the domain separator used in the encoding of the signature for {permit}, as defined by {EIP712}.
-     */
-    // solhint-disable-next-line func-name-mixedcase
-    function DOMAIN_SEPARATOR() external view returns (bytes32);
-}
-
-// node_modules/@openzeppelin/contracts/utils/Address.sol
+// node_modules/@openzeppelin/contracts-upgradeable/utils/AddressUpgradeable.sol
 
 // OpenZeppelin Contracts (last updated v4.9.0) (utils/Address.sol)
 
 /**
  * @dev Collection of functions related to the address type
  */
-library Address {
+library AddressUpgradeable {
     /**
      * @dev Returns true if `account` is a contract.
      *
@@ -900,6 +554,174 @@ interface IERC165 {
     function supportsInterface(bytes4 interfaceId) external view returns (bool);
 }
 
+// node_modules/@openzeppelin/contracts/token/ERC20/IERC20.sol
+
+// OpenZeppelin Contracts (last updated v4.9.0) (token/ERC20/IERC20.sol)
+
+/**
+ * @dev Interface of the ERC20 standard as defined in the EIP.
+ */
+interface IERC20 {
+    /**
+     * @dev Emitted when `value` tokens are moved from one account (`from`) to
+     * another (`to`).
+     *
+     * Note that `value` may be zero.
+     */
+    event Transfer(address indexed from, address indexed to, uint256 value);
+
+    /**
+     * @dev Emitted when the allowance of a `spender` for an `owner` is set by
+     * a call to {approve}. `value` is the new allowance.
+     */
+    event Approval(address indexed owner, address indexed spender, uint256 value);
+
+    /**
+     * @dev Returns the amount of tokens in existence.
+     */
+    function totalSupply() external view returns (uint256);
+
+    /**
+     * @dev Returns the amount of tokens owned by `account`.
+     */
+    function balanceOf(address account) external view returns (uint256);
+
+    /**
+     * @dev Moves `amount` tokens from the caller's account to `to`.
+     *
+     * Returns a boolean value indicating whether the operation succeeded.
+     *
+     * Emits a {Transfer} event.
+     */
+    function transfer(address to, uint256 amount) external returns (bool);
+
+    /**
+     * @dev Returns the remaining number of tokens that `spender` will be
+     * allowed to spend on behalf of `owner` through {transferFrom}. This is
+     * zero by default.
+     *
+     * This value changes when {approve} or {transferFrom} are called.
+     */
+    function allowance(address owner, address spender) external view returns (uint256);
+
+    /**
+     * @dev Sets `amount` as the allowance of `spender` over the caller's tokens.
+     *
+     * Returns a boolean value indicating whether the operation succeeded.
+     *
+     * IMPORTANT: Beware that changing an allowance with this method brings the risk
+     * that someone may use both the old and the new allowance by unfortunate
+     * transaction ordering. One possible solution to mitigate this race
+     * condition is to first reduce the spender's allowance to 0 and set the
+     * desired value afterwards:
+     * https://github.com/ethereum/EIPs/issues/20#issuecomment-263524729
+     *
+     * Emits an {Approval} event.
+     */
+    function approve(address spender, uint256 amount) external returns (bool);
+
+    /**
+     * @dev Moves `amount` tokens from `from` to `to` using the
+     * allowance mechanism. `amount` is then deducted from the caller's
+     * allowance.
+     *
+     * Returns a boolean value indicating whether the operation succeeded.
+     *
+     * Emits a {Transfer} event.
+     */
+    function transferFrom(address from, address to, uint256 amount) external returns (bool);
+}
+
+// node_modules/@openzeppelin/contracts/token/ERC20/extensions/IERC20Permit.sol
+
+// OpenZeppelin Contracts (last updated v4.9.4) (token/ERC20/extensions/IERC20Permit.sol)
+
+/**
+ * @dev Interface of the ERC20 Permit extension allowing approvals to be made via signatures, as defined in
+ * https://eips.ethereum.org/EIPS/eip-2612[EIP-2612].
+ *
+ * Adds the {permit} method, which can be used to change an account's ERC20 allowance (see {IERC20-allowance}) by
+ * presenting a message signed by the account. By not relying on {IERC20-approve}, the token holder account doesn't
+ * need to send a transaction, and thus is not required to hold Ether at all.
+ *
+ * ==== Security Considerations
+ *
+ * There are two important considerations concerning the use of `permit`. The first is that a valid permit signature
+ * expresses an allowance, and it should not be assumed to convey additional meaning. In particular, it should not be
+ * considered as an intention to spend the allowance in any specific way. The second is that because permits have
+ * built-in replay protection and can be submitted by anyone, they can be frontrun. A protocol that uses permits should
+ * take this into consideration and allow a `permit` call to fail. Combining these two aspects, a pattern that may be
+ * generally recommended is:
+ *
+ * ```solidity
+ * function doThingWithPermit(..., uint256 value, uint256 deadline, uint8 v, bytes32 r, bytes32 s) public {
+ *     try token.permit(msg.sender, address(this), value, deadline, v, r, s) {} catch {}
+ *     doThing(..., value);
+ * }
+ *
+ * function doThing(..., uint256 value) public {
+ *     token.safeTransferFrom(msg.sender, address(this), value);
+ *     ...
+ * }
+ * ```
+ *
+ * Observe that: 1) `msg.sender` is used as the owner, leaving no ambiguity as to the signer intent, and 2) the use of
+ * `try/catch` allows the permit to fail and makes the code tolerant to frontrunning. (See also
+ * {SafeERC20-safeTransferFrom}).
+ *
+ * Additionally, note that smart contract wallets (such as Argent or Safe) are not able to produce permit signatures, so
+ * contracts should have entry points that don't rely on permit.
+ */
+interface IERC20Permit {
+    /**
+     * @dev Sets `value` as the allowance of `spender` over ``owner``'s tokens,
+     * given ``owner``'s signed approval.
+     *
+     * IMPORTANT: The same issues {IERC20-approve} has related to transaction
+     * ordering also apply here.
+     *
+     * Emits an {Approval} event.
+     *
+     * Requirements:
+     *
+     * - `spender` cannot be the zero address.
+     * - `deadline` must be a timestamp in the future.
+     * - `v`, `r` and `s` must be a valid `secp256k1` signature from `owner`
+     * over the EIP712-formatted function arguments.
+     * - the signature must use ``owner``'s current nonce (see {nonces}).
+     *
+     * For more information on the signature format, see the
+     * https://eips.ethereum.org/EIPS/eip-2612#specification[relevant EIP
+     * section].
+     *
+     * CAUTION: See Security Considerations above.
+     */
+    function permit(
+        address owner,
+        address spender,
+        uint256 value,
+        uint256 deadline,
+        uint8 v,
+        bytes32 r,
+        bytes32 s
+    ) external;
+
+    /**
+     * @dev Returns the current nonce for `owner`. This value must be
+     * included whenever a signature is generated for {permit}.
+     *
+     * Every successful call to {permit} increases ``owner``'s nonce by one. This
+     * prevents a signature from being used multiple times.
+     */
+    function nonces(address owner) external view returns (uint256);
+
+    /**
+     * @dev Returns the domain separator used in the encoding of the signature for {permit}, as defined by {EIP712}.
+     */
+    // solhint-disable-next-line func-name-mixedcase
+    function DOMAIN_SEPARATOR() external view returns (bytes32);
+}
+
 // node_modules/@openzeppelin/contracts-upgradeable/token/ERC20/IERC20Upgradeable.sol
 
 // OpenZeppelin Contracts (last updated v4.9.0) (token/ERC20/IERC20.sol)
@@ -978,248 +800,452 @@ interface IERC20Upgradeable {
     function transferFrom(address from, address to, uint256 amount) external returns (bool);
 }
 
-// node_modules/@openzeppelin/contracts-upgradeable/utils/AddressUpgradeable.sol
+// node_modules/@layerzerolabs/lz-evm-protocol-v2/contracts/interfaces/IMessageLibManager.sol
 
-// OpenZeppelin Contracts (last updated v4.9.0) (utils/Address.sol)
+struct SetConfigParam {
+    uint32 eid;
+    uint32 configType;
+    bytes config;
+}
+
+interface IMessageLibManager {
+    struct Timeout {
+        address lib;
+        uint256 expiry;
+    }
+
+    event LibraryRegistered(address newLib);
+    event DefaultSendLibrarySet(uint32 eid, address newLib);
+    event DefaultReceiveLibrarySet(uint32 eid, address newLib);
+    event DefaultReceiveLibraryTimeoutSet(uint32 eid, address oldLib, uint256 expiry);
+    event SendLibrarySet(address sender, uint32 eid, address newLib);
+    event ReceiveLibrarySet(address receiver, uint32 eid, address newLib);
+    event ReceiveLibraryTimeoutSet(address receiver, uint32 eid, address oldLib, uint256 timeout);
+
+    function registerLibrary(address _lib) external;
+
+    function isRegisteredLibrary(address _lib) external view returns (bool);
+
+    function getRegisteredLibraries() external view returns (address[] memory);
+
+    function setDefaultSendLibrary(uint32 _eid, address _newLib) external;
+
+    function defaultSendLibrary(uint32 _eid) external view returns (address);
+
+    function setDefaultReceiveLibrary(uint32 _eid, address _newLib, uint256 _gracePeriod) external;
+
+    function defaultReceiveLibrary(uint32 _eid) external view returns (address);
+
+    function setDefaultReceiveLibraryTimeout(uint32 _eid, address _lib, uint256 _expiry) external;
+
+    function defaultReceiveLibraryTimeout(uint32 _eid) external view returns (address lib, uint256 expiry);
+
+    function isSupportedEid(uint32 _eid) external view returns (bool);
+
+    function isValidReceiveLibrary(address _receiver, uint32 _eid, address _lib) external view returns (bool);
+
+    /// ------------------- OApp interfaces -------------------
+    function setSendLibrary(address _oapp, uint32 _eid, address _newLib) external;
+
+    function getSendLibrary(address _sender, uint32 _eid) external view returns (address lib);
+
+    function isDefaultSendLibrary(address _sender, uint32 _eid) external view returns (bool);
+
+    function setReceiveLibrary(address _oapp, uint32 _eid, address _newLib, uint256 _gracePeriod) external;
+
+    function getReceiveLibrary(address _receiver, uint32 _eid) external view returns (address lib, bool isDefault);
+
+    function setReceiveLibraryTimeout(address _oapp, uint32 _eid, address _lib, uint256 _expiry) external;
+
+    function receiveLibraryTimeout(address _receiver, uint32 _eid) external view returns (address lib, uint256 expiry);
+
+    function setConfig(address _oapp, address _lib, SetConfigParam[] calldata _params) external;
+
+    function getConfig(
+        address _oapp,
+        address _lib,
+        uint32 _eid,
+        uint32 _configType
+    ) external view returns (bytes memory config);
+}
+
+// node_modules/@layerzerolabs/lz-evm-protocol-v2/contracts/interfaces/IMessagingChannel.sol
+
+interface IMessagingChannel {
+    event InboundNonceSkipped(uint32 srcEid, bytes32 sender, address receiver, uint64 nonce);
+    event PacketNilified(uint32 srcEid, bytes32 sender, address receiver, uint64 nonce, bytes32 payloadHash);
+    event PacketBurnt(uint32 srcEid, bytes32 sender, address receiver, uint64 nonce, bytes32 payloadHash);
+
+    function eid() external view returns (uint32);
+
+    // this is an emergency function if a message cannot be verified for some reasons
+    // required to provide _nextNonce to avoid race condition
+    function skip(address _oapp, uint32 _srcEid, bytes32 _sender, uint64 _nonce) external;
+
+    function nilify(address _oapp, uint32 _srcEid, bytes32 _sender, uint64 _nonce, bytes32 _payloadHash) external;
+
+    function burn(address _oapp, uint32 _srcEid, bytes32 _sender, uint64 _nonce, bytes32 _payloadHash) external;
+
+    function nextGuid(address _sender, uint32 _dstEid, bytes32 _receiver) external view returns (bytes32);
+
+    function inboundNonce(address _receiver, uint32 _srcEid, bytes32 _sender) external view returns (uint64);
+
+    function outboundNonce(address _sender, uint32 _dstEid, bytes32 _receiver) external view returns (uint64);
+
+    function inboundPayloadHash(
+        address _receiver,
+        uint32 _srcEid,
+        bytes32 _sender,
+        uint64 _nonce
+    ) external view returns (bytes32);
+
+    function lazyInboundNonce(address _receiver, uint32 _srcEid, bytes32 _sender) external view returns (uint64);
+}
+
+// node_modules/@layerzerolabs/lz-evm-protocol-v2/contracts/interfaces/IMessagingComposer.sol
+
+interface IMessagingComposer {
+    event ComposeSent(address from, address to, bytes32 guid, uint16 index, bytes message);
+    event ComposeDelivered(address from, address to, bytes32 guid, uint16 index);
+    event LzComposeAlert(
+        address indexed from,
+        address indexed to,
+        address indexed executor,
+        bytes32 guid,
+        uint16 index,
+        uint256 gas,
+        uint256 value,
+        bytes message,
+        bytes extraData,
+        bytes reason
+    );
+
+    function composeQueue(
+        address _from,
+        address _to,
+        bytes32 _guid,
+        uint16 _index
+    ) external view returns (bytes32 messageHash);
+
+    function sendCompose(address _to, bytes32 _guid, uint16 _index, bytes calldata _message) external;
+
+    function lzCompose(
+        address _from,
+        address _to,
+        bytes32 _guid,
+        uint16 _index,
+        bytes calldata _message,
+        bytes calldata _extraData
+    ) external payable;
+}
+
+// node_modules/@layerzerolabs/lz-evm-protocol-v2/contracts/interfaces/IMessagingContext.sol
+
+interface IMessagingContext {
+    function isSendingMessage() external view returns (bool);
+
+    function getSendContext() external view returns (uint32 dstEid, address sender);
+}
+
+// node_modules/@fraxfinance/layerzero-v2-upgradeable/oapp/contracts/oapp/interfaces/IOAppMsgInspector.sol
 
 /**
- * @dev Collection of functions related to the address type
+ * @title IOAppMsgInspector
+ * @dev Interface for the OApp Message Inspector, allowing examination of message and options contents.
  */
-library AddressUpgradeable {
-    /**
-     * @dev Returns true if `account` is a contract.
-     *
-     * [IMPORTANT]
-     * ====
-     * It is unsafe to assume that an address for which this function returns
-     * false is an externally-owned account (EOA) and not a contract.
-     *
-     * Among others, `isContract` will return false for the following
-     * types of addresses:
-     *
-     *  - an externally-owned account
-     *  - a contract in construction
-     *  - an address where a contract will be created
-     *  - an address where a contract lived, but was destroyed
-     *
-     * Furthermore, `isContract` will also return true if the target contract within
-     * the same transaction is already scheduled for destruction by `SELFDESTRUCT`,
-     * which only has an effect at the end of a transaction.
-     * ====
-     *
-     * [IMPORTANT]
-     * ====
-     * You shouldn't rely on `isContract` to protect against flash loan attacks!
-     *
-     * Preventing calls from contracts is highly discouraged. It breaks composability, breaks support for smart wallets
-     * like Gnosis Safe, and does not provide security since it can be circumvented by calling from a contract
-     * constructor.
-     * ====
-     */
-    function isContract(address account) internal view returns (bool) {
-        // This method relies on extcodesize/address.code.length, which returns 0
-        // for contracts in construction, since the code is only stored at the end
-        // of the constructor execution.
-
-        return account.code.length > 0;
-    }
+interface IOAppMsgInspector {
+    // Custom error message for inspection failure
+    error InspectionFailed(bytes message, bytes options);
 
     /**
-     * @dev Replacement for Solidity's `transfer`: sends `amount` wei to
-     * `recipient`, forwarding all available gas and reverting on errors.
+     * @notice Allows the inspector to examine LayerZero message contents and optionally throw a revert if invalid.
+     * @param _message The message payload to be inspected.
+     * @param _options Additional options or parameters for inspection.
+     * @return valid A boolean indicating whether the inspection passed (true) or failed (false).
      *
-     * https://eips.ethereum.org/EIPS/eip-1884[EIP1884] increases the gas cost
-     * of certain opcodes, possibly making contracts go over the 2300 gas limit
-     * imposed by `transfer`, making them unable to receive funds via
-     * `transfer`. {sendValue} removes this limitation.
-     *
-     * https://consensys.net/diligence/blog/2019/09/stop-using-soliditys-transfer-now/[Learn more].
-     *
-     * IMPORTANT: because control is transferred to `recipient`, care must be
-     * taken to not create reentrancy vulnerabilities. Consider using
-     * {ReentrancyGuard} or the
-     * https://solidity.readthedocs.io/en/v0.8.0/security-considerations.html#use-the-checks-effects-interactions-pattern[checks-effects-interactions pattern].
+     * @dev Optionally done as a revert, OR use the boolean provided to handle the failure.
      */
-    function sendValue(address payable recipient, uint256 amount) internal {
-        require(address(this).balance >= amount, "Address: insufficient balance");
+    function inspect(bytes calldata _message, bytes calldata _options) external view returns (bool valid);
+}
 
-        (bool success, ) = recipient.call{value: amount}("");
-        require(success, "Address: unable to send value, recipient may have reverted");
-    }
+// node_modules/@fraxfinance/layerzero-v2-upgradeable/oapp/contracts/oapp/interfaces/IOAppOptionsType3.sol
 
-    /**
-     * @dev Performs a Solidity function call using a low level `call`. A
-     * plain `call` is an unsafe replacement for a function call: use this
-     * function instead.
-     *
-     * If `target` reverts with a revert reason, it is bubbled up by this
-     * function (like regular Solidity function calls).
-     *
-     * Returns the raw returned data. To convert to the expected return value,
-     * use https://solidity.readthedocs.io/en/latest/units-and-global-variables.html?highlight=abi.decode#abi-encoding-and-decoding-functions[`abi.decode`].
-     *
-     * Requirements:
-     *
-     * - `target` must be a contract.
-     * - calling `target` with `data` must not revert.
-     *
-     * _Available since v3.1._
-     */
-    function functionCall(address target, bytes memory data) internal returns (bytes memory) {
-        return functionCallWithValue(target, data, 0, "Address: low-level call failed");
-    }
+/**
+ * @dev Struct representing enforced option parameters.
+ */
+struct EnforcedOptionParam {
+    uint32 eid; // Endpoint ID
+    uint16 msgType; // Message Type
+    bytes options; // Additional options
+}
+
+/**
+ * @title IOAppOptionsType3
+ * @dev Interface for the OApp with Type 3 Options, allowing the setting and combining of enforced options.
+ */
+interface IOAppOptionsType3 {
+    // Custom error message for invalid options
+    error InvalidOptions(bytes options);
+
+    // Event emitted when enforced options are set
+    event EnforcedOptionSet(EnforcedOptionParam[] _enforcedOptions);
 
     /**
-     * @dev Same as {xref-Address-functionCall-address-bytes-}[`functionCall`], but with
-     * `errorMessage` as a fallback revert reason when `target` reverts.
-     *
-     * _Available since v3.1._
+     * @notice Sets enforced options for specific endpoint and message type combinations.
+     * @param _enforcedOptions An array of EnforcedOptionParam structures specifying enforced options.
      */
-    function functionCall(
-        address target,
-        bytes memory data,
-        string memory errorMessage
-    ) internal returns (bytes memory) {
-        return functionCallWithValue(target, data, 0, errorMessage);
-    }
+    function setEnforcedOptions(EnforcedOptionParam[] calldata _enforcedOptions) external;
 
     /**
-     * @dev Same as {xref-Address-functionCall-address-bytes-}[`functionCall`],
-     * but also transferring `value` wei to `target`.
-     *
-     * Requirements:
-     *
-     * - the calling contract must have an ETH balance of at least `value`.
-     * - the called Solidity function must be `payable`.
-     *
-     * _Available since v3.1._
+     * @notice Combines options for a given endpoint and message type.
+     * @param _eid The endpoint ID.
+     * @param _msgType The OApp message type.
+     * @param _extraOptions Additional options passed by the caller.
+     * @return options The combination of caller specified options AND enforced options.
      */
-    function functionCallWithValue(address target, bytes memory data, uint256 value) internal returns (bytes memory) {
-        return functionCallWithValue(target, data, value, "Address: low-level call with value failed");
-    }
+    function combineOptions(
+        uint32 _eid,
+        uint16 _msgType,
+        bytes calldata _extraOptions
+    ) external view returns (bytes memory options);
+}
+
+// node_modules/@fraxfinance/layerzero-v2-upgradeable/oapp/contracts/precrime/interfaces/IPreCrime.sol
+
+struct PreCrimePeer {
+    uint32 eid;
+    bytes32 preCrime;
+    bytes32 oApp;
+}
+
+// TODO not done yet
+interface IPreCrime {
+    error OnlyOffChain();
+
+    // for simulate()
+    error PacketOversize(uint256 max, uint256 actual);
+    error PacketUnsorted();
+    error SimulationFailed(bytes reason);
+
+    // for preCrime()
+    error SimulationResultNotFound(uint32 eid);
+    error InvalidSimulationResult(uint32 eid, bytes reason);
+    error CrimeFound(bytes crime);
+
+    function getConfig(bytes[] calldata _packets, uint256[] calldata _packetMsgValues) external returns (bytes memory);
+
+    function simulate(
+        bytes[] calldata _packets,
+        uint256[] calldata _packetMsgValues
+    ) external payable returns (bytes memory);
+
+    function buildSimulationResult() external view returns (bytes memory);
+
+    function preCrime(
+        bytes[] calldata _packets,
+        uint256[] calldata _packetMsgValues,
+        bytes[] calldata _simulations
+    ) external;
+
+    function version() external view returns (uint64 major, uint8 minor);
+}
+
+// node_modules/@fraxfinance/layerzero-v2-upgradeable/oapp/contracts/oft/libs/OFTComposeMsgCodec.sol
+
+library OFTComposeMsgCodec {
+    // Offset constants for decoding composed messages
+    uint8 private constant NONCE_OFFSET = 8;
+    uint8 private constant SRC_EID_OFFSET = 12;
+    uint8 private constant AMOUNT_LD_OFFSET = 44;
+    uint8 private constant COMPOSE_FROM_OFFSET = 76;
 
     /**
-     * @dev Same as {xref-Address-functionCallWithValue-address-bytes-uint256-}[`functionCallWithValue`], but
-     * with `errorMessage` as a fallback revert reason when `target` reverts.
-     *
-     * _Available since v3.1._
+     * @dev Encodes a OFT composed message.
+     * @param _nonce The nonce value.
+     * @param _srcEid The source endpoint ID.
+     * @param _amountLD The amount in local decimals.
+     * @param _composeMsg The composed message.
+     * @return _msg The encoded Composed message.
      */
-    function functionCallWithValue(
-        address target,
-        bytes memory data,
-        uint256 value,
-        string memory errorMessage
-    ) internal returns (bytes memory) {
-        require(address(this).balance >= value, "Address: insufficient balance for call");
-        (bool success, bytes memory returndata) = target.call{value: value}(data);
-        return verifyCallResultFromTarget(target, success, returndata, errorMessage);
+    function encode(
+        uint64 _nonce,
+        uint32 _srcEid,
+        uint256 _amountLD,
+        bytes memory _composeMsg // 0x[composeFrom][composeMsg]
+    ) internal pure returns (bytes memory _msg) {
+        _msg = abi.encodePacked(_nonce, _srcEid, _amountLD, _composeMsg);
     }
 
     /**
-     * @dev Same as {xref-Address-functionCall-address-bytes-}[`functionCall`],
-     * but performing a static call.
-     *
-     * _Available since v3.3._
+     * @dev Retrieves the nonce from the composed message.
+     * @param _msg The message.
+     * @return The nonce value.
      */
-    function functionStaticCall(address target, bytes memory data) internal view returns (bytes memory) {
-        return functionStaticCall(target, data, "Address: low-level static call failed");
+    function nonce(bytes calldata _msg) internal pure returns (uint64) {
+        return uint64(bytes8(_msg[:NONCE_OFFSET]));
     }
 
     /**
-     * @dev Same as {xref-Address-functionCall-address-bytes-string-}[`functionCall`],
-     * but performing a static call.
-     *
-     * _Available since v3.3._
+     * @dev Retrieves the source endpoint ID from the composed message.
+     * @param _msg The message.
+     * @return The source endpoint ID.
      */
-    function functionStaticCall(
-        address target,
-        bytes memory data,
-        string memory errorMessage
-    ) internal view returns (bytes memory) {
-        (bool success, bytes memory returndata) = target.staticcall(data);
-        return verifyCallResultFromTarget(target, success, returndata, errorMessage);
+    function srcEid(bytes calldata _msg) internal pure returns (uint32) {
+        return uint32(bytes4(_msg[NONCE_OFFSET:SRC_EID_OFFSET]));
     }
 
     /**
-     * @dev Same as {xref-Address-functionCall-address-bytes-}[`functionCall`],
-     * but performing a delegate call.
-     *
-     * _Available since v3.4._
+     * @dev Retrieves the amount in local decimals from the composed message.
+     * @param _msg The message.
+     * @return The amount in local decimals.
      */
-    function functionDelegateCall(address target, bytes memory data) internal returns (bytes memory) {
-        return functionDelegateCall(target, data, "Address: low-level delegate call failed");
+    function amountLD(bytes calldata _msg) internal pure returns (uint256) {
+        return uint256(bytes32(_msg[SRC_EID_OFFSET:AMOUNT_LD_OFFSET]));
     }
 
     /**
-     * @dev Same as {xref-Address-functionCall-address-bytes-string-}[`functionCall`],
-     * but performing a delegate call.
-     *
-     * _Available since v3.4._
+     * @dev Retrieves the composeFrom value from the composed message.
+     * @param _msg The message.
+     * @return The composeFrom value.
      */
-    function functionDelegateCall(
-        address target,
-        bytes memory data,
-        string memory errorMessage
-    ) internal returns (bytes memory) {
-        (bool success, bytes memory returndata) = target.delegatecall(data);
-        return verifyCallResultFromTarget(target, success, returndata, errorMessage);
+    function composeFrom(bytes calldata _msg) internal pure returns (bytes32) {
+        return bytes32(_msg[AMOUNT_LD_OFFSET:COMPOSE_FROM_OFFSET]);
     }
 
     /**
-     * @dev Tool to verify that a low level call to smart-contract was successful, and revert (either by bubbling
-     * the revert reason or using the provided one) in case of unsuccessful call or if target was not a contract.
-     *
-     * _Available since v4.8._
+     * @dev Retrieves the composed message.
+     * @param _msg The message.
+     * @return The composed message.
      */
-    function verifyCallResultFromTarget(
-        address target,
-        bool success,
-        bytes memory returndata,
-        string memory errorMessage
-    ) internal view returns (bytes memory) {
-        if (success) {
-            if (returndata.length == 0) {
-                // only check isContract if the call was successful and the return data is empty
-                // otherwise we already know that it was a contract
-                require(isContract(target), "Address: call to non-contract");
-            }
-            return returndata;
-        } else {
-            _revert(returndata, errorMessage);
-        }
+    function composeMsg(bytes calldata _msg) internal pure returns (bytes memory) {
+        return _msg[COMPOSE_FROM_OFFSET:];
     }
 
     /**
-     * @dev Tool to verify that a low level call was successful, and revert if it wasn't, either by bubbling the
-     * revert reason or using the provided one.
-     *
-     * _Available since v4.3._
+     * @dev Converts an address to bytes32.
+     * @param _addr The address to convert.
+     * @return The bytes32 representation of the address.
      */
-    function verifyCallResult(
-        bool success,
-        bytes memory returndata,
-        string memory errorMessage
-    ) internal pure returns (bytes memory) {
-        if (success) {
-            return returndata;
-        } else {
-            _revert(returndata, errorMessage);
-        }
+    function addressToBytes32(address _addr) internal pure returns (bytes32) {
+        return bytes32(uint256(uint160(_addr)));
     }
 
-    function _revert(bytes memory returndata, string memory errorMessage) private pure {
-        // Look for revert reason and bubble it up if present
-        if (returndata.length > 0) {
-            // The easiest way to bubble the revert reason is using memory via assembly
-            /// @solidity memory-safe-assembly
-            assembly {
-                let returndata_size := mload(returndata)
-                revert(add(32, returndata), returndata_size)
-            }
-        } else {
-            revert(errorMessage);
-        }
+    /**
+     * @dev Converts bytes32 to an address.
+     * @param _b The bytes32 value to convert.
+     * @return The address representation of bytes32.
+     */
+    function bytes32ToAddress(bytes32 _b) internal pure returns (address) {
+        return address(uint160(uint256(_b)));
     }
+}
+
+// node_modules/@fraxfinance/layerzero-v2-upgradeable/oapp/contracts/oft/libs/OFTMsgCodec.sol
+
+library OFTMsgCodec {
+    // Offset constants for encoding and decoding OFT messages
+    uint8 private constant SEND_TO_OFFSET = 32;
+    uint8 private constant SEND_AMOUNT_SD_OFFSET = 40;
+
+    /**
+     * @dev Encodes an OFT LayerZero message.
+     * @param _sendTo The recipient address.
+     * @param _amountShared The amount in shared decimals.
+     * @param _composeMsg The composed message.
+     * @return _msg The encoded message.
+     * @return hasCompose A boolean indicating whether the message has a composed payload.
+     */
+    function encode(
+        bytes32 _sendTo,
+        uint64 _amountShared,
+        bytes memory _composeMsg
+    ) internal view returns (bytes memory _msg, bool hasCompose) {
+        hasCompose = _composeMsg.length > 0;
+        // @dev Remote chains will want to know the composed function caller ie. msg.sender on the src.
+        _msg = hasCompose
+            ? abi.encodePacked(_sendTo, _amountShared, addressToBytes32(msg.sender), _composeMsg)
+            : abi.encodePacked(_sendTo, _amountShared);
+    }
+
+    /**
+     * @dev Checks if the OFT message is composed.
+     * @param _msg The OFT message.
+     * @return A boolean indicating whether the message is composed.
+     */
+    function isComposed(bytes calldata _msg) internal pure returns (bool) {
+        return _msg.length > SEND_AMOUNT_SD_OFFSET;
+    }
+
+    /**
+     * @dev Retrieves the recipient address from the OFT message.
+     * @param _msg The OFT message.
+     * @return The recipient address.
+     */
+    function sendTo(bytes calldata _msg) internal pure returns (bytes32) {
+        return bytes32(_msg[:SEND_TO_OFFSET]);
+    }
+
+    /**
+     * @dev Retrieves the amount in shared decimals from the OFT message.
+     * @param _msg The OFT message.
+     * @return The amount in shared decimals.
+     */
+    function amountSD(bytes calldata _msg) internal pure returns (uint64) {
+        return uint64(bytes8(_msg[SEND_TO_OFFSET:SEND_AMOUNT_SD_OFFSET]));
+    }
+
+    /**
+     * @dev Retrieves the composed message from the OFT message.
+     * @param _msg The OFT message.
+     * @return The composed message.
+     */
+    function composeMsg(bytes calldata _msg) internal pure returns (bytes memory) {
+        return _msg[SEND_AMOUNT_SD_OFFSET:];
+    }
+
+    /**
+     * @dev Converts an address to bytes32.
+     * @param _addr The address to convert.
+     * @return The bytes32 representation of the address.
+     */
+    function addressToBytes32(address _addr) internal pure returns (bytes32) {
+        return bytes32(uint256(uint160(_addr)));
+    }
+
+    /**
+     * @dev Converts bytes32 to an address.
+     * @param _b The bytes32 value to convert.
+     * @return The address representation of bytes32.
+     */
+    function bytes32ToAddress(bytes32 _b) internal pure returns (address) {
+        return address(uint160(uint256(_b)));
+    }
+}
+
+// node_modules/@openzeppelin/contracts-upgradeable/token/ERC20/extensions/IERC20MetadataUpgradeable.sol
+
+// OpenZeppelin Contracts v4.4.1 (token/ERC20/extensions/IERC20Metadata.sol)
+
+/**
+ * @dev Interface for the optional metadata functions from the ERC20 standard.
+ *
+ * _Available since v4.1._
+ */
+interface IERC20MetadataUpgradeable is IERC20Upgradeable {
+    /**
+     * @dev Returns the name of the token.
+     */
+    function name() external view returns (string memory);
+
+    /**
+     * @dev Returns the symbol of the token.
+     */
+    function symbol() external view returns (string memory);
+
+    /**
+     * @dev Returns the decimals places of the token.
+     */
+    function decimals() external view returns (uint8);
 }
 
 // node_modules/@openzeppelin/contracts-upgradeable/proxy/utils/Initializable.sol
@@ -1386,53 +1412,6 @@ abstract contract Initializable {
     }
 }
 
-// node_modules/@openzeppelin/contracts-upgradeable/token/ERC20/extensions/IERC20MetadataUpgradeable.sol
-
-// OpenZeppelin Contracts v4.4.1 (token/ERC20/extensions/IERC20Metadata.sol)
-
-/**
- * @dev Interface for the optional metadata functions from the ERC20 standard.
- *
- * _Available since v4.1._
- */
-interface IERC20MetadataUpgradeable is IERC20Upgradeable {
-    /**
-     * @dev Returns the name of the token.
-     */
-    function name() external view returns (string memory);
-
-    /**
-     * @dev Returns the symbol of the token.
-     */
-    function symbol() external view returns (string memory);
-
-    /**
-     * @dev Returns the decimals places of the token.
-     */
-    function decimals() external view returns (uint8);
-}
-
-// node_modules/@layerzerolabs/lz-evm-protocol-v2/contracts/interfaces/IMessageLib.sol
-
-enum MessageLibType {
-    Send,
-    Receive,
-    SendAndReceive
-}
-
-interface IMessageLib is IERC165 {
-    function setConfig(address _oapp, SetConfigParam[] calldata _config) external;
-
-    function getConfig(uint32 _eid, address _oapp, uint32 _configType) external view returns (bytes memory config);
-
-    function isSupportedEid(uint32 _eid) external view returns (bool);
-
-    // message libs of same major version are compatible
-    function version() external view returns (uint64 major, uint8 minor, uint8 endpointVersion);
-
-    function messageLibType() external view returns (MessageLibType);
-}
-
 // node_modules/@openzeppelin/contracts-upgradeable/utils/ContextUpgradeable.sol
 
 // OpenZeppelin Contracts (last updated v4.9.4) (utils/Context.sol)
@@ -1471,6 +1450,119 @@ abstract contract ContextUpgradeable is Initializable {
      * See https://docs.openzeppelin.com/contracts/4.x/upgradeable#storage_gaps
      */
     uint256[50] private __gap;
+}
+
+// node_modules/@layerzerolabs/lz-evm-protocol-v2/contracts/interfaces/IMessageLib.sol
+
+enum MessageLibType {
+    Send,
+    Receive,
+    SendAndReceive
+}
+
+interface IMessageLib is IERC165 {
+    function setConfig(address _oapp, SetConfigParam[] calldata _config) external;
+
+    function getConfig(uint32 _eid, address _oapp, uint32 _configType) external view returns (bytes memory config);
+
+    function isSupportedEid(uint32 _eid) external view returns (bool);
+
+    // message libs of same major version are compatible
+    function version() external view returns (uint64 major, uint8 minor, uint8 endpointVersion);
+
+    function messageLibType() external view returns (MessageLibType);
+}
+
+// node_modules/@openzeppelin/contracts-upgradeable/access/OwnableUpgradeable.sol
+
+// OpenZeppelin Contracts (last updated v4.9.0) (access/Ownable.sol)
+
+/**
+ * @dev Contract module which provides a basic access control mechanism, where
+ * there is an account (an owner) that can be granted exclusive access to
+ * specific functions.
+ *
+ * By default, the owner account will be the one that deploys the contract. This
+ * can later be changed with {transferOwnership}.
+ *
+ * This module is used through inheritance. It will make available the modifier
+ * `onlyOwner`, which can be applied to your functions to restrict their use to
+ * the owner.
+ */
+abstract contract OwnableUpgradeable is Initializable, ContextUpgradeable {
+    address private _owner;
+
+    event OwnershipTransferred(address indexed previousOwner, address indexed newOwner);
+
+    /**
+     * @dev Initializes the contract setting the deployer as the initial owner.
+     */
+    function __Ownable_init() internal onlyInitializing {
+        __Ownable_init_unchained();
+    }
+
+    function __Ownable_init_unchained() internal onlyInitializing {
+        _transferOwnership(_msgSender());
+    }
+
+    /**
+     * @dev Throws if called by any account other than the owner.
+     */
+    modifier onlyOwner() {
+        _checkOwner();
+        _;
+    }
+
+    /**
+     * @dev Returns the address of the current owner.
+     */
+    function owner() public view virtual returns (address) {
+        return _owner;
+    }
+
+    /**
+     * @dev Throws if the sender is not the owner.
+     */
+    function _checkOwner() internal view virtual {
+        require(owner() == _msgSender(), "Ownable: caller is not the owner");
+    }
+
+    /**
+     * @dev Leaves the contract without owner. It will not be possible to call
+     * `onlyOwner` functions. Can only be called by the current owner.
+     *
+     * NOTE: Renouncing ownership will leave the contract without an owner,
+     * thereby disabling any functionality that is only available to the owner.
+     */
+    function renounceOwnership() public virtual onlyOwner {
+        _transferOwnership(address(0));
+    }
+
+    /**
+     * @dev Transfers ownership of the contract to a new account (`newOwner`).
+     * Can only be called by the current owner.
+     */
+    function transferOwnership(address newOwner) public virtual onlyOwner {
+        require(newOwner != address(0), "Ownable: new owner is the zero address");
+        _transferOwnership(newOwner);
+    }
+
+    /**
+     * @dev Transfers ownership of the contract to a new account (`newOwner`).
+     * Internal function without access restriction.
+     */
+    function _transferOwnership(address newOwner) internal virtual {
+        address oldOwner = _owner;
+        _owner = newOwner;
+        emit OwnershipTransferred(oldOwner, newOwner);
+    }
+
+    /**
+     * @dev This empty reserved space is put in place to allow future versions to add new
+     * variables without shifting down storage in the inheritance chain.
+     * See https://docs.openzeppelin.com/contracts/4.x/upgradeable#storage_gaps
+     */
+    uint256[49] private __gap;
 }
 
 // node_modules/@openzeppelin/contracts/token/ERC20/utils/SafeERC20.sol
@@ -1612,98 +1704,6 @@ library SafeERC20 {
     }
 }
 
-// node_modules/@openzeppelin/contracts-upgradeable/access/OwnableUpgradeable.sol
-
-// OpenZeppelin Contracts (last updated v4.9.0) (access/Ownable.sol)
-
-/**
- * @dev Contract module which provides a basic access control mechanism, where
- * there is an account (an owner) that can be granted exclusive access to
- * specific functions.
- *
- * By default, the owner account will be the one that deploys the contract. This
- * can later be changed with {transferOwnership}.
- *
- * This module is used through inheritance. It will make available the modifier
- * `onlyOwner`, which can be applied to your functions to restrict their use to
- * the owner.
- */
-abstract contract OwnableUpgradeable is Initializable, ContextUpgradeable {
-    address private _owner;
-
-    event OwnershipTransferred(address indexed previousOwner, address indexed newOwner);
-
-    /**
-     * @dev Initializes the contract setting the deployer as the initial owner.
-     */
-    function __Ownable_init() internal onlyInitializing {
-        __Ownable_init_unchained();
-    }
-
-    function __Ownable_init_unchained() internal onlyInitializing {
-        _transferOwnership(_msgSender());
-    }
-
-    /**
-     * @dev Throws if called by any account other than the owner.
-     */
-    modifier onlyOwner() {
-        _checkOwner();
-        _;
-    }
-
-    /**
-     * @dev Returns the address of the current owner.
-     */
-    function owner() public view virtual returns (address) {
-        return _owner;
-    }
-
-    /**
-     * @dev Throws if the sender is not the owner.
-     */
-    function _checkOwner() internal view virtual {
-        require(owner() == _msgSender(), "Ownable: caller is not the owner");
-    }
-
-    /**
-     * @dev Leaves the contract without owner. It will not be possible to call
-     * `onlyOwner` functions. Can only be called by the current owner.
-     *
-     * NOTE: Renouncing ownership will leave the contract without an owner,
-     * thereby disabling any functionality that is only available to the owner.
-     */
-    function renounceOwnership() public virtual onlyOwner {
-        _transferOwnership(address(0));
-    }
-
-    /**
-     * @dev Transfers ownership of the contract to a new account (`newOwner`).
-     * Can only be called by the current owner.
-     */
-    function transferOwnership(address newOwner) public virtual onlyOwner {
-        require(newOwner != address(0), "Ownable: new owner is the zero address");
-        _transferOwnership(newOwner);
-    }
-
-    /**
-     * @dev Transfers ownership of the contract to a new account (`newOwner`).
-     * Internal function without access restriction.
-     */
-    function _transferOwnership(address newOwner) internal virtual {
-        address oldOwner = _owner;
-        _owner = newOwner;
-        emit OwnershipTransferred(oldOwner, newOwner);
-    }
-
-    /**
-     * @dev This empty reserved space is put in place to allow future versions to add new
-     * variables without shifting down storage in the inheritance chain.
-     * See https://docs.openzeppelin.com/contracts/4.x/upgradeable#storage_gaps
-     */
-    uint256[49] private __gap;
-}
-
 // node_modules/@layerzerolabs/lz-evm-protocol-v2/contracts/interfaces/ILayerZeroEndpointV2.sol
 
 struct MessagingParams {
@@ -1785,176 +1785,6 @@ interface ILayerZeroEndpointV2 is IMessageLibManager, IMessagingComposer, IMessa
     function nativeToken() external view returns (address);
 
     function setDelegate(address _delegate) external;
-}
-
-// node_modules/@fraxfinance/layerzero-v2-upgradeable/oapp/contracts/oapp/interfaces/IOAppCore.sol
-
-/**
- * @title IOAppCore
- */
-interface IOAppCore {
-    // Custom error messages
-    error OnlyPeer(uint32 eid, bytes32 sender);
-    error NoPeer(uint32 eid);
-    error InvalidEndpointCall();
-    error InvalidDelegate();
-
-    // Event emitted when a peer (OApp) is set for a corresponding endpoint
-    event PeerSet(uint32 eid, bytes32 peer);
-
-    /**
-     * @notice Retrieves the OApp version information.
-     * @return senderVersion The version of the OAppSender.sol contract.
-     * @return receiverVersion The version of the OAppReceiver.sol contract.
-     */
-    function oAppVersion() external view returns (uint64 senderVersion, uint64 receiverVersion);
-
-    /**
-     * @notice Retrieves the LayerZero endpoint associated with the OApp.
-     * @return iEndpoint The LayerZero endpoint as an interface.
-     */
-    function endpoint() external view returns (ILayerZeroEndpointV2 iEndpoint);
-
-    /**
-     * @notice Retrieves the peer (OApp) associated with a corresponding endpoint.
-     * @param _eid The endpoint ID.
-     * @return peer The peer address (OApp instance) associated with the corresponding endpoint.
-     */
-    function peers(uint32 _eid) external view returns (bytes32 peer);
-
-    /**
-     * @notice Sets the peer address (OApp instance) for a corresponding endpoint.
-     * @param _eid The endpoint ID.
-     * @param _peer The address of the peer to be associated with the corresponding endpoint.
-     */
-    function setPeer(uint32 _eid, bytes32 _peer) external;
-
-    /**
-     * @notice Sets the delegate address for the OApp Core.
-     * @param _delegate The address of the delegate to be set.
-     */
-    function setDelegate(address _delegate) external;
-}
-
-// node_modules/@fraxfinance/layerzero-v2-upgradeable/oapp/contracts/oapp/libs/OAppOptionsType3Upgradeable.sol
-
-/**
- * @title OAppOptionsType3
- * @dev Abstract contract implementing the IOAppOptionsType3 interface with type 3 options.
- */
-abstract contract OAppOptionsType3Upgradeable is IOAppOptionsType3, OwnableUpgradeable {
-    struct OAppOptionsType3Storage {
-        // @dev The "msgType" should be defined in the child contract.
-        mapping(uint32 => mapping(uint16 => bytes)) enforcedOptions;
-    }
-
-    // keccak256(abi.encode(uint256(keccak256("layerzerov2.storage.oappoptionstype3")) - 1)) & ~bytes32(uint256(0xff))
-    bytes32 private constant OAppOptionsType3StorageLocation =
-        0x8d2bda5d9f6ffb5796910376005392955773acee5548d0fcdb10e7c264ea0000;
-
-    uint16 internal constant OPTION_TYPE_3 = 3;
-
-    function _getOAppOptionsType3Storage() internal pure returns (OAppOptionsType3Storage storage $) {
-        assembly {
-            $.slot := OAppOptionsType3StorageLocation
-        }
-    }
-
-    /**
-     * @dev Ownable is not initialized here on purpose. It should be initialized in the child contract to
-     * accommodate the different version of Ownable.
-     */
-    function __OAppOptionsType3_init() internal onlyInitializing {}
-
-    function __OAppOptionsType3_init_unchained() internal onlyInitializing {}
-
-    function enforcedOptions(uint32 _eid, uint16 _msgType) public view returns (bytes memory) {
-        OAppOptionsType3Storage storage $ = _getOAppOptionsType3Storage();
-        return $.enforcedOptions[_eid][_msgType];
-    }
-
-    /**
-     * @dev Sets the enforced options for specific endpoint and message type combinations.
-     * @param _enforcedOptions An array of EnforcedOptionParam structures specifying enforced options.
-     *
-     * @dev Only the owner/admin of the OApp can call this function.
-     * @dev Provides a way for the OApp to enforce things like paying for PreCrime, AND/OR minimum dst lzReceive gas amounts etc.
-     * @dev These enforced options can vary as the potential options/execution on the remote may differ as per the msgType.
-     * eg. Amount of lzReceive() gas necessary to deliver a lzCompose() message adds overhead you dont want to pay
-     * if you are only making a standard LayerZero message ie. lzReceive() WITHOUT sendCompose().
-     */
-    function setEnforcedOptions(EnforcedOptionParam[] calldata _enforcedOptions) public virtual onlyOwner {
-        OAppOptionsType3Storage storage $ = _getOAppOptionsType3Storage();
-        for (uint256 i = 0; i < _enforcedOptions.length; i++) {
-            // @dev Enforced options are only available for optionType 3, as type 1 and 2 dont support combining.
-            _assertOptionsType3(_enforcedOptions[i].options);
-            $.enforcedOptions[_enforcedOptions[i].eid][_enforcedOptions[i].msgType] = _enforcedOptions[i].options;
-        }
-
-        emit EnforcedOptionSet(_enforcedOptions);
-    }
-
-    /**
-     * @notice Combines options for a given endpoint and message type.
-     * @param _eid The endpoint ID.
-     * @param _msgType The OAPP message type.
-     * @param _extraOptions Additional options passed by the caller.
-     * @return options The combination of caller specified options AND enforced options.
-     *
-     * @dev If there is an enforced lzReceive option:
-     * - {gasLimit: 200k, msg.value: 1 ether} AND a caller supplies a lzReceive option: {gasLimit: 100k, msg.value: 0.5 ether}
-     * - The resulting options will be {gasLimit: 300k, msg.value: 1.5 ether} when the message is executed on the remote lzReceive() function.
-     * @dev This presence of duplicated options is handled off-chain in the verifier/executor.
-     */
-    function combineOptions(
-        uint32 _eid,
-        uint16 _msgType,
-        bytes calldata _extraOptions
-    ) public view virtual returns (bytes memory) {
-        OAppOptionsType3Storage storage $ = _getOAppOptionsType3Storage();
-        bytes memory enforced = $.enforcedOptions[_eid][_msgType];
-
-        // No enforced options, pass whatever the caller supplied, even if it's empty or legacy type 1/2 options.
-        if (enforced.length == 0) return _extraOptions;
-
-        // No caller options, return enforced
-        if (_extraOptions.length == 0) return enforced;
-
-        // @dev If caller provided _extraOptions, must be type 3 as its the ONLY type that can be combined.
-        if (_extraOptions.length >= 2) {
-            _assertOptionsType3(_extraOptions);
-            // @dev Remove the first 2 bytes containing the type from the _extraOptions and combine with enforced.
-            return bytes.concat(enforced, _extraOptions[2:]);
-        }
-
-        // No valid set of options was found.
-        revert InvalidOptions(_extraOptions);
-    }
-
-    /**
-     * @dev Internal function to assert that options are of type 3.
-     * @param _options The options to be checked.
-     */
-    function _assertOptionsType3(bytes calldata _options) internal pure virtual {
-        uint16 optionsType = uint16(bytes2(_options[0:2]));
-        if (optionsType != OPTION_TYPE_3) revert InvalidOptions(_options);
-    }
-}
-
-// node_modules/@layerzerolabs/lz-evm-protocol-v2/contracts/interfaces/ILayerZeroReceiver.sol
-
-interface ILayerZeroReceiver {
-    function allowInitializePath(Origin calldata _origin) external view returns (bool);
-
-    function nextNonce(uint32 _eid, bytes32 _sender) external view returns (uint64);
-
-    function lzReceive(
-        Origin calldata _origin,
-        bytes32 _guid,
-        bytes calldata _message,
-        address _executor,
-        bytes calldata _extraData
-    ) external payable;
 }
 
 // node_modules/@openzeppelin/contracts-upgradeable/token/ERC20/ERC20Upgradeable.sol
@@ -2327,6 +2157,176 @@ contract ERC20Upgradeable is Initializable, ContextUpgradeable, IERC20Upgradeabl
      * See https://docs.openzeppelin.com/contracts/4.x/upgradeable#storage_gaps
      */
     uint256[45] private __gap;
+}
+
+// node_modules/@layerzerolabs/lz-evm-protocol-v2/contracts/interfaces/ILayerZeroReceiver.sol
+
+interface ILayerZeroReceiver {
+    function allowInitializePath(Origin calldata _origin) external view returns (bool);
+
+    function nextNonce(uint32 _eid, bytes32 _sender) external view returns (uint64);
+
+    function lzReceive(
+        Origin calldata _origin,
+        bytes32 _guid,
+        bytes calldata _message,
+        address _executor,
+        bytes calldata _extraData
+    ) external payable;
+}
+
+// node_modules/@fraxfinance/layerzero-v2-upgradeable/oapp/contracts/oapp/interfaces/IOAppCore.sol
+
+/**
+ * @title IOAppCore
+ */
+interface IOAppCore {
+    // Custom error messages
+    error OnlyPeer(uint32 eid, bytes32 sender);
+    error NoPeer(uint32 eid);
+    error InvalidEndpointCall();
+    error InvalidDelegate();
+
+    // Event emitted when a peer (OApp) is set for a corresponding endpoint
+    event PeerSet(uint32 eid, bytes32 peer);
+
+    /**
+     * @notice Retrieves the OApp version information.
+     * @return senderVersion The version of the OAppSender.sol contract.
+     * @return receiverVersion The version of the OAppReceiver.sol contract.
+     */
+    function oAppVersion() external view returns (uint64 senderVersion, uint64 receiverVersion);
+
+    /**
+     * @notice Retrieves the LayerZero endpoint associated with the OApp.
+     * @return iEndpoint The LayerZero endpoint as an interface.
+     */
+    function endpoint() external view returns (ILayerZeroEndpointV2 iEndpoint);
+
+    /**
+     * @notice Retrieves the peer (OApp) associated with a corresponding endpoint.
+     * @param _eid The endpoint ID.
+     * @return peer The peer address (OApp instance) associated with the corresponding endpoint.
+     */
+    function peers(uint32 _eid) external view returns (bytes32 peer);
+
+    /**
+     * @notice Sets the peer address (OApp instance) for a corresponding endpoint.
+     * @param _eid The endpoint ID.
+     * @param _peer The address of the peer to be associated with the corresponding endpoint.
+     */
+    function setPeer(uint32 _eid, bytes32 _peer) external;
+
+    /**
+     * @notice Sets the delegate address for the OApp Core.
+     * @param _delegate The address of the delegate to be set.
+     */
+    function setDelegate(address _delegate) external;
+}
+
+// node_modules/@fraxfinance/layerzero-v2-upgradeable/oapp/contracts/oapp/libs/OAppOptionsType3Upgradeable.sol
+
+/**
+ * @title OAppOptionsType3
+ * @dev Abstract contract implementing the IOAppOptionsType3 interface with type 3 options.
+ */
+abstract contract OAppOptionsType3Upgradeable is IOAppOptionsType3, OwnableUpgradeable {
+    struct OAppOptionsType3Storage {
+        // @dev The "msgType" should be defined in the child contract.
+        mapping(uint32 => mapping(uint16 => bytes)) enforcedOptions;
+    }
+
+    // keccak256(abi.encode(uint256(keccak256("layerzerov2.storage.oappoptionstype3")) - 1)) & ~bytes32(uint256(0xff))
+    bytes32 private constant OAppOptionsType3StorageLocation =
+        0x8d2bda5d9f6ffb5796910376005392955773acee5548d0fcdb10e7c264ea0000;
+
+    uint16 internal constant OPTION_TYPE_3 = 3;
+
+    function _getOAppOptionsType3Storage() internal pure returns (OAppOptionsType3Storage storage $) {
+        assembly {
+            $.slot := OAppOptionsType3StorageLocation
+        }
+    }
+
+    /**
+     * @dev Ownable is not initialized here on purpose. It should be initialized in the child contract to
+     * accommodate the different version of Ownable.
+     */
+    function __OAppOptionsType3_init() internal onlyInitializing {}
+
+    function __OAppOptionsType3_init_unchained() internal onlyInitializing {}
+
+    function enforcedOptions(uint32 _eid, uint16 _msgType) public view returns (bytes memory) {
+        OAppOptionsType3Storage storage $ = _getOAppOptionsType3Storage();
+        return $.enforcedOptions[_eid][_msgType];
+    }
+
+    /**
+     * @dev Sets the enforced options for specific endpoint and message type combinations.
+     * @param _enforcedOptions An array of EnforcedOptionParam structures specifying enforced options.
+     *
+     * @dev Only the owner/admin of the OApp can call this function.
+     * @dev Provides a way for the OApp to enforce things like paying for PreCrime, AND/OR minimum dst lzReceive gas amounts etc.
+     * @dev These enforced options can vary as the potential options/execution on the remote may differ as per the msgType.
+     * eg. Amount of lzReceive() gas necessary to deliver a lzCompose() message adds overhead you dont want to pay
+     * if you are only making a standard LayerZero message ie. lzReceive() WITHOUT sendCompose().
+     */
+    function setEnforcedOptions(EnforcedOptionParam[] calldata _enforcedOptions) public virtual onlyOwner {
+        OAppOptionsType3Storage storage $ = _getOAppOptionsType3Storage();
+        for (uint256 i = 0; i < _enforcedOptions.length; i++) {
+            // @dev Enforced options are only available for optionType 3, as type 1 and 2 dont support combining.
+            _assertOptionsType3(_enforcedOptions[i].options);
+            $.enforcedOptions[_enforcedOptions[i].eid][_enforcedOptions[i].msgType] = _enforcedOptions[i].options;
+        }
+
+        emit EnforcedOptionSet(_enforcedOptions);
+    }
+
+    /**
+     * @notice Combines options for a given endpoint and message type.
+     * @param _eid The endpoint ID.
+     * @param _msgType The OAPP message type.
+     * @param _extraOptions Additional options passed by the caller.
+     * @return options The combination of caller specified options AND enforced options.
+     *
+     * @dev If there is an enforced lzReceive option:
+     * - {gasLimit: 200k, msg.value: 1 ether} AND a caller supplies a lzReceive option: {gasLimit: 100k, msg.value: 0.5 ether}
+     * - The resulting options will be {gasLimit: 300k, msg.value: 1.5 ether} when the message is executed on the remote lzReceive() function.
+     * @dev This presence of duplicated options is handled off-chain in the verifier/executor.
+     */
+    function combineOptions(
+        uint32 _eid,
+        uint16 _msgType,
+        bytes calldata _extraOptions
+    ) public view virtual returns (bytes memory) {
+        OAppOptionsType3Storage storage $ = _getOAppOptionsType3Storage();
+        bytes memory enforced = $.enforcedOptions[_eid][_msgType];
+
+        // No enforced options, pass whatever the caller supplied, even if it's empty or legacy type 1/2 options.
+        if (enforced.length == 0) return _extraOptions;
+
+        // No caller options, return enforced
+        if (_extraOptions.length == 0) return enforced;
+
+        // @dev If caller provided _extraOptions, must be type 3 as its the ONLY type that can be combined.
+        if (_extraOptions.length >= 2) {
+            _assertOptionsType3(_extraOptions);
+            // @dev Remove the first 2 bytes containing the type from the _extraOptions and combine with enforced.
+            return bytes.concat(enforced, _extraOptions[2:]);
+        }
+
+        // No valid set of options was found.
+        revert InvalidOptions(_extraOptions);
+    }
+
+    /**
+     * @dev Internal function to assert that options are of type 3.
+     * @param _options The options to be checked.
+     */
+    function _assertOptionsType3(bytes calldata _options) internal pure virtual {
+        uint16 optionsType = uint16(bytes2(_options[0:2]));
+        if (optionsType != OPTION_TYPE_3) revert InvalidOptions(_options);
+    }
 }
 
 // node_modules/@fraxfinance/layerzero-v2-upgradeable/oapp/contracts/oapp/interfaces/IOAppReceiver.sol
@@ -3799,12 +3799,14 @@ abstract contract OFTUpgradeable is OFTCoreUpgradeable, ERC20Upgradeable {
 // contracts/FraxOFTUpgradeable.sol
 
 contract FraxOFTUpgradeable is OFTUpgradeable {
-    constructor(address _lzEndpoint) OFTUpgradeable(_lzEndpoint) {}
+    constructor(address _lzEndpoint) OFTUpgradeable(_lzEndpoint) {
+        _disableInitializers();
+    }
 
     function version() external pure returns (uint256 major, uint256 minor, uint256 patch) {
         major = 1;
         minor = 0;
-        patch = 0;
+        patch = 1;
     }
 
     // Admin
@@ -3842,3 +3844,4 @@ contract FraxOFTUpgradeable is OFTUpgradeable {
     }
 
 }
+

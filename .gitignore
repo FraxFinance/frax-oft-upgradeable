@@ -23,6 +23,7 @@ pnpm-error.log
 # Editor and OS files
 .DS_Store
 .idea
-build/
+.aptos
 .turbo
+build
 target

@@ -210,5 +210,31 @@
             "https://rpc.therpc.io/unichain"
         ],
         "quorum": 2
+    },
+    "botanix": {
+        "uris": [
+            "https://rpc.btxtestchain.com"
+        ],
+        "quorum": 2
+    },
+    "solana": {
+        "uris": [
+            "https://api.mainnet-beta.solana.com"
+        ],
+        "quorum": 2
+    },
+    "aptos": {
+        "uris": [
+            "https://fullnode.mainnet.aptoslabs.com",
+            "https://1rpc.io/aptos"
+        ],
+        "quorum": 2
+    },
+    "movement": {
+        "uris": [
+            "https://mainnet.movementnetwork.xyz/v1",
+            "https://movement.lava.build"
+        ],
+        "quorum": 2
     }
 }

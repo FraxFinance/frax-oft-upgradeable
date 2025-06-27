@@ -34,8 +34,8 @@ const chainIds = [
 ] as const;
 const dvnKeys = ['bcwGroup', 'frax', 'horizen', 'lz', 'nethermind', 'stargate'] as const;
 
-const aptosContract: OmniPointHardhat = {
-    eid: EndpointId.APTOS_V2_MAINNET,
+const movementContract: OmniPointHardhat = {
+    eid: EndpointId.MOVEMENT_V2_MAINNET,
     contractName: 'mFRAX',
 }
 
@@ -79,7 +79,7 @@ function generateContractConfig(lzConfig: lzConfigType[]) {
 
 function generateSrcConnectionConfig(lzConfig: lzConfigType[]): OmniEdgeHardhat<OAppEdgeConfig>[] {
     const connectionConfig: any[] = []
-    const srcDVNConfig = JSON.parse(readFileSync(path.join(__dirname, `../../${dvnConfigPath}/aptos.json`), "utf8"));
+    const srcDVNConfig = JSON.parse(readFileSync(path.join(__dirname, `../../${dvnConfigPath}/movement.json`), "utf8"));
     for (const _chainid of chainIds) {
         let dstConfig: lzConfigType | undefined;
         for (const config of lzConfig) {
@@ -94,19 +94,19 @@ function generateSrcConnectionConfig(lzConfig: lzConfigType[]): OmniEdgeHardhat<
         const dstDVNConfig = JSON.parse(readFileSync(path.join(__dirname, `../../${dvnConfigPath}/${_chainid}.json`), "utf8"));
 
         dvnKeys.forEach(key => {
-            const dst = dstDVNConfig["aptos"]?.[key] ?? zeroAddress;
+            const dst = dstDVNConfig["movement"]?.[key] ?? zeroAddress;
             const src = srcDVNConfig[_chainid]?.[key] ?? zeroBytes32;
 
             if (dst !== zeroAddress || src !== zeroBytes32) {
                 if (dst === zeroAddress || src === zeroBytes32) {
-                    throw new Error(`DVN Stack misconfigured: ${_chainid}<>aptos-${key}`);
+                    throw new Error(`DVN Stack misconfigured: ${_chainid}<>movement-${key}`);
                 }
                 requiredSrcDVNs.push(src);
             }
         });
 
         connectionConfig.push({
-            from: aptosContract,
+            from: movementContract,
             to: {
                 eid: dstConfig.eid,
                 contractName: _chainid == 252 ? "FraxOFTMintableUpgradeable" : "MockFRAXUpgradeable"
@@ -128,12 +128,12 @@ function generateSrcConnectionConfig(lzConfig: lzConfigType[]): OmniEdgeHardhat<
                 ],
                 sendLibrary: '0xc33752e0220faf79e45385dd73fb28d681dcd9f1569a1480725507c1f3c3aba9',
                 receiveLibraryConfig: {
-                    // Required Receive Library Address on Aptos
+                    // Required Receive Library Address on Movement
                     receiveLibrary: '0xc33752e0220faf79e45385dd73fb28d681dcd9f1569a1480725507c1f3c3aba9',
-                    // Optional Grace Period for Switching Receive Library Address on Aptos
+                    // Optional Grace Period for Switching Receive Library Address on Movement
                     gracePeriod: BigInt(0),
                 },
-                // Optional Receive Library Timeout for when the Old Receive Library Address will no longer be valid on Aptos
+                // Optional Receive Library Timeout for when the Old Receive Library Address will no longer be valid on Movement
                 // receiveLibraryTimeoutConfig: {
                 //     lib: '0xbe533727aebe97132ec0a606d99e0ce137dbdf06286eb07d9e0f7154df1f3f10',
                 //     expiry: BigInt(1000000000),
@@ -141,11 +141,11 @@ function generateSrcConnectionConfig(lzConfig: lzConfigType[]): OmniEdgeHardhat<
                 sendConfig: {
                     executorConfig: {
                         maxMessageSize: 10_000,
-                        // The configured Executor address on Aptos
+                        // The configured Executor address on Movement
                         executor: '',
                     },
                     ulnConfig: {
-                        // The number of block confirmations to wait on Aptos before emitting the message from the source chain.
+                        // The number of block confirmations to wait on Movement before emitting the message from the source chain.
                         confirmations: BigInt(5),
                         // The address of the DVNs you will pay to verify a sent message on the source chain.
                         // The destination tx will wait until ALL `requiredDVNs` verify the message.
@@ -182,7 +182,7 @@ function generateSrcConnectionConfig(lzConfig: lzConfigType[]): OmniEdgeHardhat<
 
 function generateDstConnectionConfig(lzConfig: lzConfigType[]): OmniEdgeHardhat<OAppEdgeConfig>[] {
     const connectionConfig: any[] = []
-    const dstDVNConfig = JSON.parse(readFileSync(path.join(__dirname, `../../${dvnConfigPath}/aptos.json`), "utf8"));
+    const dstDVNConfig = JSON.parse(readFileSync(path.join(__dirname, `../../${dvnConfigPath}/movement.json`), "utf8"));
     for (const _chainid of chainIds) {
         let dstConfig: lzConfigType | undefined;
         for (const config of lzConfig) {
@@ -203,22 +203,22 @@ function generateDstConnectionConfig(lzConfig: lzConfigType[]): OmniEdgeHardhat<
 
         dvnKeys.forEach(key => {
             const dst = dstDVNConfig[_chainid]?.[key] ?? zeroBytes32;
-            const src = srcDVNConfig["aptos"]?.[key] ?? zeroAddress;
+            const src = srcDVNConfig["movement"]?.[key] ?? zeroAddress;
 
             if (dst !== zeroBytes32 || src !== zeroAddress) {
                 if (dst === zeroBytes32 || src === zeroAddress) {
-                    throw new Error(`DVN Stack misconfigured: ${_chainid}<>aptos-${key}`);
+                    throw new Error(`DVN Stack misconfigured: ${_chainid}<>movement-${key}`);
                 }
                 requiredDstDVNs.push(src);
             }
         });
 
         connectionConfig.push({
-            from: aptosContract,
-            to: {
+            from: {
                 eid: dstConfig.eid,
                 contractName: _chainid == 252 ? "FraxOFTMintableUpgradeable" : "MockFRAXUpgradeable"
             },
+            to: movementContract,
             config: {
                 enforcedOptions: [
                     {
@@ -236,12 +236,12 @@ function generateDstConnectionConfig(lzConfig: lzConfigType[]): OmniEdgeHardhat<
                 ],
                 sendLibrary: dstConfig.sendLib302,
                 receiveLibraryConfig: {
-                    // Required Receive Library Address on Aptos
+                    // Required Receive Library Address on Movement
                     receiveLibrary: dstConfig.receiveLib302,
-                    // Optional Grace Period for Switching Receive Library Address on Aptos
+                    // Optional Grace Period for Switching Receive Library Address on Movement
                     gracePeriod: BigInt(0),
                 },
-                // Optional Receive Library Timeout for when the Old Receive Library Address will no longer be valid on Aptos
+                // Optional Receive Library Timeout for when the Old Receive Library Address will no longer be valid on Movement
                 // receiveLibraryTimeoutConfig: {
                 //     lib: '0xbe533727aebe97132ec0a606d99e0ce137dbdf06286eb07d9e0f7154df1f3f10',
                 //     expiry: BigInt(1000000000),
@@ -249,11 +249,11 @@ function generateDstConnectionConfig(lzConfig: lzConfigType[]): OmniEdgeHardhat<
                 sendConfig: {
                     executorConfig: {
                         maxMessageSize: 10_000,
-                        // The configured Executor address on Aptos
+                        // The configured Executor address on Movement
                         executor: '',
                     },
                     ulnConfig: {
-                        // The number of block confirmations to wait on Aptos before emitting the message from the source chain.
+                        // The number of block confirmations to wait on Movement before emitting the message from the source chain.
                         confirmations: BigInt(5),
                         // The address of the DVNs you will pay to verify a sent message on the source chain.
                         // The destination tx will wait until ALL `requiredDVNs` verify the message.
@@ -291,7 +291,7 @@ const config: OAppOmniGraphHardhat = {
     contracts: [
         ...generateContractConfig(L0Config.Proxy),
         {
-            contract: aptosContract,
+            contract: movementContract,
             config: {
                 delegate: '0x09d0eb2763c96e085fa74ba6cf0d49136f8654c48ec7dbc59279a9066c7dd409',
                 owner: '0x09d0eb2763c96e085fa74ba6cf0d49136f8654c48ec7dbc59279a9066c7dd409',

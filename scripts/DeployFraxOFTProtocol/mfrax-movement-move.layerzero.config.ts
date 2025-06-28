@@ -36,7 +36,7 @@ const dvnKeys = ['bcwGroup', 'frax', 'horizen', 'lz', 'nethermind', 'stargate'] 
 
 const movementContract: OmniPointHardhat = {
     eid: EndpointId.MOVEMENT_V2_MAINNET,
-    contractName: 'mFRAX',
+    contractName: 'MockFraxOFT',
 }
 
 // const solanaContract: OmniPointHardhat = {
@@ -224,13 +224,13 @@ function generateDstConnectionConfig(lzConfig: lzConfigType[]): OmniEdgeHardhat<
                     {
                         msgType: MsgType.SEND,
                         optionType: ExecutorOptionType.LZ_RECEIVE,
-                        gas: 80_000, // gas limit in wei for EndpointV2.lzReceive
+                        gas: 5_000, // gas limit in wei for EndpointV2.lzReceive
                         value: 0, // msg.value in wei for EndpointV2.lzReceive
                     },
                     {
                         msgType: MsgType.SEND_AND_CALL,
                         optionType: ExecutorOptionType.LZ_RECEIVE,
-                        gas: 80_000, // gas limit in wei for EndpointV2.lzReceive
+                        gas: 5_000, // gas limit in wei for EndpointV2.lzReceive
                         value: 0, // msg.value in wei for EndpointV2.lzReceive
                     },
                 ],

@@ -1,6 +1,6 @@
 import { ExecutorOptionType } from '@layerzerolabs/lz-v2-utilities'
 import { generateConnectionsConfig, TwoWayConfig } from '@layerzerolabs/metadata-tools'
-import type { OAppEnforcedOption, OAppEdgeConfig, OAppOmniGraphHardhat, OmniEdgeHardhat, OmniPointHardhat } from '@layerzerolabs/toolbox-hardhat'
+import type { OAppEnforcedOption, OmniPointHardhat } from '@layerzerolabs/toolbox-hardhat'
 
 import LOCOnfig4L0 from "../L0Config4L0.json"
 

@@ -24,47 +24,33 @@ import {
 import { createUmi } from '@metaplex-foundation/umi-bundle-defaults'
 import { createWeb3JsEddsa } from '@metaplex-foundation/umi-eddsa-web3js'
 import { toWeb3JsInstruction, toWeb3JsPublicKey } from '@metaplex-foundation/umi-web3js-adapters'
-import { AddressLookupTableAccount, Connection, Keypair } from '@solana/web3.js'
+import { AddressLookupTableAccount, Connection } from '@solana/web3.js'
 import { getSimulationComputeUnits } from '@solana-developers/helpers'
-import bs58 from 'bs58'
 import { backOff } from 'exponential-backoff'
 
 import { formatEid } from '@layerzerolabs/devtools'
+import { getPrioritizationFees, getSolanaKeypair } from '@layerzerolabs/devtools-solana'
 import { promptToContinue } from '@layerzerolabs/io-devtools'
 import { EndpointId, endpointIdToNetwork } from '@layerzerolabs/lz-definitions'
 import { OftPDA } from '@layerzerolabs/oft-v2-solana-sdk'
 
-import { createSolanaConnectionFactory } from '../common/utils'
-import getFee from '../utils/getFee'
+import { DebugLogger, KnownWarnings, createSolanaConnectionFactory } from '../common/utils'
 
 const LOOKUP_TABLE_ADDRESS: Partial<Record<EndpointId, PublicKey>> = {
     [EndpointId.SOLANA_V2_MAINNET]: publicKey('AokBxha6VMLLgf97B5VYHEtqztamWmYERBmmFvjuTzJB'),
     [EndpointId.SOLANA_V2_TESTNET]: publicKey('9thqPdbR27A1yLWw2spwJLySemiGMXxPnEvfmXVk4KuK'),
 }
 
-const getFromEnv = (key: string): string => {
-    const value = process.env[key]
-    if (!value) {
-        throw new Error(`${key} is not defined in the environment variables.`)
-    }
-    return value
-}
-
-/**
- * Extracts the SOLANA_PRIVATE_KEY from the environment.  This is purposely not exported for encapsulation purposes.
- */
-const getSolanaPrivateKeyFromEnv = () => getFromEnv('SOLANA_PRIVATE_KEY')
-
 /**
  * Derive common connection and UMI objects for a given endpoint ID.
  * @param eid {EndpointId}
  */
-export const deriveConnection = async (eid: EndpointId) => {
-    const privateKey = getSolanaPrivateKeyFromEnv()
+export const deriveConnection = async (eid: EndpointId, readOnly = false) => {
+    const keypair = await getSolanaKeypair(readOnly)
     const connectionFactory = createSolanaConnectionFactory()
     const connection = await connectionFactory(eid)
     const umi = createUmi(connection.rpcEndpoint).use(mplToolbox())
-    const umiWalletKeyPair = umi.eddsa.createKeypairFromSecretKey(bs58.decode(privateKey))
+    const umiWalletKeyPair = umi.eddsa.createKeypairFromSecretKey(keypair.secretKey)
     const umiWalletSigner = createSignerFromKeypair(umi, umiWalletKeyPair)
     umi.use(signerIdentity(umiWalletSigner))
     return {
@@ -75,10 +61,9 @@ export const deriveConnection = async (eid: EndpointId) => {
     }
 }
 
-export const useWeb3Js = () => {
-    const privateKey = getSolanaPrivateKeyFromEnv()
-    const secretKeyBytes = bs58.decode(privateKey)
-    const keypair = Keypair.fromSecretKey(secretKeyBytes)
+export const useWeb3Js = async () => {
+    // note: if we are okay with exporting getSolanaKeypair, then useWeb3js can be removed
+    const keypair = await getSolanaKeypair()
     return {
         web3JsKeypair: keypair,
     }
@@ -156,15 +141,44 @@ export const getSolanaDeployment = (
     escrow: string
     oftStore: string
 } => {
+    if (!eid) {
+        throw new Error('eid is required')
+    }
     const outputDir = path.join('deployments', endpointIdToNetwork(eid))
     const filePath = path.join(outputDir, 'OFT.json') // Note: if you have multiple deployments, change this filename to refer to the desired deployment file
 
     if (!existsSync(filePath)) {
+        DebugLogger.printWarning(KnownWarnings.SOLANA_DEPLOYMENT_NOT_FOUND)
         throw new Error(`Could not find Solana deployment file for eid ${eid} at: ${filePath}`)
     }
 
     const fileContents = readFileSync(filePath, 'utf-8')
     return JSON.parse(fileContents)
+}
+
+/**
+ * Safely load the OFT store PDA for a given Solana endpoint.
+ * Logs a warning if the deployment file is missing or malformed,
+ * and returns null so consumers can decide how to proceed.
+ */
+export const getOftStoreAddress = (eid: EndpointId): string | null => {
+    try {
+        const { oftStore } = getSolanaDeployment(eid)
+        if (!oftStore) {
+            DebugLogger.printWarning(
+                KnownWarnings.SOLANA_DEPLOYMENT_MISSING_OFT_STORE,
+                `deployment file for ${endpointIdToNetwork(eid)} (eid ${eid}) missing 'oftStore' field.`
+            )
+            return null
+        }
+        return oftStore
+    } catch (err: any) {
+        DebugLogger.printWarning(
+            KnownWarnings.ERROR_LOADING_SOLANA_DEPLOYMENT,
+            `Could not load Solana deployment for ${endpointIdToNetwork(eid)} (eid ${eid}): ${err.message}`
+        )
+        return null
+    }
 }
 
 // TODO: move below outside of solana folder since it's generic
@@ -219,7 +233,7 @@ export const getComputeUnitPriceAndLimit = async (
     lookupTableAccount: AddressLookupTableAccount,
     transactionType: TransactionType
 ) => {
-    const { averageFeeExcludingZeros } = await getFee(connection)
+    const { averageFeeExcludingZeros } = await getPrioritizationFees(connection)
     const priorityFee = Math.round(averageFeeExcludingZeros)
     const computeUnitPrice = BigInt(priorityFee)
 

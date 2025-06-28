@@ -36,7 +36,7 @@ const dvnKeys = ['bcwGroup', 'frax', 'horizen', 'lz', 'nethermind', 'stargate'] 
 
 const aptosContract: OmniPointHardhat = {
     eid: EndpointId.APTOS_V2_MAINNET,
-    contractName: 'mFRAX',
+    contractName: 'MockFraxOFT',
 }
 
 // const solanaContract: OmniPointHardhat = {
@@ -214,24 +214,24 @@ function generateDstConnectionConfig(lzConfig: lzConfigType[]): OmniEdgeHardhat<
         });
 
         connectionConfig.push({
-            from: aptosContract,
-            to: {
+            from: {
                 eid: dstConfig.eid,
                 contractName: _chainid == 252 ? "FraxOFTMintableUpgradeable" : "MockFRAXUpgradeable"
             },
+            to: aptosContract,
             config: {
                 enforcedOptions: [
                     {
                         msgType: MsgType.SEND,
                         optionType: ExecutorOptionType.LZ_RECEIVE,
-                        gas: 80_000, // gas limit in wei for EndpointV2.lzReceive
+                        gas: 5_000, // gas limit in wei for EndpointV2.lzReceive
                         value: 0, // msg.value in wei for EndpointV2.lzReceive
                     },
                     {
                         msgType: MsgType.SEND_AND_CALL,
                         optionType: ExecutorOptionType.LZ_RECEIVE,
-                        gas: 80_000, // gas limit in wei for EndpointV2.lzReceive
-                        value: 0, // msg.value in wei for EndpointV2.lzReceive
+                        gas: 5_000, // gas limit in wei for EndpointV2.lzCompose
+                        value: 0, // msg.value in wei for EndpointV2.lzCompose
                     },
                 ],
                 sendLibrary: dstConfig.sendLib302,

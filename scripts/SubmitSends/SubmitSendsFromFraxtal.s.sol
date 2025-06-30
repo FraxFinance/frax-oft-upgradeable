@@ -3,7 +3,7 @@ pragma solidity ^0.8.19;
 
 import "../BaseL0Script.sol";
 
-contract SubmitSends is BaseL0Script {
+contract SubmitSendsFromFraxtal is BaseL0Script {
     using OptionsBuilder for bytes;
     using stdJson for string;
     using Strings for uint256;

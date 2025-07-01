@@ -34,25 +34,56 @@ const chainIds = [
 ] as const;
 const dvnKeys = ['bcwGroup', 'frax', 'horizen', 'lz', 'nethermind', 'stargate'] as const;
 
+const executors = {
+    1: "0x173272739Bd7Aa6e4e214714048a9fE699453059",
+    10: "0x2D2ea0697bdbede3F01553D2Ae4B8d0c486B666e",
+    56: "0x3ebD570ed38B1b3b4BC886999fcF507e9D584859",
+    137: "0xCd3F213AD101472e1713C72B1697E727C803885b",
+    146: "0x4208D6E27538189bB48E603D6123A94b8Abe0A0b",
+    196: "0xcCE466a522984415bC91338c232d98869193D46e",
+    252: "0x41Bdb4aa4A63a5b2Efc531858d3118392B1A1C3d",
+    324: "0x664e390e672A811c12091db8426cBb7d68D5D8A6",
+    480: "0xcCE466a522984415bC91338c232d98869193D46e",
+    1101: "0xbE4fB271cfB7bcbB47EA9573321c7bfe309fc220",
+    1329: "0xc097ab8CD7b053326DFe9fB3E3a31a0CCe3B526f",
+    2741: "0x643E1471f37c4680Df30cF0C540Cd379a0fF58A5",
+    8453: "0x2CCA08ae69E0C44b18a57Ab2A87644234dAebaE4",
+    34443: "0x4208D6E27538189bB48E603D6123A94b8Abe0A0b",
+    42161: "0x31CAe3B7fB82d847621859fb1585353c5720660D",
+    43114: "0x90E595783E43eb89fF07f63d27B8430e6B44bD9c",
+    57073: "0xFEbCF17b11376C724AB5a5229803C6e838b6eAe5",
+    59144: "0x0408804C5dcD9796F22558464E6fE5bDdF16A7c7",
+    80094: "0x4208D6E27538189bB48E603D6123A94b8Abe0A0b",
+    81457: "0x4208D6E27538189bB48E603D6123A94b8Abe0A0b"
+}
+
 const movementContract: OmniPointHardhat = {
     eid: EndpointId.MOVEMENT_V2_MAINNET,
     contractName: 'MockFraxOFT',
+    address: "0xa1bb74f0d5770dfc905c508e6273fadc595ddc15326cc907889bdfffa50602c8"
 }
 
-// const solanaContract: OmniPointHardhat = {
-//     eid: EndpointId.SOLANA_V2_MAINNET,
-//     contractName: 'mFRAX',
-// }
+const solanaContract: OmniPointHardhat = {
+    eid: EndpointId.SOLANA_V2_MAINNET,
+    contractName: 'mFRAX',
+    address: "4vMFmyM9nyUEQEBFgb55sFDswscNLQUoj2yAahPfUs3Z"
+}
 
-// const movementContract : OmniPointHardhat = {
-//     eid: EndpointId.MOVEMENT_V2_MAINNET,
-//     contractName: 'mFRAX',
-// }
+const aptosContract: OmniPointHardhat = {
+    eid: EndpointId.MOVEMENT_V2_MAINNET,
+    contractName: 'MockFraxOFT',
+    address: "0xa1bb74f0d5770dfc905c508e6273fadc595ddc15326cc907889bdfffa50602c8"
+}
 
 function generateContractConfig(lzConfig: lzConfigType[]) {
     const contractConfig: any[] = []
 
-    for (const _chainid of chainIds) {
+    // movement mainnet is not yet connected to xlayer(196), sei(1329), worldchain(480) 
+    // and unichain(130) while this config was developed
+    const filteredChainIds = chainIds.filter(id => id !== 196
+        && id !== 1329 && id !== 480 && id !== 130)
+
+    for (const _chainid of filteredChainIds) {
         let eid = 0
         for (const config of lzConfig) {
             if (config.chainid === _chainid) {
@@ -80,7 +111,11 @@ function generateContractConfig(lzConfig: lzConfigType[]) {
 function generateSrcConnectionConfig(lzConfig: lzConfigType[]): OmniEdgeHardhat<OAppEdgeConfig>[] {
     const connectionConfig: any[] = []
     const srcDVNConfig = JSON.parse(readFileSync(path.join(__dirname, `../../${dvnConfigPath}/movement.json`), "utf8"));
-    for (const _chainid of chainIds) {
+    // movement mainnet is not yet connected to xlayer(196), sei(1329), worldchain(480)
+    // and unichain(130) while this config was developed
+    const filteredChainIds = chainIds.filter(id => id !== 196
+        && id !== 1329 && id !== 480 && id !== 130)
+    for (const _chainid of filteredChainIds) {
         let dstConfig: lzConfigType | undefined;
         for (const config of lzConfig) {
             if (config.chainid === _chainid) {
@@ -142,7 +177,7 @@ function generateSrcConnectionConfig(lzConfig: lzConfigType[]): OmniEdgeHardhat<
                     executorConfig: {
                         maxMessageSize: 10_000,
                         // The configured Executor address on Movement
-                        executor: '',
+                        executor: '0x15a5bbf1eb7998a22c9f23810d424abe40bd59ddd8e6ab7e59529853ebed41c4',
                     },
                     ulnConfig: {
                         // The number of block confirmations to wait on Movement before emitting the message from the source chain.
@@ -183,12 +218,15 @@ function generateSrcConnectionConfig(lzConfig: lzConfigType[]): OmniEdgeHardhat<
 function generateDstConnectionConfig(lzConfig: lzConfigType[]): OmniEdgeHardhat<OAppEdgeConfig>[] {
     const connectionConfig: any[] = []
     const dstDVNConfig = JSON.parse(readFileSync(path.join(__dirname, `../../${dvnConfigPath}/movement.json`), "utf8"));
-    for (const _chainid of chainIds) {
+    const filteredChainIds = chainIds.filter(id => id !== 196
+        && id !== 1329 && id !== 480 && id !== 130)
+    for (const _chainid of filteredChainIds) {
         let dstConfig: lzConfigType | undefined;
+        let executorAddress
         for (const config of lzConfig) {
             if (config.chainid === _chainid) {
                 dstConfig = config
-                // executor = config.ex
+                executorAddress = executors[config.chainid]
                 break;
             }
         }
@@ -250,7 +288,7 @@ function generateDstConnectionConfig(lzConfig: lzConfigType[]): OmniEdgeHardhat<
                     executorConfig: {
                         maxMessageSize: 10_000,
                         // The configured Executor address on Movement
-                        executor: '',
+                        executor: executorAddress,
                     },
                     ulnConfig: {
                         // The number of block confirmations to wait on Movement before emitting the message from the source chain.

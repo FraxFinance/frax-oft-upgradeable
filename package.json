@@ -22,7 +22,8 @@
     "lz:sdk:move:transfer-oapp-owner": "ts-node scripts/DeployFraxOFTProtocol/move-cli.ts --vm move --op transfer-oapp-owner",
     "lz:sdk:move:transfer-object-owner": "ts-node scripts/DeployFraxOFTProtocol/move-cli.ts --vm move --op transfer-object-owner",
     "lz:sdk:move:wire": "ts-node scripts/DeployFraxOFTProtocol/move-cli.ts --vm move --op wire",
-    "lz:sdk:move:send-from-move-oft": "ts-node scripts/DeployFraxOFTProtocol/move-cli.ts --vm move --op send-from-move-oft"
+    "lz:sdk:move:send-from-move-oft": "ts-node scripts/DeployFraxOFTProtocol/move-cli.ts --vm move --op send-from-move-oft",
+    "lz:sdk:evm:wire": "ts-node scripts/DeployFraxOFTProtocol/move-cli.ts --vm evm --op wire"
   },
   "resolutions": {
     "@solana/web3.js": "^1.98.0",

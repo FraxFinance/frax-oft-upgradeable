@@ -34,6 +34,86 @@ const chainIds = [
 ] as const;
 const dvnKeys = ['bcwGroup', 'frax', 'horizen', 'lz', 'nethermind', 'stargate'] as const;
 
+interface ConfirmationType {
+    send: number;
+    receive: number;
+}
+
+interface ConfirmationsMap {
+    [chainId: number]: ConfirmationType;
+}
+
+const confirmations: ConfirmationsMap = {
+    1: {
+        send: 30000,
+        receive: 15
+    },
+    10: {
+        send: 1000000,
+        receive: 20
+    },
+    56: {
+        send: 1000000,
+        receive: 20
+    },
+    137: {
+        send: 1000000,
+        receive: 512
+    },
+    146: {
+        send: 1000000,
+        receive: 20
+    },
+    252: {
+        send: 30000,
+        receive: 5
+    },
+    324: {
+        send: 1000000,
+        receive: 20
+    },
+    1101: {
+        send: 1000000,
+        receive: 225000
+    },
+    2741: {
+        send: 1000000,
+        receive: 20
+    },
+    8453: {
+        send: 1000000,
+        receive: 10
+    },
+    34443: {
+        send: 1000000,
+        receive: 5
+    },
+    42161: {
+        send: 1000000,
+        receive: 20
+    },
+    43114: {
+        send: 1000000,
+        receive: 12
+    },
+    57073: {
+        send: 1000000,
+        receive: 20
+    },
+    59144: {
+        send: 1000000,
+        receive: 10
+    },
+    80094: {
+        send: 1000000,
+        receive: 20
+    },
+    81457: {
+        send: 1000000,
+        receive: 5
+    }
+}
+
 const executors = {
     1: "0x173272739Bd7Aa6e4e214714048a9fE699453059",
     10: "0x2D2ea0697bdbede3F01553D2Ae4B8d0c486B666e",
@@ -181,7 +261,7 @@ function generateSrcConnectionConfig(lzConfig: lzConfigType[]): OmniEdgeHardhat<
                     },
                     ulnConfig: {
                         // The number of block confirmations to wait on Movement before emitting the message from the source chain.
-                        confirmations: BigInt(5),
+                        confirmations: BigInt(confirmations[_chainid].send),
                         // The address of the DVNs you will pay to verify a sent message on the source chain.
                         // The destination tx will wait until ALL `requiredDVNs` verify the message.
                         requiredDVNs: requiredSrcDVNs,
@@ -197,7 +277,7 @@ function generateSrcConnectionConfig(lzConfig: lzConfigType[]): OmniEdgeHardhat<
                 receiveConfig: {
                     ulnConfig: {
                         // The number of block confirmations to expect from the `to` chain.
-                        confirmations: BigInt(5),
+                        confirmations: BigInt(confirmations[_chainid].receive),
                         // The address of the DVNs your `receiveConfig` expects to receive verifications from on the `from` chain.
                         // The `from` chain's OApp will wait until the configured threshold of `requiredDVNs` verify the message.
                         requiredDVNs: requiredSrcDVNs,

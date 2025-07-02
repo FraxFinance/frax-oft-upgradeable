@@ -8,7 +8,7 @@ contract SubmitSendsFromFraxtal is BaseL0Script {
     using stdJson for string;
     using Strings for uint256;
 
-    uint256[] chaindIds;
+    uint256[] chainIds;
 
     constructor() {
         chainIds = [
@@ -31,7 +31,7 @@ contract SubmitSendsFromFraxtal is BaseL0Script {
             59144, // linea
             80094, // berachain
             81457, // blast
-            480 // worldchain
+            480, // worldchain
             130 // unichain
         ];
     }
@@ -41,6 +41,10 @@ contract SubmitSendsFromFraxtal is BaseL0Script {
     }
 
     function setUp() public override {
+        for (uint256 i=0; i<expectedProxyOfts.length; i++) {
+            proxyOfts.push(expectedProxyOfts[i]);
+        }
+        
         super.setUp();
     }
 
@@ -57,7 +61,7 @@ contract SubmitSendsFromFraxtal is BaseL0Script {
 
     function submitSends(
         address[] memory _connectedOfts
-    ) public {
+    ) public broadcastAs(senderDeployerPK) {
         for (uint256 c=0; c<allConfigs.length; c++) {
             // skip if the config is the broadcastConfig
             if (allConfigs[c].chainid == broadcastConfig.chainid) {
@@ -66,7 +70,7 @@ contract SubmitSendsFromFraxtal is BaseL0Script {
 
             for (uint256 i=0; i<chainIds.length; i++) {
                 // skip if the chain id is not the active config
-                if allConfigs[c].chainid != chainIds[i] {
+                if (allConfigs[c].chainid != chainIds[i]) {
                     continue;
                 }
 
@@ -74,7 +78,7 @@ contract SubmitSendsFromFraxtal is BaseL0Script {
                     submitSend(
                         allConfigs[c].eid,
                         _connectedOfts[o]
-                    )
+                    );
                 }
             }
         }
@@ -85,7 +89,7 @@ contract SubmitSendsFromFraxtal is BaseL0Script {
     function submitSend(
         uint256 _dstEid,
         address _connectedOft
-    ) public broadcastAs(senderDeployerPK) {
+    ) public {
         uint256 amount = 1e14;
         address oftToken = IOFT(_connectedOft).token();
     
@@ -111,6 +115,7 @@ contract SubmitSendsFromFraxtal is BaseL0Script {
                 oftCmd: ''
         });
         MessagingFee memory fee = IOFT(_connectedOft).quoteSend(sendParam, false);
+        fee.nativeFee *= 2; // double the fee to account for a delay in tx send, and fluctuation in gas prices
         IOFT(_connectedOft).send{value: fee.nativeFee}(
             sendParam,
             fee,

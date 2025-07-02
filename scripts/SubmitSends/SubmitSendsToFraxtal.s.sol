@@ -14,19 +14,27 @@ contract SubmitSendsFromFraxtal is BaseL0Script {
         return (1, 2, 0);
     }
 
+
     function setUp() public override {
+        for (uint256 i=0; i<expectedProxyOfts.length; i++) {
+            proxyOfts.push(expectedProxyOfts[i]);
+        }
+
         super.setUp();
     }
 
     function run() public {
-        for (uint256 c=0; c<evmConfigs.length; c++) {
+        for (uint256 c=0; c<proxyConfigs.length; c++) {
             // skip zk-chains
-            if (evmConfigs.chainid == 324 || evmConfigs.chainid == 2741) continue;
+            if (proxyConfigs[c].chainid == 324 || proxyConfigs[c].chainid == 2741) continue;
 
-            simulateConfig = evmConfigs[c];
+            // skip fraxtal
+            if (proxyConfigs[c].chainid == 252) continue;
+
+            simulateConfig = proxyConfigs[c];
             _populateConnectedOfts();
 
-            vm.createSelectFork(evmConfigs[c].RPC);
+            vm.createSelectFork(proxyConfigs[c].RPC);
 
             submitSends(connectedOfts);
         }
@@ -38,7 +46,7 @@ contract SubmitSendsFromFraxtal is BaseL0Script {
         for (uint256 o=0; o<_connectedOfts.length; o++) {
             submitSend(
                 _connectedOfts[o]
-            )
+            );
         }
     }
 
@@ -73,6 +81,7 @@ contract SubmitSendsFromFraxtal is BaseL0Script {
                 oftCmd: ''
         });
         MessagingFee memory fee = IOFT(_connectedOft).quoteSend(sendParam, false);
+        fee.nativeFee *= 2; // double the fee to account for a delay in tx send, and fluctuation in gas prices
         IOFT(_connectedOft).send{value: fee.nativeFee}(
             sendParam,
             fee,

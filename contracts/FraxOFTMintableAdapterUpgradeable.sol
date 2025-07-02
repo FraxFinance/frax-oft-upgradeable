@@ -22,6 +22,14 @@ contract FraxOFTMintableAdapterUpgradeable is OFTAdapterUpgradeable {
         patch = 0;
     }
 
+    /// @notice Recover all tokens to owner
+    function recover() external {
+        uint256 balance = innerToken.balanceOf(address(this));
+        if (balance == 0) return;
+
+        innerToken.transfer(owner(), balance);
+    }
+
     /// @dev overrides OFTAdapterUpgradeable.sol to burn the tokens from the sender
     function _debit(
         uint256 _amountLD,

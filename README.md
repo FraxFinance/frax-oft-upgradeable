@@ -40,6 +40,7 @@ This repository contains all of the contracts and deployment code used to manage
   - [`Movement`](https://movement.m-safe.io/assets?msafe=0xda80fe6404a059e99569ba06f8d87814b3a9521c8d6c78ac5ed4ca75ad867ab3)
   - [`Aptos`](https://aptos.m-safe.io/assets?msafe=0x6f9e27569fb34873f13a6868b3732b384f81c89fb525a623a969fdba155de21c)
   - [`Worldchain`](https://app.safe.global/home?safe=wc:0xf57d47c3EA11c12253dBc0BeAf097d5c206e8773)
+  - [`Unichain`](https://app.safe.global/home?safe=unichain:0x6f8FDdfD4F6a1456BA5632C919bEF74b64DD032D)
 
 ### Proxy (upgradeable) OFTs
 - Chain: `Mode`, `Sei`, `X-Layer`, `Ink`, `Sonic`, `Arbitrum`, `Optimism`, `Polygon`, `BSC`, `Avalanche`, `Polygon zkEvm`, `Blast`, `Berachain`, `Worldchain`

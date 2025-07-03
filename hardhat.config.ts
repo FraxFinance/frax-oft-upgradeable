@@ -79,7 +79,7 @@ const config: HardhatUserConfig = {
         },
         "sei-mainnet":{
             eid: EndpointId.SEI_V2_MAINNET,
-            url: process.env.RPC_URL_SEI || 'https://sei.drpc.org',
+            url: process.env.RPC_URL_SEI || 'https://evm-rpc.sei-apis.com',
             accounts,
         },
         "xlayer-mainnet":{
@@ -99,7 +99,7 @@ const config: HardhatUserConfig = {
         },
         "arbitrum-mainnet":{
             eid: EndpointId.ARBITRUM_V2_MAINNET,
-            url: process.env.RPC_URL_ARBITRUM || 'https://arbitrum.meowrpc.com',
+            url: process.env.RPC_URL_ARBITRUM || 'https://arbitrum-one-rpc.publicnode.com',
             accounts,
         },
         "optimism-mainnet":{
@@ -124,7 +124,7 @@ const config: HardhatUserConfig = {
         },
         "zkpolygon-mainnet":{
             eid: EndpointId.ZKPOLYGON_V2_MAINNET,
-            url: process.env.RPC_URL_ZKEVM || 'https://endpoints.omniatech.io/v1/polygon-zkevm/mainnet/public',
+            url: process.env.RPC_URL_ZKEVM || 'https://polygon-zkevm-mainnet.public.blastapi.io',
             accounts,
         },
         "zkconsensys-mainnet":{

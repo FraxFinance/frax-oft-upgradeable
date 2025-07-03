@@ -14,7 +14,7 @@ import { HardhatUserConfig, HttpNetworkAccountsUserConfig } from 'hardhat/types'
 import { EndpointId } from '@layerzerolabs/lz-definitions'
 
 // TODO: uncomment while performing Solana ops
-// import './tasks/index'
+import './tasks/index'
 
 // Set your preferred authentication method
 //
@@ -69,7 +69,7 @@ const config: HardhatUserConfig = {
         },
         "base-mainnet":{
             eid: EndpointId.BASE_V2_MAINNET,
-            url: process.env.RPC_URL_BASE || 'https://mainnet.base.org',
+            url: process.env.RPC_URL_BASE || 'https://1rpc.io/base',
             accounts,
         },
         "mode-mainnet":{
@@ -79,12 +79,12 @@ const config: HardhatUserConfig = {
         },
         "sei-mainnet":{
             eid: EndpointId.SEI_V2_MAINNET,
-            url: process.env.RPC_URL_SEI || 'https://evm-rpc.sei-apis.com',
+            url: process.env.RPC_URL_SEI || 'https://sei.drpc.org',
             accounts,
         },
         "xlayer-mainnet":{
             eid: EndpointId.XLAYER_V2_MAINNET,
-            url: process.env.RPC_URL_XLAYER || 'https://rpc.xlayer.tech',
+            url: process.env.RPC_URL_XLAYER || 'https://endpoints.omniatech.io/v1/xlayer/mainnet/public',
             accounts,
         },
         "sonic-mainnet":{
@@ -114,7 +114,7 @@ const config: HardhatUserConfig = {
         },
         "avalanche-mainnet":{
             eid: EndpointId.AVALANCHE_V2_MAINNET,
-            url: process.env.RPC_URL_AVALANCHE || 'https://avalanche-c-chain-rpc.publicnode.com',
+            url: process.env.RPC_URL_AVALANCHE || 'https://avax-mainnet.g.alchemy.com/v2/ISqt4ylM2QDVoqg8av78v4Jz6Gb426JT',
             accounts,
         },
         "bsc-mainnet":{
@@ -139,7 +139,7 @@ const config: HardhatUserConfig = {
         },
         "worldchain-mainnet":{
             eid: EndpointId.WORLDCHAIN_V2_MAINNET,
-            url: process.env.RPC_URL_WORLDCHAIN || 'https://worldchain-mainnet.g.alchemy.com/public',
+            url: process.env.RPC_URL_WORLDCHAIN || 'https://worldchain-mainnet.gateway.tenderly.co',
             accounts,
         },
         "unichain-mainnet":{

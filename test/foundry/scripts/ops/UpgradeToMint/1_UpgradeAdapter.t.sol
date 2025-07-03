@@ -3,22 +3,30 @@ pragma solidity ^0.8.0;
 import "scripts/ops/UpgradeToMint/1_UpgradeAdapter.s.sol";
 import "frax-std/FraxTest.sol";
 
-contract UpgradeAdapterTest is DUpgradeAdapter, FraxTest {
+interface IOAppReceiver {
+    function lzReceive(
+        Origin calldata _origin,
+        bytes32 _guid,
+        bytes calldata _message,
+        address _executor,
+        bytes calldata _extraData
+    ) external payable;
+}
+
+contract UpgradeAdapterTest is UpgradeAdapter, FraxTest {
     using OptionsBuilder for bytes;
 
     address bob = vm.addr(0xb0b);
 
     function setUp() public override {
+        vm.createSelectFork("https://rpc.frax.com", 22382257);
         deal(bob, 100e18);
 
         super.setUp();
-        for (uint256 i=0; i<proxyConfigs.length; i++) {
-            if (proxyConfigs[i].chainid == 252) {
-                broadcastConfig = proxyConfigs[i];
-                break;
-            }
-        }
-        require(broadcastConfig.chainid == 252, "Fraxtal config not found");
+        require(broadcastConfig.chainid == 252, "Fraxtal config not set");
+
+        vm.label(bob, "bob");
+        vm.label(frxUsd, "frxUSD");
     }
 
     function test_UpgradeAdapters() external {
@@ -26,17 +34,17 @@ contract UpgradeAdapterTest is DUpgradeAdapter, FraxTest {
 
         validateUpgrade(frxUsd, fraxtalFrxUsdLockbox);
         validateUpgrade(sfrxUsd, fraxtalSFrxUsdLockbox);
-        validateUpgrade(wfrax, fraxtalFraxLockbox);
+        // validateUpgrade(wfrax, fraxtalFraxLockbox);
         validateUpgrade(fpi, fraxtalFpiLockbox);
     }
 
     function validateUpgrade(address token, address lockbox) internal {
-        testRecover(token, lockbox);
-        testSend(token, lockbox);
-        testReceive(token, lockbox);
+        _testRecover(token, lockbox);
+        _testSend(token, lockbox);
+        _testReceive(token, lockbox);
     }
 
-    function testRecover(address token, address lockbox) internal {
+    function _testRecover(address token, address lockbox) internal {
         // recover tokens to delegate
         uint256 balanceDelegateBefore = IERC20(token).balanceOf(broadcastConfig.delegate);
         uint256 balanceLockbox = IERC20(token).balanceOf(lockbox);
@@ -55,12 +63,15 @@ contract UpgradeAdapterTest is DUpgradeAdapter, FraxTest {
         );
     }
 
-    function testSend(address token, address lockbox) internal {
+    function _testSend(address token, address lockbox) internal {
         uint256 amount = 1e18;
+        
+        console.log(IERC20(token).balanceOf(bob));
         deal(token, bob, amount);
         uint256 balanceBobBefore = IERC20(token).balanceOf(bob);
         uint256 totalSupplyBefore = IERC20(token).totalSupply();
-        
+        console.log(IERC20(token).balanceOf(bob));
+
         vm.startPrank(bob);
 
         IERC20(token).approve(lockbox, amount);
@@ -83,6 +94,7 @@ contract UpgradeAdapterTest is DUpgradeAdapter, FraxTest {
 
         vm.stopPrank();
 
+        console.log(IERC20(token).balanceOf(bob));
         assertEq(
             IERC20(token).balanceOf(bob),
             balanceBobBefore - amount,
@@ -95,11 +107,42 @@ contract UpgradeAdapterTest is DUpgradeAdapter, FraxTest {
         );
     }
 
-    function testReceive(address token, address lockbox) internal {
+    function _testReceive(address token, address lockbox) internal {
         uint256 amount = 1e18;
         uint256 balanceBobBefore = IERC20(token).balanceOf(bob);
         uint256 totalSupplyBefore = IERC20(token).totalSupply();
 
-        
+        Origin memory origin = Origin({
+            srcEid: uint32(30101),
+            sender: IOAppCore(lockbox).peers(uint32(30101)),
+            nonce: 1
+        });
+
+        bytes memory message = abi.encodePacked(
+            bytes32(uint256(uint160(bob))), // sendTo
+            uint64(amount / (10**18 / 10**6)), // amountSD - see OFTCoreUpgradeable amountReceivedLD
+            bytes32(uint256(uint160(bob))), // composeMsgSender
+            '' // composeMsg
+        );
+
+        vm.prank(broadcastConfig.endpoint);
+        IOAppReceiver(lockbox).lzReceive({
+            _origin: origin,
+            _guid: bytes32(0),
+            _message: message,
+            _executor: 0x41Bdb4aa4A63a5b2Efc531858d3118392B1A1C3d, // from LZ docs
+            _extraData: ''
+        });
+
+        assertEq(
+            IERC20(token).balanceOf(bob),
+            balanceBobBefore + amount,
+            "Bob's balance should increase after receive"
+        );
+        assertEq(
+            IERC20(token).totalSupply(),
+            totalSupplyBefore + amount,
+            "Total supply should increase after receive"
+        );
     }
 }

@@ -27,10 +27,7 @@ contract SubmitSendsFromFraxtal is BaseL0Script {
         // for (uint256 c=0; c<proxyConfigs.length; c++) {
         for (uint256 c=0; c<3; c++) {
             // skip zk-chains
-            if (proxyConfigs[c].chainid == 324 || proxyConfigs[c].chainid == 2741) continue;
-
-            // skip fraxtal
-            if (proxyConfigs[c].chainid == 252) continue;
+            if (proxyConfigs[c].chainid != 324 && proxyConfigs[c].chainid != 2741) continue;
 
             simulateConfig = proxyConfigs[c];
             _populateConnectedOfts();

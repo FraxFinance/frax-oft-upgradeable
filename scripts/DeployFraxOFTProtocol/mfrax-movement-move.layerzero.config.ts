@@ -62,7 +62,7 @@ const confirmations: ConfirmationsMap = {
     },
     146: {
         send: 1000000,
-        receive: 20
+        receive: 1000000
     },
     252: {
         send: 30000,
@@ -98,7 +98,7 @@ const confirmations: ConfirmationsMap = {
     },
     57073: {
         send: 1000000,
-        receive: 20
+        receive: 1000000
     },
     59144: {
         send: 1000000,
@@ -146,14 +146,10 @@ const movementContract: OmniPointHardhat = {
 const solanaContract: OmniPointHardhat = {
     eid: EndpointId.SOLANA_V2_MAINNET,
     contractName: 'mFRAX',
-    address: "4vMFmyM9nyUEQEBFgb55sFDswscNLQUoj2yAahPfUs3Z"
+    address: "12fneM2nVTNuxDkrFZ82FQkYB7DMLHtBeu8A55rvnz8U" // movement
 }
 
-const aptosContract: OmniPointHardhat = {
-    eid: EndpointId.MOVEMENT_V2_MAINNET,
-    contractName: 'MockFraxOFT',
-    address: "0xa1bb74f0d5770dfc905c508e6273fadc595ddc15326cc907889bdfffa50602c8"
-}
+// Note. movement is not a peer of aptos yet
 
 function generateContractConfig(lzConfig: lzConfigType[]) {
     const contractConfig: any[] = []
@@ -415,10 +411,80 @@ const config: OAppOmniGraphHardhat = {
                 owner: '0x09d0eb2763c96e085fa74ba6cf0d49136f8654c48ec7dbc59279a9066c7dd409',
             },
         },
+        {
+            contract: solanaContract
+        }
     ],
     connections: [
         ...generateSrcConnectionConfig(L0Config.Proxy),
         ...generateDstConnectionConfig(L0Config.Proxy),
+        {
+            from: movementContract,
+            to: solanaContract,
+            config: {
+                enforcedOptions: [
+                    {
+                        msgType: MsgType.SEND,
+                        optionType: ExecutorOptionType.LZ_RECEIVE,
+                        gas: 80_000, // gas limit in wei for EndpointV2.lzReceive
+                        value: 0, // msg.value in wei for EndpointV2.lzReceive
+                    },
+                    {
+                        msgType: MsgType.SEND_AND_CALL,
+                        optionType: ExecutorOptionType.LZ_RECEIVE,
+                        gas: 80_000, // gas limit in wei for EndpointV2.lzReceive
+                        value: 0, // msg.value in wei for EndpointV2.lzReceive
+                    },
+                ],
+                sendLibrary: '0xc33752e0220faf79e45385dd73fb28d681dcd9f1569a1480725507c1f3c3aba9',
+                receiveLibraryConfig: {
+                    // Required Receive Library Address on Movement
+                    receiveLibrary: '0xc33752e0220faf79e45385dd73fb28d681dcd9f1569a1480725507c1f3c3aba9',
+                    // Optional Grace Period for Switching Receive Library Address on Movement
+                    gracePeriod: BigInt(0),
+                },
+                // Optional Receive Library Timeout for when the Old Receive Library Address will no longer be valid on Movement
+                // receiveLibraryTimeoutConfig: {
+                //     lib: '0xbe533727aebe97132ec0a606d99e0ce137dbdf06286eb07d9e0f7154df1f3f10',
+                //     expiry: BigInt(1000000000),
+                // },
+                sendConfig: {
+                    executorConfig: {
+                        maxMessageSize: 200,
+                        // The configured Executor address on Movement
+                        executor: '0x15a5bbf1eb7998a22c9f23810d424abe40bd59ddd8e6ab7e59529853ebed41c4',
+                    },
+                    ulnConfig: {
+                        // The number of block confirmations to wait on Movement before emitting the message from the source chain.
+                        confirmations: BigInt(1000000),
+                        // The address of the DVNs you will pay to verify a sent message on the source chain.
+                        // The destination tx will wait until ALL `requiredDVNs` verify the message.
+                        requiredDVNs: ["0xc4a5d892efdf6689d2595c3f438e465702b5a7db0bed8125c4e218464a14ba28", "0xdf8f0a53b20f1656f998504b81259698d126523a31bdbbae45ba1e8a3078d8da", "0x2b696b3ee859b7eb624e1fd5de49f4d3806f49862f1177d6827fd1beffde9179"],
+                        // The address of the DVNs you will pay to verify a sent message on the source chain.
+                        // The destination tx will wait until the configured threshold of `optionalDVNs` verify a message.
+                        optionalDVNs: [],
+                        // The number of `optionalDVNs` that need to successfully verify the message for it to be considered Verified.
+                        optionalDVNThreshold: 0,
+                    },
+                },
+                // Optional Receive Configuration
+                // @dev Controls how the `from` chain receives messages from the `to` chain.
+                receiveConfig: {
+                    ulnConfig: {
+                        // The number of block confirmations to expect from the `to` chain.
+                        confirmations: BigInt(32),
+                        // The address of the DVNs your `receiveConfig` expects to receive verifications from on the `from` chain.
+                        // The `from` chain's OApp will wait until the configured threshold of `requiredDVNs` verify the message.
+                        requiredDVNs: ["0xc4a5d892efdf6689d2595c3f438e465702b5a7db0bed8125c4e218464a14ba28", "0xdf8f0a53b20f1656f998504b81259698d126523a31bdbbae45ba1e8a3078d8da", "0x2b696b3ee859b7eb624e1fd5de49f4d3806f49862f1177d6827fd1beffde9179"],
+                        // The address of the `optionalDVNs` you expect to receive verifications from on the `from` chain.
+                        // The destination tx will wait until the configured threshold of `optionalDVNs` verify the message.
+                        optionalDVNs: [],
+                        // The number of `optionalDVNs` that need to successfully verify the message for it to be considered Verified.
+                        optionalDVNThreshold: 0,
+                    },
+                },
+            },
+        }
     ],
 }
 

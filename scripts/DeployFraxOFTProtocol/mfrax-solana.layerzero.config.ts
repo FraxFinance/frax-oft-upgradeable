@@ -22,18 +22,6 @@ const solanaContract: OmniPointHardhat = {
     address: getOftStoreAddress(EndpointId.SOLANA_V2_MAINNET),
 }
 
-const movementContract: OmniPointHardhat = {
-    eid: EndpointId.MOVEMENT_V2_MAINNET,
-    contractName: 'mFRAX',
-    address: "0xa1bb74f0d5770dfc905c508e6273fadc595ddc15326cc907889bdfffa50602c8"
-}
-
-const aptosContract: OmniPointHardhat = {
-    eid: EndpointId.APTOS_V2_MAINNET,
-    contractName: 'MockFraxOFT',
-    address: "0xa1bb74f0d5770dfc905c508e6273fadc595ddc15326cc907889bdfffa50602c8"
-}
-
 enum MsgType {
     SEND = 1,
     SEND_AND_CALL = 2,

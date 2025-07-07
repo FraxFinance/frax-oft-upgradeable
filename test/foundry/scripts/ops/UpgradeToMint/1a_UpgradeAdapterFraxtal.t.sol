@@ -34,7 +34,6 @@ contract UpgradeAdapterTest is UpgradeAdapter, FraxTest {
 
         validateUpgrade(frxUsd, fraxtalFrxUsdLockbox);
         validateUpgrade(sfrxUsd, fraxtalSFrxUsdLockbox);
-        // validateUpgrade(wfrax, fraxtalFraxLockbox);
         validateUpgrade(fpi, fraxtalFpiLockbox);
     }
 

@@ -7,19 +7,17 @@ interface IERC20PermitPermissionedOptiMintable {
     function addMinter(address) external;
 }
 
-// forge script scripts/ops/UpgradeToMint/1_UpgradeAdapter.s.sol --rpc-url https://rpc.frax.com
+// forge script scripts/ops/UpgradeToMint/1a_UpgradeAdapterFraxtal.s.sol --rpc-url https://rpc.frax.com
 contract UpgradeAdapter is DeployFraxOFTProtocol {
     
     address frxUsd = 0xFc00000000000000000000000000000000000001;
     address sfrxUsd = 0xfc00000000000000000000000000000000000008;
-    address wfrax = 0xFc00000000000000000000000000000000000002;
     address fpi = 0xFc00000000000000000000000000000000000003;
 
     address comptroller = 0xC4EB45d80DC1F079045E75D5d55de8eD1c1090E6;
 
     address frxUsdMintableLockboxImp;
     address sfrxUsdMintableLockboxImp;
-    address wfraxMintableLockboxImp;
     address fpiMintableLockboxImp;
 
     uint256 msigSubmissionCount;
@@ -63,7 +61,6 @@ contract UpgradeAdapter is DeployFraxOFTProtocol {
     function addMinterRoles() public {
         addMinterRole(frxUsd, fraxtalFrxUsdLockbox);
         addMinterRole(sfrxUsd, fraxtalSFrxUsdLockbox);
-        addMinterRole(wfrax, fraxtalFraxLockbox);
         addMinterRole(fpi, fraxtalFpiLockbox);
     }
 
@@ -94,7 +91,6 @@ contract UpgradeAdapter is DeployFraxOFTProtocol {
     function deployMintableLockboxes() broadcastAs(senderDeployerPK) public {
         frxUsdMintableLockboxImp = deployMintableLockbox(frxUsd);
         sfrxUsdMintableLockboxImp = deployMintableLockbox(sfrxUsd);
-        wfraxMintableLockboxImp = deployMintableLockbox(wfrax);
         fpiMintableLockboxImp = deployMintableLockbox(fpi);
     }
 
@@ -110,7 +106,6 @@ contract UpgradeAdapter is DeployFraxOFTProtocol {
     function upgradeExistingLockboxes() public {
         upgradeExistingLockbox(fraxtalFrxUsdLockbox, frxUsdMintableLockboxImp);
         upgradeExistingLockbox(fraxtalSFrxUsdLockbox, sfrxUsdMintableLockboxImp);
-        upgradeExistingLockbox(fraxtalFraxLockbox, wfraxMintableLockboxImp);
         upgradeExistingLockbox(fraxtalFpiLockbox, fpiMintableLockboxImp);
     }
 

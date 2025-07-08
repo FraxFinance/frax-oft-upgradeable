@@ -225,8 +225,9 @@
     },
     "aptos": {
         "uris": [
-            "https://fullnode.mainnet.aptoslabs.com",
-            "https://1rpc.io/aptos"
+            "https://fullnode.mainnet.aptoslabs.com/v1",
+            "https://1rpc.io/aptos/v1",
+            "https://rpc.ankr.com/http/aptos/v1"
         ],
         "quorum": 2
     },

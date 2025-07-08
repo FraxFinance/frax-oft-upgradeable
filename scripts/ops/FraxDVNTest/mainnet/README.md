@@ -55,7 +55,9 @@ Worldchain : https://layerzeroscan.com/tx/0xfe2455d41968d5785bc58733adbd512fdbc6
 
 Zksync era : https://layerzeroscan.com/tx/0xeeb621a2d3aab2ae028407e6c3fe8f73a100db423bfe85c007a20f36aa5069cd 
 
-Abstract : https://layerzeroscan.com/tx/0xbd94362ebafdd3d90490c0a2df0697f05984e5237a061225c8accfa96db24c42 
+Abstract : https://layerzeroscan.com/tx/0xbd94362ebafdd3d90490c0a2df0697f05984e5237a061225c8accfa96db24c42
+
+Xlayer : TODO
 
 Ethereum to Unichain : https://layerzeroscan.com/tx/0x628a98a18066bd20f4d105ca8ea22ab23ed41b48732329fd325f7a7481ab84f1
 
@@ -94,3 +96,7 @@ zksync to Unichain : https://layerzeroscan.com/tx/0x8325bbd6408288fb06abea48a491
 abstract to Unichain : https://layerzeroscan.com/tx/0x079060b736bb5c8074f371f2c50e8ca0828741fed2bb97a27001e3a6fd6ceadf
 
 worldchain : https://layerzeroscan.com/tx/0x0662527651bcc375230985fdb1da1bd736d67b7df5228960daa3a74b42522618
+
+### EVM to movement/aptos/solana
+
+fraxtal : https://layerzeroscan.com/tx/0x0deee80bc8a98e415a77947ddc03e02c02d5d19577aa0f7f977d49c3cdd49c9f

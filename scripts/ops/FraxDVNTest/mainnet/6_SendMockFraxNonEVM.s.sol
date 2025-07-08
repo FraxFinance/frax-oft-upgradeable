@@ -7,7 +7,7 @@ import { IERC20 } from "@openzeppelin/contracts/token/ERC20/IERC20.sol";
 import { SendParam, OFTReceipt, MessagingFee, IOFT } from "@fraxfinance/layerzero-v2-upgradeable/oapp/contracts/oft/interfaces/IOFT.sol";
 import { FraxOFTUpgradeable } from "contracts/FraxOFTUpgradeable.sol";
 
-// fraxtal : forge script scripts/ops/FraxDVNTest/mainnet/5_SendMockFrax.s.sol --rpc-url https://rpc.frax.com --broadcast
+// fraxtal : forge script scripts/ops/FraxDVNTest/mainnet/6_SendMockFraxNonEVM.s.sol --rpc-url https://rpc.frax.com --broadcast
 // ethereum : forge script scripts/ops/FraxDVNTest/mainnet/5_SendMockFrax.s.sol --rpc-url https://ethereum-rpc.publicnode.com --broadcast
 // blast : forge script scripts/ops/FraxDVNTest/mainnet/5_SendMockFrax.s.sol --rpc-url https://rpc.blast.io --broadcast
 // base : forge script scripts/ops/FraxDVNTest/mainnet/5_SendMockFrax.s.sol --rpc-url https://mainnet.base.org --broadcast
@@ -43,7 +43,7 @@ contract SendMockFrax is BaseL0Script {
     address public constant mockFraxLinea = 0x6185334f1542a9966CbaD694577fFbede3DD1f1F;
     address public constant mockFraxLineaWallet = 0xD555D90A6b23B285575cd6192D972e35F70b5B89;
 
-    uint256 amount = 3.24210526 ether;
+    uint256 amount = 0.1 ether;
 
     SendParam[] public sendParams;
     IOFT[] public ofts;
@@ -56,8 +56,6 @@ contract SendMockFrax is BaseL0Script {
         for (uint256 _i; _i < allConfigs.length; _i++) {
             if (allConfigs[_i].eid == 30168) continue;
             if (allConfigs[_i].eid == 30151) continue;
-            if (allConfigs[_i].eid == 30376) continue;
-            if (allConfigs[_i].eid == 30325) continue;
             if (broadcastConfig.chainid == allConfigs[_i].chainid) {
                 if (allConfigs[_i].chainid == 59144) {
                     // linea
@@ -82,29 +80,39 @@ contract SendMockFrax is BaseL0Script {
         require(sourceOFT != address(0), "SendMockFrax: sourceOFT should not be zero");
         require(senderWallet != address(0), "SendMockFrax: senderWallet should not be zero");
         for (uint256 _i; _i < allConfigs.length; _i++) {
-            // if (allConfigs[_i].eid != 30320) continue;
             if (broadcastConfig.chainid == allConfigs[_i].chainid) continue;
-            if (allConfigs[_i].eid == 30168) continue;
-            if (allConfigs[_i].eid == 30151) continue;
-            if (allConfigs[_i].eid == 30376) continue;
-            if (allConfigs[_i].eid == 30325) continue;
-            address recipientWallet;
-            if (allConfigs[_i].chainid == 59144) {
-                // linea
-                recipientWallet = mockFraxLineaWallet;
-            } else if (allConfigs[_i].chainid == 2741) {
-                // abstract
-                recipientWallet = mockFraxAbstractWallet;
-            } else if (allConfigs[_i].chainid == 324) {
-                // zksync
-                recipientWallet = mockFraxZkSyncWallet;
+            if (allConfigs[_i].eid != 30168 && allConfigs[_i].eid != 30325 && allConfigs[_i].eid != 30108) continue;
+
+            bytes32 recipientWallet;
+            if (allConfigs[_i].eid == 30168) {
+                // solana
+                recipientWallet = 0x3c1b094729102e0c095ee2417e5940ee4f1eab4763f6113fe75281ab74c62398;
+            } else if (allConfigs[_i].eid == 30325) {
+                // movement
+                // do no include xlayer(196), sei(1329), worldchain(480) and unichain(130)
+                if (
+                    broadcastConfig.chainid == 196 ||
+                    broadcastConfig.chainid == 1329 ||
+                    broadcastConfig.chainid == 480 ||
+                    broadcastConfig.chainid == 130
+                ) continue;
+                recipientWallet = 0x09d0eb2763c96e085fa74ba6cf0d49136f8654c48ec7dbc59279a9066c7dd409;
+            } else if (allConfigs[_i].eid == 30108) {
+                // aptos
+                // do no include zkpolygon(1101), worldchain(480), abstract(2741) and ink(57073)
+                if (
+                    broadcastConfig.chainid == 1101 ||
+                    broadcastConfig.chainid == 480 ||
+                    broadcastConfig.chainid == 2741 ||
+                    broadcastConfig.chainid == 57073
+                ) continue;
+                recipientWallet = 0x09d0eb2763c96e085fa74ba6cf0d49136f8654c48ec7dbc59279a9066c7dd409;
             } else {
-                // 1,81457,8453,34443,1329,252,196,146,57073,42161,10,137,43114,56,1101,80094,480,130
-                recipientWallet = mockFraxWallet;
+                revert("Invalid Non-EVM EID");
             }
             SendParam memory _sendParam = SendParam({
                 dstEid: uint32(allConfigs[_i].eid),
-                to: addressToBytes32(recipientWallet),
+                to: recipientWallet,
                 amountLD: amount,
                 minAmountLD: 0,
                 extraOptions: "",

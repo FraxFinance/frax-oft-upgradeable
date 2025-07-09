@@ -245,7 +245,7 @@
             "sendLib302": "0xC39161c743D0307EB9BCc9FEF03eeb9Dc4802de7"
         },
         {
-            "RPC": "https://unichain-rpc.publicnode.com",
+            "RPC": "https://mainnet.unichain.org",
             "chainid": 130,
             "delegate": "0x6f8FDdfD4F6a1456BA5632C919bEF74b64DD032D",
             "dvnHorizen": "0xc6a6324932b399d6a673b7ed0af671f28033e046",

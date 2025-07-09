@@ -186,7 +186,7 @@ function generateContractConfig(lzConfig: lzConfigType[]) {
 
 function generateSrcConnectionConfig(lzConfig: lzConfigType[]): OmniEdgeHardhat<OAppEdgeConfig>[] {
     const connectionConfig: any[] = []
-    const srcDVNConfig = JSON.parse(readFileSync(path.join(__dirname, `../../${dvnConfigPath}/movement.json`), "utf8"));
+    const srcDVNConfig = JSON.parse(readFileSync(path.join(__dirname, `../../${dvnConfigPath}/22222222.json`), "utf8"));
     // movement mainnet is not yet connected to xlayer(196), sei(1329), worldchain(480)
     // and unichain(130) while this config was developed
     const filteredChainIds = chainIds.filter(id => id !== 196
@@ -205,7 +205,7 @@ function generateSrcConnectionConfig(lzConfig: lzConfigType[]): OmniEdgeHardhat<
         const dstDVNConfig = JSON.parse(readFileSync(path.join(__dirname, `../../${dvnConfigPath}/${_chainid}.json`), "utf8"));
 
         dvnKeys.forEach(key => {
-            const dst = dstDVNConfig["movement"]?.[key] ?? zeroAddress;
+            const dst = dstDVNConfig["22222222"]?.[key] ?? zeroAddress;
             const src = srcDVNConfig[_chainid]?.[key] ?? zeroBytes32;
 
             if (dst !== zeroAddress || src !== zeroBytes32) {
@@ -293,7 +293,7 @@ function generateSrcConnectionConfig(lzConfig: lzConfigType[]): OmniEdgeHardhat<
 
 function generateDstConnectionConfig(lzConfig: lzConfigType[]): OmniEdgeHardhat<OAppEdgeConfig>[] {
     const connectionConfig: any[] = []
-    const dstDVNConfig = JSON.parse(readFileSync(path.join(__dirname, `../../${dvnConfigPath}/movement.json`), "utf8"));
+    const dstDVNConfig = JSON.parse(readFileSync(path.join(__dirname, `../../${dvnConfigPath}/22222222.json`), "utf8"));
     const filteredChainIds = chainIds.filter(id => id !== 196
         && id !== 1329 && id !== 480 && id !== 130)
     for (const _chainid of filteredChainIds) {
@@ -317,7 +317,7 @@ function generateDstConnectionConfig(lzConfig: lzConfigType[]): OmniEdgeHardhat<
 
         dvnKeys.forEach(key => {
             const dst = dstDVNConfig[_chainid]?.[key] ?? zeroBytes32;
-            const src = srcDVNConfig["movement"]?.[key] ?? zeroAddress;
+            const src = srcDVNConfig["22222222"]?.[key] ?? zeroAddress;
 
             if (dst !== zeroBytes32 || src !== zeroAddress) {
                 if (dst === zeroBytes32 || src === zeroAddress) {

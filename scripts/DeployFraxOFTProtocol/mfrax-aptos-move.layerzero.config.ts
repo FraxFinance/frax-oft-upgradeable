@@ -187,7 +187,7 @@ function generateContractConfig(lzConfig: lzConfigType[]) {
 
 function generateSrcConnectionConfig(lzConfig: lzConfigType[]): OmniEdgeHardhat<OAppEdgeConfig>[] {
     const connectionConfig: any[] = []
-    const srcDVNConfig = JSON.parse(readFileSync(path.join(__dirname, `../../${dvnConfigPath}/aptos.json`), "utf8"));
+    const srcDVNConfig = JSON.parse(readFileSync(path.join(__dirname, `../../${dvnConfigPath}/33333333.json`), "utf8"));
 
     // aptos mainnet is not yet connected to zkpolygon(1101), worldchain(480), abstract(2741) 
     // and ink(57073) while this config was developed
@@ -208,7 +208,7 @@ function generateSrcConnectionConfig(lzConfig: lzConfigType[]): OmniEdgeHardhat<
         const dstDVNConfig = JSON.parse(readFileSync(path.join(__dirname, `../../${dvnConfigPath}/${_chainid}.json`), "utf8"));
 
         dvnKeys.forEach(key => {
-            const dst = dstDVNConfig["aptos"]?.[key] ?? zeroAddress;
+            const dst = dstDVNConfig["33333333"]?.[key] ?? zeroAddress;
             const src = srcDVNConfig[_chainid]?.[key] ?? zeroBytes32;
 
             if (dst !== zeroAddress || src !== zeroBytes32) {
@@ -296,7 +296,7 @@ function generateSrcConnectionConfig(lzConfig: lzConfigType[]): OmniEdgeHardhat<
 
 function generateDstConnectionConfig(lzConfig: lzConfigType[]): OmniEdgeHardhat<OAppEdgeConfig>[] {
     const connectionConfig: any[] = []
-    const dstDVNConfig = JSON.parse(readFileSync(path.join(__dirname, `../../${dvnConfigPath}/aptos.json`), "utf8"));
+    const dstDVNConfig = JSON.parse(readFileSync(path.join(__dirname, `../../${dvnConfigPath}/33333333.json`), "utf8"));
 
     // aptos mainnet is not yet connected to zkpolygon(1101), worldchain(480), abstract(2741) 
     // and ink(57073) while this config was developed
@@ -324,7 +324,7 @@ function generateDstConnectionConfig(lzConfig: lzConfigType[]): OmniEdgeHardhat<
 
         dvnKeys.forEach(key => {
             const dst = dstDVNConfig[_chainid]?.[key] ?? zeroBytes32;
-            const src = srcDVNConfig["aptos"]?.[key] ?? zeroAddress;
+            const src = srcDVNConfig["33333333"]?.[key] ?? zeroAddress;
 
             if (dst !== zeroBytes32 || src !== zeroAddress) {
                 if (dst === zeroBytes32 || src === zeroAddress) {

@@ -60,7 +60,7 @@ const SOLANA_ENFORCED_OPTIONS: OAppEnforcedOption[] = [
 // Learn about Message Execution Options: https://docs.layerzero.network/v2/developers/solana/oft/account#message-execution-options
 // Learn more about the Simple Config Generator - https://docs.layerzero.network/v2/developers/evm/technical-reference/simple-config
 export default async function () {
-    const srcDVNConfig = JSON.parse(readFileSync(path.join(__dirname, `../../${dvnConfigPath}/solana.json`), "utf8"));
+    const srcDVNConfig = JSON.parse(readFileSync(path.join(__dirname, `../../${dvnConfigPath}/111111111.json`), "utf8"));
     const contracts: any = []
     const connectionConfigs: any = []
     for (const _chainid of chainIds) {
@@ -89,7 +89,7 @@ export default async function () {
         const dstDVNConfig = JSON.parse(readFileSync(path.join(__dirname, `../../${dvnConfigPath}/${_chainid}.json`), "utf8"));
 
         dvnKeys.forEach(key => {
-            const dst = dstDVNConfig["solana"]?.[key] ?? zeroAddress;
+            const dst = dstDVNConfig["111111111"]?.[key] ?? zeroAddress;
             const src = srcDVNConfig[_chainid]?.[key] ?? zeroBytes22;
 
             if (dst !== zeroAddress || src !== zeroBytes22) {

@@ -135,4 +135,4 @@ unichain(130) (#3) : https://app.safe.global/transactions/tx?safe=unichain:0x6f8
 
 abstract(2741) (#5) : https://safe.abs.xyz/transactions/tx?safe=abstract:0xcC20eAE3CdC554E96291708B362dF349CC443808&id=multisig_0xcC20eAE3CdC554E96291708B362dF349CC443808_0x66f37b9049a821e64c881cf93f0c8f9a17e51321e6cd6e2d6d73538982c2480c
 
-zksync(324) (#) : https://app.safe.global/transactions/tx?safe=zksync:0x66716ae60898dD4479B52aC4d92ef16C1821f420&id=multisig_0x66716ae60898dD4479B52aC4d92ef16C1821f420_0xbad8ff1833a2c42766cffc83700a0f4845130b9ec6c489190165df7d175e0a58
+zksync(324) (#8) : https://app.safe.global/transactions/tx?safe=zksync:0x66716ae60898dD4479B52aC4d92ef16C1821f420&id=multisig_0x66716ae60898dD4479B52aC4d92ef16C1821f420_0xbad8ff1833a2c42766cffc83700a0f4845130b9ec6c489190165df7d175e0a58

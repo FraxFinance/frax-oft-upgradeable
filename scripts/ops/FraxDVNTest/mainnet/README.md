@@ -142,3 +142,125 @@ worldchain : https://layerzeroscan.com/tx/0x0662527651bcc375230985fdb1da1bd736d6
 * abstract : https://layerzeroscan.com/tx/0x418a007b58c8ab8413298b088ab6e4c211bc244b855c14ae94eb87c4fb93deb7 (not peered to aptos)
 
 * unichain : https://layerzeroscan.com/tx/0xa1028f2c0937f32cf88ae3a9c857a6e78f0fff03a2840090378afc5dd495bd10 (not peered to movement)
+
+### aptos to EVM
+
+* fraxtal : https://layerzeroscan.com/tx/0xfe7c2f7872b8210e283e836b1db825dab2b6536c4219f2ffdf175fbf7e7380d1
+
+* ethereum : https://layerzeroscan.com/tx/0x3f61a4bf4aad379a8cec1643e2b98335206a7d5547036d991b51ba464c7a01d9
+
+* blast : https://layerzeroscan.com/tx/0x4e0bc7ae014e208f94a97c8903098d38fbd01f755255d57d843af46ca894798b
+
+* mode : https://layerzeroscan.com/tx/0x2483a812c3b0815e03fd710c7b03ca276d575701d5f9ffb4ae5f1e1c40cc79ec
+
+* sei : https://layerzeroscan.com/tx/0x9db00afb237b1a316e297618a849e7654cd04af877c672554acb1adfd858f8e1
+
+* xlayer : https://layerzeroscan.com/tx/0xdff2e0eebf124af0876454804a0866490f230bc01be659130bfbc90e8691eb8a
+
+* sonic : https://layerzeroscan.com/tx/0x3201903a3dcbadbbdaf26e80d2205e03fb6a279e835eea9a88c4cb40511b1f37
+
+* arbitrum : https://layerzeroscan.com/tx/0xc4c130968bef237e15151986b5248f297d21af32d04499b8fc4ef6d689cb50e6
+
+* optimism : https://layerzeroscan.com/tx/0xe1739adaf1ddafa61d716707d31c8f00b6aac8f0f7b4fe1ccc1181dcb04cf731
+
+* polygon : https://layerzeroscan.com/tx/0xe3c75b40e0e532657eae62c177c6ad86e00810065328e649ad84945126ae2f02
+
+* avalanche : https://layerzeroscan.com/tx/0x1357ed2d6f2a2e13130a3163b615a1207ab95c8e821a4f605d8bf8a7ff26cea9
+
+* bnb : https://layerzeroscan.com/tx/0x59331c6c3c8b3e6a97dfa97160f885b6b2732af67acf3beab850487ee05cbb62
+
+* berachain : https://layerzeroscan.com/tx/0xdacacfb19127ab74285faf0c38bdc84dc2612c346abe29ed5a4d67740046b699
+
+* linea : https://layerzeroscan.com/tx/0xd738f5bd065aff708092af30b790487731f5688bc23436170ec3d529f852a4e3
+
+* zksync : https://layerzeroscan.com/tx/0x87f50562086ff1394dc4e588862f7111aa454d38421b683798e98ba78aecc128
+
+* unichain : https://layerzeroscan.com/tx/0xf1ec2b69251051d6056a3ee928bd7459552d8fd765d51e6f7789b5242bf8c2c6
+
+* solana : https://layerzeroscan.com/tx/0x5051f02e15bcf4e80d1a9b27489d6c6a120bcf5e99baa7af18755f4e25e5cdc2
+
+### movement to EVM
+
+* fraxtal : https://layerzeroscan.com/tx/0x5a3abb733c62b9713110adde4568f689be5bb69cca79d55f374b754ae7025942
+
+* ethereum : 
+
+* blast : https://layerzeroscan.com/tx/0x93064f459a339c02d9f99339cc34db00fb0b197f278007b02e5b38177ad7cacf
+
+* base : https://layerzeroscan.com/tx/0xdea8756035d720ef1a09d9439ac97d6d8fc1270a2468e0578590c9483c1db1a9
+
+* mode : https://layerzeroscan.com/tx/0xd80f4e9df9ebfdbbf903e5b8acec1f86d47ea0ff4caba6a5341cdde1b7d9c570
+
+* sonic : https://layerzeroscan.com/tx/0xbb0d3d2db7607273cadfffcd3579c4a663c5bec9c815a1daf9df9ef176eef0d8
+
+* ink : 
+
+* arbitrum : https://layerzeroscan.com/tx/0x9f0d799a4dd81b50dd5670b631f9bc8b6caf47336cc93760b74502ef2836dde9
+
+* optimism : https://layerzeroscan.com/tx/0x8a0c868b22c859e80c58469fac7053150c23c8f14e8b2ab6edbdc84de1c5d92b
+
+* polygon : 
+
+* avalanche : https://layerzeroscan.com/tx/0x7cd6f3a6e81f7e601259a227733f9a582966ff6f28eb20543653baa2ebd96e69
+
+* bnb : 
+
+* zkpolygon : https://layerzeroscan.com/tx/0xa20a78923b4005ef7503d642ea18f7d5b62862b16fad33a909e943c619a6a1f3
+
+* berachain : https://layerzeroscan.com/tx/0xd3cedd8fd4bb9a3e5529c14adc9b2c42272b6b34d65938ad9ac69f24d617f784
+
+* linea : https://layerzeroscan.com/tx/0x05c98ad561c4392f62cccd89a3b185c6b72b4214a6bfdd899f6ae90122ca9f37
+
+* zksync : 
+
+* abstract : https://layerzeroscan.com/tx/0x2e8d6da7eae86d0a8ce930afb9cfded818e2a5781a310db610ab932459885ada
+
+* solana : https://layerzeroscan.com/tx/0x84cc470a5fa4dfd2e2124e19e38c0b07a5bce511b311ef724825226a097eca1d
+
+### solana to EVM
+
+* fraxtal : 
+
+* ethereum : 
+
+* blast : 
+
+* base : 
+
+* mode : 
+
+* sei : 
+
+* xlayer : 
+
+* sonic : 
+
+* ink :
+
+* arbitrum :  
+
+* optimism : 
+
+* polygon : 
+
+* avalanche : 
+
+* bnb : 
+
+* zkpolygon : 
+
+* berachain : 
+
+* linea : 
+
+* worldchain :
+
+* zksync : 
+
+* abstract :
+
+* unichain :
+
+* aptos : 
+
+* movement : 

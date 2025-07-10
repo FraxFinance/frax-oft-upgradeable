@@ -97,6 +97,48 @@ abstract to Unichain : https://layerzeroscan.com/tx/0x079060b736bb5c8074f371f2c5
 
 worldchain : https://layerzeroscan.com/tx/0x0662527651bcc375230985fdb1da1bd736d67b7df5228960daa3a74b42522618
 
+## Non-EVM frax DVN test
+
 ### EVM to movement/aptos/solana
 
-fraxtal : https://layerzeroscan.com/tx/0x0deee80bc8a98e415a77947ddc03e02c02d5d19577aa0f7f977d49c3cdd49c9f
+* fraxtal : https://layerzeroscan.com/tx/0x0deee80bc8a98e415a77947ddc03e02c02d5d19577aa0f7f977d49c3cdd49c9f
+
+* ethereum : https://layerzeroscan.com/tx/0x3eefd91fb7027bdc9b936c4c4b6393d012cf2d206ed2a86d63ec701ea150ea89
+
+* blast : https://layerzeroscan.com/tx/0x65b231c989d92bd6d08f0bcdd75f81a39188b71a7c95b949b01b24583cf5fdaa
+
+* base : https://layerzeroscan.com/tx/0xc3f36c64bd413e12e7f5e3a2bcc6ba79b58414701d71ea134da7a723c67ccd4d
+
+* mode : https://layerzeroscan.com/tx/0x2f8619a3cbf421041b3ef19bb0d4af1e75c7000c82352320ebc946f0cd99563e
+
+* sei : https://layerzeroscan.com/tx/0x2c6c0541959dbdf83921ba43f54f76ee240ea62499b1e1c75b9957c7dd6254a4 (not peered to movement)
+
+* xlayer : https://layerzeroscan.com/tx/0x24042022024034030fdd3e43b7b41753836faf15aa0dc8f381f75437a9f38001 (not peered to movement)
+
+* sonic : https://layerzeroscan.com/tx/0x40cf72a4b49c53caebb9e2d26827ce70554b48c5a4013187fa04bcb5a106ad42
+
+* ink : https://layerzeroscan.com/tx/0x7c48a4eb5dd353b85d2c84f619b6c177a62fe25d9b8475c8cea79bfc00e59422 (not peered to aptos)
+
+* arbitrum : https://layerzeroscan.com/tx/0x945de491ac7df337181161a54337d7b0e4e5c343f1f6bede75a5ba8df16a90c3 
+
+* optimism : https://layerzeroscan.com/tx/0xbb0535ffbf717f15939d50abfd7e1169bd204d3413ad65e6c9ef8b8f0b7e476c
+
+* polygon : https://layerzeroscan.com/tx/0x5c4c2a12c1fca3c9595da89f5020e3d11f40f91092e6386556d376111ffa8f5c
+
+* avalanche : https://layerzeroscan.com/tx/0x35feee45a2de2559ab9a7440b694fe6103602a82de3b16b013eccfecf4300671
+
+* bnb : https://layerzeroscan.com/tx/0x3d53899b21bc62d9131af71b172a0d62fac9369f733624e327254fb40c20ee87
+
+* zkpolygon : https://layerzeroscan.com/tx/0xadd00296ecfa22cd2be5b7301af143340c9d2a26f21b7fcd4f27cb8f1955a056 (not peered to aptos)
+
+* berachain : https://layerzeroscan.com/tx/0x34391e60de136dcb19c2df1e6c9552e68c574d52b59f119ab47ae0a5726fda40
+
+* linea : https://layerzeroscan.com/tx/0x3dfe5e706252b2c265d1a044e12f739451dd899290319ad35ccbc7281cb1e568
+
+* worldchain : https://layerzeroscan.com/tx/0x4ca369f9cda9e235ccfcf1fba7da2e7fa3fe80f2a296e1dadbe662da73ebf5f7 (not peered to aptos/movement)
+
+* zksync : https://layerzeroscan.com/tx/0xe919e842c837f86f2ba79c1ce5aeea9174741c375d88af1533b51ad34a09d64e
+
+* abstract : https://layerzeroscan.com/tx/0x418a007b58c8ab8413298b088ab6e4c211bc244b855c14ae94eb87c4fb93deb7 (not peered to aptos)
+
+* unichain : https://layerzeroscan.com/tx/0xa1028f2c0937f32cf88ae3a9c857a6e78f0fff03a2840090378afc5dd495bd10 (not peered to movement)

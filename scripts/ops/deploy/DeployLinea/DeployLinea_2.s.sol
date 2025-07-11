@@ -22,7 +22,7 @@ contract DeployLinea_2 is DeployFraxOFTProtocol {
 
     function filename() public view override returns (string memory) {
         string memory root = vm.projectRoot();
-        root = string.concat(root, "/scripts/ops/deploy/DeployLinea/txs/");
+        root = string.concat(root, "/scripts/ops/deploy/DeployLinea/trax/");
 
         string memory name = string.concat(broadcastConfig.chainid.toString(), "-");
         name = string.concat(name, simulateConfig.chainid.toString());
@@ -84,7 +84,7 @@ contract DeployLinea_2 is DeployFraxOFTProtocol {
 
         // / @dev: follows deployment order of legacy OFTs found at https://etherscan.io/address/0xded884435f2db0169010b3c325e733df0038e51d
         // Deploy FXS
-        (,fxsOft) = deployFraxOFTUpgradeableAndProxy({
+        (,wfraxOft) = deployFraxOFTUpgradeableAndProxy({
             _name: "Frax Share",
             _symbol: "FXS"
         });
@@ -127,7 +127,7 @@ contract DeployLinea_2 is DeployFraxOFTProtocol {
             _symbol: "FPI"
         });
 
-        require(fxsOft == proxyFxsOft, "fxsOft address incorrect");
+        require(wfraxOft == proxyFraxOft, "wfraxOft address incorrect");
         require(sfrxUsdOft == proxySFrxUsdOft, "sfrxUsdOft address incorrect");
         require(sfrxEthOft == proxySFrxEthOft, "sfrxEthOft address incorrect");
         require(frxUsdOft == proxyFrxUsdOft, "frxUsdOft address incorrect");

@@ -16,7 +16,7 @@ contract DeployFraxOFTProtocol is SetDVNs, BaseL0Script {
     using Strings for uint256;
 
     function version() public virtual override pure returns (uint256, uint256, uint256) {
-        return (1, 2, 9);
+        return (1, 3, 0);
     }
 
     function setUp() public virtual override {
@@ -122,6 +122,10 @@ contract DeployFraxOFTProtocol is SetDVNs, BaseL0Script {
         setSolanaEnforcedOptions({
             _connectedOfts: proxyOfts
         });
+
+        setAptosEnforcedOptions({
+            _connectedOfts: proxyOfts
+        });
         
         /// @dev: additional enforced options for non-evms set here
 
@@ -155,10 +159,10 @@ contract DeployFraxOFTProtocol is SetDVNs, BaseL0Script {
         implementationMock = address(new ImplementationMock());
 
         // / @dev: follows deployment order of legacy OFTs found at https://etherscan.io/address/0xded884435f2db0169010b3c325e733df0038e51d
-        // Deploy FXS
-        (,fxsOft) = deployFraxOFTUpgradeableAndProxy({
-            _name: "Frax Share",
-            _symbol: "FXS"
+        // Deploy WFRAX
+        (,wfraxOft) = deployFraxOFTUpgradeableAndProxy({
+            _name: "Wrapped Frax",
+            _symbol: "WFRAX"
         });
 
         // Deploy sfrxUSD
@@ -326,6 +330,24 @@ contract DeployFraxOFTProtocol is SetDVNs, BaseL0Script {
                 _oftArray: zkEraProxyOfts
             });
             require(peer != address(0), "Invalid Zk Era peer");
+        } else if (_chainid == 11155111) {
+            peer = getTestnetPeerFromArray({
+                _oft: _oft,
+                _oftArray: ethSepoliaLockboxes
+            });
+            require(peer != address(0), "Invalid eth sepolia peer");
+        } else if (_chainid == 421614) {
+            peer = getTestnetPeerFromArray({
+                _oft: _oft,
+                _oftArray: arbitrumSepoliaOfts
+            });
+            require(peer != address(0), "Invalid arbitrum sepolia peer");
+        } else if (_chainid == 2522) {
+            peer = getTestnetPeerFromArray({
+                _oft: _oft,
+                _oftArray: fraxtalTestnetLockboxes
+            });
+            require(peer != address(0), "Invalid fraxtal testnet peer");
         } else {
             peer = getPeerFromArray({
                 _oft: _oft,
@@ -337,8 +359,9 @@ contract DeployFraxOFTProtocol is SetDVNs, BaseL0Script {
 
     function getPeerFromArray(address _oft, address[] memory _oftArray) public virtual view returns (address peer) {
         require(_oftArray.length == 6, "getPeerFromArray index mismatch");
+        require(_oft != address(0), "getPeerFromArray() OFT == address(0)");
         /// @dev maintains array of deployFraxOFTUpgradeablesAndProxies(), where proxyOfts is pushed to in the respective order
-        if (_oft == fxsOft || _oft == proxyFxsOft) {
+        if (_oft == wfraxOft || _oft == proxyFraxOft) {
             peer = _oftArray[0];
         } else if (_oft == sfrxUsdOft || _oft == proxySFrxUsdOft) {
             peer = _oftArray[1];
@@ -353,6 +376,15 @@ contract DeployFraxOFTProtocol is SetDVNs, BaseL0Script {
         }
     }
 
+    function getTestnetPeerFromArray(address _oft, address[] memory _oftArray) public virtual view returns (address peer) {
+        require(_oftArray.length == 1, "getPeerFromTestnetArray index mismatch");
+        require(_oft != address(0), "getPeerFromTestnetArray() OFT == address(0)");
+        // should only be frxUsd
+        if (_oft == frxUsdOft || _oft == proxyFrxUsdOft) {
+            peer = _oftArray[0];
+        }
+    }
+
     /// @dev Non-evm OFTs require their own unique peer address
     function setNonEvmPeers(
         address[] memory _connectedOfts
@@ -362,7 +394,7 @@ contract DeployFraxOFTProtocol is SetDVNs, BaseL0Script {
             // For each non-evm
             for (uint256 c=0; c<nonEvmPeersArrays.length; c++) {
                 setPeer({
-                    _config: nonEvmConfigs[0], // TODO : assuming 0th index is solana
+                    _config: nonEvmConfigs[c],
                     _connectedOft: _connectedOfts[o],
                     _peerOftAsBytes32: nonEvmPeersArrays[c][o]
                 });
@@ -429,6 +461,41 @@ contract DeployFraxOFTProtocol is SetDVNs, BaseL0Script {
             _optionsTypeTwo: optionsTypeTwo
         });
     }
+
+    function setMovementEnforcedOptions(
+        address[] memory _connectedOfts
+    ) public virtual {
+        bytes memory optionsTypeOne = OptionsBuilder.newOptions().addExecutorLzReceiveOption(5_000, 0);
+        bytes memory optionsTypeTwo = OptionsBuilder.newOptions().addExecutorLzReceiveOption(5_000, 0);
+
+        L0Config[] memory configs = new L0Config[](1);
+        configs[0] = nonEvmConfigs[1]; // mapped to movement
+
+        setEnforcedOptions({
+            _connectedOfts: _connectedOfts,
+            _configs: configs,
+            _optionsTypeOne: optionsTypeOne,
+            _optionsTypeTwo: optionsTypeTwo
+        });
+    }
+
+    function setAptosEnforcedOptions(
+        address[] memory _connectedOfts
+    ) public virtual {
+        bytes memory optionsTypeOne = OptionsBuilder.newOptions().addExecutorLzReceiveOption(5_000, 0);
+        bytes memory optionsTypeTwo = OptionsBuilder.newOptions().addExecutorLzReceiveOption(5_000, 0);
+
+        L0Config[] memory configs = new L0Config[](1);
+        configs[0] = nonEvmConfigs[2]; // mapped to Aptos
+
+        setEnforcedOptions({
+            _connectedOfts: _connectedOfts,
+            _configs: configs,
+            _optionsTypeOne: optionsTypeOne,
+            _optionsTypeTwo: optionsTypeTwo
+        });
+    }
+
 
     function setEnforcedOptions(
         address[] memory _connectedOfts,

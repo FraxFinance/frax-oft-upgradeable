@@ -5,6 +5,8 @@ import {IOAppCore} from "@fraxfinance/layerzero-v2-upgradeable/oapp/contracts/oa
 
 interface IEndpointV2 {
     function blockedLibrary() external view returns (address);
+
+    function getSendLibrary(address _sender, uint32 _dstEid) external view returns (address lib);
 }
 
 // Zk chains use a different compiler and need a script specific to them, this script is specifically for zksync / abstract
@@ -31,6 +33,7 @@ contract SetBlockSendLibZk is FixDVNsInherited {
 
         for (uint256 i=0; i<proxyConfigs.length; i++) {
             for (uint256 j=0; j<chainIds.length; j++) {
+                if(chainIds[j] != 324) continue; 
                 if (proxyConfigs[i].chainid == chainIds[j]) {
                     setSendLibs(proxyConfigs[i]);
                 }
@@ -53,6 +56,14 @@ contract SetBlockSendLibZk is FixDVNsInherited {
                 if (!hasPeer(connectedOft, proxyConfigs[i])) {
                     continue;
                 }
+
+                address existingSendLibrary = IEndpointV2(_config.endpoint).getSendLibrary(
+                    connectedOft,
+                    uint32(proxyConfigs[i].eid)
+                );
+
+                if (existingSendLibrary == blockedLibrary) continue;
+
                 // set the working library for the connected OFT
                 bytes memory data = abi.encodeCall(
                     IMessageLibManager.setSendLibrary,

@@ -5,6 +5,8 @@ import {IOAppCore} from "@fraxfinance/layerzero-v2-upgradeable/oapp/contracts/oa
 
 interface IEndpointV2 {
     function blockedLibrary() external view returns (address);
+
+    function getSendLibrary(address _sender, uint32 _dstEid) external view returns (address lib);
 }
 
 contract SetBlockSendLib is FixDVNsInherited {
@@ -32,6 +34,7 @@ contract SetBlockSendLib is FixDVNsInherited {
                     // skip zksync and abstract, they have a separate script
                     continue;
                 }
+                // if(chainIds[j] != 480) continue; // Note : uncomment this and modify chainId between runs
 
                 if (proxyConfigs[i].chainid == chainIds[j]) {
                     setSendLibs(proxyConfigs[i]);
@@ -50,6 +53,7 @@ contract SetBlockSendLib is FixDVNsInherited {
             // loop through proxy configs, find the proxy config with the given chainID
             for (uint256 i=0; i<proxyConfigs.length; i++) {
                 for (uint256 j=0; j<chainIds.length; j++) {
+                    // if(chainIds[j] != 252) continue; // Note : uncomment this and specify chain where OFT should be wired
                     // only set chains as desired, not equal to the same chain
                     if (
                         proxyConfigs[i].chainid != chainIds[j]
@@ -60,6 +64,13 @@ contract SetBlockSendLib is FixDVNsInherited {
                     if (!hasPeer(connectedOft, proxyConfigs[i])) {
                         continue;
                     }
+
+                    address existingSendLibrary = IEndpointV2(_config.endpoint).getSendLibrary(
+                        connectedOft,
+                        uint32(proxyConfigs[i].eid)
+                    );
+
+                    if (existingSendLibrary == blockedLibrary) continue;
 
                     // set the blocked library for the connected OFT
                     bytes memory data = abi.encodeCall(

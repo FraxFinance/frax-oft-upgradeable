@@ -4,6 +4,7 @@ pragma solidity ^0.8.19;
 import "scripts/DeployFraxOFTProtocol/DeployFraxOFTProtocol.s.sol";
 
 // Deploy everything with a hub model vs. a spoke model where the only peer is Fraxtal
+// forge script scripts/DeployFraxOFTProtocol/DeployFraxOFTProtocolFraxtalHub.s.sol --rpc-url $RPC_URL --broadcast
 contract DeployFraxOFTProtocolFraxtalHub is DeployFraxOFTProtocol {
     L0Config[] public tempConfigs;
 
@@ -25,6 +26,29 @@ contract DeployFraxOFTProtocolFraxtalHub is DeployFraxOFTProtocol {
         delete tempConfigs;
 
         super.run();
+    }
+
+    function setupNonEvms() public override {}
+
+    function setupSource() public override broadcastAs(configDeployerPK) {
+        /// @dev set enforced options / peers separately
+        setupEvms();
+        setupNonEvms();
+
+        /// @dev configures legacy configs as well
+        setDVNs({
+            _connectedConfig: broadcastConfig,
+            _connectedOfts: proxyOfts,
+            _configs: proxyConfigs
+        });
+
+        setLibs({
+            _connectedConfig: broadcastConfig,
+            _connectedOfts: proxyOfts,
+            _configs: proxyConfigs
+        });
+
+        setPriviledgedRoles();
     }
 
 }

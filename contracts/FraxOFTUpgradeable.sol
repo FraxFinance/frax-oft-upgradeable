@@ -5,12 +5,14 @@ import { OFTUpgradeable } from "@fraxfinance/layerzero-v2-upgradeable/oapp/contr
 import { SendParam } from "@fraxfinance/layerzero-v2-upgradeable/oapp/contracts/oft/interfaces/IOFT.sol";
 
 contract FraxOFTUpgradeable is OFTUpgradeable {
-    constructor(address _lzEndpoint) OFTUpgradeable(_lzEndpoint) {}
+    constructor(address _lzEndpoint) OFTUpgradeable(_lzEndpoint) {
+        _disableInitializers();
+    }
 
     function version() external pure returns (uint256 major, uint256 minor, uint256 patch) {
         major = 1;
         minor = 0;
-        patch = 0;
+        patch = 1;
     }
 
     // Admin

@@ -1,8 +1,13 @@
 pragma solidity ^0.8.0;
 
-import { DeployFraxOFTProtocol } from "scripts/DeployFraxOFTProtocol/DeployFraxOFTProtocol.s.sol";
+import "scripts/DeployFraxOFTProtocol/DeployFraxOFTProtocol.s.sol";
+
+interface IEndpointV2 {
+    function blockedLibrary() external view returns (address);
+}
 
 contract FixRemoveMesh is DeployFraxOFTProtocol {
+    using Strings for uint256;
 
     function filename() public view override returns (string memory) {
         string memory root = vm.projectRoot();
@@ -29,7 +34,7 @@ contract FixRemoveMesh is DeployFraxOFTProtocol {
         address blockedLibrary = IEndpointV2(_config.endpoint).blockedLibrary();
         
         // for each oft
-        for (uint256 o=0; o<connectedOfts.length; o++ )[
+        for (uint256 o=0; o<connectedOfts.length; o++ ) {
             address connectedOft = connectedOfts[o];
 
             // loop through non-evm configs to ensure there are no connections
@@ -38,7 +43,7 @@ contract FixRemoveMesh is DeployFraxOFTProtocol {
                 if (_config.chainid == 1 || _config.chainid == 252) continue;
 
                 // get the existing send library- note that this will return the send lib if not set (aka default value)
-                address existingSendLibrary = IEndpointV2(_config.endpoint).getSendLibrary(
+                address existingSendLibrary = IMessageLibManager(_config.endpoint).getSendLibrary(
                     connectedOft,
                     uint32(proxyConfigs[i].eid)
                 );
@@ -49,7 +54,7 @@ contract FixRemoveMesh is DeployFraxOFTProtocol {
                     IMessageLibManager.setSendLibrary,
                     (
                         connectedOft,
-                        uint32(dstConfig.eid),
+                        uint32(nonEvmConfigs[i].eid),
                         blockedLibrary
                     )
                 );
@@ -76,7 +81,7 @@ contract FixRemoveMesh is DeployFraxOFTProtocol {
                 if (!hasPeer(connectedOft, dstConfig)) continue;
 
                 // get the existing send library- note that this will return the send lib if not set (aka default value)
-                address existingSendLibrary = IEndpointV2(_config.endpoint).getSendLibrary(
+                address existingSendLibrary = IMessageLibManager(_config.endpoint).getSendLibrary(
                     connectedOft,
                     uint32(proxyConfigs[i].eid)
                 );
@@ -102,7 +107,7 @@ contract FixRemoveMesh is DeployFraxOFTProtocol {
                         value: 0
                     })
                 );
-            ]
+            }
         }
     }
 

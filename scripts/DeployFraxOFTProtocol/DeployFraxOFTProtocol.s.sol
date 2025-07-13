@@ -3,12 +3,14 @@ pragma solidity ^0.8.19;
 
 import "../BaseL0Script.sol";
 
+import { SetDVNs } from "scripts/DeployFraxOFTProtocol/inherited/SetDVNs.s.sol";
+
 /*
 TODO
 - Deployment handling on non-pre-deterministic chains
 */
 
-contract DeployFraxOFTProtocol is BaseL0Script {
+contract DeployFraxOFTProtocol is SetDVNs, BaseL0Script {
     using OptionsBuilder for bytes;
     using stdJson for string;
     using Strings for uint256;
@@ -541,88 +543,6 @@ contract DeployFraxOFTProtocol is BaseL0Script {
         );
     }
 
-    function setDVNs(
-        L0Config memory _connectedConfig,
-        address[] memory _connectedOfts,
-        L0Config[] memory _configs 
-    ) public virtual {
-        UlnConfig memory ulnConfig;
-        ulnConfig.requiredDVNCount = 2;
-        address[] memory requiredDVNs = new address[](2);
-
-        // skip setting up DVN if the address is null
-        if (_connectedConfig.dvnHorizen == address(0)) return;
-
-        // sort in ascending order (as spec'd in UlnConfig)
-        if (uint160(_connectedConfig.dvnHorizen) < uint160(_connectedConfig.dvnL0)) {
-            requiredDVNs[0] = _connectedConfig.dvnHorizen;
-            requiredDVNs[1] = _connectedConfig.dvnL0;
-        } else {
-            requiredDVNs[0] = _connectedConfig.dvnL0;
-            requiredDVNs[1] = _connectedConfig.dvnHorizen;
-        }
-        ulnConfig.requiredDVNs = requiredDVNs;
-
-        // push allConfigs
-        for (uint256 c=0; c<_configs.length; c++) {
-            // cannot set enforced options to self
-            if (block.chainid == _configs[c].chainid) continue;
-
-            setConfigParams.push(
-                SetConfigParam({
-                    eid: uint32(_configs[c].eid),
-                    configType: Constant.CONFIG_TYPE_ULN,
-                    config: abi.encode(ulnConfig)                    
-                })
-            );
-        }
-
-        // Submit txs to set DVN
-        for (uint256 o=0; o<_connectedOfts.length; o++) {
-            address endpoint = _connectedConfig.endpoint;
-            
-            // receiveLib
-            bytes memory data = abi.encodeCall(
-                IMessageLibManager.setConfig,
-                (
-                    _connectedOfts[o],
-                    _connectedConfig.receiveLib302,
-                    setConfigParams
-                )
-            );
-            (bool success, ) = endpoint.call(data);
-            require(success, "Unable to setConfig for receiveLib");
-            serializedTxs.push(
-                SerializedTx({
-                    name: "setConfig for receiveLib",
-                    to: endpoint,
-                    value: 0,
-                    data: data
-                })
-            );
-
-            // sendLib
-            data = abi.encodeCall(
-                IMessageLibManager.setConfig,
-                (
-                    _connectedOfts[o],
-                    _connectedConfig.sendLib302,
-                    setConfigParams
-                )
-            );
-            (success, ) = endpoint.call(data);
-            require(success, "Unable to setConfig for sendLib");
-            serializedTxs.push(
-                SerializedTx({
-                    name: "setConfig for sendLib",
-                    to: endpoint,
-                    value: 0,
-                    data: data
-                })
-            );
-        }
-    }
-
     function setLibs(
         L0Config memory _connectedConfig,
         address[] memory _connectedOfts,
@@ -700,5 +620,22 @@ contract DeployFraxOFTProtocol is BaseL0Script {
                 })
             );
         }
+    }
+
+    /// @dev overrides the virtual pushSerializedTx inherited in Set{X}.s.sol as serializedTxs does not exist in the inherited contract
+    function pushSerializedTx(
+        string memory _name,
+        address _to,
+        uint256 _value,
+        bytes memory _data
+    ) public override {
+        serializedTxs.push(
+            SerializedTx({
+                name: _name,
+                to: _to,
+                value: _value,
+                data: _data
+            })
+        );
     }
 }

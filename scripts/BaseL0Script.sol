@@ -6,7 +6,7 @@ import "forge-std/StdJson.sol";
 import "frax-template/src/Constants.sol";
 import { console } from "frax-std/FraxTest.sol";
 
-import { L0Constants } from "scripts/L0Constants.sol";
+import { L0Constants, L0Config } from "scripts/L0Constants.sol";
 import { SerializedTx, SafeTxUtil } from "scripts/SafeBatchSerialize.sol";
 import { FraxOFTUpgradeable } from "contracts/FraxOFTUpgradeable.sol";
 import { FraxProxyAdmin } from "contracts/FraxProxyAdmin.sol";
@@ -16,7 +16,6 @@ import { Ownable } from "@openzeppelin/contracts/access/Ownable.sol";
 import { Strings } from "@openzeppelin/contracts/utils/Strings.sol";
 import { IERC20 } from "@openzeppelin/contracts/token/ERC20/IERC20.sol";
 
-import { MessagingParams, MessagingReceipt, Origin } from "@fraxfinance/layerzero-v2-upgradeable/protocol/contracts/interfaces/ILayerZeroEndpointV2.sol";
 import { EndpointV2 } from "@fraxfinance/layerzero-v2-upgradeable/protocol/contracts/EndpointV2.sol";
 import { SetConfigParam, IMessageLibManager} from "@fraxfinance/layerzero-v2-upgradeable/protocol/contracts/interfaces/IMessageLibManager.sol";
 
@@ -26,9 +25,8 @@ import { IOAppCore } from "@fraxfinance/layerzero-v2-upgradeable/oapp/contracts/
 import { SendParam, OFTReceipt, MessagingFee, IOFT } from "@fraxfinance/layerzero-v2-upgradeable/oapp/contracts/oft/interfaces/IOFT.sol";
 
 import { ProxyAdmin, TransparentUpgradeableProxy } from "@fraxfinance/layerzero-v2-upgradeable/messagelib/contracts/upgradeable/proxy/ProxyAdmin.sol";
-import { UlnConfig } from "@fraxfinance/layerzero-v2-upgradeable/messagelib/contracts/uln/UlnBase.sol";
-import { Constant } from "@fraxfinance/layerzero-v2-upgradeable/messagelib/test/util/Constant.sol";
-    
+
+
 contract BaseL0Script is L0Constants, Script {
 
     using OptionsBuilder for bytes;
@@ -39,18 +37,6 @@ contract BaseL0Script is L0Constants, Script {
     uint256 public configDeployerPK = vm.envUint("PK_CONFIG_DEPLOYER");
     uint256 public senderDeployerPK = vm.envUint("PK_SENDER_DEPLOYER");
 
-    /// @dev: required to be alphabetical to conform to https://book.getfoundry.sh/cheatcodes/parse-json
-    struct L0Config {
-        string RPC;
-        uint256 chainid;
-        address delegate;
-        address dvnHorizen;
-        address dvnL0;
-        uint256 eid;
-        address endpoint;
-        address receiveLib302;
-        address sendLib302;
-    }
     L0Config[] public legacyConfigs;
     L0Config[] public proxyConfigs;
     L0Config[] public evmConfigs;
@@ -92,10 +78,8 @@ contract BaseL0Script is L0Constants, Script {
     address[] public legacyOfts;
     address[] public proxyOfts; // the OFTs deployed through `DeployFraxOFTProtocol.s.sol`
 
+    // temporary storage
     EnforcedOptionParam[] public enforcedOptionParams;
-
-    SetConfigParam[] public setConfigParams;
-
     SerializedTx[] public serializedTxs;
 
     string public json;
@@ -115,7 +99,6 @@ contract BaseL0Script is L0Constants, Script {
     ) virtual {
         // Clear out any previous txs
         delete enforcedOptionParams;
-        delete setConfigParams;
         delete serializedTxs;
 
         // store for later referencing
@@ -147,7 +130,7 @@ contract BaseL0Script is L0Constants, Script {
     function _validateAndPopulateMainnetOfts() internal virtual {
         // check to prevent array mismatch.  This will trigger when, for example, managing peers of 2 of 6 OFTs as
         // this method asumes we're managing all 6 OFTs
-        require (proxyOfts.length == 6, "Must override. be careful");
+        require (proxyOfts.length == 6, "proxyOfts.length != 6");
 
         /// @dev order maintained through L0Constants.sol `constructor()` and DeployFraxOFTProtocol.s.sol `deployFraxOFTUpgradeablesAndProxies()`
         if (simulateConfig.chainid == 1) {

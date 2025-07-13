@@ -2,12 +2,15 @@
 pragma solidity ^0.8.22;
 
 import "scripts/DeployFraxOFTProtocol/DeployFraxOFTProtocol.s.sol";
+import "scripts/DeployFraxOFTProtocol/inherited/SetDVNs.s.sol";
 
 /// @dev Set the fraxtal peer to fraxtal to see if we can send to self
 // forge script scripts/ops/UpgradeFrxUsd/test/setup/SetupFraxtalPeerToFraxtal.s.sol --rpc-url https://rpc.frax.com
 contract SetupFraxtalOFT is DeployFraxOFTProtocol {
     address fraxtalOft = 0x103C430c9Fcaa863EA90386e3d0d5cd53333876e;
     // address xlayerOft = 0x45682729Bdc0f68e7A02E76E9CfdA57D0cD4d20b;
+
+    SetConfigParam[] setConfigParams;
 
     constructor() {
         delete connectedOfts;

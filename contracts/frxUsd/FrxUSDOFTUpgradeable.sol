@@ -8,7 +8,9 @@ import { SendParam } from "@fraxfinance/layerzero-v2-upgradeable/oapp/contracts/
 
 contract FrxUSDOFTUpgradeable is OFTUpgradeable, FreezeThawModule, PauseModule {
 
-    constructor(address _lzEndpoint) OFTUpgradeable(_lzEndpoint) {}
+    constructor(address _lzEndpoint) OFTUpgradeable(_lzEndpoint) {
+        _disableInitializers();
+    }
 
     function version() external pure returns (uint256 major, uint256 minor, uint256 patch) {
         major = 1;

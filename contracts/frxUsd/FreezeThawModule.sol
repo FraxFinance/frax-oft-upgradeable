@@ -15,8 +15,8 @@ abstract contract FreezeThawModule {
         mapping(address => bool) isFrozen;
     }
 
-    /// @dev keccak256(abi.encode(uint256(keccak256("frax.storage.FreezeThawModule")) - 1))
-    bytes32 private constant FreezeThawStorageLocation = 0xf6192aebe04228448ed4fd2802d59c009f5324cdd6a110c65bd318373b6e1d3f;
+    /// @dev keccak256(abi.encode(uint256(keccak256("frax.storage.FreezeThawModule")) - 1)) & ~bytes32(uint256(0xff))
+    bytes32 private constant FreezeThawStorageLocation = 0xf6192aebe04228448ed4fd2802d59c009f5324cdd6a110c65bd318373b6e1d00;
 
     function _getFreezeThawStorage() private pure returns (FreezeThawStorage storage $) {
         assembly {

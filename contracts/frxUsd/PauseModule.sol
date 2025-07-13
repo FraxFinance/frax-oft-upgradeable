@@ -10,8 +10,8 @@ abstract contract PauseModule {
         bool isPaused;
     }
 
-    /// @dev keccak256(abi.encode(uint256(keccak256("frax.storage.PauseModule")) - 1))
-    bytes32 private constant PauseStorageLocation = 0x242e96562e738afaa26e2a4eb34bb6ab09c26cd11226ccf8fbc02da32756d302;
+    /// @dev keccak256(abi.encode(uint256(keccak256("frax.storage.PauseModule")) - 1)) & ~bytes32(uint256(0xff))
+    bytes32 private constant PauseStorageLocation = 0x242e96562e738afaa26e2a4eb34bb6ab09c26cd11226ccf8fbc02da32756d300;
 
     function _getPauseStorage() private pure returns (PauseStorage storage $) {
         assembly {

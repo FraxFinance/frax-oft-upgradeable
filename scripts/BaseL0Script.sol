@@ -9,6 +9,7 @@ import { console } from "frax-std/FraxTest.sol";
 import { L0Constants } from "scripts/L0Constants.sol";
 import { SerializedTx, SafeTxUtil } from "scripts/SafeBatchSerialize.sol";
 import { FraxOFTUpgradeable } from "contracts/FraxOFTUpgradeable.sol";
+import { FrxUSDOFTUpgradeable } from "contracts/frxUsd/FrxUSDOFTUpgradeable.sol";
 import { FraxProxyAdmin } from "contracts/FraxProxyAdmin.sol";
 import { ImplementationMock } from "contracts/mocks/ImplementationMock.sol";
 

@@ -19,6 +19,7 @@ contract FixRemoveMesh is DeployFraxOFTProtocol {
     }
 
     function run() public override {
+
         removeMesh();
     }
 
@@ -26,6 +27,8 @@ contract FixRemoveMesh is DeployFraxOFTProtocol {
         for (uint256 i=0; i<proxyConfigs.length; i++) {
             L0Config memory config = proxyConfigs[i];
             if (config.chainid == 252) continue; // Skip fraxtal- maintain all connections
+            // skip zk chains: they're set up as hub already
+            if (config.chainid == 2741 || config.chainid == 324) continue;
             removeMesh(config);
         }
     }
@@ -39,8 +42,14 @@ contract FixRemoveMesh is DeployFraxOFTProtocol {
 
             // loop through non-evm configs to ensure there are no connections
             for (uint256 i=0; i<nonEvmConfigs.length; i++) {
-                // skip if the config is fraxtal / ethereum as we want to maintain those connections
-                if (_config.chainid == 1 || _config.chainid == 252) continue;
+                // skip removing for fraxtal - maintain all non-evm connections
+                if (nonEvmConfigs[i].chainid == 252) continue;
+
+                // maintain ethereum <> Solana
+                if (nonEvmConfigs[i].eid == 30168 && _config.chainid == 1) continue;
+
+                // skip if no peer- no need to block sends
+                if (!hasPeer(connectedOft, nonEvmConfigs[i])) continue;
 
                 // get the existing send library- note that this will return the send lib if not set (aka default value)
                 address existingSendLibrary = IMessageLibManager(_config.endpoint).getSendLibrary(

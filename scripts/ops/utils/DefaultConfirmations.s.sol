@@ -1,6 +1,7 @@
 pragma solidity ^0.8.0;
 
 import "scripts/BaseL0Script.sol";
+import "scripts/DeployFraxOFTProtocol/inherited/SetDVNs.s.sol";
 
 interface IULN {
     function getUlnConfig(address _oapp, uint32 _remoteEid) external view returns (UlnConfig memory rtnConfig);

@@ -1,6 +1,19 @@
 // SPDX-License-Identifier: ISC
 pragma solidity ^0.8.19;
 
+/// @dev: required to be alphabetical to conform to https://book.getfoundry.sh/cheatcodes/parse-json
+struct L0Config {
+    string RPC;
+    uint256 chainid;
+    address delegate;
+    address dvnHorizen;
+    address dvnL0;
+    uint256 eid;
+    address endpoint;
+    address receiveLib302;
+    address sendLib302;
+}
+
 contract L0Constants {
 
     address[] public expectedProxyOfts;
@@ -52,7 +65,8 @@ contract L0Constants {
     address public ethSFrxUsdLockbox = 0x7311CEA93ccf5f4F7b789eE31eBA5D9B9290E126;
     address public ethFrxEthLockbox = 0x1c1649A38f4A3c5A0c4a24070f688C525AB7D6E6;
     address public ethSFrxEthLockbox = 0xbBc424e58ED38dd911309611ae2d7A23014Bd960;
-    address public ethFraxLockbox = 0x04ACaF8D2865c0714F79da09645C13FD2888977f;
+    address public ethFraxOft = 0x04ACaF8D2865c0714F79da09645C13FD2888977f;
+    address public ethFraxLockbox; // Deprecated
     address public ethFpiLockbox = 0x9033BAD7aA130a2466060A2dA71fAe2219781B4b;
 
     address public ethFrxUsdLockboxLegacy = 0x909DBdE1eBE906Af95660033e478D59EFe831fED;
@@ -119,7 +133,7 @@ contract L0Constants {
         fraxtalLockboxes.push(fraxtalFrxEthLockbox);
         fraxtalLockboxes.push(fraxtalFpiLockbox);
 
-        ethLockboxes.push(ethFraxLockbox);
+        ethLockboxes.push(ethFraxOft);
         ethLockboxes.push(ethSFrxUsdLockbox);
         ethLockboxes.push(ethSFrxEthLockbox);
         ethLockboxes.push(ethFrxUsdLockbox);

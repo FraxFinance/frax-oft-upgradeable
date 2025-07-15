@@ -11,7 +11,7 @@ contract FixRemoveMesh is DeployFraxOFTProtocol {
 
     function filename() public view override returns (string memory) {
         string memory root = vm.projectRoot();
-        root = string.concat(root, "scripts/ops/fix/FixRemoveMesh/txs/FixRemoveMesh-");
+        root = string.concat(root, "/scripts/ops/fix/FixRemoveMesh/txs/FixRemoveMesh-");
         
         string memory name = string.concat(simulateConfig.chainid.toString(), ".json");
         

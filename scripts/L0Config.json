@@ -1,7 +1,7 @@
 {
     "Legacy": [
         {
-            "RPC": "https://ethereum-rpc.publicnode.com",
+            "RPC": "https://eth-mainnet.public.blastapi.io",
             "chainid": 1,
             "delegate": "0xB1748C79709f4Ba2Dd82834B8c82D4a505003f27",
             "dvnHorizen": "0x589dEDbD617e0CBcB916A9223F4d1300c294236b",
@@ -179,7 +179,7 @@
             "sendLib302": "0x28B6140ead70cb2Fb669705b3598ffB4BEaA060b"
         },
         {
-            "RPC": "https://ethereum-rpc.publicnode.com",
+            "RPC": "https://eth-mainnet.public.blastapi.io",
             "chainid": 1,
             "delegate": "0xB1748C79709f4Ba2Dd82834B8c82D4a505003f27",
             "dvnHorizen": "0x589dEDbD617e0CBcB916A9223F4d1300c294236b",
@@ -256,7 +256,7 @@
             "sendLib302": "0xC39161c743D0307EB9BCc9FEF03eeb9Dc4802de7"
         },
         {
-            "RPC": "https://rpc.btxtestchain.com",
+            "RPC": "https://rpc.botanixlabs.com",
             "chainid": 3637,
             "delegate": "0x6f8FDdfD4F6a1456BA5632C919bEF74b64DD032D",
             "dvnHorizen": "0x0000000000000000000000000000000000000000",

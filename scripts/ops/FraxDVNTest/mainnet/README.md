@@ -97,6 +97,170 @@ abstract to Unichain : https://layerzeroscan.com/tx/0x079060b736bb5c8074f371f2c5
 
 worldchain : https://layerzeroscan.com/tx/0x0662527651bcc375230985fdb1da1bd736d67b7df5228960daa3a74b42522618
 
+## Non-EVM frax DVN test
+
 ### EVM to movement/aptos/solana
 
-fraxtal : https://layerzeroscan.com/tx/0x0deee80bc8a98e415a77947ddc03e02c02d5d19577aa0f7f977d49c3cdd49c9f
+* fraxtal : https://layerzeroscan.com/tx/0x0deee80bc8a98e415a77947ddc03e02c02d5d19577aa0f7f977d49c3cdd49c9f
+
+* ethereum : https://layerzeroscan.com/tx/0x3eefd91fb7027bdc9b936c4c4b6393d012cf2d206ed2a86d63ec701ea150ea89
+
+* blast : https://layerzeroscan.com/tx/0x65b231c989d92bd6d08f0bcdd75f81a39188b71a7c95b949b01b24583cf5fdaa
+
+* base : https://layerzeroscan.com/tx/0xc3f36c64bd413e12e7f5e3a2bcc6ba79b58414701d71ea134da7a723c67ccd4d
+
+* mode : https://layerzeroscan.com/tx/0x2f8619a3cbf421041b3ef19bb0d4af1e75c7000c82352320ebc946f0cd99563e
+
+* sei : https://layerzeroscan.com/tx/0x2c6c0541959dbdf83921ba43f54f76ee240ea62499b1e1c75b9957c7dd6254a4 (not peered to movement)
+
+* xlayer : https://layerzeroscan.com/tx/0x24042022024034030fdd3e43b7b41753836faf15aa0dc8f381f75437a9f38001 (not peered to movement)
+
+* sonic : https://layerzeroscan.com/tx/0x40cf72a4b49c53caebb9e2d26827ce70554b48c5a4013187fa04bcb5a106ad42
+
+* ink : https://layerzeroscan.com/tx/0x7c48a4eb5dd353b85d2c84f619b6c177a62fe25d9b8475c8cea79bfc00e59422 (not peered to aptos)
+
+* arbitrum : https://layerzeroscan.com/tx/0x945de491ac7df337181161a54337d7b0e4e5c343f1f6bede75a5ba8df16a90c3 
+
+* optimism : https://layerzeroscan.com/tx/0xbb0535ffbf717f15939d50abfd7e1169bd204d3413ad65e6c9ef8b8f0b7e476c
+
+* polygon : https://layerzeroscan.com/tx/0x5c4c2a12c1fca3c9595da89f5020e3d11f40f91092e6386556d376111ffa8f5c
+
+* avalanche : https://layerzeroscan.com/tx/0x35feee45a2de2559ab9a7440b694fe6103602a82de3b16b013eccfecf4300671
+
+* bnb : https://layerzeroscan.com/tx/0x3d53899b21bc62d9131af71b172a0d62fac9369f733624e327254fb40c20ee87
+
+* zkpolygon : https://layerzeroscan.com/tx/0xadd00296ecfa22cd2be5b7301af143340c9d2a26f21b7fcd4f27cb8f1955a056 (not peered to aptos)
+
+* berachain : https://layerzeroscan.com/tx/0x34391e60de136dcb19c2df1e6c9552e68c574d52b59f119ab47ae0a5726fda40
+
+* linea : https://layerzeroscan.com/tx/0x3dfe5e706252b2c265d1a044e12f739451dd899290319ad35ccbc7281cb1e568
+
+* worldchain : https://layerzeroscan.com/tx/0x4ca369f9cda9e235ccfcf1fba7da2e7fa3fe80f2a296e1dadbe662da73ebf5f7 (not peered to aptos/movement)
+
+* zksync : https://layerzeroscan.com/tx/0xe919e842c837f86f2ba79c1ce5aeea9174741c375d88af1533b51ad34a09d64e
+
+* abstract : https://layerzeroscan.com/tx/0x418a007b58c8ab8413298b088ab6e4c211bc244b855c14ae94eb87c4fb93deb7 (not peered to aptos)
+
+* unichain : https://layerzeroscan.com/tx/0xa1028f2c0937f32cf88ae3a9c857a6e78f0fff03a2840090378afc5dd495bd10 (not peered to movement)
+
+### aptos to EVM
+
+* fraxtal : https://layerzeroscan.com/tx/0xfe7c2f7872b8210e283e836b1db825dab2b6536c4219f2ffdf175fbf7e7380d1
+
+* ethereum : https://layerzeroscan.com/tx/0x3f61a4bf4aad379a8cec1643e2b98335206a7d5547036d991b51ba464c7a01d9
+
+* blast : https://layerzeroscan.com/tx/0x4e0bc7ae014e208f94a97c8903098d38fbd01f755255d57d843af46ca894798b
+
+* mode : https://layerzeroscan.com/tx/0x2483a812c3b0815e03fd710c7b03ca276d575701d5f9ffb4ae5f1e1c40cc79ec
+
+* sei : https://layerzeroscan.com/tx/0x9db00afb237b1a316e297618a849e7654cd04af877c672554acb1adfd858f8e1
+
+* xlayer : https://layerzeroscan.com/tx/0xdff2e0eebf124af0876454804a0866490f230bc01be659130bfbc90e8691eb8a
+
+* sonic : https://layerzeroscan.com/tx/0x3201903a3dcbadbbdaf26e80d2205e03fb6a279e835eea9a88c4cb40511b1f37
+
+* arbitrum : https://layerzeroscan.com/tx/0xc4c130968bef237e15151986b5248f297d21af32d04499b8fc4ef6d689cb50e6
+
+* optimism : https://layerzeroscan.com/tx/0xe1739adaf1ddafa61d716707d31c8f00b6aac8f0f7b4fe1ccc1181dcb04cf731
+
+* polygon : https://layerzeroscan.com/tx/0xe3c75b40e0e532657eae62c177c6ad86e00810065328e649ad84945126ae2f02
+
+* avalanche : https://layerzeroscan.com/tx/0x1357ed2d6f2a2e13130a3163b615a1207ab95c8e821a4f605d8bf8a7ff26cea9
+
+* bnb : https://layerzeroscan.com/tx/0x59331c6c3c8b3e6a97dfa97160f885b6b2732af67acf3beab850487ee05cbb62
+
+* berachain : https://layerzeroscan.com/tx/0xdacacfb19127ab74285faf0c38bdc84dc2612c346abe29ed5a4d67740046b699
+
+* linea : https://layerzeroscan.com/tx/0xd738f5bd065aff708092af30b790487731f5688bc23436170ec3d529f852a4e3
+
+* zksync : https://layerzeroscan.com/tx/0x87f50562086ff1394dc4e588862f7111aa454d38421b683798e98ba78aecc128
+
+* unichain : https://layerzeroscan.com/tx/0xf1ec2b69251051d6056a3ee928bd7459552d8fd765d51e6f7789b5242bf8c2c6
+
+* solana : https://layerzeroscan.com/tx/0x5051f02e15bcf4e80d1a9b27489d6c6a120bcf5e99baa7af18755f4e25e5cdc2
+
+### movement to EVM
+
+* fraxtal : https://layerzeroscan.com/tx/0x5a3abb733c62b9713110adde4568f689be5bb69cca79d55f374b754ae7025942
+
+* ethereum : 
+
+* blast : https://layerzeroscan.com/tx/0x93064f459a339c02d9f99339cc34db00fb0b197f278007b02e5b38177ad7cacf
+
+* base : https://layerzeroscan.com/tx/0xdea8756035d720ef1a09d9439ac97d6d8fc1270a2468e0578590c9483c1db1a9
+
+* mode : https://layerzeroscan.com/tx/0xd80f4e9df9ebfdbbf903e5b8acec1f86d47ea0ff4caba6a5341cdde1b7d9c570
+
+* sonic : https://layerzeroscan.com/tx/0xbb0d3d2db7607273cadfffcd3579c4a663c5bec9c815a1daf9df9ef176eef0d8
+
+* ink : 
+
+* arbitrum : https://layerzeroscan.com/tx/0x9f0d799a4dd81b50dd5670b631f9bc8b6caf47336cc93760b74502ef2836dde9
+
+* optimism : https://layerzeroscan.com/tx/0x8a0c868b22c859e80c58469fac7053150c23c8f14e8b2ab6edbdc84de1c5d92b
+
+* polygon : 
+
+* avalanche : https://layerzeroscan.com/tx/0x7cd6f3a6e81f7e601259a227733f9a582966ff6f28eb20543653baa2ebd96e69
+
+* bnb : 
+
+* zkpolygon : https://layerzeroscan.com/tx/0xa20a78923b4005ef7503d642ea18f7d5b62862b16fad33a909e943c619a6a1f3
+
+* berachain : https://layerzeroscan.com/tx/0xd3cedd8fd4bb9a3e5529c14adc9b2c42272b6b34d65938ad9ac69f24d617f784
+
+* linea : https://layerzeroscan.com/tx/0x05c98ad561c4392f62cccd89a3b185c6b72b4214a6bfdd899f6ae90122ca9f37
+
+* zksync : 
+
+* abstract : https://layerzeroscan.com/tx/0x2e8d6da7eae86d0a8ce930afb9cfded818e2a5781a310db610ab932459885ada
+
+* solana : https://layerzeroscan.com/tx/0x84cc470a5fa4dfd2e2124e19e38c0b07a5bce511b311ef724825226a097eca1d
+
+### solana to EVM
+
+* fraxtal : 
+
+* ethereum : 
+
+* blast : 
+
+* base : 
+
+* mode : 
+
+* sei : 
+
+* xlayer : 
+
+* sonic : 
+
+* ink :
+
+* arbitrum :  
+
+* optimism : 
+
+* polygon : 
+
+* avalanche : 
+
+* bnb : 
+
+* zkpolygon : 
+
+* berachain : 
+
+* linea : 
+
+* worldchain :
+
+* zksync : 
+
+* abstract :
+
+* unichain :
+
+* aptos : 
+
+* movement : 

@@ -287,6 +287,17 @@
             "endpoint": "0xd07C30aF3Ff30D96BDc9c6044958230Eb797DDBF",
             "receiveLib302": "0x04830f6deCF08Dec9eD6C3fCAD215245B78A59e1",
             "sendLib302": "0x07fD0e370B49919cA8dA0CE842B8177263c0E12c"
+        },
+        {
+            "RPC": "https://rpc.plume.org",
+            "chainid": 98866,
+            "delegate": "0x66716ae60898dD4479B52aC4d92ef16C1821f420",
+            "dvnHorizen": "0x5e0744f8fbf26446c683bcf4cd405ad56ba76f8a",
+            "dvnL0": "0x5e0744f8fbf26446c683bcf4cd405ad56ba76f8a",
+            "eid": 30370,
+            "endpoint": "0xC1b15d3B262bEeC0e3565C11C9e0F6134BdaCB36",
+            "receiveLib302": "0x5B19bd330A84c049b62D5B0FC2bA120217a18C1C",
+            "sendLib302": "0xFe7C30860D01e28371D40434806F4A8fcDD3A098"
         }
     ],
     "Non-EVM": [

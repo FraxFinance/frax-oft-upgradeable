@@ -217,13 +217,14 @@
         ],
         "quorum": 2
     },
-    "33333333": {
+    "solana": {
         "uris": [
-            "https://api.mainnet-beta.solana.com"
+            "https://api.mainnet-beta.solana.com",
+            "https://rpc.ankr.com/solana"
         ],
         "quorum": 2
     },
-    "111111111": {
+    "aptos": {
         "uris": [
             "https://fullnode.mainnet.aptoslabs.com/v1",
             "https://1rpc.io/aptos/v1",
@@ -231,7 +232,7 @@
         ],
         "quorum": 2
     },
-    "22222222": {
+    "movement": {
         "uris": [
             "https://mainnet.movementnetwork.xyz/v1",
             "https://movement.lava.build"

@@ -219,7 +219,8 @@
     },
     "solana": {
         "uris": [
-            "https://api.mainnet-beta.solana.com"
+            "https://api.mainnet-beta.solana.com",
+            "https://rpc.ankr.com/solana"
         ],
         "quorum": 2
     },

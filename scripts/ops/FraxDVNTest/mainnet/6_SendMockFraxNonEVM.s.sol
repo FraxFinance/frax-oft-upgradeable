@@ -8,26 +8,26 @@ import { SendParam, OFTReceipt, MessagingFee, IOFT } from "@fraxfinance/layerzer
 import { FraxOFTUpgradeable } from "contracts/FraxOFTUpgradeable.sol";
 
 // fraxtal : forge script scripts/ops/FraxDVNTest/mainnet/6_SendMockFraxNonEVM.s.sol --rpc-url https://rpc.frax.com --broadcast
-// ethereum : forge script scripts/ops/FraxDVNTest/mainnet/5_SendMockFrax.s.sol --rpc-url https://ethereum-rpc.publicnode.com --broadcast
-// blast : forge script scripts/ops/FraxDVNTest/mainnet/5_SendMockFrax.s.sol --rpc-url https://rpc.blast.io --broadcast
-// base : forge script scripts/ops/FraxDVNTest/mainnet/5_SendMockFrax.s.sol --rpc-url https://mainnet.base.org --broadcast
-// mode : forge script scripts/ops/FraxDVNTest/mainnet/5_SendMockFrax.s.sol --rpc-url https://mainnet.mode.network/ --broadcast
-// sei : forge script scripts/ops/FraxDVNTest/mainnet/5_SendMockFrax.s.sol --rpc-url https://evm-rpc.sei-apis.com --broadcast
-// TODO: pending txn, xlayer : forge script scripts/ops/FraxDVNTest/mainnet/5_SendMockFrax.s.sol --rpc-url https://mainnet.xlayer-rpc.com --legacy --broadcast
-// sonic : forge script scripts/ops/FraxDVNTest/mainnet/5_SendMockFrax.s.sol --rpc-url https://rpc.soniclabs.com/ --broadcast
-// ink : forge script scripts/ops/FraxDVNTest/mainnet/5_SendMockFrax.s.sol --rpc-url https://rpc-gel.inkonchain.com --broadcast
-// arbitrum : forge script scripts/ops/FraxDVNTest/mainnet/5_SendMockFrax.s.sol --rpc-url https://arb1.arbitrum.io/rpc --broadcast
-// op : forge script scripts/ops/FraxDVNTest/mainnet/5_SendMockFrax.s.sol --rpc-url https://optimism-mainnet.public.blastapi.io --broadcast
-// polygon : forge script scripts/ops/FraxDVNTest/mainnet/5_SendMockFrax.s.sol --rpc-url https://polygon-rpc.com --broadcast
-// avalanche : forge script scripts/ops/FraxDVNTest/mainnet/5_SendMockFrax.s.sol --rpc-url https://api.avax.network/ext/bc/C/rpc --broadcast
-// bnb : forge script scripts/ops/FraxDVNTest/mainnet/5_SendMockFrax.s.sol --rpc-url https://neat-lingering-orb.bsc.quiknode.pro/a9e1547db6f8261bf94f92603eec0cc3d0c66605 --broadcast
-// zkpolygon : forge script scripts/ops/FraxDVNTest/mainnet/5_SendMockFrax.s.sol --rpc-url https://zkevm-rpc.com --broadcast
-// berachain : forge script scripts/ops/FraxDVNTest/mainnet/5_SendMockFrax.s.sol --rpc-url https://rpc.berachain.com --broadcast
-// linea : forge script scripts/ops/FraxDVNTest/mainnet/5_SendMockFrax.s.sol --rpc-url https://rpc.linea.build --broadcast --evm-version paris
-// worldchain : forge script scripts/ops/FraxDVNTest/mainnet/5_SendMockFrax.s.sol --rpc-url https://worldchain-mainnet.g.alchemy.com/public --broadcast
-// zksync era : forge script scripts/ops/FraxDVNTest/mainnet/5_SendMockFrax.s.sol --rpc-url https://mainnet.era.zksync.io --zksync // Note: this was performed directly on etherscan
-// abstract : forge script scripts/ops/FraxDVNTest/mainnet/5_SendMockFrax.s.sol --rpc-url https://api.mainnet.abs.xyz --zksync  // Note: this was performed directly on etherscan
-// unichain : forge script scripts/ops/FraxDVNTest/mainnet/5_SendMockFrax.s.sol --rpc-url https://mainnet.unichain.org --broadcast
+// ethereum : forge script scripts/ops/FraxDVNTest/mainnet/6_SendMockFraxNonEVM.s.sol --rpc-url https://ethereum-rpc.publicnode.com --broadcast
+// blast : forge script scripts/ops/FraxDVNTest/mainnet/6_SendMockFraxNonEVM.s.sol --rpc-url https://rpc.blast.io --broadcast
+// base : forge script scripts/ops/FraxDVNTest/mainnet/6_SendMockFraxNonEVM.s.sol --rpc-url https://mainnet.base.org --broadcast
+// mode : forge script scripts/ops/FraxDVNTest/mainnet/6_SendMockFraxNonEVM.s.sol --rpc-url https://mainnet.mode.network/ --broadcast
+// sei : forge script scripts/ops/FraxDVNTest/mainnet/6_SendMockFraxNonEVM.s.sol --rpc-url https://evm-rpc.sei-apis.com --broadcast
+// xlayer : forge script scripts/ops/FraxDVNTest/mainnet/6_SendMockFraxNonEVM.s.sol --rpc-url https://mainnet.xlayer-rpc.com --legacy --broadcast
+// sonic : forge script scripts/ops/FraxDVNTest/mainnet/6_SendMockFraxNonEVM.s.sol --rpc-url https://rpc.soniclabs.com/ --broadcast
+// ink : forge script scripts/ops/FraxDVNTest/mainnet/6_SendMockFraxNonEVM.s.sol --rpc-url https://rpc-gel.inkonchain.com --broadcast
+// arbitrum : forge script scripts/ops/FraxDVNTest/mainnet/6_SendMockFraxNonEVM.s.sol --rpc-url https://arb1.arbitrum.io/rpc --broadcast
+// op : forge script scripts/ops/FraxDVNTest/mainnet/6_SendMockFraxNonEVM.s.sol --rpc-url https://optimism-mainnet.public.blastapi.io --broadcast
+// polygon : forge script scripts/ops/FraxDVNTest/mainnet/6_SendMockFraxNonEVM.s.sol --rpc-url https://polygon-rpc.com --broadcast
+// avalanche : forge script scripts/ops/FraxDVNTest/mainnet/6_SendMockFraxNonEVM.s.sol --rpc-url https://api.avax.network/ext/bc/C/rpc --broadcast
+// bnb : forge script scripts/ops/FraxDVNTest/mainnet/6_SendMockFraxNonEVM.s.sol --rpc-url https://neat-lingering-orb.bsc.quiknode.pro/a9e1547db6f8261bf94f92603eec0cc3d0c66605 --broadcast
+// zkpolygon : forge script scripts/ops/FraxDVNTest/mainnet/6_SendMockFraxNonEVM.s.sol --rpc-url https://zkevm-rpc.com --broadcast
+// berachain : forge script scripts/ops/FraxDVNTest/mainnet/6_SendMockFraxNonEVM.s.sol --rpc-url https://rpc.berachain.com --broadcast
+// linea : forge script scripts/ops/FraxDVNTest/mainnet/6_SendMockFraxNonEVM.s.sol --rpc-url https://rpc.linea.build --broadcast --evm-version paris
+// worldchain : forge script scripts/ops/FraxDVNTest/mainnet/6_SendMockFraxNonEVM.s.sol --rpc-url https://worldchain-mainnet.g.alchemy.com/public --broadcast
+// zksync era : forge script scripts/ops/FraxDVNTest/mainnet/6_SendMockFraxNonEVM.s.sol --rpc-url https://mainnet.era.zksync.io --zksync // Note: this was performed directly on etherscan
+// abstract : forge script scripts/ops/FraxDVNTest/mainnet/6_SendMockFraxNonEVM.s.sol --rpc-url https://api.mainnet.abs.xyz --zksync  // Note: this was performed directly on etherscan
+// unichain : forge script scripts/ops/FraxDVNTest/mainnet/6_SendMockFraxNonEVM.s.sol --rpc-url https://mainnet.unichain.org --broadcast
 
 contract SendMockFrax is BaseL0Script {
     // 1,81457,8453,34443,1329,252,196,146,57073,42161,10,137,43114,56,1101,80094,480,130
@@ -43,7 +43,7 @@ contract SendMockFrax is BaseL0Script {
     address public constant mockFraxLinea = 0x6185334f1542a9966CbaD694577fFbede3DD1f1F;
     address public constant mockFraxLineaWallet = 0xD555D90A6b23B285575cd6192D972e35F70b5B89;
 
-    uint256 amount = 0.1 ether;
+    uint256 amount = 1 ether;
 
     SendParam[] public sendParams;
     IOFT[] public ofts;

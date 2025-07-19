@@ -44,6 +44,7 @@ import { FraxOFTWalletUpgradeable } from "contracts/FraxOFTWalletUpgradeable.sol
 // unichain : verify TransparentUpgradeableProxy : forge verify-contract 0x57558Cb8d6005DE0BAe8a2789d5EfaaE52dba5a8 ./node_modules/@fraxfinance/layerzero-v2-upgradeable/messagelib/contracts/upgradeable/proxy/TransparentUpgradeableProxy.sol:TransparentUpgradeableProxy --constructor-args $(cast abi-encode "constructor(address,address,bytes)" 0x01c9C9aD9FCF0Be1Bb028A503DA27BaE1eEe8205 0x45DCE8e4F2Dc005A5F28206A46cb034697eEDA8e 0x)  --chain-id 130 --watch --verifier etherscan --etherscan-api-key $UNISCAN_API_KEY
 // unichain : verify FraxOFTWalletUpgradeable : forge verify-contract 0x5b9d960752963c92317b76adacfcc104f69f31a7 ./contracts/FraxOFTWalletUpgradeable.sol:FraxOFTWalletUpgradeable  --chain-id 130 --watch --verifier etherscan --etherscan-api-key $UNISCAN_API_KEY
 // unichain : verify TransparentUpgradeable : forge verify-contract 0x741F0d8Bde14140f62107FC60A0EE122B37D4630 ./node_modules/@fraxfinance/layerzero-v2-upgradeable/messagelib/contracts/upgradeable/proxy/TransparentUpgradeableProxy.sol:TransparentUpgradeableProxy --constructor-args $(cast abi-encode "constructor(address,address,bytes)" 0x01c9C9aD9FCF0Be1Bb028A503DA27BaE1eEe8205 0x45DCE8e4F2Dc005A5F28206A46cb034697eEDA8e 0x)  --chain-id 130 --watch --verifier etherscan --etherscan-api-key $UNISCAN_API_KEY
+// plumephoenix : forge script ./scripts/ops/FraxDVNTest/mainnet/1b_DeployMockFrax.s.sol --rpc-url https://rpc.plume.org --verifier-url $PLUMEPHOENIX_BLOCKSCOUT_API_URL --verifier blockscout --verify --broadcast
 
 contract DeployMockFrax is DeployFraxOFTProtocol {
     address[] public proxyOftWallets;
@@ -51,6 +52,24 @@ contract DeployMockFrax is DeployFraxOFTProtocol {
 
     function run() public override {
         deploySource();
+    }
+
+    function preDeployChecks() public view override {
+        for (uint256 e = 0; e < allConfigs.length; e++) {
+            uint256 eid = allConfigs[e].eid;
+            // source and dest eid cannot be same
+            if (eid == broadcastConfig.eid) continue;
+            if (broadcastConfig.eid == 30370) {
+                // L0 team has not setup defaultSendLibrary and defaultReceiveLibrary on plumephoenix for
+                // 30274 (x-layer), polygon zkevm (30158), worldchain (30319), zksync (30165), movement (30325)
+                // and aptos (30108)
+                if (eid == 30274 || eid == 30158 || eid == 30319 || eid == 30165 || eid == 30325 || eid == 30108) continue; 
+            } 
+            require(
+                IMessageLibManager(broadcastConfig.endpoint).isSupportedEid(uint32(allConfigs[e].eid)),
+                "L0 team required to setup `defaultSendLibrary` and `defaultReceiveLibrary` for EID"
+            );
+        }
     }
 
     function postDeployChecks() internal view override {

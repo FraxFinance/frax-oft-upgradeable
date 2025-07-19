@@ -157,6 +157,11 @@ const config: HardhatUserConfig = {
             url: process.env.RPC_URL_ZKSYNC || 'https://mainnet.era.zksync.io',
             accounts,
         },
+        "plumephoenix":{
+            eid: EndpointId.PLUMEPHOENIX_V2_MAINNET,
+            url: process.env.RPC_URL_PLUMEPHOENIX || 'https://rpc.plume.org',
+            accounts,
+        },
         sepolia: {
             eid: EndpointId.SEPOLIA_V2_TESTNET,
             url: process.env.RPC_URL_SEPOLIA || 'https://rpc.sepolia.org/',

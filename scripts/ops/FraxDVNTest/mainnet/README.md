@@ -259,8 +259,48 @@ worldchain : https://layerzeroscan.com/tx/0x0662527651bcc375230985fdb1da1bd736d6
 
 * abstract : https://layerzeroscan.com/tx/21WgkfYdjz4pMBZ7R2bemhmspSKgktZEYcSbh13YtDfdP3ZjdXV9RoiFHHibtBaooXKSQpspbBUQCMxCc4z67rY1
 
-* unichain : 
+* unichain : https://layerzeroscan.com/tx/5UnT6JNvhNgqs4oWzDJkjFzGj1EFSht8myQNwK59pSayd1nHjqkqEHBzpKbamJHPJB9dQdZqAu1VHuj2wwPhFc63
 
 * aptos : https://layerzeroscan.com/tx/4c3NjT8DDYXN9mgwBXY4hr7DiADT16QX8yGi2HZ8q1HQgpCNrwF3ix55HNQpnaFFVMwaU5qspgMQB2ZZePk9eSwZ
 
 * movement : https://layerzeroscan.com/tx/414mUi1Lg56ibqnBDPHnZkVxwFu7N9udwSqkHzGhYKG124Tdx92KzPGfzR6NKCrUDRgmBvmnbiVrEEyDfA2p31yv
+
+## PlumePhoenix
+
+* fraxtal : https://layerzeroscan.com/tx/0x02ef2d5c8bf9a5efd49575fb3680a29c8dfa5b080a7fd0eb8b63ed1a045fba51
+
+* ethereum : https://layerzeroscan.com/tx/0xc61e9a05a5225cd48762dee03bf28d24f23978a1ef5271a4f78163ce4aaace72
+
+* blast : https://layerzeroscan.com/tx/0x5501bf1a58678be6a5b93c0c48e4f2450a2cb1a740782a0820fdb1b0747498e3
+
+* base : https://layerzeroscan.com/tx/0x6c2468618682f530eb036cf1b65156340d21f0f3474d593f42f5b336d4f785fe
+
+* mode : https://layerzeroscan.com/tx/0xdb674d0fdc7917e80fd1a31c25ee012d164bf06e0a2a3c3a5668a76968555828
+
+* sei : https://layerzeroscan.com/tx/0x3955314d894d53ef26a1718aafc2b172ce910464dde31f35acc4c5d090c37cb1
+
+* sonic : https://layerzeroscan.com/tx/0xeca54945c9104240ad25ff1c57151ff8ae29a4918fab99007bdb8deea9eedbeb
+
+* ink : https://layerzeroscan.com/tx/0xd81e0a79b5b03f71bbf5b501ae6344d2c6b96a878cd329a32f3d4ed27235908b
+
+* arbitrum : https://layerzeroscan.com/tx/0xb878e88ed2976f5dc0ba376e144ae37f4b4cd540ca7620e90ce4e8511630f069
+
+* Optimism : https://layerzeroscan.com/tx/0xc4d2fd925ec182e8c2213a0483021dcbf1441e0bdd5206f0aacece356b7c2bca
+
+* Polygon : https://layerzeroscan.com/tx/0x6486fa17a2f69dc8c49084cacf68003133ee31b36dea1842184a88067f24807e
+
+* Avalanche : https://layerzeroscan.com/tx/0x3b80b589b6dce18ef9048140da2cb8216a079b9d10e17b0683cdada6684f69a5
+
+* Bsc : https://layerzeroscan.com/tx/0xfcd46204c07427b59de51c4cb003729d3bd96d9d72223a5197df2fc054816511
+
+* Berachain : https://layerzeroscan.com/tx/0xc0ea95cb1be0418dc8183ff797b25cbdae920511eb9f177903aede1ae186a92c
+
+* linea : https://layerzeroscan.com/tx/0x4931758beeb0980d0425e132e77c0bff3d0d65a3774b110268ef8fa61d9d7d80
+
+* abstract : https://layerzeroscan.com/tx/0xa25ddc99db3c686d865800e902c1ad77e9865b6ce2df4692b49d05adb15d5331
+
+* unichain : https://layerzeroscan.com/tx/0x1afad8b5b18fe4853b4aa162d1d6e6c5043f9f2bd145537766943b057764479d
+
+* solana : https://layerzeroscan.com/tx/2YgNhJSSWr16MufMhbDcuYuBPcNYPJYUWpXo5nZR3btvmmVnAXnPxm7KgA2BgLZ3oQxhhB5p7XR7A7xj2KHQjqAx
+
+* plumephoenix : https://layerzeroscan.com/tx/0x97d9b420c5ca5253ae56d2956bfa55a95948e703977410c47cacdb85d797ea53

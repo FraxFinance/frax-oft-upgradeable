@@ -68,7 +68,7 @@ const config = {
                 sendConfig: {
                     ulnConfig: {
                         confirmations: BigInt(32),
-                        requiredDVNs: ["5SBjhryFdSwrmVfm9GFJu5GhKDiphLQbay3GTfx9ArUt", "HR9NQKK1ynW9NzgdM37dU5CBtqRHTukmbMKS7qkwSkHX", "4VDjp6XQaxoZf5RGwiPU9NR1EXSZn2TP4ATMmiSzLfhb"],
+                        requiredDVNs: ["6YB63FDuyYLt5gnJeiVmYRE4c6tFid5SrBZzMLQFfexm", "HR9NQKK1ynW9NzgdM37dU5CBtqRHTukmbMKS7qkwSkHX", "4VDjp6XQaxoZf5RGwiPU9NR1EXSZn2TP4ATMmiSzLfhb"],
                         optionalDVNs: [],
                         optionalDVNThreshold: 0,
                     },
@@ -78,7 +78,7 @@ const config = {
                 receiveConfig: {
                     ulnConfig: {
                         confirmations: BigInt(5),
-                        requiredDVNs: ["5SBjhryFdSwrmVfm9GFJu5GhKDiphLQbay3GTfx9ArUt", "HR9NQKK1ynW9NzgdM37dU5CBtqRHTukmbMKS7qkwSkHX", "4VDjp6XQaxoZf5RGwiPU9NR1EXSZn2TP4ATMmiSzLfhb"],
+                        requiredDVNs: ["6YB63FDuyYLt5gnJeiVmYRE4c6tFid5SrBZzMLQFfexm", "HR9NQKK1ynW9NzgdM37dU5CBtqRHTukmbMKS7qkwSkHX", "4VDjp6XQaxoZf5RGwiPU9NR1EXSZn2TP4ATMmiSzLfhb"],
                         optionalDVNs: [],
                         optionalDVNThreshold: 0,
                     },
@@ -111,7 +111,7 @@ const config = {
                 sendConfig: {
                     ulnConfig: {
                         confirmations: BigInt(32),
-                        requiredDVNs: ["5SBjhryFdSwrmVfm9GFJu5GhKDiphLQbay3GTfx9ArUt", "HR9NQKK1ynW9NzgdM37dU5CBtqRHTukmbMKS7qkwSkHX", "4VDjp6XQaxoZf5RGwiPU9NR1EXSZn2TP4ATMmiSzLfhb"],
+                        requiredDVNs: ["6YB63FDuyYLt5gnJeiVmYRE4c6tFid5SrBZzMLQFfexm", "HR9NQKK1ynW9NzgdM37dU5CBtqRHTukmbMKS7qkwSkHX", "4VDjp6XQaxoZf5RGwiPU9NR1EXSZn2TP4ATMmiSzLfhb"],
                         optionalDVNs: [],
                         optionalDVNThreshold: 0,
                     },
@@ -121,7 +121,7 @@ const config = {
                 receiveConfig: {
                     ulnConfig: {
                         confirmations: BigInt(5),
-                        requiredDVNs: ["5SBjhryFdSwrmVfm9GFJu5GhKDiphLQbay3GTfx9ArUt", "HR9NQKK1ynW9NzgdM37dU5CBtqRHTukmbMKS7qkwSkHX", "4VDjp6XQaxoZf5RGwiPU9NR1EXSZn2TP4ATMmiSzLfhb"],
+                        requiredDVNs: ["6YB63FDuyYLt5gnJeiVmYRE4c6tFid5SrBZzMLQFfexm", "HR9NQKK1ynW9NzgdM37dU5CBtqRHTukmbMKS7qkwSkHX", "4VDjp6XQaxoZf5RGwiPU9NR1EXSZn2TP4ATMmiSzLfhb"],
                         optionalDVNs: [],
                         optionalDVNThreshold: 0,
                     },

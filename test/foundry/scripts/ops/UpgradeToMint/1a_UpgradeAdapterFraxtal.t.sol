@@ -1,7 +1,13 @@
 pragma solidity ^0.8.0;
 
-import "scripts/ops/UpgradeToMint/1_UpgradeAdapter.s.sol";
+import "scripts/ops/UpgradeToMint/1a_UpgradeAdapterFraxtal.s.sol";
 import "frax-std/FraxTest.sol";
+
+struct Origin {
+    uint32 srcEid;
+    bytes32 sender;
+    uint64 nonce;
+}
 
 interface IOAppReceiver {
     function lzReceive(
@@ -17,6 +23,12 @@ contract UpgradeAdapterTest is UpgradeAdapter, FraxTest {
     using OptionsBuilder for bytes;
 
     address bob = vm.addr(0xb0b);
+    // Set mock supply for testing
+    uint32 eid = 30101; // Example EID
+    uint256 mockTotalSupply = 100e18;
+    uint256 mockTotalTransferFrom = 50e18;
+    uint256 mockTotalTransferTo = 50e18;
+
 
     function setUp() public override {
         vm.createSelectFork("https://rpc.frax.com", 22382257);
@@ -38,6 +50,8 @@ contract UpgradeAdapterTest is UpgradeAdapter, FraxTest {
     }
 
     function validateUpgrade(address token, address lockbox) internal {
+        _setMockSupply(lockbox);
+
         _testRecover(token, lockbox);
         _testSend(token, lockbox);
         _testReceive(token, lockbox);
@@ -60,6 +74,16 @@ contract UpgradeAdapterTest is UpgradeAdapter, FraxTest {
             0,
             "Lockbox balance should be zero after recover"
         );
+    }
+
+    function _setMockSupply(address lockbox) internal {
+        vm.prank(broadcastConfig.delegate);
+        FraxOFTMintableAdapterUpgradeable(lockbox).setTotals({
+            _eid: eid,
+            _totalSupply: mockTotalSupply,
+            _totalTransferFrom: mockTotalTransferFrom,
+            _totalTransferTo: mockTotalTransferTo
+        });
     }
 
     function _testSend(address token, address lockbox) internal {
@@ -104,6 +128,16 @@ contract UpgradeAdapterTest is UpgradeAdapter, FraxTest {
             totalSupplyBefore - amount,
             "Total supply should decrease after send"
         );
+        assertEq(
+            FraxOFTMintableAdapterUpgradeable(lockbox).totalSupply(eid),
+            mockTotalSupply + amount,
+            "Total supply on target chain should increase"
+        );
+        assertEq(
+            FraxOFTMintableAdapterUpgradeable(lockbox).totalTransferTo(eid),
+            mockTotalTransferTo + amount,
+            "Total transfer to should increase"
+        );
     }
 
     function _testReceive(address token, address lockbox) internal {
@@ -112,8 +146,8 @@ contract UpgradeAdapterTest is UpgradeAdapter, FraxTest {
         uint256 totalSupplyBefore = IERC20(token).totalSupply();
 
         Origin memory origin = Origin({
-            srcEid: uint32(30101),
-            sender: IOAppCore(lockbox).peers(uint32(30101)),
+            srcEid: eid,
+            sender: IOAppCore(lockbox).peers(eid),
             nonce: 1
         });
 
@@ -142,6 +176,16 @@ contract UpgradeAdapterTest is UpgradeAdapter, FraxTest {
             IERC20(token).totalSupply(),
             totalSupplyBefore + amount,
             "Total supply should increase after receive"
+        );
+        assertEq(
+            FraxOFTMintableAdapterUpgradeable(lockbox).totalSupply(eid),
+            mockTotalSupply, // was previously mockTotalSupply + amount from _testSend()
+            "Total supply on source chain should decrease"
+        );
+        assertEq(
+            FraxOFTMintableAdapterUpgradeable(lockbox).totalTransferFrom(eid),
+            mockTotalTransferFrom + amount,
+            "Total transfer from should increase"
         );
     }
 }

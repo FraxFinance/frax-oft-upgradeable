@@ -15,6 +15,7 @@ function main() {
     console.log("sfrxETH ", makeBytes32(bs58.decode("DsJYjDF5yVSopMC15q9W42v833MhWGhCxcU2J39oS3wN")))
     console.log("frax ", makeBytes32(bs58.decode("5vqBiG7nxNnoCst8mEVVS6ax7C1ypEEenPfcZ4kLgj9B")))
     console.log("fpi ", makeBytes32(bs58.decode("FFozEKoFQ1CZD6Kn7bpwAxaWhK1jEA76pjucvBBHf9ZH")))
+    console.log("wallet ", makeBytes32(bs58.decode("53dNdHXc7uruWqELhWtpx4f4UvpPk5SaT1upQNoKdi7y")))
     // encode base58
     console.log(bs58.encode(Buffer.from("020101043c1b094729102e0c095ee2417e5940ee4f1eab4763f6113fe75281ab74c62398d686ca6c5f329a8001280fc5746b81b4d7adbe81cd03aecb55686030d04386903290f7cb566e3551d3b61847d7de7ecef11c221abd502eb1f4009e9b72f5926ec15627c37a10f89f1c6fc7fedd83ebbdd82cbddd14df55674498ec9c1eae1b3105ee6856400bbb2ad7b9a0ecb0f3765fe4b9309c888bd966d997d971d942de77010302010229377e57d99f4218c2003c1b094729102e0c095ee2417e5940ee4f1eab4763f6113fe75281ab74c62398","hex")))
 }

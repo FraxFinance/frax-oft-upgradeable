@@ -2,16 +2,45 @@
 pragma solidity ^0.8.19;
 
 import "scripts/DeployFraxOFTProtocol/DeployFraxOFTProtocol.s.sol";
+import { Constant } from "@fraxfinance/layerzero-v2-upgradeable/messagelib/test/util/Constant.sol";
+import { UlnConfig } from "@fraxfinance/layerzero-v2-upgradeable/messagelib/contracts/uln/UlnBase.sol";
 
 // Setup DVN for Sonic
 // forge script scripts/DeployInk/6_FixDeployFraxtalLockboxes.s.sol --rpc-url https://rpc.frax.com
 contract FixDeployFraxtalLockboxes is DeployFraxOFTProtocol {
 
     address[] public inkProxyOfts;
+    SetConfigParam[] public setConfigParams;
 
     constructor() {
         inkProxyOfts.push(0x80Eede496655FB9047dd39d9f418d5483ED600df); // frxUsd
         inkProxyOfts.push(0x5Bff88cA1442c2496f7E475E9e7786383Bc070c0); // sfrxUsd
+    }
+
+    modifier simulateAndWriteTxs(
+        L0Config memory _simulateConfig
+    ) override {
+        // Clear out any previous txs
+        delete enforcedOptionParams;
+        delete setConfigParams;
+        delete serializedTxs;
+
+        // store for later referencing
+        simulateConfig = _simulateConfig;
+
+        // Use the correct OFT addresses given the chain we're simulating
+        _populateConnectedOfts();
+
+        // Simulate fork as delegate (aka msig) as we're crafting txs within the modified function
+        vm.createSelectFork(_simulateConfig.RPC);
+        vm.startPrank(_simulateConfig.delegate);
+        _;
+        vm.stopPrank();
+
+        // serialized txs may have been pushed within the decorated function- write to file
+        if (serializedTxs.length > 0) {
+            new SafeTxUtil().writeTxs(serializedTxs, filename());
+        }
     }
 
     function filename() public view override returns (string memory) {

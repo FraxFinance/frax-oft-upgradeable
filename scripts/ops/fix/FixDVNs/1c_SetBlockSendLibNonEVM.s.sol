@@ -15,17 +15,6 @@ contract SetBlockSendLib is DeployFraxOFTProtocol {
     using Strings for uint256;
     using OptionsBuilder for bytes;
 
-    uint256[] public chainIds;
-
-    constructor() {
-        // Initialize the chainIds array with the desired chain IDs
-        chainIds = [
-            111111111 // solana
-            // 22222222, // movement
-            // 33333333 // aptos
-        ];
-    }
-
     function filename() public view override returns (string memory) {
         string memory root = vm.projectRoot();
         root = string.concat(root, "/scripts/ops/fix/FixDVNs/txs/");

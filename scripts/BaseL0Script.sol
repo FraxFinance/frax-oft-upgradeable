@@ -85,7 +85,7 @@ contract BaseL0Script is L0Constants, Script {
     string public json;
 
     function version() public virtual pure returns (uint256, uint256, uint256) {
-        return (1, 3, 1);
+        return (1, 3, 2);
     }
 
     modifier broadcastAs(uint256 privateKey) {
@@ -128,9 +128,16 @@ contract BaseL0Script is L0Constants, Script {
     }
 
     function _validateAndPopulateMainnetOfts() internal virtual {
-        // check to prevent array mismatch.  This will trigger when, for example, managing peers of 2 of 6 OFTs as
+        // @dev check to prevent array mismatch.  This will trigger when, for example, managing peers of 2 of 6 OFTs as
         // this method asumes we're managing all 6 OFTs
-        require (proxyOfts.length == 6, "proxyOfts.length != 6");
+        // @dev if proxyOfts are empty, pre-populate
+        if (proxyOfts.length == 0) {
+            for (uint256 i=0; i<expectedProxyOfts.length; i++) {
+                proxyOfts.push(expectedProxyOfts[i]);
+            }
+        } else {
+            require (proxyOfts.length == 6, "proxyOfts.length != 6");
+        }
 
         /// @dev order maintained through L0Constants.sol `constructor()` and DeployFraxOFTProtocol.s.sol `deployFraxOFTUpgradeablesAndProxies()`
         if (simulateConfig.chainid == 1) {
@@ -189,7 +196,11 @@ contract BaseL0Script is L0Constants, Script {
     }
 
     function _validateAndPopulateTestnetOfts() internal virtual {
-        require(proxyOfts.length == 1, "Must override. be careful"); // only frxUSD OFT
+        if (proxyOfts.length == 0) {
+            proxyOfts.push(expectedProxyOfts[3]); // frxUSD OFT
+        } else {
+            require(proxyOfts.length == 1, "proxyOfts[0] != frxUSD"); // only frxUSD OFT
+        }
 
         connectedOfts = new address[](1);
 

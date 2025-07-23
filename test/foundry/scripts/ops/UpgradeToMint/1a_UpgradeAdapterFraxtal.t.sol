@@ -25,10 +25,6 @@ contract UpgradeAdapterTest is UpgradeAdapter, FraxTest {
     address bob = vm.addr(0xb0b);
     // Set mock supply for testing
     uint32 eid = 30101; // Example EID
-    uint256 mockTotalSupply = 100e18;
-    uint256 mockTotalTransferFrom = 50e18;
-    uint256 mockTotalTransferTo = 50e18;
-
 
     function setUp() public override {
         vm.createSelectFork("https://rpc.frax.com", 22382257);
@@ -50,8 +46,6 @@ contract UpgradeAdapterTest is UpgradeAdapter, FraxTest {
     }
 
     function validateUpgrade(address token, address lockbox) internal {
-        _setMockSupply(lockbox);
-
         _testRecover(token, lockbox);
         _testSend(token, lockbox);
         _testReceive(token, lockbox);
@@ -74,16 +68,6 @@ contract UpgradeAdapterTest is UpgradeAdapter, FraxTest {
             0,
             "Lockbox balance should be zero after recover"
         );
-    }
-
-    function _setMockSupply(address lockbox) internal {
-        vm.prank(broadcastConfig.delegate);
-        FraxOFTMintableAdapterUpgradeable(lockbox).setTotals({
-            _eid: eid,
-            _totalSupply: mockTotalSupply,
-            _totalTransferFrom: mockTotalTransferFrom,
-            _totalTransferTo: mockTotalTransferTo
-        });
     }
 
     function _testSend(address token, address lockbox) internal {
@@ -129,13 +113,13 @@ contract UpgradeAdapterTest is UpgradeAdapter, FraxTest {
             "Total supply should decrease after send"
         );
         assertEq(
-            FraxOFTMintableAdapterUpgradeable(lockbox).totalSupply(eid),
-            mockTotalSupply + amount,
-            "Total supply on target chain should increase"
+            FraxOFTMintableAdapterUpgradeable(lockbox).sumTotalTransferTo(),
+            amount,
+            "Sum total transfer to should increase"
         );
         assertEq(
             FraxOFTMintableAdapterUpgradeable(lockbox).totalTransferTo(eid),
-            mockTotalTransferTo + amount,
+            amount,
             "Total transfer to should increase"
         );
     }
@@ -178,13 +162,13 @@ contract UpgradeAdapterTest is UpgradeAdapter, FraxTest {
             "Total supply should increase after receive"
         );
         assertEq(
-            FraxOFTMintableAdapterUpgradeable(lockbox).totalSupply(eid),
-            mockTotalSupply, // was previously mockTotalSupply + amount from _testSend()
-            "Total supply on source chain should decrease"
+            FraxOFTMintableAdapterUpgradeable(lockbox).sumTotalTransferFrom(),
+            amount,
+            "Sum total transfer from should increase"
         );
         assertEq(
             FraxOFTMintableAdapterUpgradeable(lockbox).totalTransferFrom(eid),
-            mockTotalTransferFrom + amount,
+            amount,
             "Total transfer from should increase"
         );
     }

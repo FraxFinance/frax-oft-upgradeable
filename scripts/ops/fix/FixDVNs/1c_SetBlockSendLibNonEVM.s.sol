@@ -1,7 +1,8 @@
+// SPDX-License-Identifier: ISC
 pragma solidity ^0.8.19;
 
-import "./FixDVNsInherited.s.sol";
-import {IOAppCore} from "@fraxfinance/layerzero-v2-upgradeable/oapp/contracts/oapp/interfaces/IOAppCore.sol";
+import "scripts/DeployFraxOFTProtocol/DeployFraxOFTProtocol.s.sol";
+import { IOAppCore } from "@fraxfinance/layerzero-v2-upgradeable/oapp/contracts/oapp/interfaces/IOAppCore.sol";
 
 interface IEndpointV2 {
     function blockedLibrary() external view returns (address);
@@ -9,9 +10,21 @@ interface IEndpointV2 {
     function getSendLibrary(address _sender, uint32 _dstEid) external view returns (address lib);
 }
 
-contract SetBlockSendLib is FixDVNsInherited {
+contract SetBlockSendLib is DeployFraxOFTProtocol {
     using stdJson for string;
     using Strings for uint256;
+    using OptionsBuilder for bytes;
+
+    uint256[] public chainIds;
+
+    constructor() {
+        // Initialize the chainIds array with the desired chain IDs
+        chainIds = [
+            111111111 // solana
+            // 22222222, // movement
+            // 33333333 // aptos
+        ];
+    }
 
     function filename() public view override returns (string memory) {
         string memory root = vm.projectRoot();
@@ -24,11 +37,12 @@ contract SetBlockSendLib is FixDVNsInherited {
     }
 
     function run() public override {
-        for (uint256 i=0; i<expectedProxyOfts.length; i++) {
+        for (uint256 i = 0; i < expectedProxyOfts.length; i++) {
             proxyOfts.push(expectedProxyOfts[i]);
         }
 
-        for (uint256 i=0; i<proxyConfigs.length; i++) {
+        for (uint256 i = 0; i < proxyConfigs.length; i++) {
+            if (proxyConfigs[i].chainid != 1 && proxyConfigs[i].chainid != 252) continue;
             if (proxyConfigs[i].chainid == 324 || proxyConfigs[i].chainid == 2741) {
                 // skip zksync and abstract, they have a separate script
                 continue;
@@ -39,13 +53,13 @@ contract SetBlockSendLib is FixDVNsInherited {
     }
 
     function setSendLibs(L0Config memory _config) public simulateAndWriteTxs(_config) {
-
         address blockedLibrary = IEndpointV2(_config.endpoint).blockedLibrary();
 
-        for (uint256 o=0; o<connectedOfts.length; o++) {
+        for (uint256 o = 0; o < connectedOfts.length; o++) {
             address connectedOft = connectedOfts[o];
 
-            for (uint256 i=0; i<nonEvmConfigs.length; i++) {
+            for (uint256 i = 0; i < nonEvmConfigs.length; i++) {
+                if (nonEvmConfigs[i].chainid != 111111111) continue; // only consider solana
                 // skip if peer is not set
                 if (!hasPeer(connectedOft, nonEvmConfigs[i])) {
                     continue;
@@ -61,21 +75,12 @@ contract SetBlockSendLib is FixDVNsInherited {
                 // set the blocked library for the connected OFT
                 bytes memory data = abi.encodeCall(
                     IMessageLibManager.setSendLibrary,
-                    (
-                        connectedOft,
-                        uint32(nonEvmConfigs[i].eid),
-                        blockedLibrary
-                    )
+                    (connectedOft, uint32(nonEvmConfigs[i].eid), blockedLibrary)
                 );
                 (bool success, ) = _config.endpoint.call(data);
                 require(success, "Failed to set send library");
                 serializedTxs.push(
-                    SerializedTx({
-                        name: "SetBlockSendLib",
-                        to: _config.endpoint,
-                        value: 0,
-                        data: data
-                    })
+                    SerializedTx({ name: "SetBlockSendLib", to: _config.endpoint, value: 0, data: data })
                 );
             }
         }

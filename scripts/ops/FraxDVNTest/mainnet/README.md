@@ -1,10 +1,12 @@
 # FRAX DVN testing on mainnet
 
+![Expected L0 mesh](./expected-L0-mesh-wire.jpg)
+
 * `owner` : `0x45dce8e4f2dc005a5f28206a46cb034697eeda8e`
 * `delegate` : `0x45dce8e4f2dc005a5f28206a46cb034697eeda8e`
 * `proxyAdmin` : `0x45dce8e4f2dc005a5f28206a46cb034697eeda8e`
 
-* `ethereum` , `blast` , `base` , `mode` , `sei` , `frax` , `xlayer` , `sonic` , `ink` , `arbitrum` , `optimism` , `polygon` , `avalanche` , `bsc` , `zkpolygon` , `berachain` , `worldchain`
+* `ethereum` , `blast` , `base` , `mode` , `sei` , `frax` , `xlayer` , `sonic` , `ink` , `arbitrum` , `optimism` , `polygon` , `avalanche` , `bsc` , `zkpolygon` , `berachain` , `worldchain` , `unichain`
   * `mockFrax` : `0x57558Cb8d6005DE0BAe8a2789d5EfaaE52dba5a8`
   * `fraxOFTWallet` : `0x741F0d8Bde14140f62107FC60A0EE122B37D4630`
 * `zksync`
@@ -16,6 +18,12 @@
 * `linea`
   * `mockFrax` : `0x6185334f1542a9966CbaD694577fFbede3DD1f1F`
   * `fraxOFTWallet` : `0xD555D90A6b23B285575cd6192D972e35F70b5B89`
+* `aptos` , `movement`
+  * `mockFrax` : `0xa1bb74f0d5770dfc905c508e6273fadc595ddc15326cc907889bdfffa50602c8`
+  * `fraxOFTWallet` : `0x09d0eb2763c96e085fa74ba6cf0d49136f8654c48ec7dbc59279a9066c7dd409`
+* `solana`
+  * `mockFrax` : `4vMFmyM9nyUEQEBFgb55sFDswscNLQUoj2yAahPfUs3Z`
+  * `fraxOFTWallet` : `53dNdHXc7uruWqELhWtpx4f4UvpPk5SaT1upQNoKdi7y`
 
 fraxDVN test transactions :
 

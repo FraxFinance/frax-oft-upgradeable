@@ -1,6 +1,7 @@
+// SPDX-License-Identifier: ISC
 pragma solidity ^0.8.19;
 
-import "./FixDVNsInherited.s.sol";
+import "scripts/DeployFraxOFTProtocol/DeployFraxOFTProtocol.s.sol";
 import {IOAppCore} from "@fraxfinance/layerzero-v2-upgradeable/oapp/contracts/oapp/interfaces/IOAppCore.sol";
 
 interface IEndpointV2 {
@@ -12,7 +13,7 @@ interface IEndpointV2 {
 error LZ_SameValue();
 
 
-contract SetSendLib is FixDVNsInherited {
+contract SetSendLib is DeployFraxOFTProtocol {
     using stdJson for string;
     using Strings for uint256;
 
@@ -32,6 +33,7 @@ contract SetSendLib is FixDVNsInherited {
         }
 
         for (uint256 i=0; i<proxyConfigs.length; i++) {
+            if (proxyConfigs[i].chainid != 1 && proxyConfigs[i].chainid != 252) continue;
             if (proxyConfigs[i].chainid == 324 || proxyConfigs[i].chainid == 2741) {
                 // skip zksync and abstract, they have a separate script
                 continue;
@@ -43,23 +45,15 @@ contract SetSendLib is FixDVNsInherited {
 
     function setSendLibs(L0Config memory _config) public simulateAndWriteTxs(_config) {
 
-        address blockedLibrary = IEndpointV2(_config.endpoint).blockedLibrary();
-
         for (uint256 o=0; o<connectedOfts.length; o++) {
             address connectedOft = connectedOfts[o];
 
             for (uint256 i=0; i<nonEvmConfigs.length; i++) {
+                if (nonEvmConfigs[i].chainid != 111111111) continue; // only consider solana
                 // skip if peer is not set
                 if (!hasPeer(connectedOft, nonEvmConfigs[i])) {
                     continue;
                 }
-
-                address existingSendLibrary = IEndpointV2(_config.endpoint).getSendLibrary(
-                    connectedOft,
-                    uint32(nonEvmConfigs[i].eid)
-                );
-
-                if (existingSendLibrary != blockedLibrary) continue;
 
                 // set the blocked library for the connected OFT
                 bytes memory data = abi.encodeCall(

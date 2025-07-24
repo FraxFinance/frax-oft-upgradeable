@@ -103,7 +103,7 @@ function getConnectionConfig(lzConfig: lzConfigType[], sourceContract: OmniPoint
             eid: config.eid,
             contractName: config.contractName
         }, // Chain B
-        [['LayerZero Labs', 'Horizen'], []], // [ requiredDVN[], [ optionalDVN[], threshold ] ]
+        [['LayerZero Labs', 'Horizen', 'Frax'], []], // [ requiredDVN[], [ optionalDVN[], threshold ] ]
         [32, 5], // [A to B confirmations, B to A confirmations]
         [SOLANA_ENFORCED_OPTIONS, EVM_ENFORCED_OPTIONS], // Chain B enforcedOptions, Chain A enforcedOptions
     ])

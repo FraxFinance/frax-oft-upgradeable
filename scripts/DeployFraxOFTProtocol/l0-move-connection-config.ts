@@ -6,6 +6,8 @@ enum MsgType {
     SEND_AND_CALL = 2,
 }
 
+// TODO : blockSendLibrary (move and aptos) : 0x3ca0d187f1938cf9776a0aa821487a650fc7bb2ab1c1d241ba319192aae4afc6
+
 export const movementToFraxtalconnectionConfig: OAppEdgeConfig = {
 
     enforcedOptions: [

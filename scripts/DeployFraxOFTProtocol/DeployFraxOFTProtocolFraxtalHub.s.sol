@@ -19,6 +19,8 @@ contract DeployFraxOFTProtocolFraxtalHub is DeployFraxOFTProtocol {
             }
         }
 
+        require(tempConfigs.length == 2, "Incorrect tempConfigs array");
+
         delete proxyConfigs;
         for (uint256 i=0; i<tempConfigs.length; i++) {
             proxyConfigs.push(tempConfigs[i]);
@@ -30,12 +32,21 @@ contract DeployFraxOFTProtocolFraxtalHub is DeployFraxOFTProtocol {
 
     function setupNonEvms() public override {}
 
+    function preDeployChecks() public override view {
+        for (uint256 i=0; i<proxyConfigs.length; i++) {
+            uint32 eid = uint32(proxyConfigs[i].eid);
+            require(
+                IMessageLibManager(broadcastConfig.endpoint).isSupportedEid(eid),
+                "L0 team required to setup `defaultSendLibrary` and `defaultReceiveLibrary` for EID"
+            );   
+        }
+    }
+
     function setupSource() public override broadcastAs(configDeployerPK) {
         /// @dev set enforced options / peers separately
         setupEvms();
         setupNonEvms();
 
-        /// @dev configures legacy configs as well
         setDVNs({
             _connectedConfig: broadcastConfig,
             _connectedOfts: proxyOfts,

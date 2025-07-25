@@ -2,8 +2,8 @@
 pragma solidity ^0.8.22;
 
 import { OFTUpgradeable } from "@fraxfinance/layerzero-v2-upgradeable/oapp/contracts/oft/OFTUpgradeable.sol";
-import { FreezeThawModule } from "./FreezeThawModule.sol";
-import { PauseModule } from "./PauseModule.sol";
+import { FreezeThawModule } from "contracts/modules/FreezeThawModule.sol";
+import { PauseModule } from "contracts/modules/PauseModule.sol";
 import { SendParam } from "@fraxfinance/layerzero-v2-upgradeable/oapp/contracts/oft/interfaces/IOFT.sol";
 
 contract FrxUSDOFTUpgradeable is OFTUpgradeable, FreezeThawModule, PauseModule {

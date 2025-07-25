@@ -12,7 +12,7 @@ abstract contract FreezeThawModule {
 
     struct FreezeThawStorage {
         EnumerableSet.AddressSet freezers;
-        mapping(address => bool) isFrozen;
+        EnumerableSet.AddressSet frozen;
     }
 
     /// @dev keccak256(abi.encode(uint256(keccak256("frax.storage.FreezeThawModule")) - 1)) & ~bytes32(uint256(0xff))
@@ -30,8 +30,7 @@ abstract contract FreezeThawModule {
     /// @dev Reverts if the account is already frozen
     function _freeze(address account) internal virtual {
         FreezeThawStorage storage $ = _getFreezeThawStorage();
-        if ($.isFrozen[account]) revert IsFrozen();
-        $.isFrozen[account] = true;
+        if (!$.frozen.add(account)) revert AlreadyFrozen();
         emit AccountFrozen(account);
     }
 
@@ -41,15 +40,14 @@ abstract contract FreezeThawModule {
     /// @dev Reverts if the account is not frozen
     function _thaw(address account) internal virtual {
         FreezeThawStorage storage $ = _getFreezeThawStorage();
-        if (!$.isFrozen[account]) revert NotFrozen();
-        $.isFrozen[account] = false;
+        if (!$.frozen.remove(account)) revert NotFrozen();
         emit AccountThawed(account);
     }
 
     /// @notice Internal helper function to freeze an array of accounts
     /// @param accounts The accounts to freeze
     /// @dev To be called externally by admin
-    function _freezeMany(address[] memory accounts) internal {
+    function _freezeMany(address[] memory accounts) internal virtual {
         uint256 len = accounts.length;
         for (uint256 i; i < len; ++i) {
             _freeze(accounts[i]);
@@ -59,7 +57,7 @@ abstract contract FreezeThawModule {
     /// @notice Internal helper function to unfreeze an array of accounts
     /// @param accounts The accounts to be unfrozen
     /// @dev To be called externally by admin
-    function _thawMany(address[] memory accounts) internal {
+    function _thawMany(address[] memory accounts) internal virtual {
         uint256 len = accounts.length;
         for (uint256 i; i < len; ++i) {
             _thaw(accounts[i]);
@@ -91,20 +89,27 @@ abstract contract FreezeThawModule {
     /// @return bool True if the account is frozen, false otherwise
     function isFrozen(address account) public view virtual returns (bool) {
         FreezeThawStorage storage $ = _getFreezeThawStorage();
-        return $.isFrozen[account];
+        return $.frozen.contains(account);
     }
 
     /// @notice Check if an account is an authorized freezer
     /// @param account The account to check
     /// @return bool True if the account is a freezer, false otherwise
-    function isFreezer(address account) public view returns (bool) {
+    function isFreezer(address account) public view virtual returns (bool) {
         FreezeThawStorage storage $ =_getFreezeThawStorage();
         return $.freezers.contains(account);
     }
 
+    /// @notice Get the list of all frozen accounts
+    /// @return addres[] An array set of all frozen accounts
+    function frozen() external view virtual returns (address[] memory) {
+        FreezeThawStorage storage $ = _getFreezeThawStorage();
+        return $.frozen.values();
+    }
+
     /// @notice Get the list of all freezer accounts
     /// @return address[] An array set of all freezer accounts
-    function freezers() external view returns (address[] memory) {
+    function freezers() external view virtual returns (address[] memory) {
         FreezeThawStorage storage $ = _getFreezeThawStorage();
         return $.freezers.values();
     }
@@ -129,6 +134,6 @@ abstract contract FreezeThawModule {
     /* ========== ERRORS ========== */
     error AlreadyFreezer();
     error NotFreezer();
-    error IsFrozen();
+    error AlreadyFrozen();
     error NotFrozen();
 }

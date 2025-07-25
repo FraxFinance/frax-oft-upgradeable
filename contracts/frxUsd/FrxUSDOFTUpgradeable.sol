@@ -106,8 +106,10 @@ contract FrxUSDOFTUpgradeable is OFTUpgradeable, FreezeThawModule, PauseModule {
         uint256 amount
     ) internal override {
         if (msg.sender != owner()) {
-            if (isPaused()) revert IsPaused();
-            if (isFrozen(to) || isFrozen(from) || isFrozen(msg.sender)) revert IsFrozen();
+            if (
+                isPaused() ||
+                isFrozen(to) || isFrozen(from) || isFrozen(msg.sender)
+            ) revert BeforeTokenTransferBlocked();
         }
         super._beforeTokenTransfer(from, to, amount);
     }
@@ -156,4 +158,5 @@ contract FrxUSDOFTUpgradeable is OFTUpgradeable, FreezeThawModule, PauseModule {
 
     /* ========== ERRORS ========== */
     error ArrayMisMatch();
+    error BeforeTokenTransferBlocked();
 }

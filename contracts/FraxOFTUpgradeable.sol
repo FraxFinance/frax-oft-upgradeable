@@ -14,20 +14,25 @@ contract FraxOFTUpgradeable is OFTUpgradeable, EIP3009Module, PermitModule {
         _disableInitializers();
     }
 
-    function version() external pure returns (uint256 major, uint256 minor, uint256 patch) {
-        major = 1;
-        minor = 1;
-        patch = 0;
+    function version() public pure returns (string memory) {
+        return "1.1.0";
     }
 
     //==============================================================================
     // Admin
     //==============================================================================
 
-    function initialize(string memory _name, string memory _symbol, address _delegate) external reinitializer(2) {
+    /// @dev This method is called specifically when deploying a new OFT
+    function initialize(string memory _name, string memory _symbol, address _delegate) external reinitializer(3) {
+        __EIP712_init(_name, version());
         __OFT_init(_name, _symbol, _delegate);
         __Ownable_init();
         _transferOwnership(_delegate);
+    }
+
+    /// @dev This method is called specifically when upgrading an existing OFT
+    function initializeV110() external reinitializer(3) {
+        __EIP712_init(name(), version());
     }
 
     //==============================================================================

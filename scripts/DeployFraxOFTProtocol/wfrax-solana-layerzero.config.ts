@@ -121,7 +121,7 @@ export default async function () {
 
         const evmContract = {
             eid: eid,
-            contractName: _chainid === 252 ? "FraxOFTAdapterUpgradeable" : "FraxOFTUpgradeable",
+            contractName: _chainid === 252 ? "MockFraxMintableOFT" : "MockFrax",
             address: OFTAddress
         }
         contracts.push({ contract: evmContract })

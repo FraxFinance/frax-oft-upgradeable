@@ -1,5 +1,4 @@
 import { EndpointId } from '@layerzerolabs/lz-definitions'
-import { getOftStoreAddress } from '../../tasks/solana'
 import type { OmniPointHardhat } from '@layerzerolabs/toolbox-hardhat'
 import { ExecutorOptionType } from '@layerzerolabs/lz-v2-utilities'
 

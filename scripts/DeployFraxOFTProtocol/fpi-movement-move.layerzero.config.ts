@@ -6,7 +6,7 @@ import { fraxtalContractConfig, movementContractConfig, movementToFraxtalconnect
 const fraxtalContract: OmniPointHardhat = {
     eid: EndpointId.FRAXTAL_V2_MAINNET,
     address: "0x75c38D46001b0F8108c4136216bd2694982C20FC",
-    contractName: "FraxOFTAdapterUpgradeable"
+    contractName: "FPIOFT"
 }
 
 const movementContract: OmniPointHardhat = {

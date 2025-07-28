@@ -121,7 +121,7 @@ export default async function () {
 
         const evmContract = {
             eid: eid,
-            contractName: "FraxOFTAdapterUpgradeable",
+            contractName: "frxUSDOFT",
             address: OFTAddress
         }
         contracts.push({ contract: evmContract })

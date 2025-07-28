@@ -3,7 +3,7 @@ pragma solidity ^0.8.19;
 
 import "../BaseL0Script.sol";
 
-contract SubmitSendsFromFraxtal is BaseL0Script {
+contract SubmitSendsToFraxtal is BaseL0Script {
     using OptionsBuilder for bytes;
     using stdJson for string;
     using Strings for uint256;
@@ -23,21 +23,33 @@ contract SubmitSendsFromFraxtal is BaseL0Script {
         super.setUp();
     }
 
+    /// @dev send all OFTs from an array of EVMs
+    /// @dev note if sending from zk chains, cannot send from non-zk chains as well as compiler will fail
+    // function run() public {
+    //     // for (uint256 c=0; c<proxyConfigs.length; c++) {
+    //     for (uint256 c=0; c<3; c++) {
+
+    //         // skip fraxtal
+    //         if (proxyConfigs[c].chainid == 252) continue;
+
+    //         simulateConfig = proxyConfigs[c];
+    //         _populateConnectedOfts();
+
+    //         vm.createSelectFork(proxyConfigs[c].RPC);
+
+    //         submitSends(connectedOfts);
+    //     }
+    // }
+
+    /// @dev send all from the rpc of the broadcasted EVM
     function run() public {
-        // for (uint256 c=0; c<proxyConfigs.length; c++) {
-        for (uint256 c=0; c<3; c++) {
-            // skip zk-chains
-            if (proxyConfigs[c].chainid == 324 || proxyConfigs[c].chainid == 2741) continue;
+        for (uint256 i=0; i<proxyConfigs.length; i++) {
+            if (proxyConfigs[i].chainid == block.chainid) {
+                simulateConfig = proxyConfigs[i];
+                _populateConnectedOfts();
 
-            // skip fraxtal
-            if (proxyConfigs[c].chainid == 252) continue;
-
-            simulateConfig = proxyConfigs[c];
-            _populateConnectedOfts();
-
-            vm.createSelectFork(proxyConfigs[c].RPC);
-
-            submitSends(connectedOfts);
+                submitSends(connectedOfts);
+            }
         }
     }
 

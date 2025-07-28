@@ -16,7 +16,7 @@ contract DeployFraxOFTProtocol is SetDVNs, BaseL0Script {
     using Strings for uint256;
 
     function version() public virtual override pure returns (uint256, uint256, uint256) {
-        return (1, 3, 0);
+        return (1, 3, 1);
     }
 
     function setUp() public virtual override {
@@ -136,11 +136,9 @@ contract DeployFraxOFTProtocol is SetDVNs, BaseL0Script {
 
     function preDeployChecks() public virtual view {
         for (uint256 e=0; e<allConfigs.length; e++) {
-            uint256 eid = allConfigs[e].eid;    
-            // source and dest eid cannot be same
-            if (eid == broadcastConfig.eid) continue;
+            uint32 eid = uint32(allConfigs[e].eid);
             require(
-                IMessageLibManager(broadcastConfig.endpoint).isSupportedEid(uint32(allConfigs[e].eid)),
+                IMessageLibManager(broadcastConfig.endpoint).isSupportedEid(eid),
                 "L0 team required to setup `defaultSendLibrary` and `defaultReceiveLibrary` for EID"
             );
         }

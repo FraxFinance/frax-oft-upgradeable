@@ -61,14 +61,14 @@ contract FraxOFTUpgradeableTest is FraxTest {
             nonce: nonce,
             deadline: deadline
         });
-        (uint8 v, bytes32 r, bytes32 s) = vm.sign(alPrivateKey, sigUtils.getTypedDataHash(permit));
+        (uint8 v, bytes32 r, bytes32 s) = vm.sign(alPrivateKey, sigUtils.getPermitTypedDataHash(permit));
 
         vm.prank(bob);
         oft.permit({
-            owner: al,
-            spender: bob,
-            value: 1e18,
-            deadline: deadline,
+            owner: permit.owner,
+            spender: permit.spender,
+            value: permit.value,
+            deadline: permit.deadline,
             v: v,
             r: r,
             s: s

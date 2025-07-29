@@ -3,6 +3,7 @@ pragma solidity ^0.8.20;
 
 import "scripts/DeployFraxOFTProtocol/DeployFraxOFTProtocol.s.sol";
 
+import {EIP3009Module} from "contracts/modules/EIP3009Module.sol";
 import {SigUtils} from "./utils/SigUtils.sol";
 import "frax-std/FraxTest.sol";
 
@@ -76,5 +77,125 @@ contract FraxOFTUpgradeableTest is FraxTest {
 
         uint256 permitAllowanceAfter = oft.allowance(al, bob);
         assertEq(permitAllowanceAfter, 1e18, "Permit allowance should now be 1e18");
+    }
+
+    function test_TransferWithAuthorization_succeeds() external {
+        uint256 balanceBefore = oft.balanceOf(bob);
+        assertEq(balanceBefore, 100e18, "Bob's balance should be 100e18 before transfer");
+
+        // al authorized bob to transfer 1e18 from al to bob
+        uint256 value = 1e18;
+        uint256 validAfter = block.timestamp - 1;
+        uint256 validBefore = block.timestamp + 1 days;
+        bytes32 nonce = bytes32(abi.encode(1));
+        SigUtils.Authorization memory authorization = SigUtils.Authorization({
+            from: al,
+            to: bob,
+            value: value,
+            validAfter: validAfter,
+            validBefore: validBefore,
+            nonce: nonce
+        });
+        (uint8 v, bytes32 r, bytes32 s) = vm.sign(alPrivateKey, sigUtils.getTransferWithAuthorizationTypedDataHash(authorization));
+
+        vm.prank(bob);
+        oft.transferWithAuthorization({
+            from: al,
+            to: bob,
+            value: value,
+            validAfter: validAfter,
+            validBefore: validBefore,
+            nonce: nonce,
+            v: v,
+            r: r,
+            s: s
+        });
+
+        uint256 balanceAfter = oft.balanceOf(bob);
+        assertEq(balanceAfter, balanceBefore + value, "Bob's balance should now be 101e18");
+    }
+
+    function test_ReceiveWithAuthorization_succeeds() external {
+        uint256 balanceBefore = oft.balanceOf(bob);
+        assertEq(balanceBefore, 100e18, "Bob's balance should be 100e18 before transfer");
+
+        // al authorized bob to transfer 1e18 from al to bob
+        uint256 value = 1e18;
+        uint256 validAfter = block.timestamp - 1;
+        uint256 validBefore = block.timestamp + 1 days;
+        bytes32 nonce = bytes32(abi.encode(1));
+        SigUtils.Authorization memory authorization = SigUtils.Authorization({
+            from: al,
+            to: bob,
+            value: value,
+            validAfter: validAfter,
+            validBefore: validBefore,
+            nonce: nonce
+        });
+        (uint8 v, bytes32 r, bytes32 s) = vm.sign(alPrivateKey, sigUtils.getReceiveWithAuthorizationTypedDataHash(authorization));
+
+        vm.prank(bob);
+        oft.receiveWithAuthorization({
+            from: al,
+            to: bob,
+            value: value,
+            validAfter: validAfter,
+            validBefore: validBefore,
+            nonce: nonce,
+            v: v,
+            r: r,
+            s: s
+        });
+
+        uint256 balanceAfter = oft.balanceOf(bob);
+        assertEq(balanceAfter, balanceBefore + value, "Bob's balance should now be 101e18");
+    }
+
+    function test_CancelAuthorization_succeeds() external {
+        // al authorizes bob to transfer 1e18 from al to bob
+        uint256 value = 1e18;
+        uint256 validAfter = block.timestamp - 1;
+        uint256 validBefore = block.timestamp + 1 days;
+        bytes32 nonce = bytes32(abi.encode(1));
+        SigUtils.CancelAuthorization memory cancelAuthorization = SigUtils.CancelAuthorization({
+            authorizer: al,
+            nonce: nonce
+        });
+        (uint8 v, bytes32 r, bytes32 s) = vm.sign(alPrivateKey, sigUtils.getCancelAuthorizationTypedDataHash(cancelAuthorization));
+
+        // al cancels the authorization
+        vm.prank(al);
+        oft.cancelAuthorization({
+            authorizer: al,
+            nonce: nonce,
+            v: v,
+            r: r,
+            s: s
+        });
+
+        SigUtils.Authorization memory authorization = SigUtils.Authorization({
+            from: al,
+            to: bob,
+            value: value,
+            validAfter: validAfter,
+            validBefore: validBefore,
+            nonce: nonce
+        });
+        (v, r, s) = vm.sign(alPrivateKey, sigUtils.getTransferWithAuthorizationTypedDataHash(authorization));
+
+        // try to transfer with authorization should fail
+        vm.expectRevert(EIP3009Module.UsedOrCanceledAuthorization.selector);
+        vm.prank(bob);
+        oft.transferWithAuthorization({
+            from: al,
+            to: bob,
+            value: value,
+            validAfter: validAfter,
+            validBefore: validBefore,
+            nonce: nonce,
+            v: v,
+            r: r,
+            s: s
+        });
     }
 }

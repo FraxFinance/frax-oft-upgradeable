@@ -40,6 +40,9 @@ abstract contract SupplyTrackingModule {
     function _setInitialTotalSupply(uint32 _eid, uint256 _amount) internal {
         SupplyTrackingStorage storage $ = _getSupplyTrackingStorage();
         $.initialTotalSupply[_eid] = _amount;
+        // reset the transfer amounts for the EID as well
+        $.totalTransferFrom[_eid] = 0;
+        $.totalTransferTo[_eid] = 0;
     }
 
     // Views
@@ -76,9 +79,9 @@ abstract contract SupplyTrackingModule {
 
     /// @notice Get the total transfers to and from a given chain ID
     /// @param _eid The chain ID
-    /// @return to The total amount transferred to the chain ID
     /// @return from The total amount transferred from the chain ID
-    function totalTransfers(uint32 _eid) external view returns (uint256 to, uint256 from) {
+    /// @return to The total amount transferred to the chain ID
+    function totalTransfers(uint32 _eid) external view returns (uint256 from, uint256 to) {
         SupplyTrackingStorage storage $ = _getSupplyTrackingStorage();
         to = $.totalTransferTo[_eid];
         from = $.totalTransferFrom[_eid];
@@ -86,10 +89,10 @@ abstract contract SupplyTrackingModule {
 
     /// @notice Get the total transfers to and from a given chain ID and the initial total supply
     /// @param _eid The chain ID
-    /// @return to The total amount transferred to the chain ID
     /// @return from The total amount transferred from the chain ID
+    /// @return to The total amount transferred to the chain ID
     /// @return initialSupply The initial total supply for the chain ID
-    function totalTransfersAndInitialSupply(uint32 _eid) external view returns (uint256 to, uint256 from, uint256 initialSupply) {
+    function totalTransfersAndInitialSupply(uint32 _eid) external view returns (uint256 from, uint256 to, uint256 initialSupply) {
         SupplyTrackingStorage storage $ = _getSupplyTrackingStorage();
         to = $.totalTransferTo[_eid];
         from = $.totalTransferFrom[_eid];

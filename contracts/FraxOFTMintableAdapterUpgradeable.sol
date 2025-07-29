@@ -32,6 +32,12 @@ contract FraxOFTMintableAdapterUpgradeable is OFTAdapterUpgradeable, SupplyTrack
         innerToken.transfer(owner(), balance);
     }
 
+    /// @notice Set the initial total supply for a given chain ID
+    /// @dev added in v1.1.0
+    function setInitialTotalSupply(uint32 _eid, uint256 _amount) external onlyOwner {
+        _setInitialTotalSupply(_eid, _amount);
+    }
+
     /// @dev overrides OFTAdapterUpgradeable.sol to burn the tokens from the sender/track supply
     /// @dev added in v1.1.0
     function _debit(

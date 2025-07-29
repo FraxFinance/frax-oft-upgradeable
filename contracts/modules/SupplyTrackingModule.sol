@@ -11,6 +11,7 @@ abstract contract SupplyTrackingModule {
         uint256 sumTotalTransferTo;
         mapping(uint32 eid => uint256 amount) totalTransferFrom;
         mapping(uint32 eid => uint256 amount) totalTransferTo;
+        mapping(uint32 eid => uint256 totalSupply) initialTotalSupply;
     }
 
     /// @dev keccak256(abi.encode(uint256(keccak256("frax.storage.SupplyTrackingModule")) - 1)) & ~bytes32(uint256(0xff))
@@ -34,6 +35,11 @@ abstract contract SupplyTrackingModule {
         SupplyTrackingStorage storage $ = _getSupplyTrackingStorage();
         $.totalTransferTo[_eid] += _amount;
         $.sumTotalTransferTo += _amount;
+    }
+
+    function _setInitialTotalSupply(uint32 _eid, uint256 _amount) internal {
+        SupplyTrackingStorage storage $ = _getSupplyTrackingStorage();
+        $.initialTotalSupply[_eid] = _amount;
     }
 
     // Views
@@ -66,5 +72,35 @@ abstract contract SupplyTrackingModule {
     function totalTransferTo(uint32 _eid) external view returns (uint256) {
         SupplyTrackingStorage storage $ = _getSupplyTrackingStorage();
         return $.totalTransferTo[_eid];
+    }
+
+    /// @notice Get the total transfers to and from a given chain ID
+    /// @param _eid The chain ID
+    /// @return to The total amount transferred to the chain ID
+    /// @return from The total amount transferred from the chain ID
+    function totalTransfers(uint32 _eid) external view returns (uint256 to, uint256 from) {
+        SupplyTrackingStorage storage $ = _getSupplyTrackingStorage();
+        to = $.totalTransferTo[_eid];
+        from = $.totalTransferFrom[_eid];
+    }
+
+    /// @notice Get the total transfers to and from a given chain ID and the initial total supply
+    /// @param _eid The chain ID
+    /// @return to The total amount transferred to the chain ID
+    /// @return from The total amount transferred from the chain ID
+    /// @return initialSupply The initial total supply for the chain ID
+    function totalTransfersAndInitialSupply(uint32 _eid) external view returns (uint256 to, uint256 from, uint256 initialSupply) {
+        SupplyTrackingStorage storage $ = _getSupplyTrackingStorage();
+        to = $.totalTransferTo[_eid];
+        from = $.totalTransferFrom[_eid];
+        initialSupply = $.initialTotalSupply[_eid];
+    }
+
+    /// @notice Get the initial total supply for a given chain ID
+    /// @param _eid The chain ID
+    /// @return The initial total supply for the chain ID
+    function initialTotalSupply(uint32 _eid) external view returns (uint256) {
+        SupplyTrackingStorage storage $ = _getSupplyTrackingStorage();
+        return $.initialTotalSupply[_eid];
     }
 }

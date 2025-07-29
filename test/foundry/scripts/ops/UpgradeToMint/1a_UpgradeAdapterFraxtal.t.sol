@@ -49,6 +49,7 @@ contract UpgradeAdapterTest is UpgradeAdapter, FraxTest {
         _testRecover(token, lockbox);
         _testSend(token, lockbox);
         _testReceive(token, lockbox);
+        _testSetInitialTotalSupply(lockbox);
     }
 
     function _testRecover(address token, address lockbox) internal {
@@ -170,6 +171,25 @@ contract UpgradeAdapterTest is UpgradeAdapter, FraxTest {
             FraxOFTMintableAdapterUpgradeable(lockbox).totalTransferFrom(eid),
             amount,
             "Total transfer from should increase"
+        );
+    }
+
+    function _testSetInitialTotalSupply(address lockbox) internal {
+        uint256 initialSupply = 1e18;
+
+        assertEq(
+            FraxOFTMintableAdapterUpgradeable(lockbox).initialTotalSupply(eid),
+            0,
+            "Initial total supply should be zero before setting"
+        );
+        
+        vm.prank(broadcastConfig.delegate);
+        FraxOFTMintableAdapterUpgradeable(lockbox).setInitialTotalSupply(eid, initialSupply);
+
+        assertEq(
+            FraxOFTMintableAdapterUpgradeable(lockbox).initialTotalSupply(eid),
+            initialSupply,
+            "Initial total supply should be set correctly"
         );
     }
 }

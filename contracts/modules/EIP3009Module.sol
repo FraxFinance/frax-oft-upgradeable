@@ -1,6 +1,8 @@
 pragma solidity ^0.8.0;
 
 import {EIP712Upgradeable} from "./shared/EIP712Upgradeable.sol";
+import {SignatureChecker} from "@openzeppelin/contracts/utils/cryptography/SignatureChecker.sol";
+import {ECDSA} from "@openzeppelin/contracts/utils/cryptography/ECDSA.sol";
 
 /// @title Eip3009
 /// @notice Eip3009 provides internal implementations for gas-abstracted transfers under Eip3009 guidelines
@@ -188,21 +190,21 @@ abstract contract EIP3009Module is EIP712Upgradeable {
 
     /// @notice The ```cancelAuthorization``` function cancels an authorization nonce
     /// @dev EOA wallet signatures should be packed in the order of r, s, v
-    /// @param _authorizer    Authorizer's address
-    /// @param _nonce         Nonce of the authorization
-    /// @param _v           ECDSA signature v value
-    /// @param _r           ECDSA signature r value
-    /// @param _s           ECDSA signature s value
-    function cancelAuthorization(address _authorizer, bytes32 _nonce, uint8 _v, bytes32 _r, bytes32 _s) external {
-        cancelAuthorization({ _authorizer: _authorizer, _nonce: _nonce, _signature: abi.encodePacked(_r, _s, _v) });
+    /// @param authorizer   Authorizer's address
+    /// @param nonce        Nonce of the authorization
+    /// @param v            ECDSA signature v value
+    /// @param r            ECDSA signature r value
+    /// @param s            ECDSA signature s value
+    function cancelAuthorization(address authorizer, bytes32 nonce, uint8 v, bytes32 r, bytes32 s) external {
+        cancelAuthorization({ authorizer: authorizer, nonce: nonce, signature: abi.encodePacked(r, s, v) });
     }
 
     /// @notice The ```cancelAuthorization``` function cancels an authorization nonce
     /// @dev EOA wallet signatures should be packed in the order of r, s, v
-    /// @param _authorizer    Authorizer's address
-    /// @param _nonce         Nonce of the authorization
-    /// @param _signature     Signature byte array produced by an EOA wallet or a contract wallet
-    function cancelAuthorization(address _authorizer, bytes32 _nonce, bytes memory _signature) public {
+    /// @param authorizer    Authorizer's address
+    /// @param nonce         Nonce of the authorization
+    /// @param signature     Signature byte array produced by an EOA wallet or a contract wallet
+    function cancelAuthorization(address authorizer, bytes32 nonce, bytes memory signature) public {
         _requireUnusedAuthorization({ authorizer: authorizer, nonce: nonce });
         _requireIsValidSignatureNow({
             _signer: authorizer,
@@ -224,9 +226,9 @@ abstract contract EIP3009Module is EIP712Upgradeable {
     /// @param signature Signature byte array produced by an EOA wallet or a contract wallet
     function _requireIsValidSignatureNow(address _signer, bytes32 _dataHash, bytes memory signature) private view {
         if (
-            !isValidSignatureNow({
+            !SignatureChecker.isValidSignatureNow({
                 signer: _signer,
-                hash: toTypedDataHash({
+                hash: ECDSA.toTypedDataHash({
                     domainSeparator: _domainSeparatorV4(),
                     structHash: _dataHash
                 }),
@@ -241,67 +243,6 @@ abstract contract EIP3009Module is EIP712Upgradeable {
     function _requireUnusedAuthorization(address authorizer, bytes32 nonce) private view {
         if (_getEIP3009ModuleStorage().isAuthorizationUsed[authorizer][nonce])
             revert UsedOrCanceledAuthorization();
-    }
-
-    //==============================================================================
-    // Imported functions
-    //==============================================================================
-
-    /// @dev added from OZ 5.x contracts/utils/cryptography/MessageHashUtils.sol
-    function toTypedDataHash(bytes32 domainSeparator, bytes32 structHash) internal pure returns (bytes32 digest) {
-        assembly ("memory-safe") {
-            let ptr := mload(0x40)
-            mstore(ptr, hex"19_01")
-            mstore(add(ptr, 0x02), domainSeparator)
-            mstore(add(ptr, 0x22), structHash)
-            digest := keccak256(ptr, 0x42)
-        }
-    }
-
-    /// @dev added from solady src/utils/SignatureCheckerLib.sol
-    function isValidSignatureNow(address signer, bytes32 hash, bytes memory signature)
-        internal
-        view
-        returns (bool isValid)
-    {
-        if (signer == address(0)) return isValid;
-        /// @solidity memory-safe-assembly
-        assembly {
-            let m := mload(0x40)
-            for {} 1 {} {
-                if iszero(extcodesize(signer)) {
-                    switch mload(signature)
-                    case 64 {
-                        let vs := mload(add(signature, 0x40))
-                        mstore(0x20, add(shr(255, vs), 27)) // `v`.
-                        mstore(0x60, shr(1, shl(1, vs))) // `s`.
-                    }
-                    case 65 {
-                        mstore(0x20, byte(0, mload(add(signature, 0x60)))) // `v`.
-                        mstore(0x60, mload(add(signature, 0x40))) // `s`.
-                    }
-                    default { break }
-                    mstore(0x00, hash)
-                    mstore(0x40, mload(add(signature, 0x20))) // `r`.
-                    let recovered := mload(staticcall(gas(), 1, 0x00, 0x80, 0x01, 0x20))
-                    isValid := gt(returndatasize(), shl(96, xor(signer, recovered)))
-                    mstore(0x60, 0) // Restore the zero slot.
-                    mstore(0x40, m) // Restore the free memory pointer.
-                    break
-                }
-                let f := shl(224, 0x1626ba7e)
-                mstore(m, f) // `bytes4(keccak256("isValidSignature(bytes32,bytes)"))`.
-                mstore(add(m, 0x04), hash)
-                let d := add(m, 0x24)
-                mstore(d, 0x40) // The offset of the `signature` in the calldata.
-                // Copy the `signature` over.
-                let n := add(0x20, mload(signature))
-                let copied := staticcall(gas(), 4, signature, n, add(m, 0x44), n)
-                isValid := staticcall(gas(), signer, m, add(returndatasize(), 0x44), d, 0x20)
-                isValid := and(eq(mload(d), f), and(isValid, copied))
-                break
-            }
-        }
     }
 
     //==============================================================================

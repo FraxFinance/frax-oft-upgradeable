@@ -258,6 +258,18 @@ abstract contract EIP3009Module is EIP712Upgradeable {
     }
 
     //==============================================================================
+    // Views
+    //==============================================================================
+
+    /// @notice The ```isAuthorizationUsed``` function checks if an authorization nonce is used
+    /// @param authorizer    Authorizer's address
+    /// @param nonce         Nonce of the authorization
+    /// @return bool         True if the authorization nonce is used, false otherwise
+    function isAuthorizationUsed(address authorizer, bytes32 nonce) external view returns (bool) {
+        return _getEIP3009ModuleStorage().isAuthorizationUsed[authorizer][nonce];
+    }
+
+    //==============================================================================
     // Overridden methods
     //==============================================================================
 

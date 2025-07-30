@@ -76,5 +76,4 @@ contract FraxOFTUpgradeable is OFTUpgradeable, EIP3009Module, PermitModule {
     function _approve(address owner, address spender, uint256 amount) internal override(PermitModule, ERC20Upgradeable) {
         return ERC20Upgradeable._approve(owner, spender, amount);
     }
-
 }

@@ -25,7 +25,7 @@ export function getMovementToEVMConnectionConfig(send: number, receive: number):
             },
         ],
         // blocksendlib : 0x3ca0d187f1938cf9776a0aa821487a650fc7bb2ab1c1d241ba319192aae4afc6
-        sendLibrary: '0x3ca0d187f1938cf9776a0aa821487a650fc7bb2ab1c1d241ba319192aae4afc6',// '0xc33752e0220faf79e45385dd73fb28d681dcd9f1569a1480725507c1f3c3aba9',
+        sendLibrary: '0xc33752e0220faf79e45385dd73fb28d681dcd9f1569a1480725507c1f3c3aba9',
         receiveLibraryConfig: {
             // Required Receive Library Address on Movement
             receiveLibrary: '0xc33752e0220faf79e45385dd73fb28d681dcd9f1569a1480725507c1f3c3aba9',
@@ -48,7 +48,7 @@ export function getMovementToEVMConnectionConfig(send: number, receive: number):
                 confirmations: BigInt(send),
                 // The address of the DVNs you will pay to verify a sent message on the source chain.
                 // The destination tx will wait until ALL `requiredDVNs` verify the message.
-                requiredDVNs: [/*'0xc4a5d892efdf6689d2595c3f438e465702b5a7db0bed8125c4e218464a14ba28',*/ '0x2b696b3ee859b7eb624e1fd5de49f4d3806f49862f1177d6827fd1beffde9179', '0xdf8f0a53b20f1656f998504b81259698d126523a31bdbbae45ba1e8a3078d8da'],
+                requiredDVNs: ['0xc4a5d892efdf6689d2595c3f438e465702b5a7db0bed8125c4e218464a14ba28', '0x2b696b3ee859b7eb624e1fd5de49f4d3806f49862f1177d6827fd1beffde9179', '0xdf8f0a53b20f1656f998504b81259698d126523a31bdbbae45ba1e8a3078d8da'],
                 // The address of the DVNs you will pay to verify a sent message on the source chain.
                 // The destination tx will wait until the configured threshold of `optionalDVNs` verify a message.
                 optionalDVNs: [],
@@ -64,7 +64,7 @@ export function getMovementToEVMConnectionConfig(send: number, receive: number):
                 confirmations: BigInt(receive),
                 // The address of the DVNs your `receiveConfig` expects to receive verifications from on the `from` chain.
                 // The `from` chain's OApp will wait until the configured threshold of `requiredDVNs` verify the message.
-                requiredDVNs: [/*'0xc4a5d892efdf6689d2595c3f438e465702b5a7db0bed8125c4e218464a14ba28',*/'0x2b696b3ee859b7eb624e1fd5de49f4d3806f49862f1177d6827fd1beffde9179', '0xdf8f0a53b20f1656f998504b81259698d126523a31bdbbae45ba1e8a3078d8da'],
+                requiredDVNs: ['0xc4a5d892efdf6689d2595c3f438e465702b5a7db0bed8125c4e218464a14ba28', '0x2b696b3ee859b7eb624e1fd5de49f4d3806f49862f1177d6827fd1beffde9179', '0xdf8f0a53b20f1656f998504b81259698d126523a31bdbbae45ba1e8a3078d8da'],
                 // The address of the `optionalDVNs` you expect to receive verifications from on the `from` chain.
                 // The destination tx will wait until the configured threshold of `optionalDVNs` verify the message.
                 optionalDVNs: [],
@@ -92,7 +92,7 @@ export function getAptosToEVMConnectionConfig(send: number, receive: number): OA
             },
         ],
         // blocksendlib : 0x3ca0d187f1938cf9776a0aa821487a650fc7bb2ab1c1d241ba319192aae4afc6
-        sendLibrary: '0x3ca0d187f1938cf9776a0aa821487a650fc7bb2ab1c1d241ba319192aae4afc6', // '0xc33752e0220faf79e45385dd73fb28d681dcd9f1569a1480725507c1f3c3aba9',
+        sendLibrary: '0xc33752e0220faf79e45385dd73fb28d681dcd9f1569a1480725507c1f3c3aba9',
         receiveLibraryConfig: {
             // Required Receive Library Address on Movement
             receiveLibrary: '0xc33752e0220faf79e45385dd73fb28d681dcd9f1569a1480725507c1f3c3aba9',
@@ -115,7 +115,7 @@ export function getAptosToEVMConnectionConfig(send: number, receive: number): OA
                 confirmations: BigInt(send),
                 // The address of the DVNs you will pay to verify a sent message on the source chain.
                 // The destination tx will wait until ALL `requiredDVNs` verify the message.
-                requiredDVNs: [/* '0x3d5c8533fa5dfa60c953036e9a2afe3e9d3fc614197feebf8599ec1f54e8f2ec',*/ '0x93adea241d46ddebc207d74402ff9a150f70b9de828b8b2208d69b7d08e90bd7', '0xdf8f0a53b20f1656f998504b81259698d126523a31bdbbae45ba1e8a3078d8da'],
+                requiredDVNs: ['0x3d5c8533fa5dfa60c953036e9a2afe3e9d3fc614197feebf8599ec1f54e8f2ec', '0x93adea241d46ddebc207d74402ff9a150f70b9de828b8b2208d69b7d08e90bd7', '0xdf8f0a53b20f1656f998504b81259698d126523a31bdbbae45ba1e8a3078d8da'],
                 // The address of the DVNs you will pay to verify a sent message on the source chain.
                 // The destination tx will wait until the configured threshold of `optionalDVNs` verify a message.
                 optionalDVNs: [],
@@ -131,7 +131,7 @@ export function getAptosToEVMConnectionConfig(send: number, receive: number): OA
                 confirmations: BigInt(receive),
                 // The address of the DVNs your `receiveConfig` expects to receive verifications from on the `from` chain.
                 // The `from` chain's OApp will wait until the configured threshold of `requiredDVNs` verify the message.
-                requiredDVNs: [/* '0x3d5c8533fa5dfa60c953036e9a2afe3e9d3fc614197feebf8599ec1f54e8f2ec',*/ '0x93adea241d46ddebc207d74402ff9a150f70b9de828b8b2208d69b7d08e90bd7', '0xdf8f0a53b20f1656f998504b81259698d126523a31bdbbae45ba1e8a3078d8da'],
+                requiredDVNs: ['0x3d5c8533fa5dfa60c953036e9a2afe3e9d3fc614197feebf8599ec1f54e8f2ec', '0x93adea241d46ddebc207d74402ff9a150f70b9de828b8b2208d69b7d08e90bd7', '0xdf8f0a53b20f1656f998504b81259698d126523a31bdbbae45ba1e8a3078d8da'],
                 // The address of the `optionalDVNs` you expect to receive verifications from on the `from` chain.
                 // The destination tx will wait until the configured threshold of `optionalDVNs` verify the message.
                 optionalDVNs: [],

@@ -3,7 +3,6 @@ import { ExecutorOptionType } from '@layerzerolabs/lz-v2-utilities'
 import { generateConnectionsConfig } from '@layerzerolabs/metadata-tools'
 import { OAppEnforcedOption, OmniPointHardhat } from '@layerzerolabs/toolbox-hardhat'
 import L0Config from "../L0Config.json"
-import { getOftStoreAddress } from '../../tasks/solana'
 import { zeroAddress } from 'viem'
 import { readFileSync } from 'fs'
 import path from 'path'

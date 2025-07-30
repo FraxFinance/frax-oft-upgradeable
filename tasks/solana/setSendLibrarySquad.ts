@@ -50,7 +50,6 @@ task('lz:oft:solana:setsendlibrary', 'set send library for solana oft')
 
         const solanaDeployment = getSolanaDeployment(fromEid)
 
-        const oftProgramId = publicKey(solanaDeployment.programId)
         const mint = publicKey(solanaDeployment.mint)
         const tokenProgramId = tokenProgramStr ? publicKey(tokenProgramStr) : fromWeb3JsPublicKey(TOKEN_PROGRAM_ID)
 
@@ -87,4 +86,8 @@ task('lz:oft:solana:setsendlibrary', 'set send library for solana oft')
         const unixTimestamp = Math.floor(Date.now() / 1000);
         const base58Tx = bs58.encode(Buffer.from(tx.serialize()));
         fs.writeFileSync(`${path}/${unixTimestamp}-${outputFilename}`, base58Tx, 'utf8');
+        console.log('BASE58: \n')
+        console.log(bs58.encode(Buffer.from(tx.serialize())))
+        console.log('\nBASE64: \n')
+        console.log(Buffer.from(tx.serialize()).toString("base64"));
     })

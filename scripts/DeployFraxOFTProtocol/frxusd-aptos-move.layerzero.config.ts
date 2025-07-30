@@ -1,11 +1,17 @@
 import { EndpointId } from '@layerzerolabs/lz-definitions'
 
 import type { OAppOmniGraphHardhat, OmniPointHardhat } from '@layerzerolabs/toolbox-hardhat'
-import { aptosContractConfig, aptosToFraxtalconnectionConfig, fraxtalContractConfig } from './l0-move-connection-config'
+import { aptosContractConfig, ethereumContractConfig, fraxtalContractConfig, getAptosToEVMConnectionConfig } from './l0-move-connection-config'
 
 const fraxtalContract: OmniPointHardhat = {
     eid: EndpointId.FRAXTAL_V2_MAINNET,
     address: "0x96A394058E2b84A89bac9667B19661Ed003cF5D4",
+    contractName: "frxUSDOFT"
+}
+
+const ethereumContract: OmniPointHardhat = {
+    eid: EndpointId.ETHEREUM_V2_MAINNET,
+    address: "0x566a6442A5A6e9895B9dCA97cC7879D632c6e4B0",
     contractName: "frxUSDOFT"
 }
 
@@ -21,6 +27,10 @@ const config: OAppOmniGraphHardhat = {
             config: fraxtalContractConfig,
         },
         {
+            contract: ethereumContract,
+            config: ethereumContractConfig,
+        },
+        {
             contract: aptosContract,
             config: aptosContractConfig,
         },
@@ -29,7 +39,12 @@ const config: OAppOmniGraphHardhat = {
         {
             from: aptosContract,
             to: fraxtalContract,
-            config: aptosToFraxtalconnectionConfig
+            config: getAptosToEVMConnectionConfig(30000, 5)
+        },
+        {
+            from: aptosContract,
+            to: ethereumContract,
+            config: getAptosToEVMConnectionConfig(260, 15)
         },
     ],
 }

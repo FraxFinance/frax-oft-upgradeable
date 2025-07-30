@@ -16,11 +16,18 @@ contract FraxOFTUpgradeableTest is FraxTest {
     address al = vm.addr(alPrivateKey);
     address bob = vm.addr(0xb0b);
     address owner = vm.addr(0x12345);
+    uint256 value = 1e18;
+    bytes32 nonce = bytes32(abi.encode(1)); // Example nonce, can be any value
+    uint256 validAfter;
+    uint256 validBefore;
 
     function setUp() external {
-        vm.createSelectFork("https://rpc.frax.com");
+        vm.createSelectFork("https://rpc.frax.com", 23542154);
         oft = FraxOFTUpgradeable(deployMockFraxOFT());
         sigUtils = new SigUtils(oft.DOMAIN_SEPARATOR());
+
+        validAfter = block.timestamp - 1;
+        validBefore = block.timestamp + 1 days;
 
         deal(address(oft), al, 100e18);
         deal(address(oft), bob, 100e18);
@@ -54,12 +61,11 @@ contract FraxOFTUpgradeableTest is FraxTest {
         assertEq(permitAllowanceBefore, 0, "Permit allowance should be 0 beforehand");
 
         uint256 deadline = block.timestamp + 1 days;
-        uint256 nonce = oft.nonces(al);
         SigUtils.Permit memory permit = SigUtils.Permit({
             owner: al,
             spender: bob,
             value: 1e18,
-            nonce: nonce,
+            nonce: oft.nonces(al),
             deadline: deadline
         });
         (uint8 v, bytes32 r, bytes32 s) = vm.sign(alPrivateKey, sigUtils.getPermitTypedDataHash(permit));
@@ -79,15 +85,11 @@ contract FraxOFTUpgradeableTest is FraxTest {
         assertEq(permitAllowanceAfter, 1e18, "Permit allowance should now be 1e18");
     }
 
-    function test_TransferWithAuthorization_succeeds() external {
+    function test_TransferWithAuthorization_succeeds() public {
         uint256 balanceBefore = oft.balanceOf(bob);
         assertEq(balanceBefore, 100e18, "Bob's balance should be 100e18 before transfer");
 
         // al authorized bob to transfer 1e18 from al to bob
-        uint256 value = 1e18;
-        uint256 validAfter = block.timestamp - 1;
-        uint256 validBefore = block.timestamp + 1 days;
-        bytes32 nonce = bytes32(abi.encode(1));
         SigUtils.Authorization memory authorization = SigUtils.Authorization({
             from: al,
             to: bob,
@@ -113,17 +115,14 @@ contract FraxOFTUpgradeableTest is FraxTest {
 
         uint256 balanceAfter = oft.balanceOf(bob);
         assertEq(balanceAfter, balanceBefore + value, "Bob's balance should now be 101e18");
+        assertTrue(oft.isAuthorizationUsed(al, nonce), "Authorization should be marked as used");
     }
 
-    function test_ReceiveWithAuthorization_succeeds() external {
+    function test_ReceiveWithAuthorization_succeeds() public {
         uint256 balanceBefore = oft.balanceOf(bob);
         assertEq(balanceBefore, 100e18, "Bob's balance should be 100e18 before transfer");
 
         // al authorized bob to transfer 1e18 from al to bob
-        uint256 value = 1e18;
-        uint256 validAfter = block.timestamp - 1;
-        uint256 validBefore = block.timestamp + 1 days;
-        bytes32 nonce = bytes32(abi.encode(1));
         SigUtils.Authorization memory authorization = SigUtils.Authorization({
             from: al,
             to: bob,
@@ -149,14 +148,11 @@ contract FraxOFTUpgradeableTest is FraxTest {
 
         uint256 balanceAfter = oft.balanceOf(bob);
         assertEq(balanceAfter, balanceBefore + value, "Bob's balance should now be 101e18");
+        assertTrue(oft.isAuthorizationUsed(al, nonce), "Authorization should be marked as used");
     }
 
-    function test_CancelAuthorization_succeeds() external {
+    function test_CancelAuthorization_succeeds() public {
         // al authorizes bob to transfer 1e18 from al to bob
-        uint256 value = 1e18;
-        uint256 validAfter = block.timestamp - 1;
-        uint256 validBefore = block.timestamp + 1 days;
-        bytes32 nonce = bytes32(abi.encode(1));
         SigUtils.CancelAuthorization memory cancelAuthorization = SigUtils.CancelAuthorization({
             authorizer: al,
             nonce: nonce
@@ -172,6 +168,8 @@ contract FraxOFTUpgradeableTest is FraxTest {
             r: r,
             s: s
         });
+
+        assertTrue(oft.isAuthorizationUsed(al, nonce), "Authorization should be marked as used");
 
         SigUtils.Authorization memory authorization = SigUtils.Authorization({
             from: al,
@@ -189,6 +187,232 @@ contract FraxOFTUpgradeableTest is FraxTest {
         oft.transferWithAuthorization({
             from: al,
             to: bob,
+            value: value,
+            validAfter: validAfter,
+            validBefore: validBefore,
+            nonce: nonce,
+            v: v,
+            r: r,
+            s: s
+        });
+    }
+
+    function test_CancelAuthorization_UsedOrCanceledAuthorization_reverts() external {
+        // Successful auth with nonce 1
+        test_CancelAuthorization_succeeds();
+
+        SigUtils.CancelAuthorization memory cancelAuthorization = SigUtils.CancelAuthorization({
+            authorizer: al,
+            nonce: nonce
+        });
+        (uint8 v, bytes32 r, bytes32 s) = vm.sign(alPrivateKey, sigUtils.getCancelAuthorizationTypedDataHash(cancelAuthorization));
+
+        // al cancels the authorization
+        vm.prank(al);
+        vm.expectRevert(EIP3009Module.UsedOrCanceledAuthorization.selector);
+        oft.cancelAuthorization({
+            authorizer: al,
+            nonce: nonce,
+            v: v,
+            r: r,
+            s: s
+        });
+    }
+
+    function test_TransferWithAuthorization_UsedOrCanceledAuthorization_reverts() external {
+        // Successful auth with nonce 1
+        test_TransferWithAuthorization_succeeds();
+
+        SigUtils.Authorization memory authorization = SigUtils.Authorization({
+            from: al,
+            to: bob,
+            value: value,
+            validAfter: validAfter,
+            validBefore: validBefore,
+            nonce: nonce
+        });
+        (uint8 v, bytes32 r, bytes32 s) = vm.sign(alPrivateKey, sigUtils.getTransferWithAuthorizationTypedDataHash(authorization));
+
+        // Try to transfer with authorization should fail
+        vm.expectRevert(EIP3009Module.UsedOrCanceledAuthorization.selector);
+        vm.prank(bob);
+        oft.transferWithAuthorization({
+            from: al,
+            to: bob,
+            value: value,
+            validAfter: validAfter,
+            validBefore: validBefore,
+            nonce: nonce,
+            v: v,
+            r: r,
+            s: s
+        });
+    }
+
+    function test_ReceiveWithAuthorization_UsedOrCanceledAuthorization_reverts() external {
+        // Successful auth with nonce 1
+        test_ReceiveWithAuthorization_succeeds();
+
+        SigUtils.Authorization memory authorization = SigUtils.Authorization({
+            from: al,
+            to: bob,
+            value: value,
+            validAfter: validAfter,
+            validBefore: validBefore,
+            nonce: nonce
+        });
+        (uint8 v, bytes32 r, bytes32 s) = vm.sign(alPrivateKey, sigUtils.getReceiveWithAuthorizationTypedDataHash(authorization));
+
+        // Try to receive with authorization should fail
+        vm.expectRevert(EIP3009Module.UsedOrCanceledAuthorization.selector);
+        vm.prank(bob);
+        oft.receiveWithAuthorization({
+            from: al,
+            to: bob,
+            value: value,
+            validAfter: validAfter,
+            validBefore: validBefore,
+            nonce: nonce,
+            v: v,
+            r: r,
+            s: s
+        });
+    }
+
+    function test_TransferWithAuthorization_InvalidAuthorization_reverts() external {
+        // Try to transfer with authorization should fail
+        vm.expectRevert(EIP3009Module.InvalidAuthorization.selector);
+        vm.prank(bob);
+        oft.transferWithAuthorization({
+            from: al,
+            to: bob,
+            value: value,
+            validAfter: block.timestamp,
+            validBefore: validBefore,
+            nonce: nonce,
+            v: uint8(0),
+            r: bytes32(0),
+            s: bytes32(0)
+        });
+    }
+
+    function test_ReceiveWithAuthorization_InvalidAuthorization_reverts() external {
+        // Try to transfer with authorization should fail
+        vm.expectRevert(EIP3009Module.InvalidAuthorization.selector);
+        vm.prank(bob);
+        oft.receiveWithAuthorization({
+            from: al,
+            to: bob,
+            value: value,
+            validAfter: block.timestamp,
+            validBefore: validBefore,
+            nonce: nonce,
+            v: uint8(0),
+            r: bytes32(0),
+            s: bytes32(0)
+        });
+    }
+
+    function test_TransferWithAuthorization_ExpiredAuthorization_reverts() external {
+        // Try to transfer with authorization should fail
+        vm.expectRevert(EIP3009Module.ExpiredAuthorization.selector);
+        vm.prank(bob);
+        oft.transferWithAuthorization({
+            from: al,
+            to: bob,
+            value: value,
+            validAfter: validAfter,
+            validBefore: block.timestamp,
+            nonce: nonce,
+            v: uint8(0),
+            r: bytes32(0),
+            s: bytes32(0)
+        });
+    }
+
+    function test_ReceiveWithAuthorization_ExpiredAuthorization_reverts() external {
+        // Try to transfer with authorization should fail
+        vm.expectRevert(EIP3009Module.ExpiredAuthorization.selector);
+        vm.prank(bob);
+        oft.receiveWithAuthorization({
+            from: al,
+            to: bob,
+            value: value,
+            validAfter: validAfter,
+            validBefore: block.timestamp,
+            nonce: nonce,
+            v: uint8(0),
+            r: bytes32(0),
+            s: bytes32(0)
+        });
+    }
+
+    function test_ReceiveWithAuthorization_InvalidPayee_reverts() external {
+        vm.expectRevert(abi.encodeWithSelector(
+            EIP3009Module.InvalidPayee.selector,
+            bob,
+            owner
+        ));
+        vm.prank(bob);
+        oft.receiveWithAuthorization({
+            from: al,
+            to: owner, // Invalid payee
+            value: value,
+            validAfter: validAfter,
+            validBefore: validBefore,
+            nonce: nonce,
+            v: uint8(0),
+            r: bytes32(0),
+            s: bytes32(0)
+        });
+    }
+
+    function test_TransferWithAuthorization_InvalidSignature_reverts() external {
+        // al authorized bob to transfer 1e18 from al to bob
+        SigUtils.Authorization memory authorization = SigUtils.Authorization({
+            from: al,
+            to: bob,
+            value: value,
+            validAfter: validAfter,
+            validBefore: validBefore,
+            nonce: nonce
+        });
+        (uint8 v, bytes32 r, bytes32 s) = vm.sign(alPrivateKey, sigUtils.getTransferWithAuthorizationTypedDataHash(authorization));
+
+        // bob tries to transfer from al to owner, which is not conformed to the signature
+        vm.prank(bob);
+        vm.expectRevert(EIP3009Module.InvalidSignature.selector);
+        oft.transferWithAuthorization({
+            from: al,
+            to: owner, // note: this is causing the revert
+            value: value,
+            validAfter: validAfter,
+            validBefore: validBefore,
+            nonce: nonce,
+            v: v,
+            r: r,
+            s: s
+        });
+    }
+
+    function test_ReceiveWithAuthorization_InvalidSignature_reverts() external {
+        // al authorized owner to transfer 1e18 from al to bob
+        SigUtils.Authorization memory authorization = SigUtils.Authorization({
+            from: al,
+            to: owner,
+            value: value,
+            validAfter: validAfter,
+            validBefore: validBefore,
+            nonce: nonce
+        });
+        (uint8 v, bytes32 r, bytes32 s) = vm.sign(alPrivateKey, sigUtils.getReceiveWithAuthorizationTypedDataHash(authorization));
+
+        // bob tries to receive the tokens, which is not conformed to the signature
+        vm.prank(bob);
+        vm.expectRevert(EIP3009Module.InvalidSignature.selector);
+        oft.receiveWithAuthorization({
+            from: al,
+            to: bob, // note: this is causing the revert
             value: value,
             validAfter: validAfter,
             validBefore: validBefore,

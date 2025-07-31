@@ -269,9 +269,9 @@
         {
             "RPC": "https://rpc.botanixlabs.com",
             "chainid": 3637,
-            "delegate": "0x6f8FDdfD4F6a1456BA5632C919bEF74b64DD032D",
+            "delegate": "0x0000000000000000000000000000000000000000",
             "dvnHorizen": "0x0000000000000000000000000000000000000000",
-            "dvnL0": "0x282b3386571f7f794450d5789911a9804fa346b4",
+            "dvnL0": "0x0000000000000000000000000000000000000000",
             "eid": 30376,
             "endpoint": "0x6F475642a6e85809B1c36Fa62763669b1b48DD5B",
             "receiveLib302": "0xe1844c5D63a9543023008D332Bd3d2e6f1FE1043",
@@ -280,9 +280,9 @@
         {
             "RPC": "https://rpc.katana.network",
             "chainid": 747474,
-            "delegate": "0x6f8FDdfD4F6a1456BA5632C919bEF74b64DD032D",
+            "delegate": "0x19A90b0476cdc8EC1239266663CA820175B9B527",
             "dvnHorizen": "0x0000000000000000000000000000000000000000",
-            "dvnL0": "0x282b3386571f7f794450d5789911a9804fa346b4",
+            "dvnL0": "0x0000000000000000000000000000000000000000",
             "eid": 30375,
             "endpoint": "0x6F475642a6e85809B1c36Fa62763669b1b48DD5B",
             "receiveLib302": "0xe1844c5D63a9543023008D332Bd3d2e6f1FE1043",

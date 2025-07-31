@@ -162,6 +162,11 @@ const config: HardhatUserConfig = {
             url: process.env.RPC_URL_PLUMEPHOENIX || 'https://rpc.plume.org',
             accounts,
         },
+        "katana-mainnet":{
+            eid: EndpointId.KATANA_V2_MAINNET,
+            url: process.env.RPC_URL_KATANA || 'https://rpc.katana.network',
+            accounts,
+        },
         sepolia: {
             eid: EndpointId.SEPOLIA_V2_TESTNET,
             url: process.env.RPC_URL_SEPOLIA || 'https://rpc.sepolia.org/',

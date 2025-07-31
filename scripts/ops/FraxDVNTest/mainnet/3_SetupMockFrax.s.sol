@@ -71,7 +71,9 @@ contract SetupMockFrax is DeployFraxOFTProtocol {
     function setLib(L0Config memory _connectedConfig, address _connectedOft, L0Config memory _config) public override {
         if (_config.eid == 30168) return;
         if (_config.eid == 30151) return;
+
         if (_config.eid != 30375) return; // change the eid to desired remote
+
         if (_config.eid == 30370) {
             // if broadcast config is plumephoenix,
             // skip x-layer (30274), polygon zkevm (30158), worldchain (30319), zksync (30165), movement (30325)
@@ -103,7 +105,9 @@ contract SetupMockFrax is DeployFraxOFTProtocol {
     ) public override {
         if (_dstConfig.eid == 30168) return;
         if (_dstConfig.eid == 30151) return;
+
         if (_dstConfig.eid != 30375) return; // change the eid to desired remote
+
         if (_srcConfig.eid == 30370) {
             // L0 team has not setup defaultSendLibrary and defaultReceiveLibrary on plumephoenix for
             // 30274 (x-layer), polygon zkevm (30158), worldchain (30319), zksync (30165), movement (30325)

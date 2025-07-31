@@ -29,6 +29,7 @@ import { FraxOFTUpgradeable } from "contracts/FraxOFTUpgradeable.sol";
 // abstract : forge script scripts/ops/FraxDVNTest/mainnet/5_SendMockFrax.s.sol --rpc-url https://api.mainnet.abs.xyz --zksync  // Note: this was performed directly on etherscan
 // unichain : forge script scripts/ops/FraxDVNTest/mainnet/5_SendMockFrax.s.sol --rpc-url https://mainnet.unichain.org --broadcast
 // plumephoenix : forge script scripts/ops/FraxDVNTest/mainnet/5_SendMockFrax.s.sol --rpc-url https://rpc.plume.org --broadcast
+// katana : forge script scripts/ops/FraxDVNTest/mainnet/5_SendMockFrax.s.sol --rpc-url https://rpc.katana.network --broadcast
 
 contract SendMockFrax is BaseL0Script {
     // 1,81457,8453,34443,1329,252,196,146,57073,42161,10,137,43114,56,1101,80094,480,130
@@ -66,6 +67,16 @@ contract SendMockFrax is BaseL0Script {
                     allConfigs[_i].eid == 30158 ||
                     allConfigs[_i].eid == 30319 ||
                     allConfigs[_i].eid == 30165 ||
+                    allConfigs[_i].eid == 30325 ||
+                    allConfigs[_i].eid == 30108
+                ) continue;
+            }
+            if (broadcastConfig.eid == 30375) {
+                // L0 team has not setup defaultSendLibrary and defaultReceiveLibrary on katana for
+                // unichain (30320), plumephoenix, (30370), movement (30325) and aptos (30108)
+                if (
+                    allConfigs[_i].eid == 30320 ||
+                    allConfigs[_i].eid == 30370 ||
                     allConfigs[_i].eid == 30325 ||
                     allConfigs[_i].eid == 30108
                 ) continue;
@@ -110,6 +121,17 @@ contract SendMockFrax is BaseL0Script {
                     allConfigs[_i].eid == 30108
                 ) continue;
             }
+            if (broadcastConfig.eid == 30375) {
+                // L0 team has not setup defaultSendLibrary and defaultReceiveLibrary on katana for
+                // unichain (30320), plumephoenix, (30370), movement (30325) and aptos (30108)
+                if (
+                    allConfigs[_i].eid == 30320 ||
+                    allConfigs[_i].eid == 30370 ||
+                    allConfigs[_i].eid == 30325 ||
+                    allConfigs[_i].eid == 30108
+                ) continue;
+            }
+            if (allConfigs[_i].eid != 30375) continue;
             bytes32 recipientWallet;
             if (allConfigs[_i].eid == 30168) {
                 // solana
@@ -124,7 +146,7 @@ contract SendMockFrax is BaseL0Script {
                 // zksync
                 recipientWallet = addressToBytes32(mockFraxZkSyncWallet);
             } else {
-                // 1,81457,8453,34443,1329,252,196,146,57073,42161,10,137,43114,56,1101,80094,480,130
+                // 1,81457,8453,34443,1329,252,196,146,57073,42161,10,137,43114,56,1101,80094,480,130,98866,747474
                 recipientWallet = addressToBytes32(mockFraxWallet);
             }
             SendParam memory _sendParam = SendParam({

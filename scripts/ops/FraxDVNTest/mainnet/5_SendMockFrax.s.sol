@@ -45,7 +45,7 @@ contract SendMockFrax is BaseL0Script {
     address public constant mockFraxLinea = 0x6185334f1542a9966CbaD694577fFbede3DD1f1F;
     address public constant mockFraxLineaWallet = 0xD555D90A6b23B285575cd6192D972e35F70b5B89;
 
-    uint256 amount = 1 ether;
+    uint256 amount = 0.6 ether;
 
     SendParam[] public sendParams;
     IOFT[] public ofts;
@@ -124,6 +124,8 @@ contract SendMockFrax is BaseL0Script {
             if (broadcastConfig.eid == 30375) {
                 // L0 team has not setup defaultSendLibrary and defaultReceiveLibrary on katana for
                 // unichain (30320), plumephoenix, (30370), movement (30325) and aptos (30108)
+                // // TODO : temporary block sending to ethereum
+                // if (allConfigs[_i].eid == 30101) continue;
                 if (
                     allConfigs[_i].eid == 30320 ||
                     allConfigs[_i].eid == 30370 ||

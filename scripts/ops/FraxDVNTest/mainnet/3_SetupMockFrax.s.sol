@@ -74,7 +74,7 @@ contract SetupMockFrax is DeployFraxOFTProtocol {
 
         if (_config.eid != 30375) return; // change the eid to desired remote
 
-        if (_config.eid == 30370) {
+        if (_connectedConfig.eid == 30370) {
             // if broadcast config is plumephoenix,
             // skip x-layer (30274), polygon zkevm (30158), worldchain (30319), zksync (30165), movement (30325)
             // and aptos (30108)

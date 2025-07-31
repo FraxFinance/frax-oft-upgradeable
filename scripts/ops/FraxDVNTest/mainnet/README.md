@@ -353,8 +353,8 @@ worldchain : https://layerzeroscan.com/tx/0x0662527651bcc375230985fdb1da1bd736d6
 
 * worldchain : https://layerzeroscan.com/tx/0x406cb0ce7eb509cd64d220a4b6d9323497c377d095721bb3918e77b997870de0
 
-* zksync era :
+* zksync era : https://layerzeroscan.com/tx/0x6bf11c0e5fa55115e447e06aedb4f0d17ca176af284fc3c3654046d33deab9c0
 
-* abstract : 
+* abstract : https://layerzeroscan.com/tx/0x8c0da824258081f81b2cd0aa001ab48c1401f41aec1f8f8c564af099dd140aaf
 
-* katana : 
+* katana : https://layerzeroscan.com/tx/0x96a41e386956318ed5164f0debebd307a363a49fb0d63a3ee8f714bbc3709642

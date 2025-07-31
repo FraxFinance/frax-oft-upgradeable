@@ -1,5 +1,4 @@
 import { EndpointId } from '@layerzerolabs/lz-definitions'
-import { getOftStoreAddress } from '../../tasks/solana'
 import type { OmniPointHardhat } from '@layerzerolabs/toolbox-hardhat'
 import { ExecutorOptionType } from '@layerzerolabs/lz-v2-utilities'
 
@@ -10,7 +9,7 @@ enum MsgType {
 
 const solanaContract: OmniPointHardhat = {
     eid: EndpointId.SOLANA_V2_MAINNET,
-    address: getOftStoreAddress(EndpointId.SOLANA_V2_MAINNET),
+    address: "12fneM2nVTNuxDkrFZ82FQkYB7DMLHtBeu8A55rvnz8U",
 }
 
 const movementContract: OmniPointHardhat = {

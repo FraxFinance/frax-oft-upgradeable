@@ -8,7 +8,7 @@ import type { OAppOmniGraphHardhat, OmniPointHardhat } from '@layerzerolabs/tool
 const fraxtalContract: OmniPointHardhat = {
     eid: EndpointId.FRAXTAL_V2_MAINNET,
     address: '0x0ebFC51719acF4e2D0d4869C04b69F5FD26C27E5',
-    contractName: 'FraxOFTAdapterUpgradeable'
+    contractName: 'frxUSDOFT'
 }
 
 const solanaContract: OmniPointHardhat = {

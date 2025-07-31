@@ -8,6 +8,7 @@ import L0Config from "../L0Config.json"
 import { zeroAddress } from 'viem'
 import { readFileSync } from 'fs'
 import path from 'path'
+import nonEVMDVN from '../../config/dvn/non-evm.json'
 
 enum MsgType {
     SEND = 1,
@@ -27,7 +28,6 @@ type lzConfigType = {
 }
 
 const dvnConfigPath = "config/dvn"
-const zeroBytes32 = '0x0000000000000000000000000000000000000000000000000000000000000000'
 
 const chainIds = [
     1, 10, 56, 130, 137, 146, 196, 252, 324, 480, 1101, 1329, 2741, 8453, 34443, 42161, 43114, 57073, 59144, 80094, 81457
@@ -206,13 +206,13 @@ function generateSrcConnectionConfig(lzConfig: lzConfigType[]): OmniEdgeHardhat<
 
         dvnKeys.forEach(key => {
             const dst = dstDVNConfig["22222222"]?.[key] ?? zeroAddress;
-            const src = srcDVNConfig[_chainid]?.[key] ?? zeroBytes32;
+            const src = srcDVNConfig[_chainid]?.[key] ?? zeroAddress;
 
-            if (dst !== zeroAddress || src !== zeroBytes32) {
-                if (dst === zeroAddress || src === zeroBytes32) {
+            if (dst !== zeroAddress || src !== zeroAddress) {
+                if (dst === zeroAddress || src === zeroAddress) {
                     throw new Error(`DVN Stack misconfigured: ${_chainid}<>movement-${key}`);
                 }
-                requiredSrcDVNs.push(src);
+                requiredSrcDVNs.push(nonEVMDVN["22222222"][key]);
             }
         });
 
@@ -316,11 +316,11 @@ function generateDstConnectionConfig(lzConfig: lzConfigType[]): OmniEdgeHardhat<
         const srcDVNConfig = JSON.parse(readFileSync(path.join(__dirname, `../../${dvnConfigPath}/${_chainid}.json`), "utf8"));
 
         dvnKeys.forEach(key => {
-            const dst = dstDVNConfig[_chainid]?.[key] ?? zeroBytes32;
+            const dst = dstDVNConfig[_chainid]?.[key] ?? zeroAddress;
             const src = srcDVNConfig["22222222"]?.[key] ?? zeroAddress;
 
-            if (dst !== zeroBytes32 || src !== zeroAddress) {
-                if (dst === zeroBytes32 || src === zeroAddress) {
+            if (dst !== zeroAddress || src !== zeroAddress) {
+                if (dst === zeroAddress || src === zeroAddress) {
                     throw new Error(`DVN Stack misconfigured: ${_chainid}<>movement-${key}`);
                 }
                 requiredDstDVNs.push(src);

@@ -319,7 +319,7 @@ worldchain : https://layerzeroscan.com/tx/0x0662527651bcc375230985fdb1da1bd736d6
 
 * frax : https://layerzeroscan.com/tx/0xd5fd1ebf8cfc3d4cecbf7396fa50313cdb045c7747a1c9827228a868fa693a81
 
-* ethereum : DVN_EidNotSupported(30375)
+* ethereum : https://layerzeroscan.com/tx/0xc7333caa3edb72db7b90f742f362c4b6247721d1e54215735bcd7d247a21e0e4
 
 * blast : https://layerzeroscan.com/tx/0xa6aa5d57acb545257a3f3f5407a948887c2885f15ff30fa6a5e89d3d0717f6c4
 
@@ -358,3 +358,5 @@ worldchain : https://layerzeroscan.com/tx/0x0662527651bcc375230985fdb1da1bd736d6
 * abstract : https://layerzeroscan.com/tx/0x8c0da824258081f81b2cd0aa001ab48c1401f41aec1f8f8c564af099dd140aaf
 
 * katana : https://layerzeroscan.com/tx/0x96a41e386956318ed5164f0debebd307a363a49fb0d63a3ee8f714bbc3709642
+
+* katana to ethereum : https://layerzeroscan.com/tx/0xd759c27c101ee552ef78f8762dbcaacd39b95d12a954bc0a2e634504d7d65054

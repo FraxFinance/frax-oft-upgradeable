@@ -244,5 +244,11 @@
             "https://rpc.plume.org"
         ],
         "quorum": 2
+    },
+    "katana":{
+        "uris":[
+            "https://rpc.katana.network"
+        ],
+        "quorum": 2
     }
 }

@@ -7,7 +7,7 @@ import { FrxUSDOFTUpgradeable } from "contracts/frxUsd/FrxUSDOFTUpgradeable.sol"
 import { SFrxUSDUpgradeable } from "contracts/frxUsd/SFrxUSDUpgradeable.sol";
 import { WFRAXTokenOFTUpgradeable } from "contracts/WFRAXTokenOFTUpgradeable.sol";
 
-abstract contract UpgradeV110Destinations is DeployFraxOFTProtocol {
+abstract contract UpgradeV110Destination is DeployFraxOFTProtocol {
 
     address public oftImplementation;
     address public frxUsdImplementation;
@@ -16,8 +16,8 @@ abstract contract UpgradeV110Destinations is DeployFraxOFTProtocol {
 
     function filename() public override returns (string memory) {
         string memory root = vm.projectRoot();
-        root = string.concat(root, "/scripts/ops/V110/txs/");
-        string memory name = string.concat("UpgradeV110Destinations-", simulateConfig.chainid.toString());
+        root = string.concat(root, "/scripts/ops/V110/Destination/txs/");
+        string memory name = string.concat("UpgradeV110Destination-", simulateConfig.chainid.toString());
         name = string.concat(name, ".json");
 
         return string.concat(root, name);

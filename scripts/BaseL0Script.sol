@@ -139,6 +139,8 @@ contract BaseL0Script is L0Constants, Script {
             require (proxyOfts.length == 6, "proxyOfts.length != 6");
         }
 
+        connectedOfts = new address[](6);
+
         /// @dev order maintained through L0Constants.sol `constructor()` and DeployFraxOFTProtocol.s.sol `deployFraxOFTUpgradeablesAndProxies()`
         if (simulateConfig.chainid == 1) {
             connectedOfts[0] = ethLockboxes[0];

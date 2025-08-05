@@ -1,8 +1,6 @@
 pragma solidity ^0.8.0;
 
 import {EIP712Upgradeable} from "./shared/EIP712Upgradeable.sol";
-import {SignatureChecker} from "@openzeppelin/contracts/utils/cryptography/SignatureChecker.sol";
-import {ECDSA} from "@openzeppelin/contracts/utils/cryptography/ECDSA.sol";
 
 /// @title Eip3009
 /// @notice Eip3009 provides internal implementations for gas-abstracted transfers under Eip3009 guidelines
@@ -102,8 +100,8 @@ abstract contract EIP3009Module is EIP712Upgradeable {
 
         // Checks: valid signature
         _requireIsValidSignatureNow({
-            _signer: from,
-            _dataHash: keccak256(
+            signer: from,
+            structHash: keccak256(
                 abi.encode(TRANSFER_WITH_AUTHORIZATION_TYPEHASH, from, to, value, validAfter, validBefore, nonce)
             ),
             signature: signature
@@ -176,8 +174,8 @@ abstract contract EIP3009Module is EIP712Upgradeable {
 
         // Checks: valid signature
         _requireIsValidSignatureNow({
-            _signer: from,
-            _dataHash: keccak256(
+            signer: from,
+            structHash: keccak256(
                 abi.encode(RECEIVE_WITH_AUTHORIZATION_TYPEHASH, from, to, value, validAfter, validBefore, nonce)
             ),
             signature: signature
@@ -207,8 +205,8 @@ abstract contract EIP3009Module is EIP712Upgradeable {
     function cancelAuthorization(address authorizer, bytes32 nonce, bytes memory signature) public {
         _requireUnusedAuthorization({ authorizer: authorizer, nonce: nonce });
         _requireIsValidSignatureNow({
-            _signer: authorizer,
-            _dataHash: keccak256(abi.encode(CANCEL_AUTHORIZATION_TYPEHASH, authorizer, nonce)),
+            signer: authorizer,
+            structHash: keccak256(abi.encode(CANCEL_AUTHORIZATION_TYPEHASH, authorizer, nonce)),
             signature: signature
         });
 
@@ -219,23 +217,6 @@ abstract contract EIP3009Module is EIP712Upgradeable {
     //==============================================================================
     // Internal Checks Functions
     //==============================================================================
-
-    /// @notice The ```_requireIsValidSignatureNow``` function validates that signature against input data struct
-    /// @param _signer Signer's address
-    /// @param _dataHash Hash of encoded data struct
-    /// @param signature Signature byte array produced by an EOA wallet or a contract wallet
-    function _requireIsValidSignatureNow(address _signer, bytes32 _dataHash, bytes memory signature) private view {
-        if (
-            !SignatureChecker.isValidSignatureNow({
-                signer: _signer,
-                hash: ECDSA.toTypedDataHash({
-                    domainSeparator: _domainSeparatorV4(),
-                    structHash: _dataHash
-                }),
-                signature: signature
-            })
-        ) revert InvalidSignature();
-    }
 
     /// @notice The ```_requireUnusedAuthorization``` checks that an authorization nonce is unused
     /// @param authorizer    Authorizer's address
@@ -303,9 +284,6 @@ abstract contract EIP3009Module is EIP712Upgradeable {
 
     /// @notice The ```ExpiredAuthorization``` error is emitted when the authorization is expired
     error ExpiredAuthorization();
-
-    /// @notice The ```InvalidSignature``` error is emitted when the signature is invalid
-    error InvalidSignature();
 
     /// @notice The ```UsedOrCanceledAuthorization``` error is emitted when the authorization nonce is already used or canceled
     error UsedOrCanceledAuthorization();

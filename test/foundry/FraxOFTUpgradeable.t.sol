@@ -4,6 +4,7 @@ pragma solidity ^0.8.20;
 import "scripts/DeployFraxOFTProtocol/DeployFraxOFTProtocol.s.sol";
 
 import {EIP3009Module} from "contracts/modules/EIP3009Module.sol";
+import {EIP712Upgradeable} from "contracts/modules/shared/EIP712Upgradeable.sol";
 import {SigUtils} from "./utils/SigUtils.sol";
 import "frax-std/FraxTest.sol";
 
@@ -381,7 +382,7 @@ contract FraxOFTUpgradeableTest is FraxTest {
 
         // bob tries to transfer from al to owner, which is not conformed to the signature
         vm.prank(bob);
-        vm.expectRevert(EIP3009Module.InvalidSignature.selector);
+        vm.expectRevert(EIP712Upgradeable.InvalidSignature.selector);
         oft.transferWithAuthorization({
             from: al,
             to: owner, // note: this is causing the revert
@@ -409,7 +410,7 @@ contract FraxOFTUpgradeableTest is FraxTest {
 
         // bob tries to receive the tokens, which is not conformed to the signature
         vm.prank(bob);
-        vm.expectRevert(EIP3009Module.InvalidSignature.selector);
+        vm.expectRevert(EIP712Upgradeable.InvalidSignature.selector);
         oft.receiveWithAuthorization({
             from: al,
             to: bob, // note: this is causing the revert

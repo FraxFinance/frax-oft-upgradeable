@@ -3,9 +3,8 @@ pragma solidity ^0.8.0;
 import {EIP712Upgradeable} from "./shared/EIP712Upgradeable.sol";
 
 import {Counters} from "@openzeppelin/contracts/utils/Counters.sol";
-import {ECDSA} from "@openzeppelin/contracts/utils/cryptography/ECDSA.sol";
 
-/// @dev Ripped from OZ 4.9.4 ERC20Permit.sol with namespaced storage
+/// @dev Ripped from OZ 4.9.4 ERC20Permit.sol with namespaced storage and support of ERC1271 signatures
 abstract contract PermitModule is EIP712Upgradeable {
 
     using Counters for Counters.Counter;
@@ -14,8 +13,7 @@ abstract contract PermitModule is EIP712Upgradeable {
     // Storage
     //==============================================================================
 
-    // solhint-disable-next-line var-name-mixedcase
-    bytes32 private constant _PERMIT_TYPEHASH =
+    bytes32 private constant PERMIT_TYPEHASH =
         keccak256("Permit(address owner,address spender,uint256 value,uint256 nonce,uint256 deadline)");
 
     struct PermitModuleStorage {
@@ -44,14 +42,29 @@ abstract contract PermitModule is EIP712Upgradeable {
         bytes32 r,
         bytes32 s
     ) external virtual {
+        permit({
+            owner: owner,
+            spender: spender,
+            value: value,
+            deadline: deadline,
+            signature: abi.encodePacked(r, s, v)
+        });
+    }
+
+    function permit(
+        address owner,
+        address spender,
+        uint256 value,
+        uint256 deadline,
+        bytes memory signature
+    ) public virtual {
         require(block.timestamp <= deadline, "ERC20Permit: expired deadline");
 
-        bytes32 structHash = keccak256(abi.encode(_PERMIT_TYPEHASH, owner, spender, value, _useNonce(owner), deadline));
-
-        bytes32 hash = _hashTypedDataV4(structHash);
-
-        address signer = ECDSA.recover(hash, v, r, s);
-        require(signer == owner, "ERC20Permit: invalid signature");
+        _requireIsValidSignatureNow({
+            signer: owner,
+            structHash: keccak256(abi.encode(PERMIT_TYPEHASH, owner, spender, value, _useNonce(owner), deadline)),
+            signature: signature
+        });
 
         _approve(owner, spender, value);
     }

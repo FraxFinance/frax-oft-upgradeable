@@ -27,20 +27,20 @@ abstract contract FreezeThawModule {
     /// @notice Internal helper function to freeze an account
     /// @param account The account to freeze
     /// @dev To be called externally by admin
-    /// @dev Reverts if the account is already frozen
+    /// @dev Does not revert if the account is already frozen so that freezing always succeeds
     function _freeze(address account) internal virtual {
         FreezeThawStorage storage $ = _getFreezeThawStorage();
-        if (!$.frozen.add(account)) revert AlreadyFrozen();
+        $.frozen.add(account);
         emit AccountFrozen(account);
     }
 
     /// @notice Internal helper function to unfreeze an account
     /// @param account The account to unfreeze
     /// @dev To be called externally by admin
-    /// @dev Reverts if the account is not frozen
+    /// @dev Does not revert if the account is not frozen so that thawing always succeeds
     function _thaw(address account) internal virtual {
         FreezeThawStorage storage $ = _getFreezeThawStorage();
-        if (!$.frozen.remove(account)) revert NotFrozen();
+        $.frozen.remove(account);
         emit AccountThawed(account);
     }
 
@@ -134,6 +134,4 @@ abstract contract FreezeThawModule {
     /* ========== ERRORS ========== */
     error AlreadyFreezer();
     error NotFreezer();
-    error AlreadyFrozen();
-    error NotFrozen();
 }

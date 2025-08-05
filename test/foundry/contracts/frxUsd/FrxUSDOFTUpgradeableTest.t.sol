@@ -139,13 +139,12 @@ contract FrxUSDOFTUpgradeableTest is FraxTest {
         assertEq(frozen[0], bob);
     }
 
-    function test_Freeze_AlreadyFrozen_reverts() external {
+    function test_Freeze_AlreadyFrozen_succeeds() external {
         vm.prank(oft.owner());
         oft.addFreezer(al);
 
         vm.startPrank(al);
         oft.freeze(bob);
-        vm.expectRevert(FreezeThawModule.AlreadyFrozen.selector);
         oft.freeze(bob);
     }
 
@@ -195,9 +194,8 @@ contract FrxUSDOFTUpgradeableTest is FraxTest {
         assertEq(frozen.length, 0);
     }
 
-    function test_Thaw_NotFrozen_reverts() external {
+    function test_Thaw_NotFrozen_succeeds() external {
         vm.prank(oft.owner());
-        vm.expectRevert(FreezeThawModule.NotFrozen.selector);
         oft.thaw(bob);
     }
 
@@ -316,8 +314,6 @@ contract FrxUSDOFTUpgradeableTest is FraxTest {
 
     function test_Burn_FullAmount_succeeds() external {
         deal(address(oft), al, 1e18);
-
-        uint256 balanceBefore = oft.balanceOf(al);
 
         vm.prank(oft.owner());
         oft.burn(al, 0);

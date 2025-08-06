@@ -5,7 +5,6 @@ pragma solidity ^0.8.20;
 
 import {IERC5267} from "@openzeppelin/contracts/interfaces/IERC5267.sol";
 import {ECDSAUpgradeable} from "@openzeppelin/contracts-upgradeable/utils/cryptography/ECDSAUpgradeable.sol";
-import {SignatureChecker} from "@openzeppelin/contracts/utils/cryptography/SignatureChecker.sol";
 
 /**
   @notice This contract is a blend of OZ 4 and 5 to
@@ -15,7 +14,6 @@ import {SignatureChecker} from "@openzeppelin/contracts/utils/cryptography/Signa
   @dev Starting at OZ 5.3, key changes are
     - Initializable removed
     - MessageHashUtils (5.x) replaced with ECDSAUpgradeable (4.x)
-    - isValidSignatureNow() added
 */
 
 /**
@@ -109,7 +107,7 @@ abstract contract EIP712Upgradeable is IERC5267 {
      *
      * ```solidity
      * bytes32 digest = _hashTypedDataV4(keccak256(abi.encode(
-     *     keccak256("Mail(address to,string contents)"),
+     *     keccak256("Mail(address to,strAing contents)"),
      *     mailTo,
      *     keccak256(bytes(mailContents))
      * )));
@@ -118,20 +116,6 @@ abstract contract EIP712Upgradeable is IERC5267 {
      */
     function _hashTypedDataV4(bytes32 structHash) internal view virtual returns (bytes32) {
         return ECDSAUpgradeable.toTypedDataHash(_domainSeparatorV4(), structHash);
-    }
-
-    /// @dev Added error for invalid signatures
-    error InvalidSignature();
-
-    /// @dev Added supportive function to check if the signature is valid
-    function _requireIsValidSignatureNow(address signer, bytes32 structHash, bytes memory signature) internal view {
-        if (
-            !SignatureChecker.isValidSignatureNow({
-                signer: signer,
-                hash: _hashTypedDataV4({structHash: structHash}),
-                signature: signature
-            })
-        ) revert InvalidSignature();
     }
 
     /**

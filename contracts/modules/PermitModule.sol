@@ -1,11 +1,11 @@
 pragma solidity ^0.8.0;
 
-import {EIP712Upgradeable} from "./shared/EIP712Upgradeable.sol";
+import {SignatureModule} from "./signatureModule/SignatureModule.sol";
 
 import {Counters} from "@openzeppelin/contracts/utils/Counters.sol";
 
 /// @dev Ripped from OZ 4.9.4 ERC20Permit.sol with namespaced storage and support of ERC1271 signatures
-abstract contract PermitModule is EIP712Upgradeable {
+abstract contract PermitModule is SignatureModule {
 
     using Counters for Counters.Counter;
 

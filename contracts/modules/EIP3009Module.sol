@@ -1,11 +1,11 @@
 pragma solidity ^0.8.0;
 
-import {EIP712Upgradeable} from "./shared/EIP712Upgradeable.sol";
+import {SignatureModule} from "./signatureModule/SignatureModule.sol";
 
 /// @title Eip3009
 /// @notice Eip3009 provides internal implementations for gas-abstracted transfers under Eip3009 guidelines
 /// @author Frax Finance, inspired by Agora (thanks Drake)
-abstract contract EIP3009Module is EIP712Upgradeable {
+abstract contract EIP3009Module is SignatureModule {
 
     /// @notice keccak256("TransferWithAuthorization(address from,address to,uint256 value,uint256 validAfter,uint256 validBefore,bytes32 nonce)")
     bytes32 internal constant TRANSFER_WITH_AUTHORIZATION_TYPEHASH =

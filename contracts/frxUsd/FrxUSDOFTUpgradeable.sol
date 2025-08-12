@@ -4,21 +4,45 @@ pragma solidity ^0.8.22;
 import { OFTUpgradeable } from "@fraxfinance/layerzero-v2-upgradeable/oapp/contracts/oft/OFTUpgradeable.sol";
 import { FreezeThawModule } from "contracts/modules/FreezeThawModule.sol";
 import { PauseModule } from "contracts/modules/PauseModule.sol";
+import { EIP3009Module } from "contracts/modules/EIP3009Module.sol";
+import { PermitModule } from "contracts/modules/PermitModule.sol";
 import { SendParam } from "@fraxfinance/layerzero-v2-upgradeable/oapp/contracts/oft/interfaces/IOFT.sol";
+import { ERC20Upgradeable } from "@openzeppelin/contracts-upgradeable/token/ERC20/ERC20Upgradeable.sol";
 
-contract FrxUSDOFTUpgradeable is OFTUpgradeable, FreezeThawModule, PauseModule {
-
+contract FrxUSDOFTUpgradeable is OFTUpgradeable, EIP3009Module, PermitModule, FreezeThawModule, PauseModule {
     constructor(address _lzEndpoint) OFTUpgradeable(_lzEndpoint) {
         _disableInitializers();
     }
 
-    function version() external pure returns (uint256 major, uint256 minor, uint256 patch) {
-        major = 1;
-        minor = 1;
-        patch = 0;
+    function version() public pure returns (string memory) {
+        return "1.1.0";
+    }
+    
+    /// @dev overrides state where previous OFT versions were named the legacy "FRAX"
+    function name() public pure override returns (string memory) {
+        return "Frax USD";
+    }
+
+    /// @dev overrides state where previous OFT versions were named the legacy "FRAX"
+    function symbol() public pure override returns (string memory) {
+        return "frxUSD";
     }
 
     // Admin
+
+    /// @dev This method is called specifically when deploying a new OFT
+    function initialize(address _delegate) external reinitializer(3) {
+        __OFT_init(name(), symbol(), _delegate);
+        __EIP712_init(name(), version());
+        
+        __Ownable_init();
+        _transferOwnership(_delegate);
+    }
+        
+    /// @dev This method is called specifically when upgrading an existing OFT
+    function initializeV110() external reinitializer(3) {
+        __EIP712_init(name(), version());
+    }
 
     /// @notice External admin gated function to add a freezer role to an account
     /// @param account The account to be added as a freezer
@@ -114,22 +138,6 @@ contract FrxUSDOFTUpgradeable is OFTUpgradeable, FreezeThawModule, PauseModule {
         super._beforeTokenTransfer(from, to, amount);
     }
 
-    function initialize(address _delegate) external initializer {
-        __OFT_init("Frax USD", "frxUSD", _delegate);
-        __Ownable_init();
-        _transferOwnership(_delegate);
-    }
-
-    /// @dev overrides state where previous OFT versions were named the legacy "FRAX"
-    function name() public pure override returns (string memory) {
-        return "Frax USD";
-    }
-
-    /// @dev overrides state where previous OFT versions were named the legacy "FRAX"
-    function symbol() public pure override returns (string memory) {
-        return "frxUSD";
-    }
-
     // Helper views
 
     function toLD(uint64 _amountSD) external view returns (uint256 amountLD) {
@@ -156,6 +164,20 @@ contract FrxUSDOFTUpgradeable is OFTUpgradeable, FreezeThawModule, PauseModule {
         return _buildMsgAndOptions(_sendParam, _amountLD);
     }
 
+    //==============================================================================
+    // Overrides
+    //==============================================================================
+
+    /// @dev supports EIP3009
+    function _transfer(address from, address to, uint256 amount) internal override(EIP3009Module, ERC20Upgradeable) {
+        return ERC20Upgradeable._transfer(from, to, amount);
+    }
+
+    /// @dev supports EIP2612
+    function _approve(address owner, address spender, uint256 amount) internal override(PermitModule, ERC20Upgradeable) {
+        return ERC20Upgradeable._approve(owner, spender, amount);
+    }
+    
     /* ========== ERRORS ========== */
     error ArrayMisMatch();
     error BeforeTokenTransferBlocked();

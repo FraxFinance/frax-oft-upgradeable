@@ -64,5 +64,23 @@ contract SafeTxUtil is Script {
         );
 
         vm.writeJson({json: finalJson, path: path});
+
+        string[] memory commands = new string[](4);
+        // re-used commands to find-replace
+        commands[0] = "sed";
+        commands[1] = "-i";
+        commands[3] = path;
+
+        // Remove all backslashes
+        commands[2] = "s/\\\\//g";
+        vm.ffi(commands);
+
+        // Replace `"[` with `[`]
+        commands[2] = 's/\\"\\[/\\[/g';
+        vm.ffi(commands);
+
+        // Replace `]"` with `]`
+        commands[2] = 's/\\]\\"/\\]/g';
+        vm.ffi(commands);
     }
 }

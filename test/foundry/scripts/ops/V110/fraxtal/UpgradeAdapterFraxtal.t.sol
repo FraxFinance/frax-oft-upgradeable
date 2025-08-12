@@ -1,6 +1,6 @@
 pragma solidity ^0.8.0;
 
-import "scripts/ops/UpgradeToMint/1a_UpgradeAdapterFraxtal.s.sol";
+import "scripts/ops/V110/fraxtal/UpgradeAdapterFraxtal.s.sol";
 import "frax-std/FraxTest.sol";
 
 struct Origin {

@@ -138,9 +138,6 @@ contract FrxUSDOFTUpgradeable is OFTUpgradeable, EIP3009Module, PermitModule, Fr
         super._beforeTokenTransfer(from, to, amount);
     }
 
-
-    }
-
     // Helper views
 
     function toLD(uint64 _amountSD) external view returns (uint256 amountLD) {

@@ -7,7 +7,7 @@ interface IERC20PermitPermissionedOptiMintable {
     function addMinter(address) external;
 }
 
-// forge script scripts/ops/UpgradeToMint/1a_UpgradeAdapterFraxtal.s.sol --rpc-url https://rpc.frax.com
+// forge script scripts/ops/V110/fraxtal/UpgradeAdapterFraxtal.s.sol --rpc-url https://rpc.frax.com
 contract UpgradeAdapter is DeployFraxOFTProtocol {
     
     address frxUsd = 0xFc00000000000000000000000000000000000001;
@@ -39,7 +39,7 @@ contract UpgradeAdapter is DeployFraxOFTProtocol {
 
     function filename() public view override returns (string memory) {
         string memory root = vm.projectRoot();
-        root = string.concat(root, "/scripts/ops/UpgradeToMint/txs/252");
+        root = string.concat(root, "/scripts/ops/V110/fraxtal/txs/UpgradeAdapter");
 
         if (msigSubmissionCount == 1) {
             return string.concat(root, "-comptroller.json");

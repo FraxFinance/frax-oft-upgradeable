@@ -3,7 +3,6 @@ import { ExecutorOptionType } from '@layerzerolabs/lz-v2-utilities'
 import { generateConnectionsConfig } from '@layerzerolabs/metadata-tools'
 import { OAppEnforcedOption, OmniPointHardhat } from '@layerzerolabs/toolbox-hardhat'
 import L0Config from "../L0Config.json"
-import { getOftStoreAddress } from '../../tasks/solana'
 import { zeroAddress } from 'viem'
 import { readFileSync } from 'fs'
 import path from 'path'
@@ -19,7 +18,7 @@ const dvnKeys = ['bcwGroup', 'frax', 'horizen', 'lz', 'nethermind', 'stargate'] 
 
 const solanaContract: OmniPointHardhat = {
     eid: EndpointId.SOLANA_V2_MAINNET,
-    address: getOftStoreAddress(EndpointId.SOLANA_V2_MAINNET),
+    address: "12fneM2nVTNuxDkrFZ82FQkYB7DMLHtBeu8A55rvnz8U",
 }
 
 enum MsgType {
@@ -125,7 +124,7 @@ export default async function () {
 
         const evmContract = {
             eid: eid,
-            contractName: _chainid == 252 ? "FraxOFTMintableUpgradeable" : "MockFRAXUpgradeable",
+            contractName: _chainid == 252 ? "MockFraxMintableOFT" : "MockFrax",
             address: OFTAddress
         }
         contracts.push({ contract: evmContract })

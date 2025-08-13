@@ -1,22 +1,27 @@
+pragma solidity ^0.8.0;
+
 import "scripts/DeployFraxOFTProtocol/DeployFraxOFTProtocol.s.sol";
 
 import { ERC1967Utils } from "@openzeppelin-5/contracts/proxy/ERC1967/ERC1967Utils.sol";
 
 import { FraxOFTUpgradeable } from "contracts/FraxOFTUpgradeable.sol";
 import { FrxUSDOFTUpgradeable } from "contracts/frxUsd/FrxUSDOFTUpgradeable.sol";
-import { SFrxUSDUpgradeable } from "contracts/frxUsd/SFrxUSDUpgradeable.sol";
+import { SFrxUSDOFTUpgradeable } from "contracts/frxUsd/SFrxUSDOFTUpgradeable.sol";
 import { WFRAXTokenOFTUpgradeable } from "contracts/WFRAXTokenOFTUpgradeable.sol";
 
-abstract contract UpgradeV110Destination is DeployFraxOFTProtocol {
+
+abstract contract UpgradeV110Destinations is DeployFraxOFTProtocol {
+    using stdJson for string;
+    using Strings for uint256;
 
     address public oftImplementation;
     address public frxUsdImplementation;
     address public sfrxUsdImplementation;
     address public wfraxImplementation;
 
-    function filename() public override returns (string memory) {
+    function filename() public view override returns (string memory) {
         string memory root = vm.projectRoot();
-        root = string.concat(root, "/scripts/ops/V110/Destination/txs/");
+        root = string.concat(root, "/scripts/ops/V110/destinations/txs/");
         string memory name = string.concat("UpgradeV110Destination-", simulateConfig.chainid.toString());
         name = string.concat(name, ".json");
 
@@ -27,7 +32,7 @@ abstract contract UpgradeV110Destination is DeployFraxOFTProtocol {
         
         // Setup environment
         vm.createSelectFork(_config.RPC);
-        simulateConfig = _simulateConfig;
+        simulateConfig = _config;
         _populateConnectedOfts();
         delete serializedTxs;
 
@@ -41,7 +46,7 @@ abstract contract UpgradeV110Destination is DeployFraxOFTProtocol {
             implementations[0] = wfraxImplementation;
 
             connectedOfts = new address[](1);
-            connectedOfts[0] = ethereumFraxOft;
+            connectedOfts[0] = ethFraxOft;
             
             submitUpgrades(implementations);
         } else {
@@ -53,7 +58,7 @@ abstract contract UpgradeV110Destination is DeployFraxOFTProtocol {
             // align implementations to the order of connectedOfts array
             address[] memory implementations = new address[](6);
             implementations[0] = wfraxImplementation; // WFRAX
-            implementations[1] = oftImplementation; // sfrxUSD
+            implementations[1] = sfrxUsdImplementation; // sfrxUSD
             implementations[2] = oftImplementation; // sfrxETH
             implementations[3] = frxUsdImplementation; // frxUSD
             implementations[4] = oftImplementation; // frxETH
@@ -63,7 +68,7 @@ abstract contract UpgradeV110Destination is DeployFraxOFTProtocol {
         }
     }
 
-    function deployImplementations(address memory _endpoint) public {
+    function deployImplementations(address _endpoint) public {
         deployOftImplementation(_endpoint);
         deployFrxUsdImplementation(_endpoint);
         deploySFrxUsdImplementation(_endpoint);
@@ -79,7 +84,7 @@ abstract contract UpgradeV110Destination is DeployFraxOFTProtocol {
     }
 
     function deploySFrxUsdImplementation(address _endpoint) public {
-        sfrxUsdImplementation = address(new SFrxUSDUpgradeable(_endpoint));
+        sfrxUsdImplementation = address(new SFrxUSDOFTUpgradeable(_endpoint));
     }
 
     function deployWFraxImplementation(address _endpoint) public {
@@ -100,7 +105,7 @@ abstract contract UpgradeV110Destination is DeployFraxOFTProtocol {
             address implementation = _implementations[i];
 
             // cache the symbol to ensure we're upgrading to the right implementation
-            string memory symbolBefore = IERC20Metadata(oft).symbol();
+            string memory symbolBefore = FraxOFTUpgradeable(oft).symbol();
 
             // Generate the msig slot
             bytes memory initData = abi.encodeWithSignature("initializeV110()");
@@ -122,7 +127,7 @@ abstract contract UpgradeV110Destination is DeployFraxOFTProtocol {
 
             // post-upgrade validations
             require(
-                isStringEqual(symbolBefore, IERC20Metadata(oft).symbol()),
+                isStringEqual(symbolBefore, FraxOFTUpgradeable(oft).symbol()),
                 "Upgrade failed: Symbol changed unexpectedly"
             );
 

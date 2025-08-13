@@ -1,4 +1,7 @@
-import {UpgradeV110Destinations} from "./UpgradeV110Destinations.s.sol";
+pragma solidity ^0.8.0;
+
+import {UpgradeV110Destinations, L0Config} from "./UpgradeV110Destinations.s.sol";
+
 
 contract UpgradeV110DestinationsZK is UpgradeV110Destinations {
 

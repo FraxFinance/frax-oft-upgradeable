@@ -17,10 +17,8 @@ contract FraxOFTMintableAdapterUpgradeable is OFTAdapterUpgradeable, SupplyTrack
         _disableInitializers();
     }
 
-    function version() external pure returns (uint256 major, uint256 minor, uint256 patch) {
-        major = 1;
-        minor = 1;
-        patch = 0;
+    function version() public pure returns (string memory) {
+        return "1.1.0";
     }
 
     /// @notice Recover all tokens to owner

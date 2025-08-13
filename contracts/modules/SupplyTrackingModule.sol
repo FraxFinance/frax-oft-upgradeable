@@ -40,7 +40,8 @@ abstract contract SupplyTrackingModule {
     function _setInitialTotalSupply(uint32 _eid, uint256 _amount) internal {
         SupplyTrackingStorage storage $ = _getSupplyTrackingStorage();
         $.initialTotalSupply[_eid] = _amount;
-        // reset the transfer amounts for the EID as well
+        // reset the transfer amounts for the EID as well as initialTotalSupply == current supply,
+        // which means there should be no pre-existing transferFrom/transferTo
         $.totalTransferFrom[_eid] = 0;
         $.totalTransferTo[_eid] = 0;
     }
@@ -91,12 +92,16 @@ abstract contract SupplyTrackingModule {
     /// @param _eid The chain ID
     /// @return from The total amount transferred from the chain ID
     /// @return to The total amount transferred to the chain ID
-    /// @return initialSupply The initial total supply for the chain ID
-    function totalTransfersAndInitialSupply(uint32 _eid) external view returns (uint256 from, uint256 to, uint256 initialSupply) {
+    /// @return initialTotalSupply The initial total supply for the chain ID
+    function totalTransfersAndInitialTotalSupply(uint32 _eid) external view returns (
+        uint256 from,
+        uint256 to,
+        uint256 initialTotalSupply
+    ) {
         SupplyTrackingStorage storage $ = _getSupplyTrackingStorage();
         to = $.totalTransferTo[_eid];
         from = $.totalTransferFrom[_eid];
-        initialSupply = $.initialTotalSupply[_eid];
+        initialTotalSupply = $.initialTotalSupply[_eid];
     }
 
     /// @notice Get the initial total supply for a given chain ID
@@ -105,5 +110,13 @@ abstract contract SupplyTrackingModule {
     function initialTotalSupply(uint32 _eid) external view returns (uint256) {
         SupplyTrackingStorage storage $ = _getSupplyTrackingStorage();
         return $.initialTotalSupply[_eid];
+    }
+
+    /// @notice Get the expected total supply given the initial supply and inflows/outflows
+    /// @dev This may underflow for chains that are not hub-connected to Fraxtal as inflows/outflows will disconnect
+    ///       if there are additional flows with non-Fraxtal chains. Therefore, only trust this for hub-chains
+    function totalSupply(uint32 _eid) external view returns (uint256) {
+        SupplyTrackingStorage storage $ = _getSupplyTrackingStorage();
+        return $.initialTotalSupply[_eid] + $.totalTransferTo[_eid] - $.totalTransferFrom[_eid];
     }
 }

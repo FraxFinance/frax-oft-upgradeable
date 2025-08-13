@@ -11,10 +11,8 @@ contract FraxOFTAdapterUpgradeable is OFTAdapterUpgradeable {
         _disableInitializers();
     }
 
-    function version() external pure returns (uint256 major, uint256 minor, uint256 patch) {
-        major = 1;
-        minor = 0;
-        patch = 1;
+    function version() public pure returns (string memory) {
+        return "1.0.1";
     }
 
     // Admin

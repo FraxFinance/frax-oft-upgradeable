@@ -7,8 +7,8 @@ pragma solidity ^0.8.0;
 abstract contract SupplyTrackingModule {
 
     struct SupplyTrackingStorage {
-        uint256 sumTotalTransferFrom;
-        uint256 sumTotalTransferTo;
+        uint256 totalTransferFromSum;
+        uint256 totalTransferToSum;
         mapping(uint32 eid => uint256 amount) totalTransferFrom;
         mapping(uint32 eid => uint256 amount) totalTransferTo;
         mapping(uint32 eid => uint256 totalSupply) initialTotalSupply;
@@ -27,14 +27,28 @@ abstract contract SupplyTrackingModule {
 
     function _addToTotalTransferFrom(uint32 _eid, uint256 _amount) internal {
         SupplyTrackingStorage storage $ = _getSupplyTrackingStorage();
+
+        uint256 previousTotalTransferFromEid = $.totalTransferFrom[_eid];
+        uint256 previousTotalTransferFromSum = $.totalTransferFromSum;
+
         $.totalTransferFrom[_eid] += _amount;
-        $.sumTotalTransferFrom += _amount;
+        $.totalTransferFromSum += _amount;
+
+        emit AddToTotalTransferFromEid(_eid, previousTotalTransferFromEid, _amount);
+        emit AddToTotalTransferFromSum(previousTotalTransferFromSum, _amount);
     }
 
     function _addToTotalTransferTo(uint32 _eid, uint256 _amount) internal {
         SupplyTrackingStorage storage $ = _getSupplyTrackingStorage();
+
+        uint256 previousTotalTransferToEid = $.totalTransferTo[_eid];
+        uint256 previousTotalTransferToSum = $.totalTransferToSum;
+
         $.totalTransferTo[_eid] += _amount;
-        $.sumTotalTransferTo += _amount;
+        $.totalTransferToSum += _amount;
+
+        emit AddToTotalTransferToEid(_eid, previousTotalTransferToEid, _amount);
+        emit AddToTotalTransferToSum(previousTotalTransferToSum, _amount);
     }
 
     function _setInitialTotalSupply(uint32 _eid, uint256 _amount) internal {
@@ -44,22 +58,24 @@ abstract contract SupplyTrackingModule {
         // which means there should be no pre-existing transferFrom/transferTo
         $.totalTransferFrom[_eid] = 0;
         $.totalTransferTo[_eid] = 0;
+
+        emit SetInitialTotalSupply(_eid, _amount);
     }
 
     // Views
 
     /// @notice Get the total amount transferred to all target chains
     /// @return The total amount transferred to all target chains
-    function sumTotalTransferTo() external view returns (uint256) {
+    function totalTransferToSum() external view returns (uint256) {
         SupplyTrackingStorage storage $ = _getSupplyTrackingStorage();
-        return $.sumTotalTransferTo;
+        return $.totalTransferToSum;
     }
 
     /// @notice Get the total amount transferred from all target chains
     /// @return The total amount transferred from all target chains
-    function sumTotalTransferFrom() external view returns (uint256) {
+    function totalTransferFromSum() external view returns (uint256) {
         SupplyTrackingStorage storage $ = _getSupplyTrackingStorage();
-        return $.sumTotalTransferFrom;
+        return $.totalTransferFromSum;
     }
 
     /// @notice Get the total amount transferred to a given target chain
@@ -92,16 +108,16 @@ abstract contract SupplyTrackingModule {
     /// @param _eid The chain ID
     /// @return from The total amount transferred from the chain ID
     /// @return to The total amount transferred to the chain ID
-    /// @return initialTotalSupply The initial total supply for the chain ID
+    /// @return initialTotalSupply_ The initial total supply for the chain ID
     function totalTransfersAndInitialTotalSupply(uint32 _eid) external view returns (
         uint256 from,
         uint256 to,
-        uint256 initialTotalSupply
+        uint256 initialTotalSupply_
     ) {
         SupplyTrackingStorage storage $ = _getSupplyTrackingStorage();
         to = $.totalTransferTo[_eid];
         from = $.totalTransferFrom[_eid];
-        initialTotalSupply = $.initialTotalSupply[_eid];
+        initialTotalSupply_ = $.initialTotalSupply[_eid];
     }
 
     /// @notice Get the initial total supply for a given chain ID
@@ -119,4 +135,19 @@ abstract contract SupplyTrackingModule {
         SupplyTrackingStorage storage $ = _getSupplyTrackingStorage();
         return $.initialTotalSupply[_eid] + $.totalTransferTo[_eid] - $.totalTransferFrom[_eid];
     }
+
+    /// @notice Event emitted when adding to totalTransferFrom[eid]
+    event AddToTotalTransferFromEid(uint32 indexed eid, uint256 previousTotalAmount, uint256 amount);
+
+    /// @notice Event emitted when adding to totalTransferFromSum
+    event AddToTotalTransferFromSum(uint256 previousTotalAmount, uint256 amount);
+
+    /// @notice Event emitted when adding to totalTransferTo[eid]
+    event AddToTotalTransferToEid(uint32 indexed eid, uint256 previousTotalAmount, uint256 amount);
+
+    /// @notice Event emitted when adding to totalTransferToSum
+    event AddToTotalTransferToSum(uint256 previousTotalAmount, uint256 amount);
+
+    /// @notice Event emitted when calling `_setInitialTotalSupply()`
+    event SetInitialTotalSupply(uint32 indexed eid, uint256 amount);
 }

@@ -122,7 +122,7 @@ contract FrxUSDOFTUpgradeableTest is FraxTest {
         oft.removeFreezer(al);
     }
 
-    function test_Freeze_succeeds() external {
+    function test_FreezeAsFreezer_succeeds() external {
         vm.prank(oft.owner());
         oft.addFreezer(al);
 
@@ -131,6 +131,20 @@ contract FrxUSDOFTUpgradeableTest is FraxTest {
         assertEq(frozen.length, 0, "Frozen should be empty");
 
         vm.prank(al);
+        oft.freeze(bob);
+
+        assertTrue(oft.isFrozen(bob), "Bob should now be frozen");
+        frozen = oft.frozen();
+        assertEq(frozen.length, 1, "Frozen should now contain bob");
+        assertEq(frozen[0], bob);
+    }
+
+    function test_FreezeAsOwner_succeeds() external {
+        assertFalse(oft.isFrozen(bob), "Bob should not yet be frozen");
+        address[] memory frozen = oft.frozen();
+        assertEq(frozen.length, 0, "Frozen should be empty");
+
+        vm.prank(oft.owner());
         oft.freeze(bob);
 
         assertTrue(oft.isFrozen(bob), "Bob should now be frozen");
@@ -154,7 +168,7 @@ contract FrxUSDOFTUpgradeableTest is FraxTest {
         oft.freeze(bob);
     }
 
-    function test_FreezeMany_succeeds() external {
+    function test_FreezeManyAsFreezer_succeeds() external {
         address[] memory accounts = new address[](2);
         accounts[0] = bob;
         accounts[1] = carl;
@@ -168,6 +182,19 @@ contract FrxUSDOFTUpgradeableTest is FraxTest {
         address[] memory frozen = oft.frozen();
         assertEq(frozen.length, 2, "Should have frozen bob and carl");
     }
+
+    function test_FreezeManyAsOwner_succeeds() external {
+        address[] memory accounts = new address[](2);
+        accounts[0] = bob;
+        accounts[1] = carl;
+
+        vm.prank(oft.owner());
+        oft.freezeMany(accounts);
+        
+        address[] memory frozen = oft.frozen();
+        assertEq(frozen.length, 2, "Should have frozen bob and carl");
+    }
+
 
     function test_FreezeMany_NotFreezer_reverts() external {
         address[] memory accounts = new address[](2);

@@ -116,7 +116,7 @@ contract FraxOFTUpgradeableTest is FraxTest {
 
         uint256 balanceAfter = oft.balanceOf(bob);
         assertEq(balanceAfter, balanceBefore + value, "Bob's balance should now be 101e18");
-        assertTrue(oft.isAuthorizationUsed(al, nonce), "Authorization should be marked as used");
+        assertTrue(oft.authorizationState(al, nonce), "Authorization should be marked as used");
     }
 
     function test_ReceiveWithAuthorization_succeeds() public {
@@ -149,7 +149,7 @@ contract FraxOFTUpgradeableTest is FraxTest {
 
         uint256 balanceAfter = oft.balanceOf(bob);
         assertEq(balanceAfter, balanceBefore + value, "Bob's balance should now be 101e18");
-        assertTrue(oft.isAuthorizationUsed(al, nonce), "Authorization should be marked as used");
+        assertTrue(oft.authorizationState(al, nonce), "Authorization should be marked as used");
     }
 
     function test_CancelAuthorization_succeeds() public {
@@ -170,7 +170,7 @@ contract FraxOFTUpgradeableTest is FraxTest {
             s: s
         });
 
-        assertTrue(oft.isAuthorizationUsed(al, nonce), "Authorization should be marked as used");
+        assertTrue(oft.authorizationState(al, nonce), "Authorization should be marked as used");
 
         SigUtils.Authorization memory authorization = SigUtils.Authorization({
             from: al,

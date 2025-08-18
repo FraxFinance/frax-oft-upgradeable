@@ -242,11 +242,18 @@ abstract contract EIP3009Module is SignatureModule {
     // Views
     //==============================================================================
 
-    /// @notice The ```isAuthorizationUsed``` function checks if an authorization nonce is used
-    /// @param authorizer    Authorizer's address
-    /// @param nonce         Nonce of the authorization
-    /// @return bool         True if the authorization nonce is used, false otherwise
-    function isAuthorizationUsed(address authorizer, bytes32 nonce) external view returns (bool) {
+    /**
+    * @notice Returns the state of an authorization
+    * @dev Nonces are randomly generated 32-byte data unique to the authorizer's
+    * address
+    * @param authorizer    Authorizer's address
+    * @param nonce         Nonce of the authorization
+    * @return True if the nonce is used
+    */
+    function authorizationState(
+        address authorizer,
+        bytes32 nonce
+    ) external view returns (bool) {
         return _getEIP3009ModuleStorage().isAuthorizationUsed[authorizer][nonce];
     }
 

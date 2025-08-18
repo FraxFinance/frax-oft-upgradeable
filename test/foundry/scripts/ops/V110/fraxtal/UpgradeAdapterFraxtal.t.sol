@@ -114,7 +114,7 @@ contract UpgradeAdapterTest is UpgradeAdapter, FraxTest {
             "Total supply should decrease after send"
         );
         assertEq(
-            FraxOFTMintableAdapterUpgradeable(lockbox).sumTotalTransferTo(),
+            FraxOFTMintableAdapterUpgradeable(lockbox).totalTransferToSum(),
             amount,
             "Sum total transfer to should increase"
         );
@@ -163,7 +163,7 @@ contract UpgradeAdapterTest is UpgradeAdapter, FraxTest {
             "Total supply should increase after receive"
         );
         assertEq(
-            FraxOFTMintableAdapterUpgradeable(lockbox).sumTotalTransferFrom(),
+            FraxOFTMintableAdapterUpgradeable(lockbox).totalTransferFromSum(),
             amount,
             "Sum total transfer from should increase"
         );

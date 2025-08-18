@@ -76,7 +76,7 @@ contract FrxUSDOFTUpgradeable is OFTUpgradeable, EIP3009Module, PermitModule, Fr
     /// @param accounts Array of accounts to be frozen
     /// @dev Added in v1.1.0
     function freezeMany(address[] memory accounts) external {
-        if (!isFreezer(msg.sender)) revert NotFreezer();
+        if (!isFreezer(msg.sender) && msg.sender != owner()) revert NotFreezer();
         _freezeMany(accounts);
     }
 
@@ -84,7 +84,7 @@ contract FrxUSDOFTUpgradeable is OFTUpgradeable, EIP3009Module, PermitModule, Fr
     /// @param account The account to be
     /// @dev Added in v1.1.0
     function freeze(address account) external {
-        if (!isFreezer(msg.sender)) revert NotFreezer();
+        if (!isFreezer(msg.sender) && msg.sender != owner()) revert NotFreezer();
         _freeze(account);
     }
 

@@ -109,7 +109,7 @@
     "ethers": "^5.8.0",
     "exponential-backoff": "~3.1.2",
     "fp-ts": "^2.16.10",
-    "frax-standard-solidity": "github:FraxFinance/frax-standard-solidity",
+    "frax-standard-solidity": "github:FraxFinance/frax-standard-solidity#v1.1.1",
     "frax-template": "github:FraxFinance/frax-template",
     "hardhat": "^2.26.1",
     "hardhat-contract-sizer": "^2.10.0",

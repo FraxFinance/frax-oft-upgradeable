@@ -47,7 +47,7 @@ This repository contains all of the contracts and deployment code used to manage
   - [`Scroll`](https://app.safe.global/home?safe=scr:0x73F365d34b81E731825a094c2E722A08574335cd)
 
 ### Proxy (upgradeable) OFTs
-- Chain: `Mode`, `Sei`, `X-Layer`, `Ink`, `Sonic`, `Arbitrum`, `Optimism`, `Polygon`, `BSC`, `Avalanche`, `Polygon zkEvm`, `Blast`, `Berachain`, `Worldchain`, `Unichain`, `Plume`, `Katana`
+- Chain: `Mode`, `Sei`, `X-Layer`, `Ink`, `Sonic`, `Arbitrum`, `Optimism`, `Polygon`, `BSC`, `Avalanche`, `Polygon zkEvm`, `Blast`, `Berachain`, `Worldchain`, `Unichain`, `Plume`, `Katana`, `Aurora`
   - OFTs
     - `frxUSD`: `0x80Eede496655FB9047dd39d9f418d5483ED600df`
     - `sfrxUSD`: `0x5Bff88cA1442c2496f7E475E9e7786383Bc070c0`
@@ -82,7 +82,14 @@ This repository contains all of the contracts and deployment code used to manage
       - `sfrxETH`: `0xFD78FD3667DeF2F1097Ed221ec503AE477155394`
       - `WFRAX`: `0xAf01aE13Fb67AD2bb2D76f29A83961069a5F245F`
       - `FPI`: `0x580F2ee1476eDF4B1760bd68f6AaBaD57dec420E`
-
+- Chain: `Scroll`
+  - OFTs:
+     - `frxUSD`: `0x397F939C3b91A74C321ea7129396492bA9Cdce82`
+     - `sfrxUSD`: `0xC6B2BE25d65760B826D0C852FD35F364250619c2`
+     - `frxETH`: `0x0097Cf8Ee15800d4f80da8A6cE4dF360D9449Ed5`
+     - `sfrxETH`: `0x73382eb28F35d80Df8C3fe04A3EED71b1aFce5dE`
+     - `WFRAX`: `0x879ba0efe1ab0119fefa745a21585fa205b07907`
+     - `FPI`: `0x93cDc5d29293Cb6983f059Fec6e4FFEb656b6a62`
 
 ### Lockbox design
 Frax operates a dual-lockbox design where users can exit their OFT token into the native Frax-asset token on both Ethereum and Fraxtal.  Utilizing a dual-lockbox design is a novel solution to bridging as liquidity is  unlocked from more than one location.  More about this solution is be explained in the [docs](https://docs.frax.com/protocol/crosschain/overview).

@@ -5,12 +5,14 @@ This repository contains all of the contracts and deployment code used to manage
 ## Contracts & Addresses
 ### Admin
 - `ProxyAdmin`
-  - `Mode`, `Sei`, `Fraxtal`, `X-Layer`, `Ink`, `Sonic`, `Arbitrum`, `Optimism`, `Polygon`, `Avalanche`, `BSC`, `Polygon zkEvm`, `Blast`, `Berachain`, `Worldchain`
+  - `Mode`, `Sei`, `Fraxtal`, `X-Layer`, `Ink`, `Sonic`, `Arbitrum`, `Optimism`, `Polygon`, `Avalanche`, `BSC`, `Polygon zkEvm`, `Blast`, `Berachain`, `Worldchain`, `Plume`, `Katana`, `Aurora`
     - `0x223a681fc5c5522c85c96157c0efa18cd6c5405c`
   - `Base`
     - `0xF59C41A57AB4565AF7424F64981523DfD7A453c5`
   - `Linea`
     - `0x3cf371c128b092b085B7732069cEAF3Fd863F270`
+  - `Scroll`
+    - `0x8f1b9c1fd67136d525e14d96efb3887a33f16250`
   - `ZKSync`, `Abstract`
     - `0xe59dcae52a4ffa39be99588486c84bc2dc1ba52f`
 

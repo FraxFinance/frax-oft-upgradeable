@@ -196,7 +196,7 @@
         "frax": "0x26cd5abadf7ec3f0f02b48314bfca6b2342cddd4",
         "horizen": "0xdd7b5e1db4aafd5c8ec3b764efb8ed265aa5445b",
         "lz": "0xcce466a522984415bc91338c232d98869193d46e",
-        "nethermind": "0xa7b5189bca84cd304d8553977c7c614329750d99",
+        "nethermind": "0x0000000000000000000000000000000000000000",
         "stargate": "0x0000000000000000000000000000000000000000"
     },
     "534352": {
@@ -204,7 +204,7 @@
         "frax": "0x26cd5abadf7ec3f0f02b48314bfca6b2342cddd4",
         "horizen": "0xdd7b5e1db4aafd5c8ec3b764efb8ed265aa5445b",
         "lz": "0xcce466a522984415bc91338c232d98869193d46e",
-        "nethermind": "0xa7b5189bca84cd304d8553977c7c614329750d99",
+        "nethermind": "0x0000000000000000000000000000000000000000",
         "stargate": "0x0000000000000000000000000000000000000000"
     },
     "111111111": {

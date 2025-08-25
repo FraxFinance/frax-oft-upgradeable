@@ -70,7 +70,8 @@ contract SendMockFrax is BaseL0Script {
                     sourceOFT = mockFraxZkSync;
                     senderWallet = mockFraxZkSyncWallet;
                 } else {
-                    // 1,81457,8453,34443,1329,252,196,146,57073,42161,10,137,43114,56,1101,80094,480,130
+                    // 1,81457,8453,34443,1329,252,196,146,57073,42161,10,137,43114,56,1101,80094,480,130,
+                    // 98866,747474,534352 
                     sourceOFT = mockFrax;
                     senderWallet = mockFraxWallet;
                 }

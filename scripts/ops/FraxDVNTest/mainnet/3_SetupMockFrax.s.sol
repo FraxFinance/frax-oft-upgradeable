@@ -31,7 +31,8 @@ contract SetupMockFrax is DeployFraxOFTProtocol {
             proxyOfts.push(0x3Fc877008e396FdD7f9Ee3Deb2e8A54d54da705A);
             expectedProxyOfts.push(0x3Fc877008e396FdD7f9Ee3Deb2e8A54d54da705A);
         } else {
-            // 1,81457,8453,34443,1329,252,196,146,57073,42161,10,137,43114,56,1101,80094,480,130,98866, 747474
+            // 1,81457,8453,34443,1329,252,196,146,57073,42161,10,137,43114,56,1101,80094,480,130,98866,747474,
+            // 534352
             connectedOfts[0] = 0x57558Cb8d6005DE0BAe8a2789d5EfaaE52dba5a8;
             proxyOfts.push(0x57558Cb8d6005DE0BAe8a2789d5EfaaE52dba5a8);
             expectedProxyOfts.push(0x57558Cb8d6005DE0BAe8a2789d5EfaaE52dba5a8);
@@ -61,7 +62,8 @@ contract SetupMockFrax is DeployFraxOFTProtocol {
             // zksync
             peer = 0x3Fc877008e396FdD7f9Ee3Deb2e8A54d54da705A;
         } else {
-            // 1,81457,8453,34443,1329,252,196,146,57073,42161,10,137,43114,56,1101,80094,480,130,98866,747474
+            // 1,81457,8453,34443,1329,252,196,146,57073,42161,10,137,43114,56,1101,80094,480,130,98866,747474,
+            // 534352
             peer = 0x57558Cb8d6005DE0BAe8a2789d5EfaaE52dba5a8;
         }
     }
@@ -127,6 +129,11 @@ contract SetupMockFrax is DeployFraxOFTProtocol {
             if (
                 _dstConfig.eid == 30320 || _dstConfig.eid == 30370 || _dstConfig.eid == 30325 || _dstConfig.eid == 30108
             ) return;
+        }
+        if (_srcConfig.eid == 30211) {
+            // L0 team has not setup defaultSendLibrary and defaultReceiveLibrary on aurora for
+            // Aptos (30108)
+            if (_dstConfig.eid == 30108) return;
         }
         super.setConfig(_srcConfig, _dstConfig, _lib, _oft);
     }

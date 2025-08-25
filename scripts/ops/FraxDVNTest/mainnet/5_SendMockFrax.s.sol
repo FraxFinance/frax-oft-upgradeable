@@ -133,6 +133,11 @@ contract SendMockFrax is BaseL0Script {
                     allConfigs[_i].eid == 30108
                 ) continue;
             }
+            if (broadcastConfig.eid == 30211) {
+                // L0 team has not setup defaultSendLibrary and defaultReceiveLibrary on aurora for
+                // Aptos (30108)
+                if (allConfigs[_i].eid == 30108) continue;
+            }
             if (allConfigs[_i].eid != 30375) continue;
             bytes32 recipientWallet;
             if (allConfigs[_i].eid == 30168) {
@@ -148,7 +153,8 @@ contract SendMockFrax is BaseL0Script {
                 // zksync
                 recipientWallet = addressToBytes32(mockFraxZkSyncWallet);
             } else {
-                // 1,81457,8453,34443,1329,252,196,146,57073,42161,10,137,43114,56,1101,80094,480,130,98866,747474
+                // 1,81457,8453,34443,1329,252,196,146,57073,42161,10,137,43114,56,1101,80094,480,130,98866,747474,
+                // 534352
                 recipientWallet = addressToBytes32(mockFraxWallet);
             }
             SendParam memory _sendParam = SendParam({

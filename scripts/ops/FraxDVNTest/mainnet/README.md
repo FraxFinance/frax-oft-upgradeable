@@ -360,3 +360,11 @@ worldchain : https://layerzeroscan.com/tx/0x0662527651bcc375230985fdb1da1bd736d6
 * katana : https://layerzeroscan.com/tx/0x96a41e386956318ed5164f0debebd307a363a49fb0d63a3ee8f714bbc3709642
 
 * katana to ethereum : https://layerzeroscan.com/tx/0xd759c27c101ee552ef78f8762dbcaacd39b95d12a954bc0a2e634504d7d65054
+
+## Aurora
+
+* frax : https://layerzeroscan.com/tx/0x725bfe6fb4ed8d428f3bfc53267a47c509574dcf2cf0b12fdd60d00b7a5bd573
+
+## Scroll
+
+* frax : https://layerzeroscan.com/tx/0x5b3934ea8e9aab6e0d9de150944c20af08e487af3783c08fb02b7d6e80095a6f

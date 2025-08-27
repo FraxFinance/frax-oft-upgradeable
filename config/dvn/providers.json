@@ -239,9 +239,55 @@
         ],
         "quorum": 2
     },
-    "plumephoenix":{
-        "uris":[
+    "plumephoenix": {
+        "uris": [
             "https://rpc.plume.org"
+        ],
+        "quorum": 2
+    },
+    "katana": {
+        "uris": [
+            "https://rpc.katana.network"
+        ]
+    },
+    "aurora": {
+        "uris": [
+            "https://rpc.owlracle.info/aurora/70d38ce1826c4a60bb2a8e05a6c8b20f",
+            "https://aurora.drpc.org",
+            "https://endpoints.omniatech.io/v1/aurora/mainnet/public",
+            "https://mainnet.aurora.dev",
+            "https://aurora-mainnet.gateway.tatum.io",
+            "https://1rpc.io/aurora",
+            "https://node.histori.xyz/aurora-mainnet/8ry9f6t9dct1se2hlagxnd9n2a"
+        ],
+        "quorum": 2
+    },
+    "hyperliquid": {
+        "uris": [
+            "https://rpc.hypurrscan.io",
+            "https://hyperliquid.drpc.org",
+            "https://rpc.hyperliquid.xyz/evm",
+            "https://hyperliquid-json-rpc.stakely.io",
+            "https://rpc.hyperlend.finance"
+        ],
+        "quorum": 2
+    },
+    "scroll": {
+        "uris": [
+            "https://scroll-mainnet.public.blastapi.io",
+            "https://rpc.scroll.io",
+            "https://scroll.therpc.io",
+            "https://scroll.drpc.org",
+            "https://scroll-rpc.publicnode.com",
+            "https://scroll.api.onfinality.io/public",
+            "https://endpoints.omniatech.io/v1/scroll/mainnet/public",
+            "https://scroll-mainnet.chainstacklabs.com",
+            "https://rpc.ankr.com/scroll",
+            "https://node.histori.xyz/scroll-mainnet/8ry9f6t9dct1se2hlagxnd9n2a",
+            "https://scroll-mainnet.rpc.grove.city/v1/a7a7c8e2",
+            "https://scroll-mainnet-public.unifra.io",
+            "https://rpc-scroll.icecreamswap.com",
+            "https://1rpc.io/scroll"
         ],
         "quorum": 2
     }

@@ -128,7 +128,6 @@ export default async function () {
             address: OFTAddress
         }
         contracts.push({ contract: evmContract })
-
         // note: pathways declared here are automatically bidirectional
         // if you declare A,B there's no need to declare B,A
         connectionConfigs.push([

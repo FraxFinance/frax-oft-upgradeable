@@ -12,3 +12,4 @@ async function verifyPDA(programId, seed) {
 }
 
 verifyPDA('2XrYqmhBMPJgDsb4SVbjV1PnJBprurd5bzRCkHwiFCJB', 'MessageLib');
+verifyPDA('7a4WjyR8VZ7yZz5XJAKm39BUGn5iT9CKcv2pmG9tdXVH', 'MessageLib');

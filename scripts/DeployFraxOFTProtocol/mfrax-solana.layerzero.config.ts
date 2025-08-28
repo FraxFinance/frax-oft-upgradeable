@@ -10,16 +10,15 @@ import path from 'path'
 
 
 const dvnConfigPath = "config/dvn"
-const zeroBytes22 = '00000000000000000000000000000000000000000000'
 
 const chainIds = [
-    1, 10, 56, 130, 137, 146, 196, 252, 324, 480, 1101, 1329, 2741, 8453, 34443, 42161, 43114, 57073, 59144, 80094, 81457, 98866
+    1, 10, 56, 130, 137, 146, 196, 252, 324, 480, 1101, 1329, 2741, 8453, 34443, 42161, 43114, 57073, 59144, 80094, 81457, 98866, 747474
 ] as const;
 const dvnKeys = ['bcwGroup', 'frax', 'horizen', 'lz', 'nethermind', 'stargate'] as const;
 
 const solanaContract: OmniPointHardhat = {
     eid: EndpointId.SOLANA_V2_MAINNET,
-    address: getOftStoreAddress(EndpointId.SOLANA_V2_MAINNET),
+    address: "12fneM2nVTNuxDkrFZ82FQkYB7DMLHtBeu8A55rvnz8U",
 }
 
 enum MsgType {
@@ -90,10 +89,10 @@ export default async function () {
 
         dvnKeys.forEach(key => {
             const dst = dstDVNConfig["111111111"]?.[key] ?? zeroAddress;
-            const src = srcDVNConfig[_chainid]?.[key] ?? zeroBytes22;
+            const src = srcDVNConfig[_chainid]?.[key] ?? zeroAddress;
 
-            if (dst !== zeroAddress || src !== zeroBytes22) {
-                if (dst === zeroAddress || src === zeroBytes22) {
+            if (dst !== zeroAddress || src !== zeroAddress) {
+                if (dst === zeroAddress || src === zeroAddress) {
                     throw new Error(`DVN Stack misconfigured: ${_chainid}<>solana-${key}`);
                 }
                 let dvnName = ""
@@ -125,7 +124,7 @@ export default async function () {
 
         const evmContract = {
             eid: eid,
-            contractName: _chainid == 252 ? "FraxOFTMintableUpgradeable" : "MockFRAXUpgradeable",
+            contractName: _chainid == 252 ? "MockFraxMintableOFT" : "MockFrax",
             address: OFTAddress
         }
         contracts.push({ contract: evmContract })

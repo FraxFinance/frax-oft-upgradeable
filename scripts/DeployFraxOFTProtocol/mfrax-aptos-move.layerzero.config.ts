@@ -173,7 +173,7 @@ function generateContractConfig(lzConfig: lzConfigType[]) {
         contractConfig.push({
             contract: {
                 eid: eid,
-                contractName: _chainid == 252 ? "FraxOFTMintableUpgradeable" : "MockFRAXUpgradeable"
+                contractName: _chainid == 252 ? "MockFraxMintableOFT" : "MockFraxOFT"
             },
             config: {
                 owner: '0x45dce8e4f2dc005a5f28206a46cb034697eeda8e',
@@ -223,7 +223,7 @@ function generateSrcConnectionConfig(lzConfig: lzConfigType[]): OmniEdgeHardhat<
             from: aptosContract,
             to: {
                 eid: dstConfig.eid,
-                contractName: _chainid == 252 ? "FraxOFTMintableUpgradeable" : "MockFRAXUpgradeable"
+                contractName: _chainid == 252 ? "MockFraxMintableOFT" : "MockFrax"
             },
             config: {
                 enforcedOptions: [

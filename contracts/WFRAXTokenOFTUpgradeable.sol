@@ -18,14 +18,6 @@ contract WFRAXTokenOFTUpgradeable is OFTUpgradeable, EIP3009Module, PermitModule
         return "1.1.0";
     }
 
-    /// @dev This method is called specifically when deploying a new OFT
-    function initialize(string memory _name, string memory _symbol, address _delegate) external reinitializer(3) {
-        __EIP712_init(_name, version());
-        __OFT_init(_name, _symbol, _delegate);
-        __Ownable_init();
-        _transferOwnership(_delegate);
-    }
-
     /// @dev This method is called specifically when upgrading an existing OFT
     function initializeV110() external reinitializer(3) {
         __EIP712_init(name(), version());

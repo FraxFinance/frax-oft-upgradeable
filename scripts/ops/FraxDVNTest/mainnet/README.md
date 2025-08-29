@@ -372,3 +372,7 @@ worldchain : https://layerzeroscan.com/tx/0x0662527651bcc375230985fdb1da1bd736d6
 * frax : https://layerzeroscan.com/tx/0x5b3934ea8e9aab6e0d9de150944c20af08e487af3783c08fb02b7d6e80095a6f
 
 * ethereum : https://layerzeroscan.com/tx/0xd054be4f7ae06d3ce52e094cefe85df86efda0648815784da9e04401abd3fed8
+
+## Aurora and Scroll
+
+* blast : https://layerzeroscan.com/tx/0x7f2819afa100acceae631b67f75d45ef1935b4b0f5e81e0c4eb9fbbb2431d49d

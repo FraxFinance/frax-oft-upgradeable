@@ -152,7 +152,7 @@ contract SendMockFrax is BaseL0Script {
                 // Aptos (30108)
                 if (allConfigs[_i].eid == 30108) continue;
             }
-            if (allConfigs[_i].eid != 30214) continue; // change with desired remote id
+            if (allConfigs[_i].eid != 30211 && allConfigs[_i].eid != 30214) continue; // change with desired remote id
             bytes32 recipientWallet;
             if (allConfigs[_i].eid == 30168) {
                 // solana

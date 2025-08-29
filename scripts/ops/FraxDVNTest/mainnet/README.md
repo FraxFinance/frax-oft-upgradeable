@@ -365,6 +365,10 @@ worldchain : https://layerzeroscan.com/tx/0x0662527651bcc375230985fdb1da1bd736d6
 
 * frax : https://layerzeroscan.com/tx/0x725bfe6fb4ed8d428f3bfc53267a47c509574dcf2cf0b12fdd60d00b7a5bd573
 
+* ethereum : https://layerzeroscan.com/tx/0x415387708b583d2f3eb4a23fe142f9098f48fb1993d2196dd89900009ec1b750
+
 ## Scroll
 
 * frax : https://layerzeroscan.com/tx/0x5b3934ea8e9aab6e0d9de150944c20af08e487af3783c08fb02b7d6e80095a6f
+
+* ethereum : https://layerzeroscan.com/tx/0xd054be4f7ae06d3ce52e094cefe85df86efda0648815784da9e04401abd3fed8

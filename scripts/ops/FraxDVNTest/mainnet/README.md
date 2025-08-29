@@ -363,16 +363,26 @@ worldchain : https://layerzeroscan.com/tx/0x0662527651bcc375230985fdb1da1bd736d6
 
 ## Aurora
 
-* frax : https://layerzeroscan.com/tx/0x725bfe6fb4ed8d428f3bfc53267a47c509574dcf2cf0b12fdd60d00b7a5bd573
 
-* ethereum : https://layerzeroscan.com/tx/0x415387708b583d2f3eb4a23fe142f9098f48fb1993d2196dd89900009ec1b750
 
 ## Scroll
 
-* frax : https://layerzeroscan.com/tx/0x5b3934ea8e9aab6e0d9de150944c20af08e487af3783c08fb02b7d6e80095a6f
+* frax : 
 
-* ethereum : https://layerzeroscan.com/tx/0xd054be4f7ae06d3ce52e094cefe85df86efda0648815784da9e04401abd3fed8
+* ethereum : 
 
 ## Aurora and Scroll
 
+* frax to 
+   * aurora : https://layerzeroscan.com/tx/0x725bfe6fb4ed8d428f3bfc53267a47c509574dcf2cf0b12fdd60d00b7a5bd573
+   * scroll : https://layerzeroscan.com/tx/0x5b3934ea8e9aab6e0d9de150944c20af08e487af3783c08fb02b7d6e80095a6f
+
+* ethereum to : 
+  * aurora :https://layerzeroscan.com/tx/0x415387708b583d2f3eb4a23fe142f9098f48fb1993d2196dd89900009ec1b750
+  * scroll : https://layerzeroscan.com/tx/0xd054be4f7ae06d3ce52e094cefe85df86efda0648815784da9e04401abd3fed8
+
 * blast : https://layerzeroscan.com/tx/0x7f2819afa100acceae631b67f75d45ef1935b4b0f5e81e0c4eb9fbbb2431d49d
+
+* base : https://layerzeroscan.com/tx/0x2f9c52b1c098cfb026c47580e531be8e4fbaa3fa02c9690799495f9a06bc4b37
+
+* mode : https://layerzeroscan.com/tx/0xf5fb07b20a5f129edd3051fdc66ac3f68ad19dca724e6ed18679ef0bf966767b

@@ -4,15 +4,23 @@ pragma solidity ^0.8.22;
 import { OFTUpgradeable } from "@fraxfinance/layerzero-v2-upgradeable/oapp/contracts/oft/OFTUpgradeable.sol";
 import { SendParam } from "@fraxfinance/layerzero-v2-upgradeable/oapp/contracts/oft/interfaces/IOFT.sol";
 
-contract WFRAXTokenOFTUpgradeable is OFTUpgradeable {
+import {EIP3009Module} from "contracts/modules/EIP3009Module.sol";
+import {PermitModule} from "contracts/modules/PermitModule.sol";
+
+import {ERC20Upgradeable} from "@openzeppelin/contracts-upgradeable/token/ERC20/ERC20Upgradeable.sol";
+
+contract WFRAXTokenOFTUpgradeable is OFTUpgradeable, EIP3009Module, PermitModule {
     constructor(address _lzEndpoint) OFTUpgradeable(_lzEndpoint) {
         _disableInitializers();
     }
 
-    function version() external pure returns (uint256 major, uint256 minor, uint256 patch) {
-        major = 1;
-        minor = 1;
-        patch = 1;
+    function version() public pure returns (string memory) {
+        return "1.1.0";
+    }
+
+    /// @dev This method is called specifically when upgrading an existing OFT
+    function initializeV110() external reinitializer(3) {
+        __EIP712_init(name(), version());
     }
 
     function name() public pure override returns (string memory) {
@@ -47,5 +55,19 @@ contract WFRAXTokenOFTUpgradeable is OFTUpgradeable {
         uint256 _amountLD
     ) external view returns (bytes memory message, bytes memory options) {
         return _buildMsgAndOptions(_sendParam, _amountLD);
+    }
+
+    //==============================================================================
+    // Overrides
+    //==============================================================================
+
+    /// @dev supports EIP3009
+    function _transfer(address from, address to, uint256 amount) internal override(EIP3009Module, ERC20Upgradeable) {
+        return ERC20Upgradeable._transfer(from, to, amount);
+    }
+
+    /// @dev supports EIP2612
+    function _approve(address owner, address spender, uint256 amount) internal override(PermitModule, ERC20Upgradeable) {
+        return ERC20Upgradeable._approve(owner, spender, amount);
     }
 }

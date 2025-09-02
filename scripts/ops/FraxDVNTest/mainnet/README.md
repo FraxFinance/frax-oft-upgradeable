@@ -381,4 +381,6 @@ worldchain : https://layerzeroscan.com/tx/0x0662527651bcc375230985fdb1da1bd736d6
 
 * ink : https://layerzeroscan.com/tx/0x594927ffef12e089ec4d12db3c6c7a3b1d7b67621c1de62d3cf0659b3a8481bd
 
-* 
+* arbitrum : https://layerzeroscan.com/tx/0x2897312cb10bde705c603f7520e3c9306dad7d1d57f08124defd986d23e63011
+
+* optimism : 

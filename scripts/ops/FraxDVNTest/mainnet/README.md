@@ -361,16 +361,6 @@ worldchain : https://layerzeroscan.com/tx/0x0662527651bcc375230985fdb1da1bd736d6
 
 * katana to ethereum : https://layerzeroscan.com/tx/0xd759c27c101ee552ef78f8762dbcaacd39b95d12a954bc0a2e634504d7d65054
 
-## Aurora
-
-
-
-## Scroll
-
-* frax : 
-
-* ethereum : 
-
 ## Aurora and Scroll
 
 * frax to 
@@ -388,3 +378,7 @@ worldchain : https://layerzeroscan.com/tx/0x0662527651bcc375230985fdb1da1bd736d6
 * mode : https://layerzeroscan.com/tx/0xf5fb07b20a5f129edd3051fdc66ac3f68ad19dca724e6ed18679ef0bf966767b
 
 * sei : https://layerzeroscan.com/tx/0x83328eee48550c5dca3701dfb841cb7d6f0315e843893143a73cc945b0a93516
+
+* ink : https://layerzeroscan.com/tx/0x594927ffef12e089ec4d12db3c6c7a3b1d7b67621c1de62d3cf0659b3a8481bd
+
+* 

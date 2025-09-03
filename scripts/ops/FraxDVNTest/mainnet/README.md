@@ -384,3 +384,6 @@ worldchain : https://layerzeroscan.com/tx/0x0662527651bcc375230985fdb1da1bd736d6
 * arbitrum : https://layerzeroscan.com/tx/0x2897312cb10bde705c603f7520e3c9306dad7d1d57f08124defd986d23e63011
 
 * optimism : https://layerzeroscan.com/tx/0x83f771555e0cf45cd6389ccce0c04d504c53078a89e0c9f7c58beafe8fb55ace
+
+* polygon : https://layerzeroscan.com/tx/0x086a11846f228b9aab0ff4de290071181a437f91ed1167b174a2557159e7ac4b
+

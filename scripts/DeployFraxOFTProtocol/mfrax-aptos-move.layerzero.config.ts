@@ -69,14 +69,6 @@ interface ConfirmationsMap {
 }
 
 const confirmations: ConfirmationsMap = {
-    1: {
-        send: 260,
-        receive: 15
-    },
-    10: {
-        send: 260,
-        receive: 20
-    },
     56: {
         send: 260,
         receive: 20

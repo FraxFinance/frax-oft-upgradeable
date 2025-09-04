@@ -29,7 +29,9 @@ import { FraxOFTUpgradeable } from "contracts/FraxOFTUpgradeable.sol";
 // abstract : forge script scripts/ops/FraxDVNTest/mainnet/5_SendMockFrax.s.sol --rpc-url https://api.mainnet.abs.xyz --zksync  // Note: this was performed directly on etherscan
 // unichain : forge script scripts/ops/FraxDVNTest/mainnet/5_SendMockFrax.s.sol --rpc-url https://mainnet.unichain.org --broadcast
 // plumephoenix : forge script scripts/ops/FraxDVNTest/mainnet/5_SendMockFrax.s.sol --rpc-url https://rpc.plume.org --broadcast
-// katana : forge script scripts/ops/FraxDVNTest/mainnet/5_SendMockFrax.s.sol --rpc-url https://rpc.katana.network --broadcast
+// katana : forge script scripts/ops/FraxDVNTest/mainnet/5_SendMockFrax.s.sol --rpc-url https://mainnet.aurora.dev --broadcast
+// aurora : forge script scripts/ops/FraxDVNTest/mainnet/5_SendMockFrax.s.sol --rpc-url https://mainnet.aurora.dev --legacy --broadcast
+// scroll : forge script scripts/ops/FraxDVNTest/mainnet/5_SendMockFrax.s.sol --rpc-url https://rpc.scroll.io --broadcast
 
 contract SendMockFrax is BaseL0Script {
     // 1,81457,8453,34443,1329,252,196,146,57073,42161,10,137,43114,56,1101,80094,480,130,
@@ -49,7 +51,7 @@ contract SendMockFrax is BaseL0Script {
     address public constant mockFraxAurora = 0xA057D8D4Fc86a62801CE363C169b0A8d192F6cEE;
     address public constant mockFraxAuroraWallet = 0x4a767e2ef83577225522Ef8Ed71056c6E3acB216;
 
-    uint256 amount = 1 ether;
+    uint256 amount = 0.5 ether;
 
     SendParam[] public sendParams;
     IOFT[] public ofts;
@@ -59,6 +61,8 @@ contract SendMockFrax is BaseL0Script {
         uint256 _totalEthFee;
         address sourceOFT;
         address senderWallet;
+        uint256 start = 0;
+        uint256 end = allConfigs.length;
         for (uint256 _i; _i < allConfigs.length; _i++) {
             if (allConfigs[_i].eid == 30151) continue;
             if (allConfigs[_i].eid == 30376) continue;
@@ -118,7 +122,7 @@ contract SendMockFrax is BaseL0Script {
         }
         require(sourceOFT != address(0), "SendMockFrax: sourceOFT should not be zero");
         require(senderWallet != address(0), "SendMockFrax: senderWallet should not be zero");
-        for (uint256 _i; _i < allConfigs.length; _i++) {
+        for (uint256 _i=start; _i < end; _i++) {
             if (broadcastConfig.chainid == allConfigs[_i].chainid) continue;
             if (allConfigs[_i].eid == 30151) continue;
             if (allConfigs[_i].eid == 30376) continue;
@@ -152,11 +156,32 @@ contract SendMockFrax is BaseL0Script {
                 // Aptos (30108)
                 if (allConfigs[_i].eid == 30108) continue;
             }
-            if (allConfigs[_i].eid != 30211 && allConfigs[_i].eid != 30214) continue; // change with desired remote id
+            // if (allConfigs[_i].eid != 30211 && allConfigs[_i].eid != 30214) continue; // change with desired remote id
             bytes32 recipientWallet;
             if (allConfigs[_i].eid == 30168) {
                 // solana
                 recipientWallet = 0x3c1b094729102e0c095ee2417e5940ee4f1eab4763f6113fe75281ab74c62398;
+            } else if (allConfigs[_i].eid == 30325) {
+                // movement
+                // do no include xlayer(196), sei(1329), worldchain(480) and unichain(130)
+                if (
+                    broadcastConfig.chainid == 196 ||
+                    broadcastConfig.chainid == 1329 ||
+                    broadcastConfig.chainid == 480 ||
+                    broadcastConfig.chainid == 130
+                ) continue;
+                recipientWallet = 0x09d0eb2763c96e085fa74ba6cf0d49136f8654c48ec7dbc59279a9066c7dd409;
+            } else if (allConfigs[_i].eid == 30108) {
+                // aptos
+                // do no include zkpolygon(1101), worldchain(480), abstract(2741), ink(57073) and aurora(1313161554)
+                if (
+                    broadcastConfig.chainid == 1101 ||
+                    broadcastConfig.chainid == 480 ||
+                    broadcastConfig.chainid == 2741 ||
+                    broadcastConfig.chainid == 57073 ||
+                    broadcastConfig.chainid == 1313161554
+                ) continue;
+                recipientWallet = 0x09d0eb2763c96e085fa74ba6cf0d49136f8654c48ec7dbc59279a9066c7dd409;
             } else if (allConfigs[_i].chainid == 59144) {
                 // linea
                 recipientWallet = addressToBytes32(mockFraxLineaWallet);

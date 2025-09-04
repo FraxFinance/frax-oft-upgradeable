@@ -90,7 +90,7 @@ contract SendMockFrax is BaseL0Script {
         require(senderWallet != address(0), "SendMockFrax: senderWallet should not be zero");
         for (uint256 _i; _i < allConfigs.length; _i++) {
             if (broadcastConfig.chainid == allConfigs[_i].chainid) continue;
-            if (allConfigs[_i].eid != 30168 && allConfigs[_i].eid != 30325 && allConfigs[_i].eid != 30108) continue;
+            // if (allConfigs[_i].eid != 30168 && allConfigs[_i].eid != 30325 && allConfigs[_i].eid != 30108) continue;
 
             bytes32 recipientWallet;
             if (allConfigs[_i].eid == 30168) {
@@ -108,12 +108,13 @@ contract SendMockFrax is BaseL0Script {
                 recipientWallet = 0x09d0eb2763c96e085fa74ba6cf0d49136f8654c48ec7dbc59279a9066c7dd409;
             } else if (allConfigs[_i].eid == 30108) {
                 // aptos
-                // do no include zkpolygon(1101), worldchain(480), abstract(2741) and ink(57073)
+                // do no include zkpolygon(1101), worldchain(480), abstract(2741), ink(57073) and aurora(1313161554)
                 if (
                     broadcastConfig.chainid == 1101 ||
                     broadcastConfig.chainid == 480 ||
                     broadcastConfig.chainid == 2741 ||
-                    broadcastConfig.chainid == 57073
+                    broadcastConfig.chainid == 57073 ||
+                    broadcastConfig.chainid == 1313161554
                 ) continue;
                 recipientWallet = 0x09d0eb2763c96e085fa74ba6cf0d49136f8654c48ec7dbc59279a9066c7dd409;
             } else {

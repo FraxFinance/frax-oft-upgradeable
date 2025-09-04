@@ -416,3 +416,11 @@ worldchain : https://layerzeroscan.com/tx/0x0662527651bcc375230985fdb1da1bd736d6
 * solana to :
   * aurora : https://layerzeroscan.com/tx/4NeeYyTCEH5HfdJaUgNUWkG5tkZf4s3JpBVKKMw6zibBHSnk5NHCeJNU5XgZL2DSfoKqYwDaNVmemLrpV5GagBAN
   * scroll : https://layerzeroscan.com/tx/5B23nSUQ4cDj6pwJx4og3LStSmgcwkDN5yqeQkKqKVAjhyjiBANCCg6d7ux7uVij91dXYWvk5DJfmf4bUaAuv6wn
+
+* aurora : 
+  * https://layerzeroscan.com/tx/0xe7dde6090918456b3b7e0d6a36c85bedbedb6862e313a0f38c3e14c98184a468 : mode, blast, ethereum, sei, base
+  * https://layerzeroscan.com/tx/0x0847d15c23a303fcf65aa63fef375ccfc217772d32b0228c85fbd7812a4e4ad5 : ink, fraxtal, xlayer, arbitrum, sonic, optimism
+  * https://layerzeroscan.com/tx/0x9c2160a2a1b8fae16e26565d86f6355669cd72b692883fb06688978faf6c942b : zkpolygon, bnb, ava, polygon, linea, bera
+  * https://layerzeroscan.com/tx/0xce520df8388dfea31c2ecf1a67b07477c16ab0a6d08391a67cea32454a20b4ea : abstract, plumephoenix, zksync, katana, solana, movement, worldchain, scroll, unichain
+
+* scroll : https://layerzeroscan.com/tx/0x89a02342c759d6437022716d4f454ecf8eaf2695e362ed8a4ba8053208d33f66

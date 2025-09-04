@@ -409,7 +409,7 @@ worldchain : https://layerzeroscan.com/tx/0x0662527651bcc375230985fdb1da1bd736d6
 
 * katana : https://layerzeroscan.com/tx/0x8dea2b07e1fef89846323dbb85cad5c894c5068a34daaa8d0b763f0282773be8
 
-* aptos :
+* aptos : https://layerzeroscan.com/tx/0xaa757d59b2ff7aa10179ec004e489f4eea1e8afa64d48efd004e69f3e561979d , https://layerzeroscan.com/tx/0xd70140a3fe28b39384879b7d8a246a58554293457dfca413a1e78a333849a67e
 
 * movement : 
 

@@ -231,7 +231,7 @@ function generateSrcConnectionConfig(lzConfig: lzConfigType[]): OmniEdgeHardhat<
             from: movementContract,
             to: {
                 eid: dstConfig.eid,
-                contractName: _chainid == 252 ? "FraxOFTMintableOFT" : "MockFraxOFT"
+                contractName: _chainid == 252 ? "MockFraxMintableOFT" : "MockFraxOFT"
             },
             config: {
                 enforcedOptions: [
@@ -341,7 +341,7 @@ function generateDstConnectionConfig(lzConfig: lzConfigType[]): OmniEdgeHardhat<
         connectionConfig.push({
             from: {
                 eid: dstConfig.eid,
-                contractName: _chainid == 252 ? "FraxOFTMintableUpgradeable" : "MockFraxOFT"
+                contractName: _chainid == 252 ? "MockFraxMintableOFT" : "MockFraxOFT"
             },
             to: movementContract,
             config: {

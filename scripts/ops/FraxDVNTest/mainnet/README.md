@@ -387,3 +387,32 @@ worldchain : https://layerzeroscan.com/tx/0x0662527651bcc375230985fdb1da1bd736d6
 
 * polygon : https://layerzeroscan.com/tx/0x086a11846f228b9aab0ff4de290071181a437f91ed1167b174a2557159e7ac4b
 
+* avalanche : https://layerzeroscan.com/tx/0xf31f06fe4ac60d460473cf8b485b6cb7b0f162a51eaebd76e5fbe2c30fd06fbc
+
+* bsc : https://layerzeroscan.com/tx/0x061e504843396e7813ef5a2d33ea76d9c559d791af910cc9ed27b57a485ea287
+
+* zkpolygon : https://layerzeroscan.com/tx/0x0f1c3b76cb518c2f65589ec56a269e9793e72c7fcc28fa44819bd2765a42a02f
+
+* berachain : https://layerzeroscan.com/tx/0xac8aab9a132854d0d23adda3cf498aea1f6c7c2153937306b567fd2a324b8971
+
+* linea : https://layerzeroscan.com/tx/0xb6f01473d2ae098763949d379c50f7c57f4e34d36309d555b314feead46ed6f0
+
+* zksync : 
+
+* abstract : 
+
+* worldchain : https://layerzeroscan.com/tx/0x00c363533db9f6a9d68db7dd42e11aaddda9f2cce9a09aa8eb83a180e7b892bb
+
+* unichain : https://layerzeroscan.com/tx/0x4801902ee812c1171e0d96674bf9ae7847723fd07ab894ecb06fec5f2ae493e3
+
+* plume : 
+
+* katana : https://layerzeroscan.com/tx/0x8dea2b07e1fef89846323dbb85cad5c894c5068a34daaa8d0b763f0282773be8
+
+* aptos :
+
+* movement : 
+
+* solana to :
+  * aurora : https://layerzeroscan.com/tx/4NeeYyTCEH5HfdJaUgNUWkG5tkZf4s3JpBVKKMw6zibBHSnk5NHCeJNU5XgZL2DSfoKqYwDaNVmemLrpV5GagBAN
+  * scroll : https://layerzeroscan.com/tx/5B23nSUQ4cDj6pwJx4og3LStSmgcwkDN5yqeQkKqKVAjhyjiBANCCg6d7ux7uVij91dXYWvk5DJfmf4bUaAuv6wn

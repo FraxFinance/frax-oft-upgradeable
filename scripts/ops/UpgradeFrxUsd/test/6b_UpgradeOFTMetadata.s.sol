@@ -2,7 +2,7 @@
 pragma solidity ^0.8.22;
 
 import "scripts/DeployFraxOFTProtocol/DeployFraxOFTProtocol.s.sol";
-import { IERC20Metadata } from "@openzeppelin/contracts/token/ERC20/extensions/IERC20Metadata.sol";
+import { IERC20Metadata } from "@openzeppelin/contracts-4.8.1/token/ERC20/extensions/IERC20Metadata.sol";
 
 import {FrxUSDOFTUpgradeable} from "contracts/frxUsd/FrxUSDOFTUpgradeable.sol";
 import {SFrxUSDOFTUpgradeable} from "contracts/frxUsd/SFrxUSDOFTUpgradeable.sol";

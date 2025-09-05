@@ -5,7 +5,7 @@ import { Script } from "forge-std/Script.sol";
 import { FraxOFTAdapterUpgradeableStorageGap } from "contracts/mocks/FraxOFTAdapterUpgradeableStorageGap.sol";
 import { FraxOFTAdapterUpgradeable } from "contracts/FraxOFTAdapterUpgradeable.sol";
 
-import { ERC1967Utils } from "@openzeppelin-5/contracts/proxy/ERC1967/ERC1967Utils.sol";
+import { ERC1967Utils } from "@openzeppelin/contracts-5.3.0/proxy/ERC1967/ERC1967Utils.sol";
 
 // forge script scripts/ops/testnet/UpgradeEthSepoliaOFT/2_UpgradeOFT.s.sol --rpc-url https://eth-sepolia.public.blastapi.io --broadcast --verify --verifier etherscan --etherscan-api-key $SEPOLIA_API_KEY
 contract UpgradeOFT is DeployFraxOFTProtocol {

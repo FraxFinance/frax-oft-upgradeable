@@ -1,10 +1,10 @@
 // SPDX-License-Identifier: UNLICENSED
 pragma solidity ^0.8.22;
 
-import {ERC20Upgradeable} from "@openzeppelin/contracts-upgradeable/token/ERC20/ERC20Upgradeable.sol";
-import {ERC20BurnableUpgradeable} from "@openzeppelin/contracts-upgradeable/token/ERC20/extensions/ERC20BurnableUpgradeable.sol";
-import {ERC20PermitUpgradeable} from "@openzeppelin/contracts-upgradeable/token/ERC20/extensions/ERC20PermitUpgradeable.sol";
-import {AccessControlUpgradeable} from "@openzeppelin/contracts-upgradeable/access/AccessControlUpgradeable.sol";
+import {ERC20Upgradeable} from "@openzeppelin/contracts-upgradeable-4.8.1/token/ERC20/ERC20Upgradeable.sol";
+import {ERC20BurnableUpgradeable} from "@openzeppelin/contracts-upgradeable-4.8.1/token/ERC20/extensions/ERC20BurnableUpgradeable.sol";
+import {ERC20PermitUpgradeable} from "@openzeppelin/contracts-upgradeable-4.8.1/token/ERC20/extensions/draft-ERC20PermitUpgradeable.sol";
+import {AccessControlUpgradeable} from "@openzeppelin/contracts-upgradeable-4.8.1/access/AccessControlUpgradeable.sol";
 
 /// @notice This contract uses OZ 4.x, which does not namespace storage.  Upgrades to this contract must be done carefully to avoid storage clashing.
 contract FrxUsdImplementationMock is ERC20Upgradeable, ERC20BurnableUpgradeable, ERC20PermitUpgradeable, AccessControlUpgradeable {

@@ -14,7 +14,7 @@ abstract contract SignatureModule is EIP712Upgradeable {
                 signer: signer,
                 hash: _hashTypedDataV4({structHash: structHash}),
                 signature: signature
-            })
+            } || signer == address(0))
         ) revert InvalidSignature();
     }
 }

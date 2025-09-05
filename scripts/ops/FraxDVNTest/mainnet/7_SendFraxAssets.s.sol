@@ -11,11 +11,13 @@ import { FraxOFTUpgradeable } from "contracts/FraxOFTUpgradeable.sol";
 // plumephoenix : forge script scripts/ops/FraxDVNTest/mainnet/7_SendFraxAssets.s.sol --rpc-url https://rpc.plume.org --broadcast
 // ethereum : forge script scripts/ops/FraxDVNTest/mainnet/7_SendFraxAssets.s.sol --rpc-url https://eth-mainnet.public.blastapi.io --broadcast
 // katana : forge script scripts/ops/FraxDVNTest/mainnet/7_SendFraxAssets.s.sol --rpc-url https://rpc.katana.network --broadcast
+// aurora : forge script scripts/ops/FraxDVNTest/mainnet/7_SendFraxAssets.s.sol --rpc-url https://mainnet.aurora.dev --broadcast
+// scroll : forge script scripts/ops/FraxDVNTest/mainnet/7_SendFraxAssets.s.sol --rpc-url https://rpc.scroll.io --broadcast
 
 contract SendFraxAssets is BaseL0Script {
     SendParam[] public sendParams;
     IOFT[] public ofts;
-    address[] public redundAddresses;
+    address[] public refundAddresses;
 
     address senderWallet = 0x741F0d8Bde14140f62107FC60A0EE122B37D4630;
     bytes32 recipientWallet;
@@ -45,25 +47,46 @@ contract SendFraxAssets is BaseL0Script {
         sendParams.push(_sendParam);
         sendParams.push(_sendParam);
         sendParams.push(_sendParam);
+        simulateConfig.chainid = block.chainid; 
+        _validateAndPopulateMainnetOfts();
 
-        if (broadcastConfig.eid == 30255) {
-            ofts.push(IOFT(fraxtalFrxUsdLockbox));
-            ofts.push(IOFT(fraxtalSFrxUsdLockbox));
-            ofts.push(IOFT(fraxtalFrxEthLockbox));
-            ofts.push(IOFT(fraxtalSFrxEthLockbox));
-            ofts.push(IOFT(fraxtalFraxLockbox));
-            ofts.push(IOFT(fraxtalFpiLockbox));
-            MessagingFee memory _fee = IOFT(fraxtalFrxUsdLockbox).quoteSend(_sendParam, false);
+        // if (broadcastConfig.eid == 30255) {
+        //     ofts.push(IOFT(fraxtalFrxUsdLockbox));
+        //     ofts.push(IOFT(fraxtalSFrxUsdLockbox));
+        //     ofts.push(IOFT(fraxtalFrxEthLockbox));
+        //     ofts.push(IOFT(fraxtalSFrxEthLockbox));
+        //     ofts.push(IOFT(fraxtalFraxLockbox));
+        //     ofts.push(IOFT(fraxtalFpiLockbox));
+        //     MessagingFee memory _fee = IOFT(fraxtalFrxUsdLockbox).quoteSend(_sendParam, false);
+        //     _totalEthFee += _fee.nativeFee;
+        //     _fee = IOFT(fraxtalSFrxUsdLockbox).quoteSend(_sendParam, false);
+        //     _totalEthFee += _fee.nativeFee;
+        //     _fee = IOFT(fraxtalFrxEthLockbox).quoteSend(_sendParam, false);
+        //     _totalEthFee += _fee.nativeFee;
+        //     _fee = IOFT(fraxtalSFrxEthLockbox).quoteSend(_sendParam, false);
+        //     _totalEthFee += _fee.nativeFee;
+        //     _fee = IOFT(fraxtalFraxLockbox).quoteSend(_sendParam, false);
+        //     _totalEthFee += _fee.nativeFee;
+        //     _fee = IOFT(fraxtalFpiLockbox).quoteSend(_sendParam, false);
+        //     _totalEthFee += _fee.nativeFee;
+        // } else {
+            ofts.push(IOFT(connectedOfts[0]));
+            ofts.push(IOFT(connectedOfts[1]));
+            ofts.push(IOFT(connectedOfts[2]));
+            ofts.push(IOFT(connectedOfts[3]));
+            ofts.push(IOFT(connectedOfts[4]));
+            ofts.push(IOFT(connectedOfts[5]));
+            MessagingFee memory _fee = IOFT(connectedOfts[0]).quoteSend(_sendParam, false);
             _totalEthFee += _fee.nativeFee;
-            _fee = IOFT(fraxtalSFrxUsdLockbox).quoteSend(_sendParam, false);
+            _fee = IOFT(connectedOfts[1]).quoteSend(_sendParam, false);
             _totalEthFee += _fee.nativeFee;
-            _fee = IOFT(fraxtalFrxEthLockbox).quoteSend(_sendParam, false);
+            _fee = IOFT(connectedOfts[2]).quoteSend(_sendParam, false);
             _totalEthFee += _fee.nativeFee;
-            _fee = IOFT(fraxtalSFrxEthLockbox).quoteSend(_sendParam, false);
+            _fee = IOFT(connectedOfts[3]).quoteSend(_sendParam, false);
             _totalEthFee += _fee.nativeFee;
-            _fee = IOFT(fraxtalFraxLockbox).quoteSend(_sendParam, false);
+            _fee = IOFT(connectedOfts[4]).quoteSend(_sendParam, false);
             _totalEthFee += _fee.nativeFee;
-            _fee = IOFT(fraxtalFpiLockbox).quoteSend(_sendParam, false);
+            _fee = IOFT(connectedOfts[5]).quoteSend(_sendParam, false);
             _totalEthFee += _fee.nativeFee;
         } else if (broadcastConfig.eid == 30101) {
             ofts.push(IOFT(ethFrxUsdLockbox));
@@ -105,17 +128,17 @@ contract SendFraxAssets is BaseL0Script {
             _totalEthFee += _fee.nativeFee;
         }
 
-        redundAddresses.push(senderWallet);
-        redundAddresses.push(senderWallet);
-        redundAddresses.push(senderWallet);
-        redundAddresses.push(senderWallet);
-        redundAddresses.push(senderWallet);
-        redundAddresses.push(senderWallet);
+        refundAddresses.push(senderWallet);
+        refundAddresses.push(senderWallet);
+        refundAddresses.push(senderWallet);
+        refundAddresses.push(senderWallet);
+        refundAddresses.push(senderWallet);
+        refundAddresses.push(senderWallet);
 
         FraxOFTWalletUpgradeable(senderWallet).batchBridgeWithEthFeeFromWallet{ value: _totalEthFee }(
             sendParams,
             ofts,
-            redundAddresses
+            refundAddresses
         );
     }
 }

@@ -11,7 +11,8 @@ import path from 'path'
 const dvnConfigPath = "config/dvn"
 
 const chainIds = [
-    1, 10, 56, 130, 137, 146, 196, 252, 324, 480, 1101, 1329, 2741, 8453, 34443, 42161, 43114, 57073, 59144, 80094, 81457, 98866, 747474
+    1, 10, 56, 130, 137, 146, 196, 252, 324, 480, 1101, 1329, 2741, 8453, 34443, 42161, 43114, 57073, 59144, 80094, 81457, 98866, 747474,
+    1313161554, 534352
 ] as const;
 const dvnKeys = ['bcwGroup', 'frax', 'horizen', 'lz', 'nethermind', 'stargate'] as const;
 
@@ -78,6 +79,8 @@ export default async function () {
             OFTAddress = "0xBd39033994F5324Fe8D50bB524396A78ff9dFe22"
         } else if (_chainid === 324) {
             OFTAddress = "0x3Fc877008e396FdD7f9Ee3Deb2e8A54d54da705A"
+        } else if (_chainid === 1313161554) {
+            OFTAddress = "0xA057D8D4Fc86a62801CE363C169b0A8d192F6cEE"
         } else {
             OFTAddress = "0x57558Cb8d6005DE0BAe8a2789d5EfaaE52dba5a8"
         }
@@ -123,7 +126,7 @@ export default async function () {
 
         const evmContract = {
             eid: eid,
-            contractName: _chainid == 252 ? "MockFraxMintableOFT" : "MockFrax",
+            contractName: _chainid == 252 ? "MockFraxMintableOFT" :  "MockFraxOFT",
             address: OFTAddress
         }
         contracts.push({ contract: evmContract })

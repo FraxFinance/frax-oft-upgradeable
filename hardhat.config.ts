@@ -167,6 +167,16 @@ const config: HardhatUserConfig = {
             url: process.env.RPC_URL_KATANA || 'https://rpc.katana.network',
             accounts,
         },
+        "scroll-mainnet":{
+            eid: EndpointId.SCROLL_V2_MAINNET,
+            url: process.env.RPC_URL_SCROLL || 'https://rpc.scroll.io',
+            accounts,
+        },
+        "aurora-mainnet":{
+            eid: EndpointId.AURORA_V2_MAINNET,
+            url: process.env.RPC_URL_AURORA || 'https://mainnet.aurora.dev',
+            accounts,
+        },
         sepolia: {
             eid: EndpointId.SEPOLIA_V2_TESTNET,
             url: process.env.RPC_URL_SEPOLIA || 'https://rpc.sepolia.org/',

@@ -360,3 +360,67 @@ worldchain : https://layerzeroscan.com/tx/0x0662527651bcc375230985fdb1da1bd736d6
 * katana : https://layerzeroscan.com/tx/0x96a41e386956318ed5164f0debebd307a363a49fb0d63a3ee8f714bbc3709642
 
 * katana to ethereum : https://layerzeroscan.com/tx/0xd759c27c101ee552ef78f8762dbcaacd39b95d12a954bc0a2e634504d7d65054
+
+## Aurora and Scroll
+
+* frax to 
+   * aurora : https://layerzeroscan.com/tx/0x725bfe6fb4ed8d428f3bfc53267a47c509574dcf2cf0b12fdd60d00b7a5bd573
+   * scroll : https://layerzeroscan.com/tx/0x5b3934ea8e9aab6e0d9de150944c20af08e487af3783c08fb02b7d6e80095a6f
+
+* ethereum to : 
+  * aurora :https://layerzeroscan.com/tx/0x415387708b583d2f3eb4a23fe142f9098f48fb1993d2196dd89900009ec1b750
+  * scroll : https://layerzeroscan.com/tx/0xd054be4f7ae06d3ce52e094cefe85df86efda0648815784da9e04401abd3fed8
+
+* blast : https://layerzeroscan.com/tx/0x7f2819afa100acceae631b67f75d45ef1935b4b0f5e81e0c4eb9fbbb2431d49d
+
+* base : https://layerzeroscan.com/tx/0x2f9c52b1c098cfb026c47580e531be8e4fbaa3fa02c9690799495f9a06bc4b37
+
+* mode : https://layerzeroscan.com/tx/0xf5fb07b20a5f129edd3051fdc66ac3f68ad19dca724e6ed18679ef0bf966767b
+
+* sei : https://layerzeroscan.com/tx/0x83328eee48550c5dca3701dfb841cb7d6f0315e843893143a73cc945b0a93516
+
+* ink : https://layerzeroscan.com/tx/0x594927ffef12e089ec4d12db3c6c7a3b1d7b67621c1de62d3cf0659b3a8481bd
+
+* arbitrum : https://layerzeroscan.com/tx/0x2897312cb10bde705c603f7520e3c9306dad7d1d57f08124defd986d23e63011
+
+* optimism : https://layerzeroscan.com/tx/0x83f771555e0cf45cd6389ccce0c04d504c53078a89e0c9f7c58beafe8fb55ace
+
+* polygon : https://layerzeroscan.com/tx/0x086a11846f228b9aab0ff4de290071181a437f91ed1167b174a2557159e7ac4b
+
+* avalanche : https://layerzeroscan.com/tx/0xf31f06fe4ac60d460473cf8b485b6cb7b0f162a51eaebd76e5fbe2c30fd06fbc
+
+* bsc : https://layerzeroscan.com/tx/0x061e504843396e7813ef5a2d33ea76d9c559d791af910cc9ed27b57a485ea287
+
+* zkpolygon : https://layerzeroscan.com/tx/0x0f1c3b76cb518c2f65589ec56a269e9793e72c7fcc28fa44819bd2765a42a02f
+
+* berachain : https://layerzeroscan.com/tx/0xac8aab9a132854d0d23adda3cf498aea1f6c7c2153937306b567fd2a324b8971
+
+* linea : https://layerzeroscan.com/tx/0xb6f01473d2ae098763949d379c50f7c57f4e34d36309d555b314feead46ed6f0
+
+* zksync : 
+
+* abstract : 
+
+* worldchain : https://layerzeroscan.com/tx/0x00c363533db9f6a9d68db7dd42e11aaddda9f2cce9a09aa8eb83a180e7b892bb
+
+* unichain : https://layerzeroscan.com/tx/0x4801902ee812c1171e0d96674bf9ae7847723fd07ab894ecb06fec5f2ae493e3
+
+* plume : 
+
+* katana : https://layerzeroscan.com/tx/0x8dea2b07e1fef89846323dbb85cad5c894c5068a34daaa8d0b763f0282773be8
+
+* aptos : https://layerzeroscan.com/tx/0xaa757d59b2ff7aa10179ec004e489f4eea1e8afa64d48efd004e69f3e561979d , https://layerzeroscan.com/tx/0xd70140a3fe28b39384879b7d8a246a58554293457dfca413a1e78a333849a67e
+
+* movement : 
+
+* solana to :
+  * aurora : https://layerzeroscan.com/tx/4NeeYyTCEH5HfdJaUgNUWkG5tkZf4s3JpBVKKMw6zibBHSnk5NHCeJNU5XgZL2DSfoKqYwDaNVmemLrpV5GagBAN
+  * scroll : https://layerzeroscan.com/tx/5B23nSUQ4cDj6pwJx4og3LStSmgcwkDN5yqeQkKqKVAjhyjiBANCCg6d7ux7uVij91dXYWvk5DJfmf4bUaAuv6wn
+
+* aurora : 
+  * https://layerzeroscan.com/tx/0xe7dde6090918456b3b7e0d6a36c85bedbedb6862e313a0f38c3e14c98184a468 : mode, blast, ethereum, sei, base
+  * https://layerzeroscan.com/tx/0x0847d15c23a303fcf65aa63fef375ccfc217772d32b0228c85fbd7812a4e4ad5 : ink, fraxtal, xlayer, arbitrum, sonic, optimism
+  * https://layerzeroscan.com/tx/0x9c2160a2a1b8fae16e26565d86f6355669cd72b692883fb06688978faf6c942b : zkpolygon, bnb, ava, polygon, linea, bera
+  * https://layerzeroscan.com/tx/0xce520df8388dfea31c2ecf1a67b07477c16ab0a6d08391a67cea32454a20b4ea : abstract, plumephoenix, zksync, katana, solana, movement, worldchain, scroll, unichain
+
+* scroll : https://layerzeroscan.com/tx/0x89a02342c759d6437022716d4f454ecf8eaf2695e362ed8a4ba8053208d33f66

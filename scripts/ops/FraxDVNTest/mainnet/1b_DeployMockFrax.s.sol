@@ -51,6 +51,8 @@ import { FraxOFTWalletUpgradeable } from "contracts/FraxOFTWalletUpgradeable.sol
 // katana : verify TransparentUpgradeableProxy : forge verify-contract 0x57558Cb8d6005DE0BAe8a2789d5EfaaE52dba5a8 ./node_modules/@fraxfinance/layerzero-v2-upgradeable/messagelib/contracts/upgradeable/proxy/TransparentUpgradeableProxy.sol:TransparentUpgradeableProxy --constructor-args $(cast abi-encode "constructor(address,address,bytes)" 0x01c9C9aD9FCF0Be1Bb028A503DA27BaE1eEe8205 0x45DCE8e4F2Dc005A5F28206A46cb034697eEDA8e 0x)  --chain-id 747474 --watch --verifier blockscout --verifier-url $KATANA_BLOCKSCOUT_API_URL
 // katana : verify FraxOFTWalletUpgradeable : forge verify-contract 0x5b9d960752963c92317b76adacfcc104f69f31a7 ./contracts/FraxOFTWalletUpgradeable.sol:FraxOFTWalletUpgradeable  --chain-id 747474 --watch --verifier blockscout --verifier-url $KATANA_BLOCKSCOUT_API_URL
 // katana : verify TransparentUpgradeable : forge verify-contract 0x741F0d8Bde14140f62107FC60A0EE122B37D4630 ./node_modules/@fraxfinance/layerzero-v2-upgradeable/messagelib/contracts/upgradeable/proxy/TransparentUpgradeableProxy.sol:TransparentUpgradeableProxy --constructor-args $(cast abi-encode "constructor(address,address,bytes)" 0x01c9C9aD9FCF0Be1Bb028A503DA27BaE1eEe8205 0x45DCE8e4F2Dc005A5F28206A46cb034697eEDA8e 0x)  --chain-id 747474 --watch --verifier blockscout --verifier-url $KATANA_BLOCKSCOUT_API_URL
+// scroll : forge script ./scripts/ops/FraxDVNTest/mainnet/1b_DeployMockFrax.s.sol --rpc-url https://rpc.scroll.io --etherscan-api-key $SCROLLSCAN_API_KEY --verifier etherscan --verify --broadcast
+// aurora : forge script ./scripts/ops/FraxDVNTest/mainnet/1b_DeployMockFrax.s.sol --rpc-url https://mainnet.aurora.dev --legacy --verifier-url $AURORA_BLOCKSCOUT_API_URL --verifier blockscout --verify --broadcast
 
 contract DeployMockFrax is DeployFraxOFTProtocol {
     address[] public proxyOftWallets;
@@ -76,6 +78,11 @@ contract DeployMockFrax is DeployFraxOFTProtocol {
                 // L0 team has not setup defaultSendLibrary and defaultReceiveLibrary on katana for
                 // unichain (30320), plumephoenix, (30370), movement (30325) and aptos (30108)
                 if (eid == 30320 || eid == 30370 || eid == 30325 || eid == 30108) continue;
+            }
+            if (broadcastConfig.eid == 30211) {
+                // L0 team has not setup defaultSendLibrary and defaultReceiveLibrary on aurora for
+                // Aptos (30108)
+                if (eid == 30108) continue;
             }
             require(
                 IMessageLibManager(broadcastConfig.endpoint).isSupportedEid(uint32(allConfigs[e].eid)),

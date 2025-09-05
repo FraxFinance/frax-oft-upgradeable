@@ -8,6 +8,7 @@ import L0Config from "../L0Config.json"
 import { checksumAddress, zeroAddress } from 'viem'
 import { readFileSync } from 'fs'
 import path from 'path'
+import NonEVMDVN from "../../config/dvn/non-evm.json"
 
 enum MsgType {
     SEND = 1,
@@ -27,10 +28,9 @@ type lzConfigType = {
 }
 
 const dvnConfigPath = "config/dvn"
-const zeroBytes32 = '0x0000000000000000000000000000000000000000000000000000000000000000'
 
 const chainIds = [
-    1, 10, 56, 130, 137, 146, 196, 252, 324, 480, 1101, 1329, 2741, 8453, 34443, 42161, 43114, 57073, 59144, 80094, 81457
+    1, 10, 56, 130, 137, 146, 196, 252, 324, 480, 1101, 1329, 2741, 8453, 34443, 42161, 43114, 57073, 59144, 80094, 81457, 534352
 ] as const;
 const dvnKeys = ['bcwGroup', 'frax', 'horizen', 'lz', 'nethermind', 'stargate'] as const;
 
@@ -55,7 +55,8 @@ const executors = {
     57073: "0xFEbCF17b11376C724AB5a5229803C6e838b6eAe5",
     59144: "0x0408804C5dcD9796F22558464E6fE5bDdF16A7c7",
     80094: "0x4208D6E27538189bB48E603D6123A94b8Abe0A0b",
-    81457: "0x4208D6E27538189bB48E603D6123A94b8Abe0A0b"
+    81457: "0x4208D6E27538189bB48E603D6123A94b8Abe0A0b",
+    534352: "0x581b26F362AD383f7B51eF8A165Efa13DDe398a4"
 }
 
 interface ConfirmationType {
@@ -68,14 +69,6 @@ interface ConfirmationsMap {
 }
 
 const confirmations: ConfirmationsMap = {
-    1: {
-        send: 260,
-        receive: 15
-    },
-    10: {
-        send: 260,
-        receive: 20
-    },
     56: {
         send: 260,
         receive: 20
@@ -135,6 +128,10 @@ const confirmations: ConfirmationsMap = {
     81457: {
         send: 260,
         receive: 5
+    },
+    534352: {
+        send: 260,
+        receive: 20
     }
 }
 
@@ -168,7 +165,7 @@ function generateContractConfig(lzConfig: lzConfigType[]) {
                 break;
             }
         }
-        if (eid === 0) throw Error(`EID not found for chainid: ${_chainid}`)
+        if (eid === 0) throw Error(`1. EID not found for chainid: ${_chainid}`)
 
         contractConfig.push({
             contract: {
@@ -202,20 +199,20 @@ function generateSrcConnectionConfig(lzConfig: lzConfigType[]): OmniEdgeHardhat<
                 break;
             }
         }
-        if (!dstConfig || dstConfig.eid === 0) throw Error(`EID not found for chainid: ${_chainid}`)
+        if (!dstConfig || dstConfig.eid === 0) throw Error(`2. EID not found for chainid: ${_chainid}`)
 
         const requiredSrcDVNs: any = []
         const dstDVNConfig = JSON.parse(readFileSync(path.join(__dirname, `../../${dvnConfigPath}/${_chainid}.json`), "utf8"));
 
         dvnKeys.forEach(key => {
             const dst = dstDVNConfig["33333333"]?.[key] ?? zeroAddress;
-            const src = srcDVNConfig[_chainid]?.[key] ?? zeroBytes32;
+            const src = srcDVNConfig[_chainid]?.[key] ?? zeroAddress;
 
-            if (dst !== zeroAddress || src !== zeroBytes32) {
-                if (dst === zeroAddress || src === zeroBytes32) {
+            if (dst !== zeroAddress || src !== zeroAddress) {
+                if (dst === zeroAddress || src === zeroAddress) {
                     throw new Error(`DVN Stack misconfigured: ${_chainid}<>aptos-${key}`);
                 }
-                requiredSrcDVNs.push(src);
+                requiredSrcDVNs.push(NonEVMDVN["33333333"][key]);
             }
         });
 
@@ -223,7 +220,7 @@ function generateSrcConnectionConfig(lzConfig: lzConfigType[]): OmniEdgeHardhat<
             from: aptosContract,
             to: {
                 eid: dstConfig.eid,
-                contractName: _chainid == 252 ? "MockFraxMintableOFT" : "MockFrax"
+                contractName: _chainid == 252 ? "MockFraxMintableOFT" : "MockFraxOFT"
             },
             config: {
                 enforcedOptions: [
@@ -313,7 +310,7 @@ function generateDstConnectionConfig(lzConfig: lzConfigType[]): OmniEdgeHardhat<
                 break;
             }
         }
-        if (!dstConfig || dstConfig.eid === 0) throw Error(`EID not found for chainid: ${_chainid}`)
+        if (!dstConfig || dstConfig.eid === 0) throw Error(`3. EID not found for chainid: ${_chainid}`)
 
         if (!dstConfig || dstConfig.eid === 0) throw Error("EID not found")
         if (!dstConfig || dstConfig.sendLib302 == zeroAddress) throw Error("sendlibrary not found")
@@ -323,11 +320,11 @@ function generateDstConnectionConfig(lzConfig: lzConfigType[]): OmniEdgeHardhat<
         const srcDVNConfig = JSON.parse(readFileSync(path.join(__dirname, `../../${dvnConfigPath}/${_chainid}.json`), "utf8"));
 
         dvnKeys.forEach(key => {
-            const dst = dstDVNConfig[_chainid]?.[key] ?? zeroBytes32;
+            const dst = dstDVNConfig[_chainid]?.[key] ?? zeroAddress;
             const src = srcDVNConfig["33333333"]?.[key] ?? zeroAddress;
 
-            if (dst !== zeroBytes32 || src !== zeroAddress) {
-                if (dst === zeroBytes32 || src === zeroAddress) {
+            if (dst !== zeroAddress || src !== zeroAddress) {
+                if (dst === zeroAddress || src === zeroAddress) {
                     throw new Error(`DVN Stack misconfigured: ${_chainid}<>aptos-${key}`);
                 }
                 requiredDstDVNs.push(checksumAddress(src));
@@ -337,7 +334,7 @@ function generateDstConnectionConfig(lzConfig: lzConfigType[]): OmniEdgeHardhat<
         connectionConfig.push({
             from: {
                 eid: dstConfig.eid,
-                contractName: _chainid == 252 ? "FraxOFTMintableUpgradeable" : "MockFRAXUpgradeable"
+                contractName: _chainid == 252 ? "MockFraxMintableOFT" : "MockFraxOFT"
             },
             to: aptosContract,
             config: {

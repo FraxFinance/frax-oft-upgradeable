@@ -5,8 +5,8 @@ import "forge-std/StdJson.sol";
 
 import { L0Config } from "scripts/L0Constants.sol";
 
-import { Strings } from "@openzeppelin/contracts/utils/Strings.sol";
-import { Arrays } from "@openzeppelin-5/contracts/utils/Arrays.sol";
+import { Strings } from "@openzeppelin/contracts-4.8.1/utils/Strings.sol";
+import { Arrays } from "@openzeppelin/contracts-5.3.0/utils/Arrays.sol";
 
 import { SetConfigParam, IMessageLibManager} from "@fraxfinance/layerzero-v2-upgradeable/protocol/contracts/interfaces/IMessageLibManager.sol";
 import { Constant } from "@fraxfinance/layerzero-v2-upgradeable/messagelib/test/util/Constant.sol";

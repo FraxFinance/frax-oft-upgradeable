@@ -1,11 +1,11 @@
 pragma solidity ^0.8.22;
 
 import { OptionsBuilder } from "@fraxfinance/layerzero-v2-upgradeable/oapp/contracts/oapp/libs/OptionsBuilder.sol";
-import { IERC20 } from "@openzeppelin/contracts/token/ERC20/IERC20.sol";
+import { IERC20 } from "@openzeppelin/contracts-4.8.1/token/ERC20/IERC20.sol";
 import { SendParam, MessagingFee, IOFT } from "@fraxfinance/layerzero-v2-upgradeable/oapp/contracts/oft/interfaces/IOFT.sol";
 
-import { Ownable } from "@openzeppelin/contracts/access/Ownable.sol";
-import { Initializable } from "@openzeppelin/contracts-upgradeable/proxy/utils/Initializable.sol";
+import { Ownable } from "@openzeppelin/contracts-4.8.1/access/Ownable.sol";
+import { Initializable } from "@openzeppelin/contracts-upgradeable-4.8.1/proxy/utils/Initializable.sol";
 
 /// @dev used in conjunction with `scripts/ops/MoveLegacyLiquidity/1_DeployMockOFTs.s.sol`
 contract CustodianMock is Ownable, Initializable {

@@ -2,7 +2,7 @@
 pragma solidity ^0.8.22;
 
 import "scripts/DeployFraxOFTProtocol/DeployFraxOFTProtocol.s.sol";
-import { Strings } from "@openzeppelin/contracts/utils/Strings.sol";
+import { Strings } from "@openzeppelin/contracts-4.8.1/utils/Strings.sol";
 
 // Used to setup a single destination to Movement, for example Fraxtal <> Movement
 // forge script scripts/ops/SetupMovement/SetupMovementSingle.s.sol --rpc-url https://rpc.frax.com

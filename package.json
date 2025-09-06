@@ -35,7 +35,7 @@
     "@babel/core": "^7.27.7",
     "@coral-xyz/anchor": "^0.29.0",
     "@ethersproject/bytes": "^5.8.0",
-    "@fraxfinance/layerzero-v2-upgradeable": "github:fraxfinance/LayerZero-v2-upgradeable#v1.0.0",
+    "@fraxfinance/layerzero-v2-upgradeable": "github:fraxfinance/LayerZero-v2-upgradeable#deps/pin-oz",
     "@jest/globals": "^29.7.0",
     "@layerzerolabs/devtools": "~0.4.10",
     "@layerzerolabs/devtools-evm": "~1.0.6",
@@ -84,8 +84,6 @@
     "@nomicfoundation/hardhat-ethers": "^3.0.9",
     "@nomiclabs/hardhat-ethers": "^2.2.3",
     "@nomiclabs/hardhat-waffle": "^2.0.6",
-    "@openzeppelin/contracts": "4.9.6",
-    "@openzeppelin/contracts-upgradeable": "4.9.6",
     "@rushstack/eslint-patch": "^1.12.0",
     "@solana-developers/helpers": "~2.8.1",
     "@solana/spl-token": "^0.4.13",
@@ -166,8 +164,12 @@
     "@ethersproject/abi": "^5.8.0",
     "@ethersproject/abstract-signer": "^5.8.0",
     "@ethersproject/hash": "^5.8.0",
-    "@openzeppelin-5/contracts": "npm:@openzeppelin/contracts@^5.3.0",
-    "@openzeppelin-5/contracts-upgradeable": "npm:@openzeppelin/contracts-upgradeable@^5.3.0",
+    "@openzeppelin/contracts": "npm:@openzeppelin/contracts@4.8.1",
+    "@openzeppelin/contracts-4.8.1": "npm:@openzeppelin/contracts@4.8.1",
+    "@openzeppelin/contracts-5.3.0": "npm:@openzeppelin/contracts@5.3.0",
+    "@openzeppelin/contracts-upgradeable": "npm:@openzeppelin/contracts-upgradeable@4.8.1",
+    "@openzeppelin/contracts-upgradeable-4.8.1": "npm:@openzeppelin/contracts-upgradeable@4.8.1",
+    "@openzeppelin/contracts-upgradeable-5.3.0": "npm:@openzeppelin/contracts-upgradeable@5.3.0",
     "viem": "^2.31.4"
   }
 }

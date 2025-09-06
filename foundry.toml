@@ -26,6 +26,7 @@ remappings = [
     'forge-std/=node_modules/@layerzerolabs/toolbox-foundry/lib/forge-std',
     '@layerzerolabs/=node_modules/@layerzerolabs/',
     'frax-std/=node_modules/frax-standard-solidity/src/',
+    '@openzeppelin/=node_modules/@openzeppelin/'
 ]
 
 via_ir = false

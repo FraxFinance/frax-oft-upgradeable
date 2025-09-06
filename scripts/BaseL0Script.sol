@@ -12,9 +12,9 @@ import { FraxOFTUpgradeable } from "contracts/FraxOFTUpgradeable.sol";
 import { FraxProxyAdmin } from "contracts/FraxProxyAdmin.sol";
 import { ImplementationMock } from "contracts/mocks/ImplementationMock.sol";
 
-import { Ownable } from "@openzeppelin/contracts/access/Ownable.sol";
-import { Strings } from "@openzeppelin/contracts/utils/Strings.sol";
-import { IERC20 } from "@openzeppelin/contracts/token/ERC20/IERC20.sol";
+import { Ownable } from "@openzeppelin/contracts-4.8.1/access/Ownable.sol";
+import { Strings } from "@openzeppelin/contracts-4.8.1/utils/Strings.sol";
+import { IERC20 } from "@openzeppelin/contracts-4.8.1/token/ERC20/IERC20.sol";
 
 import { EndpointV2 } from "@fraxfinance/layerzero-v2-upgradeable/protocol/contracts/EndpointV2.sol";
 import { SetConfigParam, IMessageLibManager} from "@fraxfinance/layerzero-v2-upgradeable/protocol/contracts/interfaces/IMessageLibManager.sol";

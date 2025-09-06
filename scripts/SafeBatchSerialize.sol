@@ -5,7 +5,7 @@ import {VmSafe} from "forge-std/Vm.sol";
 import {Script} from "forge-std/Script.sol";
 import {console2 as console} from "forge-std/console2.sol";
 import {stdJson} from "forge-std/StdJson.sol";
-import {Strings} from "@openzeppelin/contracts/utils/Strings.sol";
+import {Strings} from "@openzeppelin/contracts-4.8.1/utils/Strings.sol";
 
 struct SerializedTx {
     string name;

@@ -4,7 +4,7 @@ pragma solidity ^0.8.22;
 import "forge-std/StdJson.sol";
 import "scripts/DeployFraxOFTProtocol/DeployFraxOFTProtocol.s.sol";
 import { Constant } from "@fraxfinance/layerzero-v2-upgradeable/messagelib/test/util/Constant.sol";
-import { Strings } from "@openzeppelin/contracts/utils/Strings.sol";
+import { Strings } from "@openzeppelin/contracts-4.8.1/utils/Strings.sol";
 
 contract SetupMockFrax is DeployFraxOFTProtocol {
     using Strings for uint256;

@@ -2,7 +2,7 @@
 pragma solidity ^0.8.22;
 
 import "scripts/DeployFraxOFTProtocol/DeployFraxOFTProtocol.s.sol";
-import { Strings } from "@openzeppelin/contracts/utils/Strings.sol";
+import { Strings } from "@openzeppelin/contracts-4.8.1/utils/Strings.sol";
 
 // Used to setup a single destination to Aptos, for example Fraxtal <> Aptos
 // forge script scripts/ops/SetupAptos/SetupAptosSingle.s.sol --rpc-url https://rpc.frax.com

@@ -311,6 +311,17 @@
             "sendLib302": "0x9BbEb2B2184B9313Cf5ed4a4DDFEa2ef62a2a03B"
         },
         {
+            "RPC": "https://rpc.hyperliquid.xyz/evm",
+            "chainid": 999,
+            "delegate": "0x0000000000000000000000000000000000000000",
+            "dvnHorizen": "0x0000000000000000000000000000000000000000",
+            "dvnL0": "0x0000000000000000000000000000000000000000",
+            "eid": 30367,
+            "endpoint": "0x3A73033C0b1407574C76BdBAc67f126f6b4a9AA9",
+            "receiveLib302": "0x7cacBe439EaD55fa1c22790330b12835c6884a91",
+            "sendLib302": "0xfd76d9CB0Bac839725aB79127E7411fe71b1e3CA"
+        },
+        {
             "RPC": "https://api.mainnet.abs.xyz",
             "chainid": 2741,
             "delegate": "0xcC20eAE3CdC554E96291708B362dF349CC443808",

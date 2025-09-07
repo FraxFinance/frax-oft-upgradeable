@@ -405,7 +405,7 @@ worldchain : https://layerzeroscan.com/tx/0x0662527651bcc375230985fdb1da1bd736d6
 
 * unichain : https://layerzeroscan.com/tx/0x4801902ee812c1171e0d96674bf9ae7847723fd07ab894ecb06fec5f2ae493e3
 
-* plume : 
+* plume : https://layerzeroscan.com/tx/0x7bafd60a55db38d53cae84fa1b30a1679cbfe338c4c170c512e74c0b70a164e6
 
 * katana : https://layerzeroscan.com/tx/0x8dea2b07e1fef89846323dbb85cad5c894c5068a34daaa8d0b763f0282773be8
 

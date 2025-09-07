@@ -51,7 +51,7 @@ contract SendMockFrax is BaseL0Script {
     address public constant mockFraxAurora = 0xA057D8D4Fc86a62801CE363C169b0A8d192F6cEE;
     address public constant mockFraxAuroraWallet = 0x4a767e2ef83577225522Ef8Ed71056c6E3acB216;
 
-    uint256 amount = 0.5 ether;
+    uint256 amount = 1 ether;
 
     SendParam[] public sendParams;
     IOFT[] public ofts;
@@ -156,7 +156,7 @@ contract SendMockFrax is BaseL0Script {
                 // Aptos (30108)
                 if (allConfigs[_i].eid == 30108) continue;
             }
-            // if (allConfigs[_i].eid != 30211 && allConfigs[_i].eid != 30214) continue; // change with desired remote id
+            if (allConfigs[_i].eid != 30211 && allConfigs[_i].eid != 30214) continue; // change with desired remote id
             bytes32 recipientWallet;
             if (allConfigs[_i].eid == 30168) {
                 // solana

@@ -3,6 +3,7 @@ pragma solidity ^0.8.19;
 
 import "scripts/DeployFraxOFTProtocol/DeployFraxOFTProtocol.s.sol";
 
+// Setup source with a hub model vs. a spoke model where the only peer is Fraxtal
 abstract contract SetupSourceFraxOFTFraxtalHub is DeployFraxOFTProtocol {
     L0Config[] public tempConfigs;
 

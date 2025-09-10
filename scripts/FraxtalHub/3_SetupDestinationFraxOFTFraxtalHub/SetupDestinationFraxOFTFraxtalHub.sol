@@ -3,8 +3,7 @@ pragma solidity ^0.8.19;
 
 import "scripts/DeployFraxOFTProtocol/DeployFraxOFTProtocol.s.sol";
 
-// Deploy everything with a hub model vs. a spoke model where the only peer is Fraxtal
-// forge script scripts/ops/deploy/DeployFraxOFTProtocolFraxtalHub/1_DeployFraxOFTFraxtalHub.s.sol --rpc-url $RPC_URL --broadcast
+// Setup destination with a hub model vs. a spoke model where the only peer is Fraxtal
 abstract contract SetupDestinationFraxOFTFraxtalHub is DeployFraxOFTProtocol {
     L0Config[] public tempConfigs;
 
@@ -25,15 +24,5 @@ abstract contract SetupDestinationFraxOFTFraxtalHub is DeployFraxOFTProtocol {
         delete tempConfigs;
 
         setupDestinations();
-    }
-
-    function preDeployChecks() public view override {
-        for (uint256 i = 0; i < proxyConfigs.length; i++) {
-            uint32 eid = uint32(proxyConfigs[i].eid);
-            require(
-                IMessageLibManager(broadcastConfig.endpoint).isSupportedEid(eid),
-                "L0 team required to setup `defaultSendLibrary` and `defaultReceiveLibrary` for EID"
-            );
-        }
     }
 }

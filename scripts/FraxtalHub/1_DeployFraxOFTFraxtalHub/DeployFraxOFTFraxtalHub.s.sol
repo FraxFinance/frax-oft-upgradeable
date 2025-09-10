@@ -4,7 +4,7 @@ pragma solidity ^0.8.19;
 import "scripts/DeployFraxOFTProtocol/DeployFraxOFTProtocol.s.sol";
 
 // Deploy everything with a hub model vs. a spoke model where the only peer is Fraxtal
-// forge script scripts/FraxtalHop/Remote/1_DeployFraxOFTFraxtalHub.s.sol --rpc-url $RPC_URL --broadcast
+// forge script scripts/FraxtalHub/1_DeployFraxOFTFraxtalHub/DeployFraxOFTFraxtalHub.s.sol --rpc-url $RPC_URL --broadcast
 contract DeployFraxOFTFraxtalHub is DeployFraxOFTProtocol {
     L0Config[] public tempConfigs;
 

@@ -328,6 +328,12 @@ contract DeployFraxOFTProtocol is SetDVNs, BaseL0Script {
                 _oftArray: zkEraProxyOfts
             });
             require(peer != address(0), "Invalid Zk Era peer");
+        } else if (_chainid == 534352) {
+            peer = getPeerFromArray({
+                _oft: _oft,
+                _oftArray: scrollProxyOfts
+            });
+            require(peer != address(0), "Invalid Scroll peer");
         } else if (_chainid == 11155111) {
             peer = getTestnetPeerFromArray({
                 _oft: _oft,

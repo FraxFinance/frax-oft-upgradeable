@@ -3,8 +3,8 @@ pragma solidity ^0.8.19;
 
 import "./SetupSourceFraxOFTFraxtalHub.sol";
 
-// forge script scripts/FraxtalHub/2_SetupSourceFraxOFTFraxtalHub/SetupSourceFraxOFTFraxtalHubHyperliquid.s.sol --rpc-url https://rpc.hyperliquid.xyz/evm --broadcast
-contract SetupSourceFraxOFTFraxtalHubHyperliquid is SetupSourceFraxOFTFraxtalHub {
+// forge script scripts/FraxtalHub/2_SetupSourceFraxOFTFraxtalHub/SetupSourceFraxOFTFraxtalHubHyperliquidmock.s.sol --rpc-url https://rpc.hyperliquid.xyz/evm --broadcast
+contract SetupSourceFraxOFTFraxtalHubHyperliquidmock is SetupSourceFraxOFTFraxtalHub {
     constructor() {
         wfraxOft = 0x65C042454005de49106a6B0129F4Af56939457da; 
         sfrxUsdOft = 0xE1851f6ac161d1911104b19918FB866eF6FEE577;

@@ -23,12 +23,18 @@ contract SetupSourceFraxOFTFraxtalHubHyperliquidmock is SetupSourceFraxOFTFraxta
 
     function run() public override {
         delete fraxtalLockboxes;
-        fraxtalLockboxes.push(0xBC54454844815FFD8229D1f617EFa554D2d68F63); // wfrax
-        fraxtalLockboxes.push(0x6ff6b416B574Ebc51c8ddDf0B32b82Af3bD08888); // sfrxusd
-        fraxtalLockboxes.push(0x16cEA656B1ad3cAAEf01894794373E48B77faAeF); // sfrxeth
-        fraxtalLockboxes.push(0x1c3Fe45704D8b5B09c145356A6DFD570ab264CDB); // frxusd
-        fraxtalLockboxes.push(0xfD34516A516c4F76a5d5B3F9Da562F5731Ac42AF); // frxeth
-        fraxtalLockboxes.push(0xC149f946e3EE35766A7250B6FF619D9Cf198EbF0); // fpi
+        fraxtalFraxLockbox = 0xBC54454844815FFD8229D1f617EFa554D2d68F63; // wfrax
+        fraxtalSFrxUsdLockbox = 0x6ff6b416B574Ebc51c8ddDf0B32b82Af3bD08888; // sfrxusd
+        fraxtalSFrxEthLockbox = 0x16cEA656B1ad3cAAEf01894794373E48B77faAeF; // sfrxeth
+        fraxtalFrxUsdLockbox = 0x1c3Fe45704D8b5B09c145356A6DFD570ab264CDB; // frxusd
+        fraxtalFrxEthLockbox = 0xfD34516A516c4F76a5d5B3F9Da562F5731Ac42AF; // frxeth
+        fraxtalFpiLockbox = 0xC149f946e3EE35766A7250B6FF619D9Cf198EbF0; // fpi
+        fraxtalLockboxes.push(fraxtalFraxLockbox);
+        fraxtalLockboxes.push(fraxtalSFrxUsdLockbox);
+        fraxtalLockboxes.push(fraxtalSFrxEthLockbox);
+        fraxtalLockboxes.push(fraxtalFrxUsdLockbox);
+        fraxtalLockboxes.push(fraxtalFrxEthLockbox);
+        fraxtalLockboxes.push(fraxtalFpiLockbox);
         super.run();
     }
 

@@ -8,7 +8,7 @@ import { IERC20Metadata } from "@openzeppelin/contracts/token/ERC20/extensions/I
 abstract contract SetupSourceFraxOFTFraxtalHub is DeployFraxOFTProtocol {
     L0Config[] public tempConfigs;
 
-    function run() public override {
+    function run() public virtual override {
         _validateAddrs();
         for (uint256 i = 0; i < proxyConfigs.length; i++) {
             // Set up destinations for Fraxtal lockboxes only
@@ -49,5 +49,13 @@ abstract contract SetupSourceFraxOFTFraxtalHub is DeployFraxOFTProtocol {
         require(isStringEqual(IERC20Metadata(sfrxEthOft).symbol(), "sfrxETH"), "sfrxEthOft != sfrxETH");
         require(isStringEqual(IERC20Metadata(wfraxOft).symbol(), "WFRAX"), "wFraxOft != WFRAX");
         require(isStringEqual(IERC20Metadata(fpiOft).symbol(), "FPI"), "fpiOft != FPI");
+    }
+
+    function setPriviledgedRoles() public virtual override {
+        proxyAdmin = broadcastConfig.proxyAdmin;
+
+        if (proxyAdmin == address(0)) revert("ProxyAdmin cannot be zero address");
+
+        super.setPriviledgedRoles();
     }
 }

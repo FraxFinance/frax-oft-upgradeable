@@ -6,7 +6,7 @@ import "./SetupSourceFraxOFTFraxtalHub.sol";
 // forge script scripts/FraxtalHub/2_SetupSourceFraxOFTFraxtalHub/SetupSourceFraxOFTFraxtalHubHyperliquidmock.s.sol --rpc-url https://rpc.hyperliquid.xyz/evm --broadcast
 contract SetupSourceFraxOFTFraxtalHubHyperliquidmock is SetupSourceFraxOFTFraxtalHub {
     constructor() {
-        wfraxOft = 0x65C042454005de49106a6B0129F4Af56939457da; 
+        wfraxOft = 0x65C042454005de49106a6B0129F4Af56939457da;
         sfrxUsdOft = 0xE1851f6ac161d1911104b19918FB866eF6FEE577;
         sfrxEthOft = 0xb7583B07C12286bb9026A7053B0C44e8f5fa8624;
         frxUsdOft = 0xA444F92734be29E71b8A4762595C9733Ab2C9c47;
@@ -21,15 +21,20 @@ contract SetupSourceFraxOFTFraxtalHubHyperliquidmock is SetupSourceFraxOFTFraxta
         proxyOfts.push(fpiOft);
     }
 
-    function setPriviledgedRoles() public override {
-        proxyAdmin = broadcastConfig.proxyAdmin;
+    function run() public override {
+        delete fraxtalLockboxes;
+        fraxtalLockboxes.push(0xBC54454844815FFD8229D1f617EFa554D2d68F63); // wfrax
+        fraxtalLockboxes.push(0x6ff6b416B574Ebc51c8ddDf0B32b82Af3bD08888); // sfrxusd
+        fraxtalLockboxes.push(0x16cEA656B1ad3cAAEf01894794373E48B77faAeF); // sfrxeth
+        fraxtalLockboxes.push(0x1c3Fe45704D8b5B09c145356A6DFD570ab264CDB); // frxusd
+        fraxtalLockboxes.push(0xfD34516A516c4F76a5d5B3F9Da562F5731Ac42AF); // frxeth
+        fraxtalLockboxes.push(0xC149f946e3EE35766A7250B6FF619D9Cf198EbF0); // fpi
+        super.run();
+    }
 
-        // TODO : remove nextline once mock frax OFTs setup is done
+    function setPriviledgedRoles() public override {
         proxyAdmin = 0xB4D6a05F58E1671C4ECd5D6544C83954B44Fb8d5;
 
-        if (proxyAdmin == address(0)) revert("ProxyAdmin cannot be zero address");
-
-        // TODO : remove next loop once mock frax OFTs setup is done
         /// @dev transfer ownership of OFT
         for (uint256 o = 0; o < proxyOfts.length; o++) {
             address proxyOft = proxyOfts[o];
@@ -37,11 +42,7 @@ contract SetupSourceFraxOFTFraxtalHubHyperliquidmock is SetupSourceFraxOFTFraxta
             Ownable(proxyOft).transferOwnership(0x8d8290d49e88D16d81C6aDf6C8774eD88762274A);
         }
 
-        // TODO : remove nextline once mock frax OFTs setup is done
         /// @dev transfer ownership of ProxyAdmin
         Ownable(proxyAdmin).transferOwnership(0x8d8290d49e88D16d81C6aDf6C8774eD88762274A);
-
-        // TODO : uncomment next line once mock OFTs setup is done
-        // super.setPriviledgedRoles();
     }
 }

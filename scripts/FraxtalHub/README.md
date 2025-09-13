@@ -1,5 +1,7 @@
 ## Launch frax asset OFTs on new chain
 
+> Note : Use this scripts for fraxtal hub OFTs only
+
 ### Deploy OFTs
 
 ```

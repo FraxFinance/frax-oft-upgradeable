@@ -15,11 +15,29 @@ abstract contract SendFraxOFTFraxtalHub is DeployFraxOFTProtocol {
     address senderWallet;
     address recipientWallet;
     uint256 dstEid;
+    uint256 srcEid;
 
-    function run() public override broadcastAs(configDeployerPK) {
-        _validateAddrs();
-        string memory _destinationRpc;
-        string memory _sourceRpc;
+    address dstFraxOft;
+    address dstsfrxusdOft;
+    address dstsfrxethOft;
+    address dstfrxusdOft;
+    address dstfrxethOft;
+    address dstfpiOft;
+
+    address srcFraxOft;
+    address srcsfrxusdOft;
+    address srcsfrxethOft;
+    address srcfrxusdOft;
+    address srcfrxethOft;
+    address srcfpiOft;
+
+    string _destinationRpc;
+    string _sourceRpc;
+
+    function setUp() public override {
+        require(srcEid != 0, "srcEid is not set");
+        require(dstEid != 0, "dstEid is not set");
+        super.setUp();
         for (uint256 i; i < proxyConfigs.length; i++) {
             if (proxyConfigs[i].eid == dstEid) {
                 _destinationRpc = proxyConfigs[i].RPC;
@@ -28,20 +46,6 @@ abstract contract SendFraxOFTFraxtalHub is DeployFraxOFTProtocol {
                 _sourceRpc = proxyConfigs[i].RPC;
             }
         }
-        address dstFraxOft;
-        address dstsfrxusdOft;
-        address dstsfrxethOft;
-        address dstfrxusdOft;
-        address dstfrxethOft;
-        address dstfpiOft;
-
-        address srcFraxOft;
-        address srcsfrxusdOft;
-        address srcsfrxethOft;
-        address srcfrxusdOft;
-        address srcfrxethOft;
-        address srcfpiOft;
-
         if (dstEid != 30255) {
             dstFraxOft = wfraxOft;
             dstsfrxusdOft = sfrxUsdOft;
@@ -72,32 +76,37 @@ abstract contract SendFraxOFTFraxtalHub is DeployFraxOFTProtocol {
             srcfpiOft = fpiOft;
         }
         vm.createSelectFork(_destinationRpc);
+        if (dstEid != 30255) {
+            _validateAddrs();
+        }
         require(
-            OFTUpgradeable(dstFraxOft).isPeer(uint32(dstEid), addressToBytes32(srcFraxOft)),
+            OFTUpgradeable(dstFraxOft).isPeer(uint32(srcEid), addressToBytes32(srcFraxOft)),
             "wfraxOft is not wired to source"
         );
         require(
-            OFTUpgradeable(dstsfrxusdOft).isPeer(uint32(dstEid), addressToBytes32(srcsfrxusdOft)),
+            OFTUpgradeable(dstsfrxusdOft).isPeer(uint32(srcEid), addressToBytes32(srcsfrxusdOft)),
             "sfrxusdoft is not wired to source"
         );
         require(
-            OFTUpgradeable(dstsfrxethOft).isPeer(uint32(dstEid), addressToBytes32(srcsfrxethOft)),
+            OFTUpgradeable(dstsfrxethOft).isPeer(uint32(srcEid), addressToBytes32(srcsfrxethOft)),
             "sfrxethoft is not wired to source"
         );
         require(
-            OFTUpgradeable(dstfrxusdOft).isPeer(uint32(dstEid), addressToBytes32(srcfrxusdOft)),
+            OFTUpgradeable(dstfrxusdOft).isPeer(uint32(srcEid), addressToBytes32(srcfrxusdOft)),
             "frxusdoft is not wired to source"
         );
         require(
-            OFTUpgradeable(dstfrxethOft).isPeer(uint32(dstEid), addressToBytes32(srcfrxethOft)),
+            OFTUpgradeable(dstfrxethOft).isPeer(uint32(srcEid), addressToBytes32(srcfrxethOft)),
             "frxethoft is not wired to source"
         );
         require(
-            OFTUpgradeable(dstfpiOft).isPeer(uint32(dstEid), addressToBytes32(srcfpiOft)),
+            OFTUpgradeable(dstfpiOft).isPeer(uint32(srcEid), addressToBytes32(srcfpiOft)),
             "fpi is not wired to source"
         );
-
         vm.createSelectFork(_sourceRpc);
+    }
+
+    function run() public override broadcastAs(configDeployerPK) {
         require(
             OFTUpgradeable(srcFraxOft).isPeer(uint32(dstEid), addressToBytes32(dstFraxOft)),
             "wfrax is not wired to destination"
@@ -137,15 +146,29 @@ abstract contract SendFraxOFTFraxtalHub is DeployFraxOFTProtocol {
         simulateConfig.chainid = block.chainid;
         _validateAndPopulateMainnetOfts();
 
-        MessagingFee memory _fee;
-
         for (uint256 i; i < proxyOfts.length; i++) {
             sendParams.push(_sendParam);
             refundAddresses.push(senderWallet);
-            ofts.push(IOFT(connectedOfts[i]));
-            _fee = IOFT(connectedOfts[i]).quoteSend(_sendParam, false);
-            _totalEthFee += _fee.nativeFee;
         }
+
+        ofts.push(IOFT(srcFraxOft));
+        MessagingFee memory _fee = IOFT(srcFraxOft).quoteSend(_sendParam, false);
+        _totalEthFee += _fee.nativeFee;
+        ofts.push(IOFT(srcsfrxusdOft));
+        _fee = IOFT(srcsfrxusdOft).quoteSend(_sendParam, false);
+        _totalEthFee += _fee.nativeFee;
+        ofts.push(IOFT(srcsfrxethOft));
+        _fee = IOFT(srcsfrxethOft).quoteSend(_sendParam, false);
+        _totalEthFee += _fee.nativeFee;
+        ofts.push(IOFT(srcfrxusdOft));
+        _fee = IOFT(srcfrxusdOft).quoteSend(_sendParam, false);
+        _totalEthFee += _fee.nativeFee;
+        ofts.push(IOFT(srcfrxethOft));
+        _fee = IOFT(srcfrxethOft).quoteSend(_sendParam, false);
+        _totalEthFee += _fee.nativeFee;
+        ofts.push(IOFT(srcfpiOft));
+        _fee = IOFT(srcfpiOft).quoteSend(_sendParam, false);
+        _totalEthFee += _fee.nativeFee;
 
         FraxOFTWalletUpgradeable(senderWallet).batchBridgeWithEthFeeFromWallet{ value: _totalEthFee }(
             sendParams,

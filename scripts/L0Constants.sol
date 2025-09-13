@@ -10,6 +10,7 @@ struct L0Config {
     address dvnL0;
     uint256 eid;
     address endpoint;
+    address proxyAdmin;
     address receiveLib302;
     address sendLib302;
 }

@@ -221,8 +221,12 @@ contract BaseL0Script is L0Constants, Script {
 
         string memory name = string.concat(broadcastConfig.chainid.toString(), "-");
         name = string.concat(name, simulateConfig.chainid.toString());
-        name = string.concat(name, ".json");
+        name = string.concat(name, getFileExtension());
         return string.concat(root, name);
+    }
+
+    function getFileExtension() internal view virtual returns (string memory) {
+        return ".json";
     }
 
     function setUp() public virtual {

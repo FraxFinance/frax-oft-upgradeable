@@ -35,7 +35,7 @@ import { FraxOFTUpgradeable } from "contracts/FraxOFTUpgradeable.sol";
 
 contract SendMockFrax is BaseL0Script {
     // 1,81457,8453,34443,1329,252,196,146,57073,42161,10,137,43114,56,1101,80094,480,130,
-    // 98866,747474,534352
+    // 98866,747474,534352,999
     address public constant mockFrax = 0x57558Cb8d6005DE0BAe8a2789d5EfaaE52dba5a8;
     address public constant mockFraxWallet = 0x741F0d8Bde14140f62107FC60A0EE122B37D4630;
     // 324, zksync, 30165
@@ -122,7 +122,7 @@ contract SendMockFrax is BaseL0Script {
         }
         require(sourceOFT != address(0), "SendMockFrax: sourceOFT should not be zero");
         require(senderWallet != address(0), "SendMockFrax: senderWallet should not be zero");
-        for (uint256 _i=start; _i < end; _i++) {
+        for (uint256 _i = start; _i < end; _i++) {
             if (broadcastConfig.chainid == allConfigs[_i].chainid) continue;
             if (allConfigs[_i].eid == 30151) continue;
             if (allConfigs[_i].eid == 30376) continue;
@@ -156,7 +156,12 @@ contract SendMockFrax is BaseL0Script {
                 // Aptos (30108)
                 if (allConfigs[_i].eid == 30108) continue;
             }
-            // if (allConfigs[_i].eid != 30211 && allConfigs[_i].eid != 30214) continue; // change with desired remote id
+            if (broadcastConfig.eid == 30367) {
+                // L0 team has not setup defaultSendLibrary and defaultReceiveLibrary on hyperliquid for
+                // Botanix (botanixlabs)
+                if (allConfigs[_i].eid == 30376) continue;
+            }
+            if (allConfigs[_i].eid != 30367) continue; // change with desired remote id
             bytes32 recipientWallet;
             if (allConfigs[_i].eid == 30168) {
                 // solana
@@ -196,7 +201,7 @@ contract SendMockFrax is BaseL0Script {
                 recipientWallet = addressToBytes32(mockFraxAuroraWallet);
             } else {
                 // 1,81457,8453,34443,1329,252,196,146,57073,42161,10,137,43114,56,1101,80094,480,130,98866,747474,
-                // 534352
+                // 534352,999
                 recipientWallet = addressToBytes32(mockFraxWallet);
             }
             SendParam memory _sendParam = SendParam({

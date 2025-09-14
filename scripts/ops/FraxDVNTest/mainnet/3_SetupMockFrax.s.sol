@@ -82,7 +82,7 @@ contract SetupMockFrax is DeployFraxOFTProtocol {
         if (_config.eid == 30168) return;
         if (_config.eid == 30151) return;
 
-        // if (_config.eid != 30367) return; // Note. change the eid to desired remote
+        if (_config.eid != 30367) return; // Note. change the eid to desired remote
 
         if (_connectedConfig.eid == 30370) {
             // if broadcast config is plumephoenix,
@@ -128,7 +128,7 @@ contract SetupMockFrax is DeployFraxOFTProtocol {
         if (_dstConfig.eid == 30168) return;
         if (_dstConfig.eid == 30151) return;
 
-        // if (_dstConfig.eid != 30367) return; // Note. change the eid to desired remote
+        if (_dstConfig.eid != 30367) return; // Note. change the eid to desired remote
 
         if (_srcConfig.eid == 30370) {
             // L0 team has not setup defaultSendLibrary and defaultReceiveLibrary on plumephoenix for

@@ -424,3 +424,11 @@ worldchain : https://layerzeroscan.com/tx/0x0662527651bcc375230985fdb1da1bd736d6
   * https://layerzeroscan.com/tx/0xce520df8388dfea31c2ecf1a67b07477c16ab0a6d08391a67cea32454a20b4ea : abstract, plumephoenix, zksync, katana, solana, movement, worldchain, scroll, unichain
 
 * scroll : https://layerzeroscan.com/tx/0x89a02342c759d6437022716d4f454ecf8eaf2695e362ed8a4ba8053208d33f66
+
+## Hyperliquidity
+
+* fraxtal : https://layerzeroscan.com/tx/0x417b5b02154e2e268518b5d520a2e71981cd79fed5a656d2b7e185429804bbef
+
+* ethereum : https://layerzeroscan.com/tx/0x78daa1eb3b136c8de92c37077c003dc41c44ed3a3c72c6b6432ca3064b325cc1
+
+* 

@@ -432,3 +432,7 @@ worldchain : https://layerzeroscan.com/tx/0x0662527651bcc375230985fdb1da1bd736d6
 * ethereum : https://layerzeroscan.com/tx/0x78daa1eb3b136c8de92c37077c003dc41c44ed3a3c72c6b6432ca3064b325cc1
 
 * blast : https://layerzeroscan.com/tx/0xb4c9d0883e932f3f1c6c2291d847e12e6c3742f8c4b5368869b0e37eb887ecfb
+
+* base : https://layerzeroscan.com/tx/0xa2e4fcd8002bf0325f7da6f1474191a635f4814d1d8782019f76db1865f02eca
+
+* 

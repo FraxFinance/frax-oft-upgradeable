@@ -425,7 +425,7 @@ worldchain : https://layerzeroscan.com/tx/0x0662527651bcc375230985fdb1da1bd736d6
 
 * scroll : https://layerzeroscan.com/tx/0x89a02342c759d6437022716d4f454ecf8eaf2695e362ed8a4ba8053208d33f66
 
-## Hyperliquidity
+## Hyperliquid
 
 * fraxtal : https://layerzeroscan.com/tx/0x417b5b02154e2e268518b5d520a2e71981cd79fed5a656d2b7e185429804bbef
 
@@ -435,4 +435,4 @@ worldchain : https://layerzeroscan.com/tx/0x0662527651bcc375230985fdb1da1bd736d6
 
 * base : https://layerzeroscan.com/tx/0xa2e4fcd8002bf0325f7da6f1474191a635f4814d1d8782019f76db1865f02eca
 
-* 
+* mode : https://layerzeroscan.com/tx/0x2b24738cde901ed9e217a9dcef72ad2ace4d8fb2ed6e270b2984811b5c15af64

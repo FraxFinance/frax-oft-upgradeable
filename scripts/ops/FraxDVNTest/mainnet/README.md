@@ -442,3 +442,9 @@ worldchain : https://layerzeroscan.com/tx/0x0662527651bcc375230985fdb1da1bd736d6
 * xlayer : https://layerzeroscan.com/tx/0x5763820ef37916701e0da569507d9dc4bd1e98e52571c7c435624f6a9af0ba85
 
 * sonic : https://layerzeroscan.com/tx/0x0b3df2778d70b03a28a423ee7b80779f52cacd8a418c44756e237fc902cd4ee7
+
+* ink : https://layerzeroscan.com/tx/0x48276834f09b35f057102f73c5032dd753db5628c87e1572b3e10d84203ac876
+
+* arbitrum : 
+
+* 

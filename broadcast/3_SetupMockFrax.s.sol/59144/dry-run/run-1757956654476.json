@@ -41,7 +41,7 @@
     {
       "hash": null,
       "transactionType": "CALL",
-      "contractName": "EndpointV2",
+      "contractName": null,
       "contractAddress": "0x1a44076050125825900e736c501f859c50fe728c",
       "function": "setConfig(address,address,(uint32,uint32,bytes)[])",
       "arguments": [
@@ -64,7 +64,7 @@
     {
       "hash": null,
       "transactionType": "CALL",
-      "contractName": "EndpointV2",
+      "contractName": null,
       "contractAddress": "0x1a44076050125825900e736c501f859c50fe728c",
       "function": "setConfig(address,address,(uint32,uint32,bytes)[])",
       "arguments": [
@@ -87,7 +87,7 @@
     {
       "hash": null,
       "transactionType": "CALL",
-      "contractName": "EndpointV2",
+      "contractName": null,
       "contractAddress": "0x1a44076050125825900e736c501f859c50fe728c",
       "function": "setSendLibrary(address,uint32,address)",
       "arguments": [
@@ -110,7 +110,7 @@
     {
       "hash": null,
       "transactionType": "CALL",
-      "contractName": "EndpointV2",
+      "contractName": null,
       "contractAddress": "0x1a44076050125825900e736c501f859c50fe728c",
       "function": "setReceiveLibrary(address,uint32,address,uint256)",
       "arguments": [
@@ -136,7 +136,7 @@
   "libraries": [],
   "pending": [],
   "returns": {},
-  "timestamp": 1757961800835,
+  "timestamp": 1757956654476,
   "chain": 59144,
   "commit": "e9d64cb"
 }

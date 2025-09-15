@@ -29,7 +29,7 @@ import { FraxOFTUpgradeable } from "contracts/FraxOFTUpgradeable.sol";
 // abstract : forge script scripts/ops/FraxDVNTest/mainnet/5_SendMockFrax.s.sol --rpc-url https://api.mainnet.abs.xyz --zksync  // Note: this was performed directly on etherscan
 // unichain : forge script scripts/ops/FraxDVNTest/mainnet/5_SendMockFrax.s.sol --rpc-url https://mainnet.unichain.org --broadcast
 // plumephoenix : forge script scripts/ops/FraxDVNTest/mainnet/5_SendMockFrax.s.sol --rpc-url https://rpc.plume.org --broadcast
-// katana : forge script scripts/ops/FraxDVNTest/mainnet/5_SendMockFrax.s.sol --rpc-url https://mainnet.aurora.dev --broadcast
+// katana : forge script scripts/ops/FraxDVNTest/mainnet/5_SendMockFrax.s.sol --rpc-url https://rpc.katana.network --broadcast
 // aurora : forge script scripts/ops/FraxDVNTest/mainnet/5_SendMockFrax.s.sol --rpc-url https://mainnet.aurora.dev --legacy --broadcast
 // scroll : forge script scripts/ops/FraxDVNTest/mainnet/5_SendMockFrax.s.sol --rpc-url https://rpc.scroll.io --broadcast
 

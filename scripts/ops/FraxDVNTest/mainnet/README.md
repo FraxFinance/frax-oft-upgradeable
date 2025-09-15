@@ -439,4 +439,6 @@ worldchain : https://layerzeroscan.com/tx/0x0662527651bcc375230985fdb1da1bd736d6
 
 * sei : https://layerzeroscan.com/tx/0x24d77a27fca218d85db8959e7581c457ccf86fa9f1f74567f8f59e62a3f1a1e6
 
+* xlayer : https://layerzeroscan.com/tx/0x5763820ef37916701e0da569507d9dc4bd1e98e52571c7c435624f6a9af0ba85
+
 * 

@@ -436,3 +436,7 @@ worldchain : https://layerzeroscan.com/tx/0x0662527651bcc375230985fdb1da1bd736d6
 * base : https://layerzeroscan.com/tx/0xa2e4fcd8002bf0325f7da6f1474191a635f4814d1d8782019f76db1865f02eca
 
 * mode : https://layerzeroscan.com/tx/0x2b24738cde901ed9e217a9dcef72ad2ace4d8fb2ed6e270b2984811b5c15af64
+
+* sei : https://layerzeroscan.com/tx/0x24d77a27fca218d85db8959e7581c457ccf86fa9f1f74567f8f59e62a3f1a1e6
+
+* 

@@ -463,8 +463,24 @@ worldchain : https://layerzeroscan.com/tx/0x0662527651bcc375230985fdb1da1bd736d6
 
 * worldchain : https://layerzeroscan.com/tx/0xf087d51c0d1df0899ba74c889b9847915ca0ef6e8acb5d4af293f5f99e0bce9e
 
+* zksync : 
+
+* abstract : 
+
 * unichain : https://layerzeroscan.com/tx/0x7a8f28a62cef99a8bdf87cf27f94ca79504f0569f2e6b3408cfeea1f50328aeb
 
 * plume : https://layerzeroscan.com/tx/0xf3a4fde827cfb9a0eb687fcf506340e6209de0f793b20696e68d1ce6ed82566d
 
-* 
+* katana : https://layerzeroscan.com/tx/0xdd1ceaa0bab3d663be1171394e9dd60d76b5f9d34aa42cdf20fe87a0ec33bc48
+
+* aurora : https://layerzeroscan.com/tx/0x817790838051f42f5d2a9d4dc2f0e8520428f0a9d6e77f7d6864baba2e236efb
+
+* scroll : https://layerzeroscan.com/tx/0x4cfce9f09308ba07806109b74f46f2b568da0e6993e7ecbb759fd667fa0ddc9e
+
+* aptos : https://layerzeroscan.com/tx/0x03a5e3c883cc5dc85fe88937aa749d2a798b2a5916b3c03734f92b04e18c2d78
+
+* movement : 
+
+* solana : https://layerzeroscan.com/tx/4epVNG253o9KZU1Dbzokmx9pECguCeLMCxMkYBXzS4vDbeoGeUwT5YELafcshFCKrjQDoq3KusWXoAFFwPCb2HhG
+
+* hyperliquid : https://layerzeroscan.com/tx/0xccc6e51b492055bc5a524aadfb381dcab33d265c22ab8e5964dc8e9486e7ca1a (zksync, abstract and movement blocked)

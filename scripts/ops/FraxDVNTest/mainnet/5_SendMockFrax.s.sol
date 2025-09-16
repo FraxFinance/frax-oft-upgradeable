@@ -32,6 +32,7 @@ import { FraxOFTUpgradeable } from "contracts/FraxOFTUpgradeable.sol";
 // katana : forge script scripts/ops/FraxDVNTest/mainnet/5_SendMockFrax.s.sol --rpc-url https://rpc.katana.network --broadcast
 // aurora : forge script scripts/ops/FraxDVNTest/mainnet/5_SendMockFrax.s.sol --rpc-url https://mainnet.aurora.dev --legacy --broadcast
 // scroll : forge script scripts/ops/FraxDVNTest/mainnet/5_SendMockFrax.s.sol --rpc-url https://rpc.scroll.io --broadcast
+// hyperliquid : forge script scripts/ops/FraxDVNTest/mainnet/5_SendMockFrax.s.sol --rpc-url https://rpc.hyperliquid.xyz/evm --broadcast --slow
 
 contract SendMockFrax is BaseL0Script {
     // 1,81457,8453,34443,1329,252,196,146,57073,42161,10,137,43114,56,1101,80094,480,130,
@@ -51,7 +52,7 @@ contract SendMockFrax is BaseL0Script {
     address public constant mockFraxAurora = 0xA057D8D4Fc86a62801CE363C169b0A8d192F6cEE;
     address public constant mockFraxAuroraWallet = 0x4a767e2ef83577225522Ef8Ed71056c6E3acB216;
 
-    uint256 amount = 0.5 ether;
+    uint256 amount = 0.2 ether;
 
     SendParam[] public sendParams;
     IOFT[] public ofts;
@@ -161,7 +162,7 @@ contract SendMockFrax is BaseL0Script {
                 // Botanix (botanixlabs)
                 if (allConfigs[_i].eid == 30376) continue;
             }
-            if (allConfigs[_i].eid != 30367) continue; // change with desired remote id
+            // if (allConfigs[_i].eid != 30367) continue; // Note. change with desired remote id
             bytes32 recipientWallet;
             if (allConfigs[_i].eid == 30168) {
                 // solana

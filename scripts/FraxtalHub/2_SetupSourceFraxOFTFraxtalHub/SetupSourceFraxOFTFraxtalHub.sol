@@ -56,6 +56,14 @@ abstract contract SetupSourceFraxOFTFraxtalHub is DeployFraxOFTProtocol {
 
         if (proxyAdmin == address(0)) revert("ProxyAdmin cannot be zero address");
 
+        for (uint256 o = 0; o < proxyOfts.length; o++) {
+            address proxyOft = proxyOfts[o];
+            require(
+                proxyAdmin == FraxProxyAdmin(proxyAdmin).getProxyAdmin(TransparentUpgradeableProxy(payable(proxyOft))),
+                "ProxyAdmin is not admin of oft proxy"
+            );
+        }
+
         super.setPriviledgedRoles();
     }
 }

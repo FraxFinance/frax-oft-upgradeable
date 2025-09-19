@@ -8,6 +8,7 @@ import L0Config from "../L0Config.json"
 import { zeroAddress } from 'viem'
 import { readFileSync } from 'fs'
 import path from 'path'
+import NonEVMDVN from "../../config/dvn/non-evm.json"
 
 enum MsgType {
     SEND = 1,
@@ -27,10 +28,10 @@ type lzConfigType = {
 }
 
 const dvnConfigPath = "config/dvn"
-const zeroBytes32 = '0x0000000000000000000000000000000000000000000000000000000000000000'
 
 const chainIds = [
-    1, 10, 56, 130, 137, 146, 196, 252, 324, 480, 1101, 1329, 2741, 8453, 34443, 42161, 43114, 57073, 59144, 80094, 81457
+    1, 10, 56, 130, 137, 146, 196, 252, 324, 480, 1101, 1329, 2741, 8453, 34443, 42161, 43114, 57073, 59144, 80094, 81457,
+    1313161554, 534352
 ] as const;
 const dvnKeys = ['bcwGroup', 'frax', 'horizen', 'lz', 'nethermind', 'stargate'] as const;
 
@@ -111,6 +112,14 @@ const confirmations: ConfirmationsMap = {
     81457: {
         send: 1000000,
         receive: 5
+    },
+    1313161554: {
+        send: 1000000,
+        receive: 5
+    }, 
+    534352: {
+        send: 1000000,
+        receive: 20
     }
 }
 
@@ -134,7 +143,9 @@ const executors = {
     57073: "0xFEbCF17b11376C724AB5a5229803C6e838b6eAe5",
     59144: "0x0408804C5dcD9796F22558464E6fE5bDdF16A7c7",
     80094: "0x4208D6E27538189bB48E603D6123A94b8Abe0A0b",
-    81457: "0x4208D6E27538189bB48E603D6123A94b8Abe0A0b"
+    81457: "0x4208D6E27538189bB48E603D6123A94b8Abe0A0b",
+    1313161554:"0xA2b402FFE8dd7460a8b425644B6B9f50667f0A61",
+    534352:"0x581b26F362AD383f7B51eF8A165Efa13DDe398a4"
 }
 
 const movementContract: OmniPointHardhat = {
@@ -172,7 +183,7 @@ function generateContractConfig(lzConfig: lzConfigType[]) {
         contractConfig.push({
             contract: {
                 eid: eid,
-                contractName: _chainid == 252 ? "FraxOFTMintableUpgradeable" : "MockFRAXUpgradeable"
+                contractName: _chainid == 252 ? "MockFraxMintableOFT" :  "MockFraxOFT"
             },
             config: {
                 owner: '0x45dce8e4f2dc005a5f28206a46cb034697eeda8e',
@@ -206,13 +217,13 @@ function generateSrcConnectionConfig(lzConfig: lzConfigType[]): OmniEdgeHardhat<
 
         dvnKeys.forEach(key => {
             const dst = dstDVNConfig["22222222"]?.[key] ?? zeroAddress;
-            const src = srcDVNConfig[_chainid]?.[key] ?? zeroBytes32;
+            const src = srcDVNConfig[_chainid]?.[key] ?? zeroAddress;
 
-            if (dst !== zeroAddress || src !== zeroBytes32) {
-                if (dst === zeroAddress || src === zeroBytes32) {
+            if (dst !== zeroAddress || src !== zeroAddress) {
+                if (dst === zeroAddress || src === zeroAddress) {
                     throw new Error(`DVN Stack misconfigured: ${_chainid}<>movement-${key}`);
                 }
-                requiredSrcDVNs.push(src);
+                requiredSrcDVNs.push(NonEVMDVN["22222222"][key]);
             }
         });
 
@@ -220,7 +231,7 @@ function generateSrcConnectionConfig(lzConfig: lzConfigType[]): OmniEdgeHardhat<
             from: movementContract,
             to: {
                 eid: dstConfig.eid,
-                contractName: _chainid == 252 ? "FraxOFTMintableUpgradeable" : "MockFRAXUpgradeable"
+                contractName: _chainid == 252 ? "MockFraxMintableOFT" : "MockFraxOFT"
             },
             config: {
                 enforcedOptions: [
@@ -316,11 +327,11 @@ function generateDstConnectionConfig(lzConfig: lzConfigType[]): OmniEdgeHardhat<
         const srcDVNConfig = JSON.parse(readFileSync(path.join(__dirname, `../../${dvnConfigPath}/${_chainid}.json`), "utf8"));
 
         dvnKeys.forEach(key => {
-            const dst = dstDVNConfig[_chainid]?.[key] ?? zeroBytes32;
+            const dst = dstDVNConfig[_chainid]?.[key] ?? zeroAddress;
             const src = srcDVNConfig["22222222"]?.[key] ?? zeroAddress;
 
-            if (dst !== zeroBytes32 || src !== zeroAddress) {
-                if (dst === zeroBytes32 || src === zeroAddress) {
+            if (dst !== zeroAddress || src !== zeroAddress) {
+                if (dst === zeroAddress || src === zeroAddress) {
                     throw new Error(`DVN Stack misconfigured: ${_chainid}<>movement-${key}`);
                 }
                 requiredDstDVNs.push(src);
@@ -330,7 +341,7 @@ function generateDstConnectionConfig(lzConfig: lzConfigType[]): OmniEdgeHardhat<
         connectionConfig.push({
             from: {
                 eid: dstConfig.eid,
-                contractName: _chainid == 252 ? "FraxOFTMintableUpgradeable" : "MockFRAXUpgradeable"
+                contractName: _chainid == 252 ? "MockFraxMintableOFT" : "MockFraxOFT"
             },
             to: movementContract,
             config: {

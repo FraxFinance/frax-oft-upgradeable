@@ -30,8 +30,14 @@ contract SetupMockFrax is DeployFraxOFTProtocol {
             connectedOfts[0] = 0x3Fc877008e396FdD7f9Ee3Deb2e8A54d54da705A;
             proxyOfts.push(0x3Fc877008e396FdD7f9Ee3Deb2e8A54d54da705A);
             expectedProxyOfts.push(0x3Fc877008e396FdD7f9Ee3Deb2e8A54d54da705A);
+        } else if (broadcastConfig.chainid == 1313161554) {
+            // aurora, eid = 30211
+            connectedOfts[0] = 0xA057D8D4Fc86a62801CE363C169b0A8d192F6cEE;
+            proxyOfts.push(0xA057D8D4Fc86a62801CE363C169b0A8d192F6cEE);
+            expectedProxyOfts.push(0xA057D8D4Fc86a62801CE363C169b0A8d192F6cEE);
         } else {
-            // 1,81457,8453,34443,1329,252,196,146,57073,42161,10,137,43114,56,1101,80094,480,130,98866
+            // 1,81457,8453,34443,1329,252,196,146,57073,42161,10,137,43114,56,1101,80094,480,130,98866,747474,
+            // 534352
             connectedOfts[0] = 0x57558Cb8d6005DE0BAe8a2789d5EfaaE52dba5a8;
             proxyOfts.push(0x57558Cb8d6005DE0BAe8a2789d5EfaaE52dba5a8);
             expectedProxyOfts.push(0x57558Cb8d6005DE0BAe8a2789d5EfaaE52dba5a8);
@@ -60,8 +66,12 @@ contract SetupMockFrax is DeployFraxOFTProtocol {
         } else if (_chainid == 324) {
             // zksync
             peer = 0x3Fc877008e396FdD7f9Ee3Deb2e8A54d54da705A;
+        } else if (_chainid == 1313161554) {
+            // aurora
+            peer = 0xA057D8D4Fc86a62801CE363C169b0A8d192F6cEE;
         } else {
-            // 1,81457,8453,34443,1329,252,196,146,57073,42161,10,137,43114,56,1101,80094,480,130,98866
+            // 1,81457,8453,34443,1329,252,196,146,57073,42161,10,137,43114,56,1101,80094,480,130,98866,747474,
+            // 534352
             peer = 0x57558Cb8d6005DE0BAe8a2789d5EfaaE52dba5a8;
         }
     }
@@ -71,6 +81,9 @@ contract SetupMockFrax is DeployFraxOFTProtocol {
     function setLib(L0Config memory _connectedConfig, address _connectedOft, L0Config memory _config) public override {
         if (_config.eid == 30168) return;
         if (_config.eid == 30151) return;
+
+        if (_config.eid != 30211 && _config.eid != 30214) return; // change the eid to desired remote
+
         if (_connectedConfig.eid == 30370) {
             // if broadcast config is plumephoenix,
             // skip x-layer (30274), polygon zkevm (30158), worldchain (30319), zksync (30165), movement (30325)
@@ -84,7 +97,18 @@ contract SetupMockFrax is DeployFraxOFTProtocol {
                 _config.eid == 30108
             ) return;
         }
-        if (_config.eid != 30370) return;
+
+        if (_connectedConfig.eid == 30375) {
+            // L0 team has not setup defaultSendLibrary and defaultReceiveLibrary on katana for
+            // unichain (30320), plumephoenix, (30370), movement (30325) and aptos (30108)
+            if (_config.eid == 30320 || _config.eid == 30370 || _config.eid == 30325 || _config.eid == 30108) return;
+        }
+
+        if (_connectedConfig.eid == 30211) {
+            // L0 team has not setup defaultSendLibrary and defaultReceiveLibrary on aurora for
+            // aptos (30108)
+            if (_config.eid == 30108) return;
+        }
         // TODO : only set library if it is not same as config
         super.setLib(_connectedConfig, _connectedOft, _config);
     }
@@ -97,6 +121,8 @@ contract SetupMockFrax is DeployFraxOFTProtocol {
     ) public override {
         if (_dstConfig.eid == 30168) return;
         if (_dstConfig.eid == 30151) return;
+
+        if (_dstConfig.eid != 30211 && _dstConfig.eid != 30214) return; // change the eid to desired remote
 
         if (_srcConfig.eid == 30370) {
             // L0 team has not setup defaultSendLibrary and defaultReceiveLibrary on plumephoenix for
@@ -111,8 +137,18 @@ contract SetupMockFrax is DeployFraxOFTProtocol {
                 _dstConfig.eid == 30108
             ) return;
         }
-
-        if (_dstConfig.eid != 30370) return;
+        if (_srcConfig.eid == 30375) {
+            // L0 team has not setup defaultSendLibrary and defaultReceiveLibrary on katana for
+            // unichain (30320), plumephoenix, (30370), movement (30325) and aptos (30108)
+            if (
+                _dstConfig.eid == 30320 || _dstConfig.eid == 30370 || _dstConfig.eid == 30325 || _dstConfig.eid == 30108
+            ) return;
+        }
+        if (_srcConfig.eid == 30211) {
+            // L0 team has not setup defaultSendLibrary and defaultReceiveLibrary on aurora for
+            // Aptos (30108)
+            if (_dstConfig.eid == 30108) return;
+        }
         super.setConfig(_srcConfig, _dstConfig, _lib, _oft);
     }
 

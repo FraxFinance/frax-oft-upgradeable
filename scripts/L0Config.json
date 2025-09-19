@@ -269,13 +269,46 @@
         {
             "RPC": "https://rpc.botanixlabs.com",
             "chainid": 3637,
-            "delegate": "0x6f8FDdfD4F6a1456BA5632C919bEF74b64DD032D",
+            "delegate": "0x0000000000000000000000000000000000000000",
             "dvnHorizen": "0x0000000000000000000000000000000000000000",
-            "dvnL0": "0x282b3386571f7f794450d5789911a9804fa346b4",
+            "dvnL0": "0x0000000000000000000000000000000000000000",
             "eid": 30376,
             "endpoint": "0x6F475642a6e85809B1c36Fa62763669b1b48DD5B",
             "receiveLib302": "0xe1844c5D63a9543023008D332Bd3d2e6f1FE1043",
             "sendLib302": "0xC39161c743D0307EB9BCc9FEF03eeb9Dc4802de7"
+        },
+        {
+            "RPC": "https://rpc.katana.network",
+            "chainid": 747474,
+            "delegate": "0x19A90b0476cdc8EC1239266663CA820175B9B527",
+            "dvnHorizen": "0x0000000000000000000000000000000000000000",
+            "dvnL0": "0x0000000000000000000000000000000000000000",
+            "eid": 30375,
+            "endpoint": "0x6F475642a6e85809B1c36Fa62763669b1b48DD5B",
+            "receiveLib302": "0xe1844c5D63a9543023008D332Bd3d2e6f1FE1043",
+            "sendLib302": "0xC39161c743D0307EB9BCc9FEF03eeb9Dc4802de7"
+        },
+        {
+            "RPC": "https://mainnet.aurora.dev",
+            "chainid": 1313161554,
+            "delegate": "0x73F365d34b81E731825a094c2E722A08574335cd",
+            "dvnHorizen": "0xdd7b5e1db4aafd5c8ec3b764efb8ed265aa5445b",
+            "dvnL0": "0xd4a903930f2c9085586cda0b11d9681eecb20d2f",
+            "eid": 30211,
+            "endpoint": "0x1a44076050125825900e736c501f859c50fE728c",
+            "receiveLib302": "0x000CC1A759bC3A15e664Ed5379E321Be5de1c9B6",
+            "sendLib302": "0x1aCe9DD1BC743aD036eF2D92Af42Ca70A1159df5"
+        },
+        {
+            "RPC": "https://rpc.scroll.io",
+            "chainid": 534352,
+            "delegate": "0x73F365d34b81E731825a094c2E722A08574335cd",
+            "dvnHorizen": "0x7fe673201724925b5c477d4e1a4bd3e954688cf5",
+            "dvnL0": "0xbe0d08a85eebfcc6eda0a843521f7cbb1180d2e2",
+            "eid": 30214,
+            "endpoint": "0x1a44076050125825900e736c501f859c50fE728c",
+            "receiveLib302": "0x8363302080e711E0CAb978C081b9e69308d49808",
+            "sendLib302": "0x9BbEb2B2184B9313Cf5ed4a4DDFEa2ef62a2a03B"
         },
         {
             "RPC": "https://api.mainnet.abs.xyz",

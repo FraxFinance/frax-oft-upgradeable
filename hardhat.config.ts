@@ -177,6 +177,11 @@ const config: HardhatUserConfig = {
             url: process.env.RPC_URL_AURORA || 'https://mainnet.aurora.dev',
             accounts,
         },
+        "hyperliquid-mainnet":{
+            eid: EndpointId.HYPERLIQUID_V2_MAINNET,
+            url: process.env.RPC_URL_HYPERLIQUID || 'https://rpc.hyperliquid.xyz/evm',
+            accounts,
+        },
         sepolia: {
             eid: EndpointId.SEPOLIA_V2_TESTNET,
             url: process.env.RPC_URL_SEPOLIA || 'https://rpc.sepolia.org/',

@@ -16,7 +16,7 @@ contract SendFraxOFTHyperliquidToFraxtal is SendFraxOFTFraxtalHub {
 
         srcEid = 30367;
         dstEid = 30255;
-        amount = 1 ether;
+        amount = 0.0001 ether;
         senderWallet = 0x741F0d8Bde14140f62107FC60A0EE122B37D4630;
         recipientWallet = 0x741F0d8Bde14140f62107FC60A0EE122B37D4630;
     }

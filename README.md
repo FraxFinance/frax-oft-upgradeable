@@ -5,7 +5,7 @@ This repository contains all of the contracts and deployment code used to manage
 ## Contracts & Addresses
 ### Admin
 - `ProxyAdmin`
-  - `Mode`, `Sei`, `Fraxtal`, `X-Layer`, `Ink`, `Sonic`, `Arbitrum`, `Optimism`, `Polygon`, `Avalanche`, `BSC`, `Polygon zkEvm`, `Blast`, `Berachain`, `Worldchain`, `Plume`, `Katana`, `Aurora`
+  - `Mode`, `Sei`, `Fraxtal`, `X-Layer`, `Ink`, `Sonic`, `Arbitrum`, `Optimism`, `Polygon`, `Avalanche`, `BSC`, `Polygon zkEvm`, `Blast`, `Berachain`, `Worldchain`, `Unichain`, `Plume`, `Katana`, `Aurora`
     - `0x223a681fc5c5522c85c96157c0efa18cd6c5405c`
   - `Base`
     - `0xF59C41A57AB4565AF7424F64981523DfD7A453c5`
@@ -47,6 +47,7 @@ This repository contains all of the contracts and deployment code used to manage
   - [`Katana`](https://app.safe.global/settings/setup?safe=katana:0x19A90b0476cdc8EC1239266663CA820175B9B527)
   - [`Aurora`](https://app.safe.global/home?safe=aurora:0x73F365d34b81E731825a094c2E722A08574335cd)
   - [`Scroll`](https://app.safe.global/home?safe=scr:0x73F365d34b81E731825a094c2E722A08574335cd)
+  - [`HyperEVM`](https://safe.onchainden.com/home?safe=hyperevm:0x738ee62157f127C879Ff5c4B7102Eb0d166C7a6d)
 
 ### Proxy (upgradeable) OFTs
 - Chain: `Mode`, `Sei`, `X-Layer`, `Ink`, `Sonic`, `Arbitrum`, `Optimism`, `Polygon`, `BSC`, `Avalanche`, `Polygon zkEvm`, `Blast`, `Berachain`, `Worldchain`, `Unichain`, `Plume`, `Katana`, `Aurora`

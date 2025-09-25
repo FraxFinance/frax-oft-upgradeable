@@ -83,8 +83,8 @@ contract UpgradeAdapter is DeployFraxOFTProtocol {
     }
 
     function upgradeExistingLockboxes() public {
-        upgradeExistingLockbox(fraxtalFrxUsdLockbox, frxUsdMintableLockboxImp);
-        upgradeExistingLockbox(fraxtalSFrxUsdLockbox, sfrxUsdMintableLockboxImp);
+        upgradeExistingLockbox(ethFrxUsdLockbox, frxUsdMintableLockboxImp);
+        upgradeExistingLockbox(ethSFrxUsdLockbox, sfrxUsdMintableLockboxImp);
     }
 
     function upgradeExistingLockbox(

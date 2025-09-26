@@ -13,7 +13,7 @@ import { FraxOFTUpgradeable } from "contracts/FraxOFTUpgradeable.sol";
 // base : forge script scripts/ops/FraxDVNTest/mainnet/5_SendMockFrax.s.sol --rpc-url https://mainnet.base.org --broadcast
 // mode : forge script scripts/ops/FraxDVNTest/mainnet/5_SendMockFrax.s.sol --rpc-url https://mainnet.mode.network/ --broadcast
 // sei : forge script scripts/ops/FraxDVNTest/mainnet/5_SendMockFrax.s.sol --rpc-url https://evm-rpc.sei-apis.com --broadcast
-// TODO: pending txn, xlayer : forge script scripts/ops/FraxDVNTest/mainnet/5_SendMockFrax.s.sol --rpc-url https://mainnet.xlayer-rpc.com --legacy --broadcast
+// xlayer : forge script scripts/ops/FraxDVNTest/mainnet/5_SendMockFrax.s.sol --rpc-url https://mainnet.xlayer-rpc.com --legacy --broadcast
 // sonic : forge script scripts/ops/FraxDVNTest/mainnet/5_SendMockFrax.s.sol --rpc-url https://rpc.soniclabs.com/ --broadcast
 // ink : forge script scripts/ops/FraxDVNTest/mainnet/5_SendMockFrax.s.sol --rpc-url https://rpc-gel.inkonchain.com --broadcast
 // arbitrum : forge script scripts/ops/FraxDVNTest/mainnet/5_SendMockFrax.s.sol --rpc-url https://arb1.arbitrum.io/rpc --broadcast
@@ -29,13 +29,14 @@ import { FraxOFTUpgradeable } from "contracts/FraxOFTUpgradeable.sol";
 // abstract : forge script scripts/ops/FraxDVNTest/mainnet/5_SendMockFrax.s.sol --rpc-url https://api.mainnet.abs.xyz --zksync  // Note: this was performed directly on etherscan
 // unichain : forge script scripts/ops/FraxDVNTest/mainnet/5_SendMockFrax.s.sol --rpc-url https://mainnet.unichain.org --broadcast
 // plumephoenix : forge script scripts/ops/FraxDVNTest/mainnet/5_SendMockFrax.s.sol --rpc-url https://rpc.plume.org --broadcast
-// katana : forge script scripts/ops/FraxDVNTest/mainnet/5_SendMockFrax.s.sol --rpc-url https://mainnet.aurora.dev --broadcast
+// katana : forge script scripts/ops/FraxDVNTest/mainnet/5_SendMockFrax.s.sol --rpc-url https://rpc.katana.network --broadcast
 // aurora : forge script scripts/ops/FraxDVNTest/mainnet/5_SendMockFrax.s.sol --rpc-url https://mainnet.aurora.dev --legacy --broadcast
 // scroll : forge script scripts/ops/FraxDVNTest/mainnet/5_SendMockFrax.s.sol --rpc-url https://rpc.scroll.io --broadcast
+// hyperliquid : forge script scripts/ops/FraxDVNTest/mainnet/5_SendMockFrax.s.sol --rpc-url https://rpc.hyperliquid.xyz/evm --broadcast --slow
 
 contract SendMockFrax is BaseL0Script {
     // 1,81457,8453,34443,1329,252,196,146,57073,42161,10,137,43114,56,1101,80094,480,130,
-    // 98866,747474,534352
+    // 98866,747474,534352,999
     address public constant mockFrax = 0x57558Cb8d6005DE0BAe8a2789d5EfaaE52dba5a8;
     address public constant mockFraxWallet = 0x741F0d8Bde14140f62107FC60A0EE122B37D4630;
     // 324, zksync, 30165
@@ -51,7 +52,7 @@ contract SendMockFrax is BaseL0Script {
     address public constant mockFraxAurora = 0xA057D8D4Fc86a62801CE363C169b0A8d192F6cEE;
     address public constant mockFraxAuroraWallet = 0x4a767e2ef83577225522Ef8Ed71056c6E3acB216;
 
-    uint256 amount = 0.5 ether;
+    uint256 amount = 0.2 ether;
 
     SendParam[] public sendParams;
     IOFT[] public ofts;
@@ -122,7 +123,7 @@ contract SendMockFrax is BaseL0Script {
         }
         require(sourceOFT != address(0), "SendMockFrax: sourceOFT should not be zero");
         require(senderWallet != address(0), "SendMockFrax: senderWallet should not be zero");
-        for (uint256 _i=start; _i < end; _i++) {
+        for (uint256 _i = start; _i < end; _i++) {
             if (broadcastConfig.chainid == allConfigs[_i].chainid) continue;
             if (allConfigs[_i].eid == 30151) continue;
             if (allConfigs[_i].eid == 30376) continue;
@@ -156,7 +157,12 @@ contract SendMockFrax is BaseL0Script {
                 // Aptos (30108)
                 if (allConfigs[_i].eid == 30108) continue;
             }
-            // if (allConfigs[_i].eid != 30211 && allConfigs[_i].eid != 30214) continue; // change with desired remote id
+            if (broadcastConfig.eid == 30367) {
+                // L0 team has not setup defaultSendLibrary and defaultReceiveLibrary on hyperliquid for
+                // Botanix (botanixlabs)
+                if (allConfigs[_i].eid == 30376) continue;
+            }
+            // if (allConfigs[_i].eid != 30367) continue; // Note. change with desired remote id
             bytes32 recipientWallet;
             if (allConfigs[_i].eid == 30168) {
                 // solana
@@ -196,7 +202,7 @@ contract SendMockFrax is BaseL0Script {
                 recipientWallet = addressToBytes32(mockFraxAuroraWallet);
             } else {
                 // 1,81457,8453,34443,1329,252,196,146,57073,42161,10,137,43114,56,1101,80094,480,130,98866,747474,
-                // 534352
+                // 534352,999
                 recipientWallet = addressToBytes32(mockFraxWallet);
             }
             SendParam memory _sendParam = SendParam({

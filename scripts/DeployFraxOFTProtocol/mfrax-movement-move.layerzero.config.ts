@@ -31,7 +31,7 @@ const dvnConfigPath = "config/dvn"
 
 const chainIds = [
     1, 10, 56, 130, 137, 146, 196, 252, 324, 480, 1101, 1329, 2741, 8453, 34443, 42161, 43114, 57073, 59144, 80094, 81457,
-    1313161554, 534352
+    1313161554, 534352, 999
 ] as const;
 const dvnKeys = ['bcwGroup', 'frax', 'horizen', 'lz', 'nethermind', 'stargate'] as const;
 
@@ -116,10 +116,14 @@ const confirmations: ConfirmationsMap = {
     1313161554: {
         send: 1000000,
         receive: 5
-    }, 
+    },
     534352: {
         send: 1000000,
         receive: 20
+    },
+    999: {
+        send: 30000,
+        receive: 1
     }
 }
 
@@ -144,8 +148,9 @@ const executors = {
     59144: "0x0408804C5dcD9796F22558464E6fE5bDdF16A7c7",
     80094: "0x4208D6E27538189bB48E603D6123A94b8Abe0A0b",
     81457: "0x4208D6E27538189bB48E603D6123A94b8Abe0A0b",
-    1313161554:"0xA2b402FFE8dd7460a8b425644B6B9f50667f0A61",
-    534352:"0x581b26F362AD383f7B51eF8A165Efa13DDe398a4"
+    1313161554: "0xA2b402FFE8dd7460a8b425644B6B9f50667f0A61",
+    534352: "0x581b26F362AD383f7B51eF8A165Efa13DDe398a4",
+    999: "0x41Bdb4aa4A63a5b2Efc531858d3118392B1A1C3d"
 }
 
 const movementContract: OmniPointHardhat = {
@@ -183,7 +188,7 @@ function generateContractConfig(lzConfig: lzConfigType[]) {
         contractConfig.push({
             contract: {
                 eid: eid,
-                contractName: _chainid == 252 ? "MockFraxMintableOFT" :  "MockFraxOFT"
+                contractName: _chainid == 252 ? "MockFraxMintableOFT" : "MockFraxOFT"
             },
             config: {
                 owner: '0x45dce8e4f2dc005a5f28206a46cb034697eeda8e',

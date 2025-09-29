@@ -1,6 +1,10 @@
 const port = process.env.HOST_PORT || 9090
 
 module.exports = {
+  solidityLog: {
+    displayPrefix: " :",
+    preventConsoleLogMigration: true
+  },
   migrations_directory: "./scripts/FraxtalHub/tron",
   networks: {
     mainnet: {
@@ -18,10 +22,17 @@ module.exports = {
       fullHost: 'http://host.docker.internal:' + port,
       network_id: '9'
     },
-    compilers: {
-      solc: {
-        version: '0.8.22'
-      }
+  },
+  compilers: {
+    solc: {
+      version: '0.8.22',
+      settings: {
+        optimizer: {
+          enabled: true,
+          runs: 200   // Optimize for how many times you intend to run the code
+        },
+      },
     }
-  }
+  },
+  contracts_build_directory: "./out/tronbox",
 }

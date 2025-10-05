@@ -123,7 +123,7 @@
             "sendLib302": "0x76111DE813F83AAAdBD62773Bf41247634e2319a"
         },
         {
-            "RPC": "https://arb1.arbitrum.io/rpc",
+            "RPC": "https://arbitrum.public.blockpi.network/v1/rpc/public",
             "chainid": 42161,
             "delegate": "0x3da490b19F300E7cb2280426C8aD536dB2df445c",
             "dvnHorizen": "0x19670df5e16bea2ba9b9e68b48c054c5baea06b8",

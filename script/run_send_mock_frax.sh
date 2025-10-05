@@ -33,7 +33,7 @@ for (( i=0; i<$count; i++ )); do
     echo "⏳ Processing Chain ID: $CHAIN_ID" | tee -a "$LOG_FILE"
 
     # Skip chainid 3637, 2741 and 324
-    if [ -z "$CHAIN_ID" ] || [ "$CHAIN_ID" -eq ${BROADCAST_CHAIN_ID} ] || [ "$CHAIN_ID" -eq 3637 ] || [ "$CHAIN_ID" -eq 2741 ] || [ "$CHAIN_ID" -eq 324 ]; then
+    if [ -z "$CHAIN_ID" ] || [ "$CHAIN_ID" -eq ${BROADCAST_CHAIN_ID} ] || [ "$CHAIN_ID" -eq 1 ] || [ "$CHAIN_ID" -eq 3637 ] || [ "$CHAIN_ID" -eq 2741 ] || [ "$CHAIN_ID" -eq 324 ]; then
         echo "⏭️  Skipping chain ID $CHAIN_ID" | tee -a "$LOG_FILE"
         continue
     fi
@@ -52,7 +52,7 @@ for (( i=0; i<$count; i++ )); do
 
 
     # Add --slow if chainid == 1313161554 or 999
-    if ["$CHAIN_ID" -eq 1313161554 ] || ["$CHAIN_ID" -eq 999 ] ; then
+    if [ "$CHAIN_ID" -eq 1313161554 ] || [ "$CHAIN_ID" -eq 999 ] ; then
         EXTRA_ARGS+=(--slow)
     fi
 
@@ -67,7 +67,7 @@ for (( i=0; i<$count; i++ )); do
         echo "🔁 Attempt $ATTEMPT for chain ID $CHAIN_ID" | tee -a "$LOG_FILE"
 
         # Full command to run
-        CMD=(forge script scripts/ops/FraxDVNTest/mainnet/3_SetupMockFrax.s.sol --rpc-url "$RPC_URL" "${EXTRA_ARGS[@]}" "${FORGE_ARGS[@]}")
+        CMD=(forge script scripts/ops/FraxDVNTest/mainnet/5_SendMockFrax.s.sol --rpc-url "$RPC_URL" "${EXTRA_ARGS[@]}" "${FORGE_ARGS[@]}")
         CMD_STRING="${CMD[@]}"
 
         echo "📦 Running command:" | tee -a "$LOG_FILE"

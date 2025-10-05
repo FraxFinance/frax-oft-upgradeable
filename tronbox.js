@@ -1,18 +1,33 @@
+var HDWalletProvider = require("@truffle/hdwallet-provider");
+
 const port = process.env.HOST_PORT || 9090
+
+const privateKeys = [process.env.PK_OFT_DEPLOYER, process.env.PK_CONFIG_DEPLOYER]
 
 module.exports = {
   solidityLog: {
     displayPrefix: " :",
     preventConsoleLogMigration: true
   },
+  contracts_directory: "./contracts-tron/",
   migrations_directory: "./scripts/FraxtalHub/tron",
   networks: {
     mainnet: {
-      privateKey: process.env.PRIVATE_KEY_TRON_MAINNET,
+      provider: () => new HDWalletProvider({
+        privateKeys: privateKeys,
+        providerOrUrl: 'https://api.trongrid.io',
+        numberOfAddresses: 2
+      }),
       userFeePercentage: 100,
       feeLimit: 1000 * 1e6,
-      fullHost: 'https://api.trongrid.io',
-      network_id: '1'
+      network_id: '1',
+    },
+    shasta: {
+      privateKey: process.env.PRIVATE_KEY,
+      userFeePercentage: 50,
+      feeLimit: 1000 * 1e6,
+      fullHost: 'https://api.shasta.trongrid.io',
+      network_id: '2'
     },
     development: {
       // For tronbox/tre docker image
@@ -34,5 +49,5 @@ module.exports = {
       },
     }
   },
-  contracts_build_directory: "./out/tronbox",
+  contracts_build_directory: "./out/contracts-tron",
 }

@@ -484,3 +484,7 @@ worldchain : https://layerzeroscan.com/tx/0x0662527651bcc375230985fdb1da1bd736d6
 * solana : https://layerzeroscan.com/tx/4epVNG253o9KZU1Dbzokmx9pECguCeLMCxMkYBXzS4vDbeoGeUwT5YELafcshFCKrjQDoq3KusWXoAFFwPCb2HhG
 
 * hyperliquid : https://layerzeroscan.com/tx/0xccc6e51b492055bc5a524aadfb381dcab33d265c22ab8e5964dc8e9486e7ca1a (zksync, abstract and movement blocked)
+
+## Plasma
+
+* ethereum : https://layerzeroscan.com/tx/0xe14cd9bd5ec76e700c50e27f3e189cfdfc57b31cf7ff81b29d8208c5945e8842 

@@ -537,4 +537,4 @@ worldchain : https://layerzeroscan.com/tx/0x0662527651bcc375230985fdb1da1bd736d6
 
 * solana : https://layerzeroscan.com/tx/5mNusnB95vNQxe1BMAXxQsSwjxMVWSZtFcdDPTJgniZ9uMRruUqHvDChPvaGuNDCisrUunRRFE3iJKSMPC3u8kja
 
-* plasma : 
+* plasma : https://layerzeroscan.com/tx/0x7cf6a5f0ef78cee708c812e65dd3ace43cec1cf93f1a5a301bac2b3275ac9421

@@ -351,6 +351,18 @@
             "sendLib302": "0xfd76d9CB0Bac839725aB79127E7411fe71b1e3CA"
         },
         {
+            "RPC": "https://api.trongrid.io/jsonrpc",
+            "chainid": 728126428,
+            "delegate": "0x0000000000000000000000000000000000000000",
+            "dvnHorizen": "0xfee824cc7ced4f2ba7a0e72e5cfe20fd2197cd53",
+            "dvnL0": "0x8bc1d368036ee5e726d230beb685294be191a24e",
+            "eid": 30420,
+            "endpoint": "0x0Af59750D5dB5460E5d89E268C474d5F7407c061",
+            "proxyAdmin": "0x0000000000000000000000000000000000000000",
+            "receiveLib302": "0x612215D4dB0475a76dCAa36C7f9afD748c42ed2D",
+            "sendLib302": "0xE369D146219380B24Bb5D9B9E08a5b9936F9E719"
+        },
+        {
             "RPC": "https://api.mainnet.abs.xyz",
             "chainid": 2741,
             "delegate": "0xcC20eAE3CdC554E96291708B362dF349CC443808",
@@ -450,6 +462,18 @@
             "proxyAdmin": "0x0000000000000000000000000000000000000000",
             "receiveLib302": "0xcF1B0F4106B0324F96fEfcC31bA9498caa80701C",
             "sendLib302": "0xd682ECF100f6F4284138AA925348633B0611Ae21"
+        },
+        {
+            "RPC": "https://api.shasta.trongrid.io/jsonrpc",
+            "chainid": 2494104990,
+            "delegate": "0x0000000000000000000000000000000000000000",
+            "dvnHorizen": "0x0000000000000000000000000000000000000000",
+            "dvnL0": "0xc6b1a264d9bb30a8d19575b0bb3ba525a3a6fc93",
+            "eid": 40420,
+            "endpoint": "0x1b356f3030CE0c1eF9D3e1E250Bf0BB11D81b2d1",
+            "proxyAdmin": "0x0000000000000000000000000000000000000000",
+            "receiveLib302": "0x843810EB9f002E940870a95B366cc59E623bF5f1",
+            "sendLib302": "0xaef63752785Ad2104cea1aa42b69b46f2530312F"
         }
     ]
 }

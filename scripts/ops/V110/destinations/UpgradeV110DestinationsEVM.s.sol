@@ -2,7 +2,7 @@ pragma solidity ^0.8.0;
 
 import {UpgradeV110Destinations, L0Config} from "./UpgradeV110Destinations.s.sol";
 
-// forge script scrtips/ops/V110/destinations/UpgradeV110DestinationsEVM.s.sol
+// forge script scripts/ops/V110/destinations/UpgradeV110DestinationsEVM.s.sol
 contract UpgradeV110DestinationsEVM is UpgradeV110Destinations {
 
     function run() public override {

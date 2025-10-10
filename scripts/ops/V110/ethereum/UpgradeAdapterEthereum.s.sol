@@ -8,7 +8,7 @@ interface IERC20PermitPermissionedOptiMintable {
     function addMinter(address) external;
 }
 
-// forge script scripts/ops/V110/ethereum/UpgradeAdapterEthereum.s.sol --rpc-url https://eth-mainnet.public.blastapi.io
+// forge script scripts/ops/V110/ethereum/UpgradeAdapterEthereum.s.sol --rpc-url https://eth-mainnet.public.blastapi.io --broadcast --verify --verifier etherscan --etherscan-api-key $ETHERSCAN_API_KEY
 contract UpgradeAdapter is DeployFraxOFTProtocol {
     using Strings for uint256;
     using Strings for address;

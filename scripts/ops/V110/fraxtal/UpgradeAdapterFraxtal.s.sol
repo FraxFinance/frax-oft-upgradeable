@@ -7,7 +7,7 @@ interface IERC20PermitPermissionedOptiMintable {
     function addMinter(address) external;
 }
 
-// forge script scripts/ops/V110/fraxtal/UpgradeAdapterFraxtal.s.sol --rpc-url https://rpc.frax.com
+// forge script scripts/ops/V110/fraxtal/UpgradeAdapterFraxtal.s.sol --rpc-url https://rpc.frax.com --broadcast --verify --verifier etherscan --etherscan-api-key $ETHERSCAN_API_KEY
 contract UpgradeAdapter is DeployFraxOFTProtocol {
     
     address frxUsd = 0xFc00000000000000000000000000000000000001;

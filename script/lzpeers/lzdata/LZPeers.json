@@ -1,0 +1,3186 @@
+[
+  {
+    "chain": "Ethereum-Mainnet",
+    "type": "OFTAdapter",
+    "address": "0x909DBdE1eBE906Af95660033e478D59EFe831fED",
+    "token": "0x853d955aCEf822Db058eb8505911ED77F175b99e",
+    "name": "Frax",
+    "peers": [
+      {
+        "chain": "Fraxtal-Mainnet",
+        "address": "0x80eede496655fb9047dd39d9f418d5483ed600df"
+      },
+      {
+        "chain": "Base-Mainnet",
+        "address": "0x909dbde1ebe906af95660033e478d59efe831fed"
+      },
+      {
+        "chain": "Metis-Mainnet",
+        "address": "0x909dbde1ebe906af95660033e478d59efe831fed"
+      },
+      {
+        "chain": "Blast-Mainnet",
+        "address": "0x909dbde1ebe906af95660033e478d59efe831fed"
+      },
+      {
+        "chain": "Mode-Mainnet",
+        "address": "0x80eede496655fb9047dd39d9f418d5483ed600df"
+      },
+      {
+        "chain": "Sei-Mainnet",
+        "address": "0x80eede496655fb9047dd39d9f418d5483ed600df"
+      },
+      {
+        "chain": "X-Layer-Mainnet",
+        "address": "0x80eede496655fb9047dd39d9f418d5483ed600df"
+      }
+    ]
+  },
+  {
+    "chain": "Ethereum-Mainnet",
+    "type": "OFTAdapter",
+    "address": "0xe4796cCB6bB5DE2290C417Ac337F2b66CA2E770E",
+    "token": "0xA663B02CF0a4b149d2aD41910CB81e23e1c41c32",
+    "name": "Staked FRAX",
+    "peers": [
+      {
+        "chain": "Fraxtal-Mainnet",
+        "address": "0x5bff88ca1442c2496f7e475e9e7786383bc070c0"
+      },
+      {
+        "chain": "Base-Mainnet",
+        "address": "0xe4796ccb6bb5de2290c417ac337f2b66ca2e770e"
+      },
+      {
+        "chain": "Metis-Mainnet",
+        "address": "0xe4796ccb6bb5de2290c417ac337f2b66ca2e770e"
+      },
+      {
+        "chain": "Blast-Mainnet",
+        "address": "0xe4796ccb6bb5de2290c417ac337f2b66ca2e770e"
+      },
+      {
+        "chain": "Mode-Mainnet",
+        "address": "0x5bff88ca1442c2496f7e475e9e7786383bc070c0"
+      },
+      {
+        "chain": "Sei-Mainnet",
+        "address": "0x5bff88ca1442c2496f7e475e9e7786383bc070c0"
+      },
+      {
+        "chain": "X-Layer-Mainnet",
+        "address": "0x5bff88ca1442c2496f7e475e9e7786383bc070c0"
+      }
+    ]
+  },
+  {
+    "chain": "Ethereum-Mainnet",
+    "type": "OFTAdapter",
+    "address": "0xF010a7c8877043681D59AD125EbF575633505942",
+    "token": "0x5E8422345238F34275888049021821E8E08CAa1f",
+    "name": "Frax Ether",
+    "peers": [
+      {
+        "chain": "Fraxtal-Mainnet",
+        "address": "0x43edd7f3831b08fe70b7555ddd373c8bf65a9050"
+      },
+      {
+        "chain": "Base-Mainnet",
+        "address": "0xf010a7c8877043681d59ad125ebf575633505942"
+      },
+      {
+        "chain": "Metis-Mainnet",
+        "address": "0xf010a7c8877043681d59ad125ebf575633505942"
+      },
+      {
+        "chain": "Blast-Mainnet",
+        "address": "0xf010a7c8877043681d59ad125ebf575633505942"
+      },
+      {
+        "chain": "Mode-Mainnet",
+        "address": "0x43edd7f3831b08fe70b7555ddd373c8bf65a9050"
+      },
+      {
+        "chain": "Sei-Mainnet",
+        "address": "0x43edd7f3831b08fe70b7555ddd373c8bf65a9050"
+      },
+      {
+        "chain": "X-Layer-Mainnet",
+        "address": "0x43edd7f3831b08fe70b7555ddd373c8bf65a9050"
+      }
+    ]
+  },
+  {
+    "chain": "Ethereum-Mainnet",
+    "type": "OFTAdapter",
+    "address": "0x1f55a02A049033E3419a8E2975cF3F572F4e6E9A",
+    "token": "0xac3E018457B222d93114458476f3E3416Abbe38F",
+    "name": "Staked Frax Ether",
+    "peers": [
+      {
+        "chain": "Fraxtal-Mainnet",
+        "address": "0x3ec3849c33291a9ef4c5db86de593eb4a37fde45"
+      },
+      {
+        "chain": "Base-Mainnet",
+        "address": "0x1f55a02a049033e3419a8e2975cf3f572f4e6e9a"
+      },
+      {
+        "chain": "Metis-Mainnet",
+        "address": "0x1f55a02a049033e3419a8e2975cf3f572f4e6e9a"
+      },
+      {
+        "chain": "Blast-Mainnet",
+        "address": "0x1f55a02a049033e3419a8e2975cf3f572f4e6e9a"
+      },
+      {
+        "chain": "Mode-Mainnet",
+        "address": "0x3ec3849c33291a9ef4c5db86de593eb4a37fde45"
+      },
+      {
+        "chain": "Sei-Mainnet",
+        "address": "0x3ec3849c33291a9ef4c5db86de593eb4a37fde45"
+      },
+      {
+        "chain": "X-Layer-Mainnet",
+        "address": "0x3ec3849c33291a9ef4c5db86de593eb4a37fde45"
+      }
+    ]
+  },
+  {
+    "chain": "Ethereum-Mainnet",
+    "type": "OFTAdapter",
+    "address": "0x23432452B720C80553458496D4D9d7C5003280d0",
+    "token": "0x3432B6A60D23Ca0dFCa7761B7ab56459D9C964D0",
+    "name": "Frax Share",
+    "peers": [
+      {
+        "chain": "Fraxtal-Mainnet",
+        "address": "0x64445f0aecc51e94ad52d8ac56b7190e764e561a"
+      },
+      {
+        "chain": "Base-Mainnet",
+        "address": "0x23432452b720c80553458496d4d9d7c5003280d0"
+      },
+      {
+        "chain": "Metis-Mainnet",
+        "address": "0x23432452b720c80553458496d4d9d7c5003280d0"
+      },
+      {
+        "chain": "Blast-Mainnet",
+        "address": "0x23432452b720c80553458496d4d9d7c5003280d0"
+      },
+      {
+        "chain": "Mode-Mainnet",
+        "address": "0x64445f0aecc51e94ad52d8ac56b7190e764e561a"
+      },
+      {
+        "chain": "Sei-Mainnet",
+        "address": "0x64445f0aecc51e94ad52d8ac56b7190e764e561a"
+      },
+      {
+        "chain": "X-Layer-Mainnet",
+        "address": "0x64445f0aecc51e94ad52d8ac56b7190e764e561a"
+      }
+    ]
+  },
+  {
+    "chain": "Fraxtal-Mainnet",
+    "type": "OFT",
+    "address": "0x80eede496655fb9047dd39d9f418d5483ed600df",
+    "token": "0x80Eede496655FB9047dd39d9f418d5483ED600df",
+    "name": "Frax",
+    "peers": [
+      {
+        "chain": "Ethereum-Mainnet",
+        "address": "0x909dbde1ebe906af95660033e478d59efe831fed"
+      },
+      {
+        "chain": "Base-Mainnet",
+        "address": "0x909dbde1ebe906af95660033e478d59efe831fed"
+      },
+      {
+        "chain": "Metis-Mainnet",
+        "address": "0x909dbde1ebe906af95660033e478d59efe831fed"
+      },
+      {
+        "chain": "Blast-Mainnet",
+        "address": "0x909dbde1ebe906af95660033e478d59efe831fed"
+      },
+      {
+        "chain": "Mode-Mainnet",
+        "address": "0x80eede496655fb9047dd39d9f418d5483ed600df"
+      },
+      {
+        "chain": "Sei-Mainnet",
+        "address": "0x80eede496655fb9047dd39d9f418d5483ed600df"
+      },
+      {
+        "chain": "X-Layer-Mainnet",
+        "address": "0x80eede496655fb9047dd39d9f418d5483ed600df"
+      }
+    ]
+  },
+  {
+    "chain": "Fraxtal-Mainnet",
+    "type": "OFT",
+    "address": "0x5bff88ca1442c2496f7e475e9e7786383bc070c0",
+    "token": "0x5Bff88cA1442c2496f7E475E9e7786383Bc070c0",
+    "name": "Staked Frax",
+    "peers": [
+      {
+        "chain": "Ethereum-Mainnet",
+        "address": "0xe4796ccb6bb5de2290c417ac337f2b66ca2e770e"
+      },
+      {
+        "chain": "Base-Mainnet",
+        "address": "0xe4796ccb6bb5de2290c417ac337f2b66ca2e770e"
+      },
+      {
+        "chain": "Metis-Mainnet",
+        "address": "0xe4796ccb6bb5de2290c417ac337f2b66ca2e770e"
+      },
+      {
+        "chain": "Blast-Mainnet",
+        "address": "0xe4796ccb6bb5de2290c417ac337f2b66ca2e770e"
+      },
+      {
+        "chain": "Mode-Mainnet",
+        "address": "0x5bff88ca1442c2496f7e475e9e7786383bc070c0"
+      },
+      {
+        "chain": "Sei-Mainnet",
+        "address": "0x5bff88ca1442c2496f7e475e9e7786383bc070c0"
+      },
+      {
+        "chain": "X-Layer-Mainnet",
+        "address": "0x5bff88ca1442c2496f7e475e9e7786383bc070c0"
+      }
+    ]
+  },
+  {
+    "chain": "Fraxtal-Mainnet",
+    "type": "OFT",
+    "address": "0x43eDD7f3831b08FE70B7555ddD373C8bF65a9050",
+    "token": "0x43eDD7f3831b08FE70B7555ddD373C8bF65a9050",
+    "name": "Frax Ether",
+    "peers": [
+      {
+        "chain": "Ethereum-Mainnet",
+        "address": "0xf010a7c8877043681d59ad125ebf575633505942"
+      },
+      {
+        "chain": "Base-Mainnet",
+        "address": "0xf010a7c8877043681d59ad125ebf575633505942"
+      },
+      {
+        "chain": "Metis-Mainnet",
+        "address": "0xf010a7c8877043681d59ad125ebf575633505942"
+      },
+      {
+        "chain": "Blast-Mainnet",
+        "address": "0xf010a7c8877043681d59ad125ebf575633505942"
+      },
+      {
+        "chain": "Mode-Mainnet",
+        "address": "0x43edd7f3831b08fe70b7555ddd373c8bf65a9050"
+      },
+      {
+        "chain": "Sei-Mainnet",
+        "address": "0x43edd7f3831b08fe70b7555ddd373c8bf65a9050"
+      },
+      {
+        "chain": "X-Layer-Mainnet",
+        "address": "0x43edd7f3831b08fe70b7555ddd373c8bf65a9050"
+      },
+      {
+        "chain": "Sonic-Mainnet",
+        "address": "0x43edd7f3831b08fe70b7555ddd373c8bf65a9050"
+      },
+      {
+        "chain": "Ink-Mainnet",
+        "address": "0x43edd7f3831b08fe70b7555ddd373c8bf65a9050"
+      },
+      {
+        "chain": "Arbitrum-Mainnet",
+        "address": "0x43edd7f3831b08fe70b7555ddd373c8bf65a9050"
+      },
+      {
+        "chain": "Optimism-Mainnet",
+        "address": "0x43edd7f3831b08fe70b7555ddd373c8bf65a9050"
+      },
+      {
+        "chain": "Polygon-Mainnet",
+        "address": "0x43edd7f3831b08fe70b7555ddd373c8bf65a9050"
+      },
+      {
+        "chain": "Avalanche-Mainnet",
+        "address": "0x43edd7f3831b08fe70b7555ddd373c8bf65a9050"
+      },
+      {
+        "chain": "BNB-Smart-Chain-Mainnet",
+        "address": "0x43edd7f3831b08fe70b7555ddd373c8bf65a9050"
+      },
+      {
+        "chain": "Polygon-zkEVM-Mainnet",
+        "address": "0x43edd7f3831b08fe70b7555ddd373c8bf65a9050"
+      }
+    ]
+  },
+  {
+    "chain": "Fraxtal-Mainnet",
+    "type": "OFT",
+    "address": "0x3ec3849c33291a9ef4c5db86de593eb4a37fde45",
+    "token": "0x3Ec3849C33291a9eF4c5dB86De593EB4A37fDe45",
+    "name": "Staked Frax Ether",
+    "peers": [
+      {
+        "chain": "Ethereum-Mainnet",
+        "address": "0x1f55a02a049033e3419a8e2975cf3f572f4e6e9a"
+      },
+      {
+        "chain": "Base-Mainnet",
+        "address": "0x1f55a02a049033e3419a8e2975cf3f572f4e6e9a"
+      },
+      {
+        "chain": "Metis-Mainnet",
+        "address": "0x1f55a02a049033e3419a8e2975cf3f572f4e6e9a"
+      },
+      {
+        "chain": "Blast-Mainnet",
+        "address": "0x1f55a02a049033e3419a8e2975cf3f572f4e6e9a"
+      },
+      {
+        "chain": "Mode-Mainnet",
+        "address": "0x3ec3849c33291a9ef4c5db86de593eb4a37fde45"
+      },
+      {
+        "chain": "Sei-Mainnet",
+        "address": "0x3ec3849c33291a9ef4c5db86de593eb4a37fde45"
+      },
+      {
+        "chain": "X-Layer-Mainnet",
+        "address": "0x3ec3849c33291a9ef4c5db86de593eb4a37fde45"
+      },
+      {
+        "chain": "Sonic-Mainnet",
+        "address": "0x3ec3849c33291a9ef4c5db86de593eb4a37fde45"
+      },
+      {
+        "chain": "Ink-Mainnet",
+        "address": "0x3ec3849c33291a9ef4c5db86de593eb4a37fde45"
+      },
+      {
+        "chain": "Arbitrum-Mainnet",
+        "address": "0x3ec3849c33291a9ef4c5db86de593eb4a37fde45"
+      },
+      {
+        "chain": "Optimism-Mainnet",
+        "address": "0x3ec3849c33291a9ef4c5db86de593eb4a37fde45"
+      },
+      {
+        "chain": "Polygon-Mainnet",
+        "address": "0x3ec3849c33291a9ef4c5db86de593eb4a37fde45"
+      },
+      {
+        "chain": "Avalanche-Mainnet",
+        "address": "0x3ec3849c33291a9ef4c5db86de593eb4a37fde45"
+      },
+      {
+        "chain": "BNB-Smart-Chain-Mainnet",
+        "address": "0x3ec3849c33291a9ef4c5db86de593eb4a37fde45"
+      },
+      {
+        "chain": "Polygon-zkEVM-Mainnet",
+        "address": "0x3ec3849c33291a9ef4c5db86de593eb4a37fde45"
+      }
+    ]
+  },
+  {
+    "chain": "Fraxtal-Mainnet",
+    "type": "OFT",
+    "address": "0x64445f0aecc51e94ad52d8ac56b7190e764e561a",
+    "token": "0x64445f0aecC51E94aD52d8AC56b7190e764E561a",
+    "name": "Frax Share",
+    "peers": [
+      {
+        "chain": "Ethereum-Mainnet",
+        "address": "0x23432452b720c80553458496d4d9d7c5003280d0"
+      },
+      {
+        "chain": "Base-Mainnet",
+        "address": "0x23432452b720c80553458496d4d9d7c5003280d0"
+      },
+      {
+        "chain": "Metis-Mainnet",
+        "address": "0x23432452b720c80553458496d4d9d7c5003280d0"
+      },
+      {
+        "chain": "Blast-Mainnet",
+        "address": "0x23432452b720c80553458496d4d9d7c5003280d0"
+      },
+      {
+        "chain": "Mode-Mainnet",
+        "address": "0x64445f0aecc51e94ad52d8ac56b7190e764e561a"
+      },
+      {
+        "chain": "Sei-Mainnet",
+        "address": "0x64445f0aecc51e94ad52d8ac56b7190e764e561a"
+      },
+      {
+        "chain": "X-Layer-Mainnet",
+        "address": "0x64445f0aecc51e94ad52d8ac56b7190e764e561a"
+      },
+      {
+        "chain": "Sonic-Mainnet",
+        "address": "0x64445f0aecc51e94ad52d8ac56b7190e764e561a"
+      },
+      {
+        "chain": "Ink-Mainnet",
+        "address": "0x64445f0aecc51e94ad52d8ac56b7190e764e561a"
+      },
+      {
+        "chain": "Arbitrum-Mainnet",
+        "address": "0x64445f0aecc51e94ad52d8ac56b7190e764e561a"
+      },
+      {
+        "chain": "Optimism-Mainnet",
+        "address": "0x64445f0aecc51e94ad52d8ac56b7190e764e561a"
+      },
+      {
+        "chain": "Polygon-Mainnet",
+        "address": "0x64445f0aecc51e94ad52d8ac56b7190e764e561a"
+      },
+      {
+        "chain": "Avalanche-Mainnet",
+        "address": "0x64445f0aecc51e94ad52d8ac56b7190e764e561a"
+      },
+      {
+        "chain": "BNB-Smart-Chain-Mainnet",
+        "address": "0x64445f0aecc51e94ad52d8ac56b7190e764e561a"
+      },
+      {
+        "chain": "Polygon-zkEVM-Mainnet",
+        "address": "0x64445f0aecc51e94ad52d8ac56b7190e764e561a"
+      }
+    ]
+  },
+  {
+    "chain": "Fraxtal-Mainnet",
+    "type": "OFT",
+    "address": "0x90581eCa9469D8D7F5D3B60f4715027aDFCf7927",
+    "token": "0x90581eCa9469D8D7F5D3B60f4715027aDFCf7927",
+    "name": "Frax Price Index",
+    "peers": [
+      {
+        "chain": "Ethereum-Mainnet",
+        "address": "0x6eca253b102d41b6b69ac815b9cc6bd47ef1979d"
+      },
+      {
+        "chain": "Base-Mainnet",
+        "address": "0x6eca253b102d41b6b69ac815b9cc6bd47ef1979d"
+      },
+      {
+        "chain": "Metis-Mainnet",
+        "address": "0x6eca253b102d41b6b69ac815b9cc6bd47ef1979d"
+      },
+      {
+        "chain": "Blast-Mainnet",
+        "address": "0x6eca253b102d41b6b69ac815b9cc6bd47ef1979d"
+      },
+      {
+        "chain": "Mode-Mainnet",
+        "address": "0x90581eca9469d8d7f5d3b60f4715027adfcf7927"
+      },
+      {
+        "chain": "Sei-Mainnet",
+        "address": "0x90581eca9469d8d7f5d3b60f4715027adfcf7927"
+      },
+      {
+        "chain": "X-Layer-Mainnet",
+        "address": "0x90581eca9469d8d7f5d3b60f4715027adfcf7927"
+      },
+      {
+        "chain": "Sonic-Mainnet",
+        "address": "0x90581eca9469d8d7f5d3b60f4715027adfcf7927"
+      },
+      {
+        "chain": "Ink-Mainnet",
+        "address": "0x90581eca9469d8d7f5d3b60f4715027adfcf7927"
+      },
+      {
+        "chain": "Arbitrum-Mainnet",
+        "address": "0x90581eca9469d8d7f5d3b60f4715027adfcf7927"
+      },
+      {
+        "chain": "Optimism-Mainnet",
+        "address": "0x90581eca9469d8d7f5d3b60f4715027adfcf7927"
+      },
+      {
+        "chain": "Polygon-Mainnet",
+        "address": "0x90581eca9469d8d7f5d3b60f4715027adfcf7927"
+      },
+      {
+        "chain": "Avalanche-Mainnet",
+        "address": "0x90581eca9469d8d7f5d3b60f4715027adfcf7927"
+      },
+      {
+        "chain": "BNB-Smart-Chain-Mainnet",
+        "address": "0x90581eca9469d8d7f5d3b60f4715027adfcf7927"
+      },
+      {
+        "chain": "Polygon-zkEVM-Mainnet",
+        "address": "0x90581eca9469d8d7f5d3b60f4715027adfcf7927"
+      }
+    ]
+  },
+  {
+    "chain": "Base-Mainnet",
+    "type": "OFT",
+    "address": "0x909DBdE1eBE906Af95660033e478D59EFe831fED",
+    "token": "0x909DBdE1eBE906Af95660033e478D59EFe831fED",
+    "name": "Frax",
+    "peers": [
+      {
+        "chain": "Ethereum-Mainnet",
+        "address": "0x909dbde1ebe906af95660033e478d59efe831fed"
+      },
+      {
+        "chain": "Fraxtal-Mainnet",
+        "address": "0x80eede496655fb9047dd39d9f418d5483ed600df"
+      },
+      {
+        "chain": "Metis-Mainnet",
+        "address": "0x909dbde1ebe906af95660033e478d59efe831fed"
+      },
+      {
+        "chain": "Blast-Mainnet",
+        "address": "0x909dbde1ebe906af95660033e478d59efe831fed"
+      },
+      {
+        "chain": "Mode-Mainnet",
+        "address": "0x80eede496655fb9047dd39d9f418d5483ed600df"
+      },
+      {
+        "chain": "Sei-Mainnet",
+        "address": "0x80eede496655fb9047dd39d9f418d5483ed600df"
+      },
+      {
+        "chain": "X-Layer-Mainnet",
+        "address": "0x80eede496655fb9047dd39d9f418d5483ed600df"
+      }
+    ]
+  },
+  {
+    "chain": "Base-Mainnet",
+    "type": "OFT",
+    "address": "0xe4796cCB6bB5DE2290C417Ac337F2b66CA2E770E",
+    "token": "0xe4796cCB6bB5DE2290C417Ac337F2b66CA2E770E",
+    "name": "Staked FRAX",
+    "peers": [
+      {
+        "chain": "Ethereum-Mainnet",
+        "address": "0xe4796ccb6bb5de2290c417ac337f2b66ca2e770e"
+      },
+      {
+        "chain": "Fraxtal-Mainnet",
+        "address": "0x5bff88ca1442c2496f7e475e9e7786383bc070c0"
+      },
+      {
+        "chain": "Metis-Mainnet",
+        "address": "0xe4796ccb6bb5de2290c417ac337f2b66ca2e770e"
+      },
+      {
+        "chain": "Blast-Mainnet",
+        "address": "0xe4796ccb6bb5de2290c417ac337f2b66ca2e770e"
+      },
+      {
+        "chain": "Mode-Mainnet",
+        "address": "0x5bff88ca1442c2496f7e475e9e7786383bc070c0"
+      },
+      {
+        "chain": "Sei-Mainnet",
+        "address": "0x5bff88ca1442c2496f7e475e9e7786383bc070c0"
+      },
+      {
+        "chain": "X-Layer-Mainnet",
+        "address": "0x5bff88ca1442c2496f7e475e9e7786383bc070c0"
+      }
+    ]
+  },
+  {
+    "chain": "Base-Mainnet",
+    "type": "OFT",
+    "address": "0xF010a7c8877043681D59AD125EbF575633505942",
+    "token": "0xF010a7c8877043681D59AD125EbF575633505942",
+    "name": "Frax Ether",
+    "peers": [
+      {
+        "chain": "Ethereum-Mainnet",
+        "address": "0xf010a7c8877043681d59ad125ebf575633505942"
+      },
+      {
+        "chain": "Fraxtal-Mainnet",
+        "address": "0x43edd7f3831b08fe70b7555ddd373c8bf65a9050"
+      },
+      {
+        "chain": "Metis-Mainnet",
+        "address": "0xf010a7c8877043681d59ad125ebf575633505942"
+      },
+      {
+        "chain": "Blast-Mainnet",
+        "address": "0xf010a7c8877043681d59ad125ebf575633505942"
+      },
+      {
+        "chain": "Mode-Mainnet",
+        "address": "0x43edd7f3831b08fe70b7555ddd373c8bf65a9050"
+      },
+      {
+        "chain": "Sei-Mainnet",
+        "address": "0x43edd7f3831b08fe70b7555ddd373c8bf65a9050"
+      },
+      {
+        "chain": "X-Layer-Mainnet",
+        "address": "0x43edd7f3831b08fe70b7555ddd373c8bf65a9050"
+      }
+    ]
+  },
+  {
+    "chain": "Base-Mainnet",
+    "type": "OFT",
+    "address": "0x1f55a02A049033E3419a8E2975cF3F572F4e6E9A",
+    "token": "0x1f55a02A049033E3419a8E2975cF3F572F4e6E9A",
+    "name": "Staked Frax Ether",
+    "peers": [
+      {
+        "chain": "Ethereum-Mainnet",
+        "address": "0x1f55a02a049033e3419a8e2975cf3f572f4e6e9a"
+      },
+      {
+        "chain": "Fraxtal-Mainnet",
+        "address": "0x3ec3849c33291a9ef4c5db86de593eb4a37fde45"
+      },
+      {
+        "chain": "Metis-Mainnet",
+        "address": "0x1f55a02a049033e3419a8e2975cf3f572f4e6e9a"
+      },
+      {
+        "chain": "Blast-Mainnet",
+        "address": "0x1f55a02a049033e3419a8e2975cf3f572f4e6e9a"
+      },
+      {
+        "chain": "Mode-Mainnet",
+        "address": "0x3ec3849c33291a9ef4c5db86de593eb4a37fde45"
+      },
+      {
+        "chain": "Sei-Mainnet",
+        "address": "0x3ec3849c33291a9ef4c5db86de593eb4a37fde45"
+      },
+      {
+        "chain": "X-Layer-Mainnet",
+        "address": "0x3ec3849c33291a9ef4c5db86de593eb4a37fde45"
+      }
+    ]
+  },
+  {
+    "chain": "Base-Mainnet",
+    "type": "OFT",
+    "address": "0x23432452B720C80553458496D4D9d7C5003280d0",
+    "token": "0x23432452B720C80553458496D4D9d7C5003280d0",
+    "name": "Frax Share",
+    "peers": [
+      {
+        "chain": "Ethereum-Mainnet",
+        "address": "0x23432452b720c80553458496d4d9d7c5003280d0"
+      },
+      {
+        "chain": "Fraxtal-Mainnet",
+        "address": "0x64445f0aecc51e94ad52d8ac56b7190e764e561a"
+      },
+      {
+        "chain": "Metis-Mainnet",
+        "address": "0x23432452b720c80553458496d4d9d7c5003280d0"
+      },
+      {
+        "chain": "Blast-Mainnet",
+        "address": "0x23432452b720c80553458496d4d9d7c5003280d0"
+      },
+      {
+        "chain": "Mode-Mainnet",
+        "address": "0x64445f0aecc51e94ad52d8ac56b7190e764e561a"
+      },
+      {
+        "chain": "Sei-Mainnet",
+        "address": "0x64445f0aecc51e94ad52d8ac56b7190e764e561a"
+      },
+      {
+        "chain": "X-Layer-Mainnet",
+        "address": "0x64445f0aecc51e94ad52d8ac56b7190e764e561a"
+      }
+    ]
+  },
+  {
+    "chain": "Metis-Mainnet",
+    "type": "OFT",
+    "address": "0x909DBdE1eBE906Af95660033e478D59EFe831fED",
+    "token": "0x909DBdE1eBE906Af95660033e478D59EFe831fED",
+    "name": "Frax",
+    "peers": [
+      {
+        "chain": "Ethereum-Mainnet",
+        "address": "0x909dbde1ebe906af95660033e478d59efe831fed"
+      },
+      {
+        "chain": "Fraxtal-Mainnet",
+        "address": "0x80eede496655fb9047dd39d9f418d5483ed600df"
+      },
+      {
+        "chain": "Base-Mainnet",
+        "address": "0x909dbde1ebe906af95660033e478d59efe831fed"
+      },
+      {
+        "chain": "Blast-Mainnet",
+        "address": "0x909dbde1ebe906af95660033e478d59efe831fed"
+      },
+      {
+        "chain": "Mode-Mainnet",
+        "address": "0x80eede496655fb9047dd39d9f418d5483ed600df"
+      },
+      {
+        "chain": "Sei-Mainnet",
+        "address": "0x80eede496655fb9047dd39d9f418d5483ed600df"
+      },
+      {
+        "chain": "X-Layer-Mainnet",
+        "address": "0x80eede496655fb9047dd39d9f418d5483ed600df"
+      }
+    ]
+  },
+  {
+    "chain": "Metis-Mainnet",
+    "type": "OFT",
+    "address": "0xe4796cCB6bB5DE2290C417Ac337F2b66CA2E770E",
+    "token": "0xe4796cCB6bB5DE2290C417Ac337F2b66CA2E770E",
+    "name": "Staked FRAX",
+    "peers": [
+      {
+        "chain": "Ethereum-Mainnet",
+        "address": "0xe4796ccb6bb5de2290c417ac337f2b66ca2e770e"
+      },
+      {
+        "chain": "Fraxtal-Mainnet",
+        "address": "0x5bff88ca1442c2496f7e475e9e7786383bc070c0"
+      },
+      {
+        "chain": "Base-Mainnet",
+        "address": "0xe4796ccb6bb5de2290c417ac337f2b66ca2e770e"
+      },
+      {
+        "chain": "Blast-Mainnet",
+        "address": "0xe4796ccb6bb5de2290c417ac337f2b66ca2e770e"
+      },
+      {
+        "chain": "Mode-Mainnet",
+        "address": "0x5bff88ca1442c2496f7e475e9e7786383bc070c0"
+      },
+      {
+        "chain": "Sei-Mainnet",
+        "address": "0x5bff88ca1442c2496f7e475e9e7786383bc070c0"
+      },
+      {
+        "chain": "X-Layer-Mainnet",
+        "address": "0x5bff88ca1442c2496f7e475e9e7786383bc070c0"
+      }
+    ]
+  },
+  {
+    "chain": "Metis-Mainnet",
+    "type": "OFT",
+    "address": "0xF010a7c8877043681D59AD125EbF575633505942",
+    "token": "0xF010a7c8877043681D59AD125EbF575633505942",
+    "name": "Frax Ether",
+    "peers": [
+      {
+        "chain": "Ethereum-Mainnet",
+        "address": "0xf010a7c8877043681d59ad125ebf575633505942"
+      },
+      {
+        "chain": "Fraxtal-Mainnet",
+        "address": "0x43edd7f3831b08fe70b7555ddd373c8bf65a9050"
+      },
+      {
+        "chain": "Base-Mainnet",
+        "address": "0xf010a7c8877043681d59ad125ebf575633505942"
+      },
+      {
+        "chain": "Blast-Mainnet",
+        "address": "0xf010a7c8877043681d59ad125ebf575633505942"
+      },
+      {
+        "chain": "Mode-Mainnet",
+        "address": "0x43edd7f3831b08fe70b7555ddd373c8bf65a9050"
+      },
+      {
+        "chain": "Sei-Mainnet",
+        "address": "0x43edd7f3831b08fe70b7555ddd373c8bf65a9050"
+      },
+      {
+        "chain": "X-Layer-Mainnet",
+        "address": "0x43edd7f3831b08fe70b7555ddd373c8bf65a9050"
+      }
+    ]
+  },
+  {
+    "chain": "Metis-Mainnet",
+    "type": "OFT",
+    "address": "0x1f55a02A049033E3419a8E2975cF3F572F4e6E9A",
+    "token": "0x1f55a02A049033E3419a8E2975cF3F572F4e6E9A",
+    "name": "Staked Frax Ether",
+    "peers": [
+      {
+        "chain": "Ethereum-Mainnet",
+        "address": "0x1f55a02a049033e3419a8e2975cf3f572f4e6e9a"
+      },
+      {
+        "chain": "Fraxtal-Mainnet",
+        "address": "0x3ec3849c33291a9ef4c5db86de593eb4a37fde45"
+      },
+      {
+        "chain": "Base-Mainnet",
+        "address": "0x1f55a02a049033e3419a8e2975cf3f572f4e6e9a"
+      },
+      {
+        "chain": "Blast-Mainnet",
+        "address": "0x1f55a02a049033e3419a8e2975cf3f572f4e6e9a"
+      },
+      {
+        "chain": "Mode-Mainnet",
+        "address": "0x3ec3849c33291a9ef4c5db86de593eb4a37fde45"
+      },
+      {
+        "chain": "Sei-Mainnet",
+        "address": "0x3ec3849c33291a9ef4c5db86de593eb4a37fde45"
+      },
+      {
+        "chain": "X-Layer-Mainnet",
+        "address": "0x3ec3849c33291a9ef4c5db86de593eb4a37fde45"
+      }
+    ]
+  },
+  {
+    "chain": "Metis-Mainnet",
+    "type": "OFT",
+    "address": "0x23432452B720C80553458496D4D9d7C5003280d0",
+    "token": "0x23432452B720C80553458496D4D9d7C5003280d0",
+    "name": "Frax Share",
+    "peers": [
+      {
+        "chain": "Ethereum-Mainnet",
+        "address": "0x23432452b720c80553458496d4d9d7c5003280d0"
+      },
+      {
+        "chain": "Fraxtal-Mainnet",
+        "address": "0x64445f0aecc51e94ad52d8ac56b7190e764e561a"
+      },
+      {
+        "chain": "Base-Mainnet",
+        "address": "0x23432452b720c80553458496d4d9d7c5003280d0"
+      },
+      {
+        "chain": "Blast-Mainnet",
+        "address": "0x23432452b720c80553458496d4d9d7c5003280d0"
+      },
+      {
+        "chain": "Mode-Mainnet",
+        "address": "0x64445f0aecc51e94ad52d8ac56b7190e764e561a"
+      },
+      {
+        "chain": "Sei-Mainnet",
+        "address": "0x64445f0aecc51e94ad52d8ac56b7190e764e561a"
+      },
+      {
+        "chain": "X-Layer-Mainnet",
+        "address": "0x64445f0aecc51e94ad52d8ac56b7190e764e561a"
+      }
+    ]
+  },
+  {
+    "chain": "Blast-Mainnet",
+    "type": "OFT",
+    "address": "0x909DBdE1eBE906Af95660033e478D59EFe831fED",
+    "token": "0x909DBdE1eBE906Af95660033e478D59EFe831fED",
+    "name": "Frax",
+    "peers": [
+      {
+        "chain": "Ethereum-Mainnet",
+        "address": "0x909dbde1ebe906af95660033e478d59efe831fed"
+      },
+      {
+        "chain": "Fraxtal-Mainnet",
+        "address": "0x80eede496655fb9047dd39d9f418d5483ed600df"
+      },
+      {
+        "chain": "Base-Mainnet",
+        "address": "0x909dbde1ebe906af95660033e478d59efe831fed"
+      },
+      {
+        "chain": "Metis-Mainnet",
+        "address": "0x909dbde1ebe906af95660033e478d59efe831fed"
+      },
+      {
+        "chain": "Mode-Mainnet",
+        "address": "0x80eede496655fb9047dd39d9f418d5483ed600df"
+      },
+      {
+        "chain": "Sei-Mainnet",
+        "address": "0x80eede496655fb9047dd39d9f418d5483ed600df"
+      },
+      {
+        "chain": "X-Layer-Mainnet",
+        "address": "0x80eede496655fb9047dd39d9f418d5483ed600df"
+      }
+    ]
+  },
+  {
+    "chain": "Blast-Mainnet",
+    "type": "OFT",
+    "address": "0xe4796cCB6bB5DE2290C417Ac337F2b66CA2E770E",
+    "token": "0xe4796cCB6bB5DE2290C417Ac337F2b66CA2E770E",
+    "name": "Staked FRAX",
+    "peers": [
+      {
+        "chain": "Ethereum-Mainnet",
+        "address": "0xe4796ccb6bb5de2290c417ac337f2b66ca2e770e"
+      },
+      {
+        "chain": "Fraxtal-Mainnet",
+        "address": "0x5bff88ca1442c2496f7e475e9e7786383bc070c0"
+      },
+      {
+        "chain": "Base-Mainnet",
+        "address": "0xe4796ccb6bb5de2290c417ac337f2b66ca2e770e"
+      },
+      {
+        "chain": "Metis-Mainnet",
+        "address": "0xe4796ccb6bb5de2290c417ac337f2b66ca2e770e"
+      },
+      {
+        "chain": "Mode-Mainnet",
+        "address": "0x5bff88ca1442c2496f7e475e9e7786383bc070c0"
+      },
+      {
+        "chain": "Sei-Mainnet",
+        "address": "0x5bff88ca1442c2496f7e475e9e7786383bc070c0"
+      },
+      {
+        "chain": "X-Layer-Mainnet",
+        "address": "0x5bff88ca1442c2496f7e475e9e7786383bc070c0"
+      }
+    ]
+  },
+  {
+    "chain": "Blast-Mainnet",
+    "type": "OFT",
+    "address": "0xF010a7c8877043681D59AD125EbF575633505942",
+    "token": "0xF010a7c8877043681D59AD125EbF575633505942",
+    "name": "Frax Ether",
+    "peers": [
+      {
+        "chain": "Ethereum-Mainnet",
+        "address": "0xf010a7c8877043681d59ad125ebf575633505942"
+      },
+      {
+        "chain": "Fraxtal-Mainnet",
+        "address": "0x43edd7f3831b08fe70b7555ddd373c8bf65a9050"
+      },
+      {
+        "chain": "Base-Mainnet",
+        "address": "0xf010a7c8877043681d59ad125ebf575633505942"
+      },
+      {
+        "chain": "Metis-Mainnet",
+        "address": "0xf010a7c8877043681d59ad125ebf575633505942"
+      },
+      {
+        "chain": "Mode-Mainnet",
+        "address": "0x43edd7f3831b08fe70b7555ddd373c8bf65a9050"
+      },
+      {
+        "chain": "Sei-Mainnet",
+        "address": "0x43edd7f3831b08fe70b7555ddd373c8bf65a9050"
+      },
+      {
+        "chain": "X-Layer-Mainnet",
+        "address": "0x43edd7f3831b08fe70b7555ddd373c8bf65a9050"
+      }
+    ]
+  },
+  {
+    "chain": "Blast-Mainnet",
+    "type": "OFT",
+    "address": "0x1f55a02A049033E3419a8E2975cF3F572F4e6E9A",
+    "token": "0x1f55a02A049033E3419a8E2975cF3F572F4e6E9A",
+    "name": "Staked Frax Ether",
+    "peers": [
+      {
+        "chain": "Ethereum-Mainnet",
+        "address": "0x1f55a02a049033e3419a8e2975cf3f572f4e6e9a"
+      },
+      {
+        "chain": "Fraxtal-Mainnet",
+        "address": "0x3ec3849c33291a9ef4c5db86de593eb4a37fde45"
+      },
+      {
+        "chain": "Base-Mainnet",
+        "address": "0x1f55a02a049033e3419a8e2975cf3f572f4e6e9a"
+      },
+      {
+        "chain": "Metis-Mainnet",
+        "address": "0x1f55a02a049033e3419a8e2975cf3f572f4e6e9a"
+      },
+      {
+        "chain": "Mode-Mainnet",
+        "address": "0x3ec3849c33291a9ef4c5db86de593eb4a37fde45"
+      },
+      {
+        "chain": "Sei-Mainnet",
+        "address": "0x3ec3849c33291a9ef4c5db86de593eb4a37fde45"
+      },
+      {
+        "chain": "X-Layer-Mainnet",
+        "address": "0x3ec3849c33291a9ef4c5db86de593eb4a37fde45"
+      }
+    ]
+  },
+  {
+    "chain": "Blast-Mainnet",
+    "type": "OFT",
+    "address": "0x23432452B720C80553458496D4D9d7C5003280d0",
+    "token": "0x23432452B720C80553458496D4D9d7C5003280d0",
+    "name": "Frax Share",
+    "peers": [
+      {
+        "chain": "Ethereum-Mainnet",
+        "address": "0x23432452b720c80553458496d4d9d7c5003280d0"
+      },
+      {
+        "chain": "Fraxtal-Mainnet",
+        "address": "0x64445f0aecc51e94ad52d8ac56b7190e764e561a"
+      },
+      {
+        "chain": "Base-Mainnet",
+        "address": "0x23432452b720c80553458496d4d9d7c5003280d0"
+      },
+      {
+        "chain": "Metis-Mainnet",
+        "address": "0x23432452b720c80553458496d4d9d7c5003280d0"
+      },
+      {
+        "chain": "Mode-Mainnet",
+        "address": "0x64445f0aecc51e94ad52d8ac56b7190e764e561a"
+      },
+      {
+        "chain": "Sei-Mainnet",
+        "address": "0x64445f0aecc51e94ad52d8ac56b7190e764e561a"
+      },
+      {
+        "chain": "X-Layer-Mainnet",
+        "address": "0x64445f0aecc51e94ad52d8ac56b7190e764e561a"
+      }
+    ]
+  },
+  {
+    "chain": "Mode-Mainnet",
+    "type": "OFT",
+    "address": "0x80eede496655fb9047dd39d9f418d5483ed600df",
+    "token": "0x80Eede496655FB9047dd39d9f418d5483ED600df",
+    "name": "Frax",
+    "peers": [
+      {
+        "chain": "Ethereum-Mainnet",
+        "address": "0x909dbde1ebe906af95660033e478d59efe831fed"
+      },
+      {
+        "chain": "Fraxtal-Mainnet",
+        "address": "0x80eede496655fb9047dd39d9f418d5483ed600df"
+      },
+      {
+        "chain": "Base-Mainnet",
+        "address": "0x909dbde1ebe906af95660033e478d59efe831fed"
+      },
+      {
+        "chain": "Metis-Mainnet",
+        "address": "0x909dbde1ebe906af95660033e478d59efe831fed"
+      },
+      {
+        "chain": "Blast-Mainnet",
+        "address": "0x909dbde1ebe906af95660033e478d59efe831fed"
+      },
+      {
+        "chain": "X-Layer-Mainnet",
+        "address": "0x80eede496655fb9047dd39d9f418d5483ed600df"
+      }
+    ]
+  },
+  {
+    "chain": "Mode-Mainnet",
+    "type": "OFT",
+    "address": "0x5bff88ca1442c2496f7e475e9e7786383bc070c0",
+    "token": "0x5Bff88cA1442c2496f7E475E9e7786383Bc070c0",
+    "name": "Staked Frax",
+    "peers": [
+      {
+        "chain": "Ethereum-Mainnet",
+        "address": "0xe4796ccb6bb5de2290c417ac337f2b66ca2e770e"
+      },
+      {
+        "chain": "Fraxtal-Mainnet",
+        "address": "0x5bff88ca1442c2496f7e475e9e7786383bc070c0"
+      },
+      {
+        "chain": "Base-Mainnet",
+        "address": "0xe4796ccb6bb5de2290c417ac337f2b66ca2e770e"
+      },
+      {
+        "chain": "Metis-Mainnet",
+        "address": "0xe4796ccb6bb5de2290c417ac337f2b66ca2e770e"
+      },
+      {
+        "chain": "Blast-Mainnet",
+        "address": "0xe4796ccb6bb5de2290c417ac337f2b66ca2e770e"
+      },
+      {
+        "chain": "X-Layer-Mainnet",
+        "address": "0x5bff88ca1442c2496f7e475e9e7786383bc070c0"
+      }
+    ]
+  },
+  {
+    "chain": "Mode-Mainnet",
+    "type": "OFT",
+    "address": "0x43eDD7f3831b08FE70B7555ddD373C8bF65a9050",
+    "token": "0x43eDD7f3831b08FE70B7555ddD373C8bF65a9050",
+    "name": "Frax Ether",
+    "peers": [
+      {
+        "chain": "Ethereum-Mainnet",
+        "address": "0xf010a7c8877043681d59ad125ebf575633505942"
+      },
+      {
+        "chain": "Fraxtal-Mainnet",
+        "address": "0x43edd7f3831b08fe70b7555ddd373c8bf65a9050"
+      },
+      {
+        "chain": "Base-Mainnet",
+        "address": "0xf010a7c8877043681d59ad125ebf575633505942"
+      },
+      {
+        "chain": "Metis-Mainnet",
+        "address": "0xf010a7c8877043681d59ad125ebf575633505942"
+      },
+      {
+        "chain": "Blast-Mainnet",
+        "address": "0xf010a7c8877043681d59ad125ebf575633505942"
+      },
+      {
+        "chain": "X-Layer-Mainnet",
+        "address": "0x43edd7f3831b08fe70b7555ddd373c8bf65a9050"
+      },
+      {
+        "chain": "Ink-Mainnet",
+        "address": "0x43edd7f3831b08fe70b7555ddd373c8bf65a9050"
+      }
+    ]
+  },
+  {
+    "chain": "Mode-Mainnet",
+    "type": "OFT",
+    "address": "0x3ec3849c33291a9ef4c5db86de593eb4a37fde45",
+    "token": "0x3Ec3849C33291a9eF4c5dB86De593EB4A37fDe45",
+    "name": "Staked Frax Ether",
+    "peers": [
+      {
+        "chain": "Ethereum-Mainnet",
+        "address": "0x1f55a02a049033e3419a8e2975cf3f572f4e6e9a"
+      },
+      {
+        "chain": "Fraxtal-Mainnet",
+        "address": "0x3ec3849c33291a9ef4c5db86de593eb4a37fde45"
+      },
+      {
+        "chain": "Base-Mainnet",
+        "address": "0x1f55a02a049033e3419a8e2975cf3f572f4e6e9a"
+      },
+      {
+        "chain": "Metis-Mainnet",
+        "address": "0x1f55a02a049033e3419a8e2975cf3f572f4e6e9a"
+      },
+      {
+        "chain": "Blast-Mainnet",
+        "address": "0x1f55a02a049033e3419a8e2975cf3f572f4e6e9a"
+      },
+      {
+        "chain": "X-Layer-Mainnet",
+        "address": "0x3ec3849c33291a9ef4c5db86de593eb4a37fde45"
+      },
+      {
+        "chain": "Ink-Mainnet",
+        "address": "0x3ec3849c33291a9ef4c5db86de593eb4a37fde45"
+      }
+    ]
+  },
+  {
+    "chain": "Mode-Mainnet",
+    "type": "OFT",
+    "address": "0x64445f0aecc51e94ad52d8ac56b7190e764e561a",
+    "token": "0x64445f0aecC51E94aD52d8AC56b7190e764E561a",
+    "name": "Frax Share",
+    "peers": [
+      {
+        "chain": "Ethereum-Mainnet",
+        "address": "0x23432452b720c80553458496d4d9d7c5003280d0"
+      },
+      {
+        "chain": "Fraxtal-Mainnet",
+        "address": "0x64445f0aecc51e94ad52d8ac56b7190e764e561a"
+      },
+      {
+        "chain": "Base-Mainnet",
+        "address": "0x23432452b720c80553458496d4d9d7c5003280d0"
+      },
+      {
+        "chain": "Metis-Mainnet",
+        "address": "0x23432452b720c80553458496d4d9d7c5003280d0"
+      },
+      {
+        "chain": "Blast-Mainnet",
+        "address": "0x23432452b720c80553458496d4d9d7c5003280d0"
+      },
+      {
+        "chain": "X-Layer-Mainnet",
+        "address": "0x64445f0aecc51e94ad52d8ac56b7190e764e561a"
+      },
+      {
+        "chain": "Ink-Mainnet",
+        "address": "0x64445f0aecc51e94ad52d8ac56b7190e764e561a"
+      }
+    ]
+  },
+  {
+    "chain": "Mode-Mainnet",
+    "type": "OFT",
+    "address": "0x90581eCa9469D8D7F5D3B60f4715027aDFCf7927",
+    "token": "0x90581eCa9469D8D7F5D3B60f4715027aDFCf7927",
+    "name": "Frax Price Index",
+    "peers": [
+      {
+        "chain": "Ethereum-Mainnet",
+        "address": "0x6eca253b102d41b6b69ac815b9cc6bd47ef1979d"
+      },
+      {
+        "chain": "Fraxtal-Mainnet",
+        "address": "0x90581eca9469d8d7f5d3b60f4715027adfcf7927"
+      },
+      {
+        "chain": "Base-Mainnet",
+        "address": "0x6eca253b102d41b6b69ac815b9cc6bd47ef1979d"
+      },
+      {
+        "chain": "Metis-Mainnet",
+        "address": "0x6eca253b102d41b6b69ac815b9cc6bd47ef1979d"
+      },
+      {
+        "chain": "Blast-Mainnet",
+        "address": "0x6eca253b102d41b6b69ac815b9cc6bd47ef1979d"
+      },
+      {
+        "chain": "Sei-Mainnet",
+        "address": "0x90581eca9469d8d7f5d3b60f4715027adfcf7927"
+      },
+      {
+        "chain": "X-Layer-Mainnet",
+        "address": "0x90581eca9469d8d7f5d3b60f4715027adfcf7927"
+      },
+      {
+        "chain": "Ink-Mainnet",
+        "address": "0x90581eca9469d8d7f5d3b60f4715027adfcf7927"
+      }
+    ]
+  },
+  {
+    "chain": "Sei-Mainnet",
+    "type": "OFT",
+    "address": "0x80eede496655fb9047dd39d9f418d5483ed600df",
+    "token": "0x80Eede496655FB9047dd39d9f418d5483ED600df",
+    "name": "Frax",
+    "peers": [
+      {
+        "chain": "Ethereum-Mainnet",
+        "address": "0x909dbde1ebe906af95660033e478d59efe831fed"
+      },
+      {
+        "chain": "Fraxtal-Mainnet",
+        "address": "0x80eede496655fb9047dd39d9f418d5483ed600df"
+      },
+      {
+        "chain": "Base-Mainnet",
+        "address": "0x909dbde1ebe906af95660033e478d59efe831fed"
+      },
+      {
+        "chain": "Metis-Mainnet",
+        "address": "0x909dbde1ebe906af95660033e478d59efe831fed"
+      },
+      {
+        "chain": "Blast-Mainnet",
+        "address": "0x909dbde1ebe906af95660033e478d59efe831fed"
+      },
+      {
+        "chain": "Mode-Mainnet",
+        "address": "0x80eede496655fb9047dd39d9f418d5483ed600df"
+      },
+      {
+        "chain": "X-Layer-Mainnet",
+        "address": "0x80eede496655fb9047dd39d9f418d5483ed600df"
+      }
+    ]
+  },
+  {
+    "chain": "Sei-Mainnet",
+    "type": "OFT",
+    "address": "0x5bff88ca1442c2496f7e475e9e7786383bc070c0",
+    "token": "0x5Bff88cA1442c2496f7E475E9e7786383Bc070c0",
+    "name": "Staked Frax",
+    "peers": [
+      {
+        "chain": "Ethereum-Mainnet",
+        "address": "0xe4796ccb6bb5de2290c417ac337f2b66ca2e770e"
+      },
+      {
+        "chain": "Fraxtal-Mainnet",
+        "address": "0x5bff88ca1442c2496f7e475e9e7786383bc070c0"
+      },
+      {
+        "chain": "Base-Mainnet",
+        "address": "0xe4796ccb6bb5de2290c417ac337f2b66ca2e770e"
+      },
+      {
+        "chain": "Metis-Mainnet",
+        "address": "0xe4796ccb6bb5de2290c417ac337f2b66ca2e770e"
+      },
+      {
+        "chain": "Blast-Mainnet",
+        "address": "0xe4796ccb6bb5de2290c417ac337f2b66ca2e770e"
+      },
+      {
+        "chain": "Mode-Mainnet",
+        "address": "0x5bff88ca1442c2496f7e475e9e7786383bc070c0"
+      },
+      {
+        "chain": "X-Layer-Mainnet",
+        "address": "0x5bff88ca1442c2496f7e475e9e7786383bc070c0"
+      }
+    ]
+  },
+  {
+    "chain": "Sei-Mainnet",
+    "type": "OFT",
+    "address": "0x43eDD7f3831b08FE70B7555ddD373C8bF65a9050",
+    "token": "0x43eDD7f3831b08FE70B7555ddD373C8bF65a9050",
+    "name": "Frax Ether",
+    "peers": [
+      {
+        "chain": "Ethereum-Mainnet",
+        "address": "0xf010a7c8877043681d59ad125ebf575633505942"
+      },
+      {
+        "chain": "Fraxtal-Mainnet",
+        "address": "0x43edd7f3831b08fe70b7555ddd373c8bf65a9050"
+      },
+      {
+        "chain": "Base-Mainnet",
+        "address": "0xf010a7c8877043681d59ad125ebf575633505942"
+      },
+      {
+        "chain": "Metis-Mainnet",
+        "address": "0xf010a7c8877043681d59ad125ebf575633505942"
+      },
+      {
+        "chain": "Blast-Mainnet",
+        "address": "0xf010a7c8877043681d59ad125ebf575633505942"
+      },
+      {
+        "chain": "Mode-Mainnet",
+        "address": "0x43edd7f3831b08fe70b7555ddd373c8bf65a9050"
+      },
+      {
+        "chain": "X-Layer-Mainnet",
+        "address": "0x43edd7f3831b08fe70b7555ddd373c8bf65a9050"
+      },
+      {
+        "chain": "Ink-Mainnet",
+        "address": "0x43edd7f3831b08fe70b7555ddd373c8bf65a9050"
+      }
+    ]
+  },
+  {
+    "chain": "Sei-Mainnet",
+    "type": "OFT",
+    "address": "0x3ec3849c33291a9ef4c5db86de593eb4a37fde45",
+    "token": "0x3Ec3849C33291a9eF4c5dB86De593EB4A37fDe45",
+    "name": "Staked Frax Ether",
+    "peers": [
+      {
+        "chain": "Ethereum-Mainnet",
+        "address": "0x1f55a02a049033e3419a8e2975cf3f572f4e6e9a"
+      },
+      {
+        "chain": "Fraxtal-Mainnet",
+        "address": "0x3ec3849c33291a9ef4c5db86de593eb4a37fde45"
+      },
+      {
+        "chain": "Base-Mainnet",
+        "address": "0x1f55a02a049033e3419a8e2975cf3f572f4e6e9a"
+      },
+      {
+        "chain": "Metis-Mainnet",
+        "address": "0x1f55a02a049033e3419a8e2975cf3f572f4e6e9a"
+      },
+      {
+        "chain": "Blast-Mainnet",
+        "address": "0x1f55a02a049033e3419a8e2975cf3f572f4e6e9a"
+      },
+      {
+        "chain": "Mode-Mainnet",
+        "address": "0x3ec3849c33291a9ef4c5db86de593eb4a37fde45"
+      },
+      {
+        "chain": "X-Layer-Mainnet",
+        "address": "0x3ec3849c33291a9ef4c5db86de593eb4a37fde45"
+      },
+      {
+        "chain": "Ink-Mainnet",
+        "address": "0x3ec3849c33291a9ef4c5db86de593eb4a37fde45"
+      }
+    ]
+  },
+  {
+    "chain": "Sei-Mainnet",
+    "type": "OFT",
+    "address": "0x64445f0aecc51e94ad52d8ac56b7190e764e561a",
+    "token": "0x64445f0aecC51E94aD52d8AC56b7190e764E561a",
+    "name": "Frax Share",
+    "peers": [
+      {
+        "chain": "Ethereum-Mainnet",
+        "address": "0x23432452b720c80553458496d4d9d7c5003280d0"
+      },
+      {
+        "chain": "Fraxtal-Mainnet",
+        "address": "0x64445f0aecc51e94ad52d8ac56b7190e764e561a"
+      },
+      {
+        "chain": "Base-Mainnet",
+        "address": "0x23432452b720c80553458496d4d9d7c5003280d0"
+      },
+      {
+        "chain": "Metis-Mainnet",
+        "address": "0x23432452b720c80553458496d4d9d7c5003280d0"
+      },
+      {
+        "chain": "Blast-Mainnet",
+        "address": "0x23432452b720c80553458496d4d9d7c5003280d0"
+      },
+      {
+        "chain": "Mode-Mainnet",
+        "address": "0x64445f0aecc51e94ad52d8ac56b7190e764e561a"
+      },
+      {
+        "chain": "X-Layer-Mainnet",
+        "address": "0x64445f0aecc51e94ad52d8ac56b7190e764e561a"
+      },
+      {
+        "chain": "Ink-Mainnet",
+        "address": "0x64445f0aecc51e94ad52d8ac56b7190e764e561a"
+      }
+    ]
+  },
+  {
+    "chain": "Sei-Mainnet",
+    "type": "OFT",
+    "address": "0x90581eCa9469D8D7F5D3B60f4715027aDFCf7927",
+    "token": "0x90581eCa9469D8D7F5D3B60f4715027aDFCf7927",
+    "name": "Frax Price Index",
+    "peers": [
+      {
+        "chain": "Ethereum-Mainnet",
+        "address": "0x6eca253b102d41b6b69ac815b9cc6bd47ef1979d"
+      },
+      {
+        "chain": "Fraxtal-Mainnet",
+        "address": "0x90581eca9469d8d7f5d3b60f4715027adfcf7927"
+      },
+      {
+        "chain": "Base-Mainnet",
+        "address": "0x6eca253b102d41b6b69ac815b9cc6bd47ef1979d"
+      },
+      {
+        "chain": "Metis-Mainnet",
+        "address": "0x6eca253b102d41b6b69ac815b9cc6bd47ef1979d"
+      },
+      {
+        "chain": "Blast-Mainnet",
+        "address": "0x6eca253b102d41b6b69ac815b9cc6bd47ef1979d"
+      },
+      {
+        "chain": "Mode-Mainnet",
+        "address": "0x90581eca9469d8d7f5d3b60f4715027adfcf7927"
+      },
+      {
+        "chain": "X-Layer-Mainnet",
+        "address": "0x90581eca9469d8d7f5d3b60f4715027adfcf7927"
+      },
+      {
+        "chain": "Ink-Mainnet",
+        "address": "0x90581eca9469d8d7f5d3b60f4715027adfcf7927"
+      }
+    ]
+  },
+  {
+    "chain": "X-Layer-Mainnet",
+    "type": "OFT",
+    "address": "0x80eede496655fb9047dd39d9f418d5483ed600df",
+    "token": "0x80Eede496655FB9047dd39d9f418d5483ED600df",
+    "name": "Frax",
+    "peers": [
+      {
+        "chain": "Ethereum-Mainnet",
+        "address": "0x909dbde1ebe906af95660033e478d59efe831fed"
+      },
+      {
+        "chain": "Fraxtal-Mainnet",
+        "address": "0x80eede496655fb9047dd39d9f418d5483ed600df"
+      },
+      {
+        "chain": "Base-Mainnet",
+        "address": "0x909dbde1ebe906af95660033e478d59efe831fed"
+      },
+      {
+        "chain": "Metis-Mainnet",
+        "address": "0x909dbde1ebe906af95660033e478d59efe831fed"
+      },
+      {
+        "chain": "Blast-Mainnet",
+        "address": "0x909dbde1ebe906af95660033e478d59efe831fed"
+      },
+      {
+        "chain": "Mode-Mainnet",
+        "address": "0x80eede496655fb9047dd39d9f418d5483ed600df"
+      },
+      {
+        "chain": "Sei-Mainnet",
+        "address": "0x80eede496655fb9047dd39d9f418d5483ed600df"
+      }
+    ]
+  },
+  {
+    "chain": "X-Layer-Mainnet",
+    "type": "OFT",
+    "address": "0x5bff88ca1442c2496f7e475e9e7786383bc070c0",
+    "token": "0x5Bff88cA1442c2496f7E475E9e7786383Bc070c0",
+    "name": "Staked Frax",
+    "peers": [
+      {
+        "chain": "Ethereum-Mainnet",
+        "address": "0xe4796ccb6bb5de2290c417ac337f2b66ca2e770e"
+      },
+      {
+        "chain": "Fraxtal-Mainnet",
+        "address": "0x5bff88ca1442c2496f7e475e9e7786383bc070c0"
+      },
+      {
+        "chain": "Base-Mainnet",
+        "address": "0xe4796ccb6bb5de2290c417ac337f2b66ca2e770e"
+      },
+      {
+        "chain": "Metis-Mainnet",
+        "address": "0xe4796ccb6bb5de2290c417ac337f2b66ca2e770e"
+      },
+      {
+        "chain": "Blast-Mainnet",
+        "address": "0xe4796ccb6bb5de2290c417ac337f2b66ca2e770e"
+      },
+      {
+        "chain": "Mode-Mainnet",
+        "address": "0x5bff88ca1442c2496f7e475e9e7786383bc070c0"
+      },
+      {
+        "chain": "Sei-Mainnet",
+        "address": "0x5bff88ca1442c2496f7e475e9e7786383bc070c0"
+      }
+    ]
+  },
+  {
+    "chain": "X-Layer-Mainnet",
+    "type": "OFT",
+    "address": "0x43eDD7f3831b08FE70B7555ddD373C8bF65a9050",
+    "token": "0x43eDD7f3831b08FE70B7555ddD373C8bF65a9050",
+    "name": "Frax Ether",
+    "peers": [
+      {
+        "chain": "Ethereum-Mainnet",
+        "address": "0xf010a7c8877043681d59ad125ebf575633505942"
+      },
+      {
+        "chain": "Fraxtal-Mainnet",
+        "address": "0x43edd7f3831b08fe70b7555ddd373c8bf65a9050"
+      },
+      {
+        "chain": "Base-Mainnet",
+        "address": "0xf010a7c8877043681d59ad125ebf575633505942"
+      },
+      {
+        "chain": "Metis-Mainnet",
+        "address": "0xf010a7c8877043681d59ad125ebf575633505942"
+      },
+      {
+        "chain": "Blast-Mainnet",
+        "address": "0xf010a7c8877043681d59ad125ebf575633505942"
+      },
+      {
+        "chain": "Mode-Mainnet",
+        "address": "0x43edd7f3831b08fe70b7555ddd373c8bf65a9050"
+      },
+      {
+        "chain": "Sei-Mainnet",
+        "address": "0x43edd7f3831b08fe70b7555ddd373c8bf65a9050"
+      },
+      {
+        "chain": "Ink-Mainnet",
+        "address": "0x43edd7f3831b08fe70b7555ddd373c8bf65a9050"
+      }
+    ]
+  },
+  {
+    "chain": "X-Layer-Mainnet",
+    "type": "OFT",
+    "address": "0x3ec3849c33291a9ef4c5db86de593eb4a37fde45",
+    "token": "0x3Ec3849C33291a9eF4c5dB86De593EB4A37fDe45",
+    "name": "Staked Frax Ether",
+    "peers": [
+      {
+        "chain": "Ethereum-Mainnet",
+        "address": "0x1f55a02a049033e3419a8e2975cf3f572f4e6e9a"
+      },
+      {
+        "chain": "Fraxtal-Mainnet",
+        "address": "0x3ec3849c33291a9ef4c5db86de593eb4a37fde45"
+      },
+      {
+        "chain": "Base-Mainnet",
+        "address": "0x1f55a02a049033e3419a8e2975cf3f572f4e6e9a"
+      },
+      {
+        "chain": "Metis-Mainnet",
+        "address": "0x1f55a02a049033e3419a8e2975cf3f572f4e6e9a"
+      },
+      {
+        "chain": "Blast-Mainnet",
+        "address": "0x1f55a02a049033e3419a8e2975cf3f572f4e6e9a"
+      },
+      {
+        "chain": "Mode-Mainnet",
+        "address": "0x3ec3849c33291a9ef4c5db86de593eb4a37fde45"
+      },
+      {
+        "chain": "Sei-Mainnet",
+        "address": "0x3ec3849c33291a9ef4c5db86de593eb4a37fde45"
+      },
+      {
+        "chain": "Ink-Mainnet",
+        "address": "0x3ec3849c33291a9ef4c5db86de593eb4a37fde45"
+      }
+    ]
+  },
+  {
+    "chain": "X-Layer-Mainnet",
+    "type": "OFT",
+    "address": "0x64445f0aecc51e94ad52d8ac56b7190e764e561a",
+    "token": "0x64445f0aecC51E94aD52d8AC56b7190e764E561a",
+    "name": "Frax Share",
+    "peers": [
+      {
+        "chain": "Ethereum-Mainnet",
+        "address": "0x23432452b720c80553458496d4d9d7c5003280d0"
+      },
+      {
+        "chain": "Fraxtal-Mainnet",
+        "address": "0x64445f0aecc51e94ad52d8ac56b7190e764e561a"
+      },
+      {
+        "chain": "Base-Mainnet",
+        "address": "0x23432452b720c80553458496d4d9d7c5003280d0"
+      },
+      {
+        "chain": "Metis-Mainnet",
+        "address": "0x23432452b720c80553458496d4d9d7c5003280d0"
+      },
+      {
+        "chain": "Blast-Mainnet",
+        "address": "0x23432452b720c80553458496d4d9d7c5003280d0"
+      },
+      {
+        "chain": "Mode-Mainnet",
+        "address": "0x64445f0aecc51e94ad52d8ac56b7190e764e561a"
+      },
+      {
+        "chain": "Sei-Mainnet",
+        "address": "0x64445f0aecc51e94ad52d8ac56b7190e764e561a"
+      },
+      {
+        "chain": "Ink-Mainnet",
+        "address": "0x64445f0aecc51e94ad52d8ac56b7190e764e561a"
+      }
+    ]
+  },
+  {
+    "chain": "X-Layer-Mainnet",
+    "type": "OFT",
+    "address": "0x90581eCa9469D8D7F5D3B60f4715027aDFCf7927",
+    "token": "0x90581eCa9469D8D7F5D3B60f4715027aDFCf7927",
+    "name": "Frax Price Index",
+    "peers": [
+      {
+        "chain": "Ethereum-Mainnet",
+        "address": "0x6eca253b102d41b6b69ac815b9cc6bd47ef1979d"
+      },
+      {
+        "chain": "Fraxtal-Mainnet",
+        "address": "0x90581eca9469d8d7f5d3b60f4715027adfcf7927"
+      },
+      {
+        "chain": "Base-Mainnet",
+        "address": "0x6eca253b102d41b6b69ac815b9cc6bd47ef1979d"
+      },
+      {
+        "chain": "Metis-Mainnet",
+        "address": "0x6eca253b102d41b6b69ac815b9cc6bd47ef1979d"
+      },
+      {
+        "chain": "Blast-Mainnet",
+        "address": "0x6eca253b102d41b6b69ac815b9cc6bd47ef1979d"
+      },
+      {
+        "chain": "Mode-Mainnet",
+        "address": "0x90581eca9469d8d7f5d3b60f4715027adfcf7927"
+      },
+      {
+        "chain": "Sei-Mainnet",
+        "address": "0x90581eca9469d8d7f5d3b60f4715027adfcf7927"
+      },
+      {
+        "chain": "Ink-Mainnet",
+        "address": "0x90581eca9469d8d7f5d3b60f4715027adfcf7927"
+      }
+    ]
+  },
+  {
+    "chain": "X-Layer-Mainnet",
+    "type": "OFT",
+    "address": "0x909DBdE1eBE906Af95660033e478D59EFe831fED",
+    "token": "0x909DBdE1eBE906Af95660033e478D59EFe831fED",
+    "name": "Frax",
+    "peers": [
+      {
+        "chain": "Ethereum-Mainnet",
+        "address": "0x909dbde1ebe906af95660033e478d59efe831fed"
+      },
+      {
+        "chain": "Base-Mainnet",
+        "address": "0x909dbde1ebe906af95660033e478d59efe831fed"
+      },
+      {
+        "chain": "Metis-Mainnet",
+        "address": "0x909dbde1ebe906af95660033e478d59efe831fed"
+      },
+      {
+        "chain": "Blast-Mainnet",
+        "address": "0x909dbde1ebe906af95660033e478d59efe831fed"
+      }
+    ]
+  },
+  {
+    "chain": "X-Layer-Mainnet",
+    "type": "OFT",
+    "address": "0xe4796cCB6bB5DE2290C417Ac337F2b66CA2E770E",
+    "token": "0xe4796cCB6bB5DE2290C417Ac337F2b66CA2E770E",
+    "name": "Staked FRAX",
+    "peers": [
+      {
+        "chain": "Ethereum-Mainnet",
+        "address": "0xe4796ccb6bb5de2290c417ac337f2b66ca2e770e"
+      },
+      {
+        "chain": "Base-Mainnet",
+        "address": "0xe4796ccb6bb5de2290c417ac337f2b66ca2e770e"
+      },
+      {
+        "chain": "Metis-Mainnet",
+        "address": "0xe4796ccb6bb5de2290c417ac337f2b66ca2e770e"
+      },
+      {
+        "chain": "Blast-Mainnet",
+        "address": "0xe4796ccb6bb5de2290c417ac337f2b66ca2e770e"
+      }
+    ]
+  },
+  {
+    "chain": "X-Layer-Mainnet",
+    "type": "OFT",
+    "address": "0x1f55a02A049033E3419a8E2975cF3F572F4e6E9A",
+    "token": "0x1f55a02A049033E3419a8E2975cF3F572F4e6E9A",
+    "name": "Staked Frax Ether",
+    "peers": [
+      {
+        "chain": "Ethereum-Mainnet",
+        "address": "0x1f55a02a049033e3419a8e2975cf3f572f4e6e9a"
+      },
+      {
+        "chain": "Base-Mainnet",
+        "address": "0x1f55a02a049033e3419a8e2975cf3f572f4e6e9a"
+      },
+      {
+        "chain": "Metis-Mainnet",
+        "address": "0x1f55a02a049033e3419a8e2975cf3f572f4e6e9a"
+      },
+      {
+        "chain": "Blast-Mainnet",
+        "address": "0x1f55a02a049033e3419a8e2975cf3f572f4e6e9a"
+      }
+    ]
+  },
+  {
+    "chain": "X-Layer-Mainnet",
+    "type": "OFT",
+    "address": "0x23432452B720C80553458496D4D9d7C5003280d0",
+    "token": "0x23432452B720C80553458496D4D9d7C5003280d0",
+    "name": "Frax Share",
+    "peers": [
+      {
+        "chain": "Ethereum-Mainnet",
+        "address": "0x23432452b720c80553458496d4d9d7c5003280d0"
+      },
+      {
+        "chain": "Base-Mainnet",
+        "address": "0x23432452b720c80553458496d4d9d7c5003280d0"
+      },
+      {
+        "chain": "Metis-Mainnet",
+        "address": "0x23432452b720c80553458496d4d9d7c5003280d0"
+      },
+      {
+        "chain": "Blast-Mainnet",
+        "address": "0x23432452b720c80553458496d4d9d7c5003280d0"
+      }
+    ]
+  },
+  {
+    "chain": "Sonic-Mainnet",
+    "type": "OFT",
+    "address": "0x80eede496655fb9047dd39d9f418d5483ed600df",
+    "token": "0x80Eede496655FB9047dd39d9f418d5483ED600df",
+    "name": "Frax USD",
+    "peers": [
+      {
+        "chain": "Fraxtal-Mainnet",
+        "address": "0x96a394058e2b84a89bac9667b19661ed003cf5d4"
+      },
+      {
+        "chain": "Arbitrum-Mainnet",
+        "address": "0x80eede496655fb9047dd39d9f418d5483ed600df"
+      },
+      {
+        "chain": "Optimism-Mainnet",
+        "address": "0x80eede496655fb9047dd39d9f418d5483ed600df"
+      },
+      {
+        "chain": "Polygon-Mainnet",
+        "address": "0x80eede496655fb9047dd39d9f418d5483ed600df"
+      },
+      {
+        "chain": "Avalanche-Mainnet",
+        "address": "0x80eede496655fb9047dd39d9f418d5483ed600df"
+      },
+      {
+        "chain": "BNB-Smart-Chain-Mainnet",
+        "address": "0x80eede496655fb9047dd39d9f418d5483ed600df"
+      },
+      {
+        "chain": "Polygon-zkEVM-Mainnet",
+        "address": "0x80eede496655fb9047dd39d9f418d5483ed600df"
+      }
+    ]
+  },
+  {
+    "chain": "Sonic-Mainnet",
+    "type": "OFT",
+    "address": "0x5bff88ca1442c2496f7e475e9e7786383bc070c0",
+    "token": "0x5Bff88cA1442c2496f7E475E9e7786383Bc070c0",
+    "name": "Staked Frax USD",
+    "peers": [
+      {
+        "chain": "Fraxtal-Mainnet",
+        "address": "0x88aa7854d3b2daa5e37e7ce73a1f39669623a361"
+      },
+      {
+        "chain": "Arbitrum-Mainnet",
+        "address": "0x5bff88ca1442c2496f7e475e9e7786383bc070c0"
+      },
+      {
+        "chain": "Optimism-Mainnet",
+        "address": "0x5bff88ca1442c2496f7e475e9e7786383bc070c0"
+      },
+      {
+        "chain": "Polygon-Mainnet",
+        "address": "0x5bff88ca1442c2496f7e475e9e7786383bc070c0"
+      },
+      {
+        "chain": "Avalanche-Mainnet",
+        "address": "0x5bff88ca1442c2496f7e475e9e7786383bc070c0"
+      },
+      {
+        "chain": "BNB-Smart-Chain-Mainnet",
+        "address": "0x5bff88ca1442c2496f7e475e9e7786383bc070c0"
+      },
+      {
+        "chain": "Polygon-zkEVM-Mainnet",
+        "address": "0x5bff88ca1442c2496f7e475e9e7786383bc070c0"
+      }
+    ]
+  },
+  {
+    "chain": "Sonic-Mainnet",
+    "type": "OFT",
+    "address": "0x43eDD7f3831b08FE70B7555ddD373C8bF65a9050",
+    "token": "0x43eDD7f3831b08FE70B7555ddD373C8bF65a9050",
+    "name": "Frax Ether",
+    "peers": [
+      {
+        "chain": "Fraxtal-Mainnet",
+        "address": "0x43edd7f3831b08fe70b7555ddd373c8bf65a9050"
+      },
+      {
+        "chain": "Mode-Mainnet",
+        "address": "0x43edd7f3831b08fe70b7555ddd373c8bf65a9050"
+      },
+      {
+        "chain": "Sei-Mainnet",
+        "address": "0x43edd7f3831b08fe70b7555ddd373c8bf65a9050"
+      },
+      {
+        "chain": "X-Layer-Mainnet",
+        "address": "0x43edd7f3831b08fe70b7555ddd373c8bf65a9050"
+      },
+      {
+        "chain": "Ink-Mainnet",
+        "address": "0x43edd7f3831b08fe70b7555ddd373c8bf65a9050"
+      },
+      {
+        "chain": "Arbitrum-Mainnet",
+        "address": "0x43edd7f3831b08fe70b7555ddd373c8bf65a9050"
+      },
+      {
+        "chain": "Optimism-Mainnet",
+        "address": "0x43edd7f3831b08fe70b7555ddd373c8bf65a9050"
+      },
+      {
+        "chain": "Polygon-Mainnet",
+        "address": "0x43edd7f3831b08fe70b7555ddd373c8bf65a9050"
+      },
+      {
+        "chain": "Avalanche-Mainnet",
+        "address": "0x43edd7f3831b08fe70b7555ddd373c8bf65a9050"
+      },
+      {
+        "chain": "BNB-Smart-Chain-Mainnet",
+        "address": "0x43edd7f3831b08fe70b7555ddd373c8bf65a9050"
+      },
+      {
+        "chain": "Polygon-zkEVM-Mainnet",
+        "address": "0x43edd7f3831b08fe70b7555ddd373c8bf65a9050"
+      }
+    ]
+  },
+  {
+    "chain": "Sonic-Mainnet",
+    "type": "OFT",
+    "address": "0x3ec3849c33291a9ef4c5db86de593eb4a37fde45",
+    "token": "0x3Ec3849C33291a9eF4c5dB86De593EB4A37fDe45",
+    "name": "Staked Frax Ether",
+    "peers": [
+      {
+        "chain": "Fraxtal-Mainnet",
+        "address": "0x3ec3849c33291a9ef4c5db86de593eb4a37fde45"
+      },
+      {
+        "chain": "Mode-Mainnet",
+        "address": "0x3ec3849c33291a9ef4c5db86de593eb4a37fde45"
+      },
+      {
+        "chain": "Sei-Mainnet",
+        "address": "0x3ec3849c33291a9ef4c5db86de593eb4a37fde45"
+      },
+      {
+        "chain": "X-Layer-Mainnet",
+        "address": "0x3ec3849c33291a9ef4c5db86de593eb4a37fde45"
+      },
+      {
+        "chain": "Ink-Mainnet",
+        "address": "0x3ec3849c33291a9ef4c5db86de593eb4a37fde45"
+      },
+      {
+        "chain": "Arbitrum-Mainnet",
+        "address": "0x3ec3849c33291a9ef4c5db86de593eb4a37fde45"
+      },
+      {
+        "chain": "Optimism-Mainnet",
+        "address": "0x3ec3849c33291a9ef4c5db86de593eb4a37fde45"
+      },
+      {
+        "chain": "Polygon-Mainnet",
+        "address": "0x3ec3849c33291a9ef4c5db86de593eb4a37fde45"
+      },
+      {
+        "chain": "Avalanche-Mainnet",
+        "address": "0x3ec3849c33291a9ef4c5db86de593eb4a37fde45"
+      },
+      {
+        "chain": "BNB-Smart-Chain-Mainnet",
+        "address": "0x3ec3849c33291a9ef4c5db86de593eb4a37fde45"
+      },
+      {
+        "chain": "Polygon-zkEVM-Mainnet",
+        "address": "0x3ec3849c33291a9ef4c5db86de593eb4a37fde45"
+      }
+    ]
+  },
+  {
+    "chain": "Sonic-Mainnet",
+    "type": "OFT",
+    "address": "0x64445f0aecc51e94ad52d8ac56b7190e764e561a",
+    "token": "0x64445f0aecC51E94aD52d8AC56b7190e764E561a",
+    "name": "Frax Share",
+    "peers": [
+      {
+        "chain": "Fraxtal-Mainnet",
+        "address": "0x64445f0aecc51e94ad52d8ac56b7190e764e561a"
+      },
+      {
+        "chain": "Mode-Mainnet",
+        "address": "0x64445f0aecc51e94ad52d8ac56b7190e764e561a"
+      },
+      {
+        "chain": "Sei-Mainnet",
+        "address": "0x64445f0aecc51e94ad52d8ac56b7190e764e561a"
+      },
+      {
+        "chain": "X-Layer-Mainnet",
+        "address": "0x64445f0aecc51e94ad52d8ac56b7190e764e561a"
+      },
+      {
+        "chain": "Ink-Mainnet",
+        "address": "0x64445f0aecc51e94ad52d8ac56b7190e764e561a"
+      },
+      {
+        "chain": "Arbitrum-Mainnet",
+        "address": "0x64445f0aecc51e94ad52d8ac56b7190e764e561a"
+      },
+      {
+        "chain": "Optimism-Mainnet",
+        "address": "0x64445f0aecc51e94ad52d8ac56b7190e764e561a"
+      },
+      {
+        "chain": "Polygon-Mainnet",
+        "address": "0x64445f0aecc51e94ad52d8ac56b7190e764e561a"
+      },
+      {
+        "chain": "Avalanche-Mainnet",
+        "address": "0x64445f0aecc51e94ad52d8ac56b7190e764e561a"
+      },
+      {
+        "chain": "BNB-Smart-Chain-Mainnet",
+        "address": "0x64445f0aecc51e94ad52d8ac56b7190e764e561a"
+      },
+      {
+        "chain": "Polygon-zkEVM-Mainnet",
+        "address": "0x64445f0aecc51e94ad52d8ac56b7190e764e561a"
+      }
+    ]
+  },
+  {
+    "chain": "Sonic-Mainnet",
+    "type": "OFT",
+    "address": "0x90581eCa9469D8D7F5D3B60f4715027aDFCf7927",
+    "token": "0x90581eCa9469D8D7F5D3B60f4715027aDFCf7927",
+    "name": "Frax Price Index",
+    "peers": [
+      {
+        "chain": "Fraxtal-Mainnet",
+        "address": "0x90581eca9469d8d7f5d3b60f4715027adfcf7927"
+      },
+      {
+        "chain": "Mode-Mainnet",
+        "address": "0x90581eca9469d8d7f5d3b60f4715027adfcf7927"
+      },
+      {
+        "chain": "Sei-Mainnet",
+        "address": "0x90581eca9469d8d7f5d3b60f4715027adfcf7927"
+      },
+      {
+        "chain": "X-Layer-Mainnet",
+        "address": "0x90581eca9469d8d7f5d3b60f4715027adfcf7927"
+      },
+      {
+        "chain": "Ink-Mainnet",
+        "address": "0x90581eca9469d8d7f5d3b60f4715027adfcf7927"
+      },
+      {
+        "chain": "Arbitrum-Mainnet",
+        "address": "0x90581eca9469d8d7f5d3b60f4715027adfcf7927"
+      },
+      {
+        "chain": "Optimism-Mainnet",
+        "address": "0x90581eca9469d8d7f5d3b60f4715027adfcf7927"
+      },
+      {
+        "chain": "Polygon-Mainnet",
+        "address": "0x90581eca9469d8d7f5d3b60f4715027adfcf7927"
+      },
+      {
+        "chain": "Avalanche-Mainnet",
+        "address": "0x90581eca9469d8d7f5d3b60f4715027adfcf7927"
+      },
+      {
+        "chain": "BNB-Smart-Chain-Mainnet",
+        "address": "0x90581eca9469d8d7f5d3b60f4715027adfcf7927"
+      },
+      {
+        "chain": "Polygon-zkEVM-Mainnet",
+        "address": "0x90581eca9469d8d7f5d3b60f4715027adfcf7927"
+      }
+    ]
+  },
+  {
+    "chain": "Ink-Mainnet",
+    "type": "OFT",
+    "address": "0x80eede496655fb9047dd39d9f418d5483ed600df",
+    "token": "0x80Eede496655FB9047dd39d9f418d5483ED600df",
+    "name": "Frax USD",
+    "peers": [
+      {
+        "chain": "Fraxtal-Mainnet",
+        "address": "0x96a394058e2b84a89bac9667b19661ed003cf5d4"
+      },
+      {
+        "chain": "Mode-Mainnet",
+        "address": "0x80eede496655fb9047dd39d9f418d5483ed600df"
+      },
+      {
+        "chain": "Sei-Mainnet",
+        "address": "0x80eede496655fb9047dd39d9f418d5483ed600df"
+      },
+      {
+        "chain": "X-Layer-Mainnet",
+        "address": "0x80eede496655fb9047dd39d9f418d5483ed600df"
+      }
+    ]
+  },
+  {
+    "chain": "Ink-Mainnet",
+    "type": "OFT",
+    "address": "0x5bff88ca1442c2496f7e475e9e7786383bc070c0",
+    "token": "0x5Bff88cA1442c2496f7E475E9e7786383Bc070c0",
+    "name": "Staked Frax USD",
+    "peers": [
+      {
+        "chain": "Fraxtal-Mainnet",
+        "address": "0x88aa7854d3b2daa5e37e7ce73a1f39669623a361"
+      },
+      {
+        "chain": "Mode-Mainnet",
+        "address": "0x5bff88ca1442c2496f7e475e9e7786383bc070c0"
+      },
+      {
+        "chain": "Sei-Mainnet",
+        "address": "0x5bff88ca1442c2496f7e475e9e7786383bc070c0"
+      },
+      {
+        "chain": "X-Layer-Mainnet",
+        "address": "0x5bff88ca1442c2496f7e475e9e7786383bc070c0"
+      }
+    ]
+  },
+  {
+    "chain": "Ink-Mainnet",
+    "type": "OFT",
+    "address": "0x43eDD7f3831b08FE70B7555ddD373C8bF65a9050",
+    "token": "0x43eDD7f3831b08FE70B7555ddD373C8bF65a9050",
+    "name": "Frax Ether",
+    "peers": [
+      {
+        "chain": "Fraxtal-Mainnet",
+        "address": "0x43edd7f3831b08fe70b7555ddd373c8bf65a9050"
+      },
+      {
+        "chain": "Mode-Mainnet",
+        "address": "0x43edd7f3831b08fe70b7555ddd373c8bf65a9050"
+      },
+      {
+        "chain": "Sei-Mainnet",
+        "address": "0x43edd7f3831b08fe70b7555ddd373c8bf65a9050"
+      },
+      {
+        "chain": "X-Layer-Mainnet",
+        "address": "0x43edd7f3831b08fe70b7555ddd373c8bf65a9050"
+      }
+    ]
+  },
+  {
+    "chain": "Ink-Mainnet",
+    "type": "OFT",
+    "address": "0x3ec3849c33291a9ef4c5db86de593eb4a37fde45",
+    "token": "0x3Ec3849C33291a9eF4c5dB86De593EB4A37fDe45",
+    "name": "Staked Frax Ether",
+    "peers": [
+      {
+        "chain": "Fraxtal-Mainnet",
+        "address": "0x3ec3849c33291a9ef4c5db86de593eb4a37fde45"
+      },
+      {
+        "chain": "Mode-Mainnet",
+        "address": "0x3ec3849c33291a9ef4c5db86de593eb4a37fde45"
+      },
+      {
+        "chain": "Sei-Mainnet",
+        "address": "0x3ec3849c33291a9ef4c5db86de593eb4a37fde45"
+      },
+      {
+        "chain": "X-Layer-Mainnet",
+        "address": "0x3ec3849c33291a9ef4c5db86de593eb4a37fde45"
+      }
+    ]
+  },
+  {
+    "chain": "Ink-Mainnet",
+    "type": "OFT",
+    "address": "0x64445f0aecc51e94ad52d8ac56b7190e764e561a",
+    "token": "0x64445f0aecC51E94aD52d8AC56b7190e764E561a",
+    "name": "Frax Share",
+    "peers": [
+      {
+        "chain": "Fraxtal-Mainnet",
+        "address": "0x64445f0aecc51e94ad52d8ac56b7190e764e561a"
+      },
+      {
+        "chain": "Mode-Mainnet",
+        "address": "0x64445f0aecc51e94ad52d8ac56b7190e764e561a"
+      },
+      {
+        "chain": "Sei-Mainnet",
+        "address": "0x64445f0aecc51e94ad52d8ac56b7190e764e561a"
+      },
+      {
+        "chain": "X-Layer-Mainnet",
+        "address": "0x64445f0aecc51e94ad52d8ac56b7190e764e561a"
+      }
+    ]
+  },
+  {
+    "chain": "Ink-Mainnet",
+    "type": "OFT",
+    "address": "0x90581eCa9469D8D7F5D3B60f4715027aDFCf7927",
+    "token": "0x90581eCa9469D8D7F5D3B60f4715027aDFCf7927",
+    "name": "Frax Price Index",
+    "peers": [
+      {
+        "chain": "Fraxtal-Mainnet",
+        "address": "0x90581eca9469d8d7f5d3b60f4715027adfcf7927"
+      },
+      {
+        "chain": "Mode-Mainnet",
+        "address": "0x90581eca9469d8d7f5d3b60f4715027adfcf7927"
+      },
+      {
+        "chain": "Sei-Mainnet",
+        "address": "0x90581eca9469d8d7f5d3b60f4715027adfcf7927"
+      },
+      {
+        "chain": "X-Layer-Mainnet",
+        "address": "0x90581eca9469d8d7f5d3b60f4715027adfcf7927"
+      }
+    ]
+  },
+  {
+    "chain": "Arbitrum-Mainnet",
+    "type": "OFT",
+    "address": "0x80eede496655fb9047dd39d9f418d5483ed600df",
+    "token": "0x80Eede496655FB9047dd39d9f418d5483ED600df",
+    "name": "Frax USD",
+    "peers": [
+      {
+        "chain": "Fraxtal-Mainnet",
+        "address": "0x96a394058e2b84a89bac9667b19661ed003cf5d4"
+      }
+    ]
+  },
+  {
+    "chain": "Arbitrum-Mainnet",
+    "type": "OFT",
+    "address": "0x5bff88ca1442c2496f7e475e9e7786383bc070c0",
+    "token": "0x5Bff88cA1442c2496f7E475E9e7786383Bc070c0",
+    "name": "Staked Frax USD",
+    "peers": [
+      {
+        "chain": "Fraxtal-Mainnet",
+        "address": "0x88aa7854d3b2daa5e37e7ce73a1f39669623a361"
+      }
+    ]
+  },
+  {
+    "chain": "Arbitrum-Mainnet",
+    "type": "OFT",
+    "address": "0x43eDD7f3831b08FE70B7555ddD373C8bF65a9050",
+    "token": "0x43eDD7f3831b08FE70B7555ddD373C8bF65a9050",
+    "name": "Frax Ether",
+    "peers": [
+      {
+        "chain": "Fraxtal-Mainnet",
+        "address": "0x43edd7f3831b08fe70b7555ddd373c8bf65a9050"
+      },
+      {
+        "chain": "Mode-Mainnet",
+        "address": "0x43edd7f3831b08fe70b7555ddd373c8bf65a9050"
+      },
+      {
+        "chain": "Sei-Mainnet",
+        "address": "0x43edd7f3831b08fe70b7555ddd373c8bf65a9050"
+      },
+      {
+        "chain": "X-Layer-Mainnet",
+        "address": "0x43edd7f3831b08fe70b7555ddd373c8bf65a9050"
+      },
+      {
+        "chain": "Sonic-Mainnet",
+        "address": "0x43edd7f3831b08fe70b7555ddd373c8bf65a9050"
+      },
+      {
+        "chain": "Ink-Mainnet",
+        "address": "0x43edd7f3831b08fe70b7555ddd373c8bf65a9050"
+      }
+    ]
+  },
+  {
+    "chain": "Arbitrum-Mainnet",
+    "type": "OFT",
+    "address": "0x3ec3849c33291a9ef4c5db86de593eb4a37fde45",
+    "token": "0x3Ec3849C33291a9eF4c5dB86De593EB4A37fDe45",
+    "name": "Staked Frax Ether",
+    "peers": [
+      {
+        "chain": "Fraxtal-Mainnet",
+        "address": "0x3ec3849c33291a9ef4c5db86de593eb4a37fde45"
+      },
+      {
+        "chain": "Mode-Mainnet",
+        "address": "0x3ec3849c33291a9ef4c5db86de593eb4a37fde45"
+      },
+      {
+        "chain": "Sei-Mainnet",
+        "address": "0x3ec3849c33291a9ef4c5db86de593eb4a37fde45"
+      },
+      {
+        "chain": "X-Layer-Mainnet",
+        "address": "0x3ec3849c33291a9ef4c5db86de593eb4a37fde45"
+      },
+      {
+        "chain": "Sonic-Mainnet",
+        "address": "0x3ec3849c33291a9ef4c5db86de593eb4a37fde45"
+      },
+      {
+        "chain": "Ink-Mainnet",
+        "address": "0x3ec3849c33291a9ef4c5db86de593eb4a37fde45"
+      }
+    ]
+  },
+  {
+    "chain": "Arbitrum-Mainnet",
+    "type": "OFT",
+    "address": "0x64445f0aecc51e94ad52d8ac56b7190e764e561a",
+    "token": "0x64445f0aecC51E94aD52d8AC56b7190e764E561a",
+    "name": "Frax Share",
+    "peers": [
+      {
+        "chain": "Fraxtal-Mainnet",
+        "address": "0x64445f0aecc51e94ad52d8ac56b7190e764e561a"
+      },
+      {
+        "chain": "Mode-Mainnet",
+        "address": "0x64445f0aecc51e94ad52d8ac56b7190e764e561a"
+      },
+      {
+        "chain": "Sei-Mainnet",
+        "address": "0x64445f0aecc51e94ad52d8ac56b7190e764e561a"
+      },
+      {
+        "chain": "X-Layer-Mainnet",
+        "address": "0x64445f0aecc51e94ad52d8ac56b7190e764e561a"
+      },
+      {
+        "chain": "Sonic-Mainnet",
+        "address": "0x64445f0aecc51e94ad52d8ac56b7190e764e561a"
+      },
+      {
+        "chain": "Ink-Mainnet",
+        "address": "0x64445f0aecc51e94ad52d8ac56b7190e764e561a"
+      }
+    ]
+  },
+  {
+    "chain": "Arbitrum-Mainnet",
+    "type": "OFT",
+    "address": "0x90581eCa9469D8D7F5D3B60f4715027aDFCf7927",
+    "token": "0x90581eCa9469D8D7F5D3B60f4715027aDFCf7927",
+    "name": "Frax Price Index",
+    "peers": [
+      {
+        "chain": "Fraxtal-Mainnet",
+        "address": "0x90581eca9469d8d7f5d3b60f4715027adfcf7927"
+      },
+      {
+        "chain": "Mode-Mainnet",
+        "address": "0x90581eca9469d8d7f5d3b60f4715027adfcf7927"
+      },
+      {
+        "chain": "Sei-Mainnet",
+        "address": "0x90581eca9469d8d7f5d3b60f4715027adfcf7927"
+      },
+      {
+        "chain": "X-Layer-Mainnet",
+        "address": "0x90581eca9469d8d7f5d3b60f4715027adfcf7927"
+      },
+      {
+        "chain": "Sonic-Mainnet",
+        "address": "0x90581eca9469d8d7f5d3b60f4715027adfcf7927"
+      },
+      {
+        "chain": "Ink-Mainnet",
+        "address": "0x90581eca9469d8d7f5d3b60f4715027adfcf7927"
+      }
+    ]
+  },
+  {
+    "chain": "Optimism-Mainnet",
+    "type": "OFT",
+    "address": "0x80eede496655fb9047dd39d9f418d5483ed600df",
+    "token": "0x80Eede496655FB9047dd39d9f418d5483ED600df",
+    "name": "Frax USD",
+    "peers": [
+      {
+        "chain": "Fraxtal-Mainnet",
+        "address": "0x96a394058e2b84a89bac9667b19661ed003cf5d4"
+      },
+      {
+        "chain": "Ink-Mainnet",
+        "address": "0x80eede496655fb9047dd39d9f418d5483ed600df"
+      },
+      {
+        "chain": "Arbitrum-Mainnet",
+        "address": "0x80eede496655fb9047dd39d9f418d5483ed600df"
+      }
+    ]
+  },
+  {
+    "chain": "Optimism-Mainnet",
+    "type": "OFT",
+    "address": "0x5bff88ca1442c2496f7e475e9e7786383bc070c0",
+    "token": "0x5Bff88cA1442c2496f7E475E9e7786383Bc070c0",
+    "name": "Staked Frax USD",
+    "peers": [
+      {
+        "chain": "Fraxtal-Mainnet",
+        "address": "0x88aa7854d3b2daa5e37e7ce73a1f39669623a361"
+      },
+      {
+        "chain": "Ink-Mainnet",
+        "address": "0x5bff88ca1442c2496f7e475e9e7786383bc070c0"
+      },
+      {
+        "chain": "Arbitrum-Mainnet",
+        "address": "0x5bff88ca1442c2496f7e475e9e7786383bc070c0"
+      }
+    ]
+  },
+  {
+    "chain": "Optimism-Mainnet",
+    "type": "OFT",
+    "address": "0x43eDD7f3831b08FE70B7555ddD373C8bF65a9050",
+    "token": "0x43eDD7f3831b08FE70B7555ddD373C8bF65a9050",
+    "name": "Frax Ether",
+    "peers": [
+      {
+        "chain": "Fraxtal-Mainnet",
+        "address": "0x43edd7f3831b08fe70b7555ddd373c8bf65a9050"
+      },
+      {
+        "chain": "Mode-Mainnet",
+        "address": "0x43edd7f3831b08fe70b7555ddd373c8bf65a9050"
+      },
+      {
+        "chain": "Sei-Mainnet",
+        "address": "0x43edd7f3831b08fe70b7555ddd373c8bf65a9050"
+      },
+      {
+        "chain": "X-Layer-Mainnet",
+        "address": "0x43edd7f3831b08fe70b7555ddd373c8bf65a9050"
+      },
+      {
+        "chain": "Sonic-Mainnet",
+        "address": "0x43edd7f3831b08fe70b7555ddd373c8bf65a9050"
+      },
+      {
+        "chain": "Ink-Mainnet",
+        "address": "0x43edd7f3831b08fe70b7555ddd373c8bf65a9050"
+      },
+      {
+        "chain": "Arbitrum-Mainnet",
+        "address": "0x43edd7f3831b08fe70b7555ddd373c8bf65a9050"
+      }
+    ]
+  },
+  {
+    "chain": "Optimism-Mainnet",
+    "type": "OFT",
+    "address": "0x3ec3849c33291a9ef4c5db86de593eb4a37fde45",
+    "token": "0x3Ec3849C33291a9eF4c5dB86De593EB4A37fDe45",
+    "name": "Staked Frax Ether",
+    "peers": [
+      {
+        "chain": "Fraxtal-Mainnet",
+        "address": "0x3ec3849c33291a9ef4c5db86de593eb4a37fde45"
+      },
+      {
+        "chain": "Mode-Mainnet",
+        "address": "0x3ec3849c33291a9ef4c5db86de593eb4a37fde45"
+      },
+      {
+        "chain": "Sei-Mainnet",
+        "address": "0x3ec3849c33291a9ef4c5db86de593eb4a37fde45"
+      },
+      {
+        "chain": "X-Layer-Mainnet",
+        "address": "0x3ec3849c33291a9ef4c5db86de593eb4a37fde45"
+      },
+      {
+        "chain": "Sonic-Mainnet",
+        "address": "0x3ec3849c33291a9ef4c5db86de593eb4a37fde45"
+      },
+      {
+        "chain": "Ink-Mainnet",
+        "address": "0x3ec3849c33291a9ef4c5db86de593eb4a37fde45"
+      },
+      {
+        "chain": "Arbitrum-Mainnet",
+        "address": "0x3ec3849c33291a9ef4c5db86de593eb4a37fde45"
+      }
+    ]
+  },
+  {
+    "chain": "Optimism-Mainnet",
+    "type": "OFT",
+    "address": "0x64445f0aecc51e94ad52d8ac56b7190e764e561a",
+    "token": "0x64445f0aecC51E94aD52d8AC56b7190e764E561a",
+    "name": "Frax Share",
+    "peers": [
+      {
+        "chain": "Fraxtal-Mainnet",
+        "address": "0x64445f0aecc51e94ad52d8ac56b7190e764e561a"
+      },
+      {
+        "chain": "Mode-Mainnet",
+        "address": "0x64445f0aecc51e94ad52d8ac56b7190e764e561a"
+      },
+      {
+        "chain": "Sei-Mainnet",
+        "address": "0x64445f0aecc51e94ad52d8ac56b7190e764e561a"
+      },
+      {
+        "chain": "X-Layer-Mainnet",
+        "address": "0x64445f0aecc51e94ad52d8ac56b7190e764e561a"
+      },
+      {
+        "chain": "Sonic-Mainnet",
+        "address": "0x64445f0aecc51e94ad52d8ac56b7190e764e561a"
+      },
+      {
+        "chain": "Ink-Mainnet",
+        "address": "0x64445f0aecc51e94ad52d8ac56b7190e764e561a"
+      },
+      {
+        "chain": "Arbitrum-Mainnet",
+        "address": "0x64445f0aecc51e94ad52d8ac56b7190e764e561a"
+      }
+    ]
+  },
+  {
+    "chain": "Optimism-Mainnet",
+    "type": "OFT",
+    "address": "0x90581eCa9469D8D7F5D3B60f4715027aDFCf7927",
+    "token": "0x90581eCa9469D8D7F5D3B60f4715027aDFCf7927",
+    "name": "Frax Price Index",
+    "peers": [
+      {
+        "chain": "Fraxtal-Mainnet",
+        "address": "0x90581eca9469d8d7f5d3b60f4715027adfcf7927"
+      },
+      {
+        "chain": "Mode-Mainnet",
+        "address": "0x90581eca9469d8d7f5d3b60f4715027adfcf7927"
+      },
+      {
+        "chain": "Sei-Mainnet",
+        "address": "0x90581eca9469d8d7f5d3b60f4715027adfcf7927"
+      },
+      {
+        "chain": "X-Layer-Mainnet",
+        "address": "0x90581eca9469d8d7f5d3b60f4715027adfcf7927"
+      },
+      {
+        "chain": "Sonic-Mainnet",
+        "address": "0x90581eca9469d8d7f5d3b60f4715027adfcf7927"
+      },
+      {
+        "chain": "Ink-Mainnet",
+        "address": "0x90581eca9469d8d7f5d3b60f4715027adfcf7927"
+      },
+      {
+        "chain": "Arbitrum-Mainnet",
+        "address": "0x90581eca9469d8d7f5d3b60f4715027adfcf7927"
+      }
+    ]
+  },
+  {
+    "chain": "Polygon-Mainnet",
+    "type": "OFT",
+    "address": "0x80eede496655fb9047dd39d9f418d5483ed600df",
+    "token": "0x80Eede496655FB9047dd39d9f418d5483ED600df",
+    "name": "Frax USD",
+    "peers": [
+      {
+        "chain": "Fraxtal-Mainnet",
+        "address": "0x96a394058e2b84a89bac9667b19661ed003cf5d4"
+      },
+      {
+        "chain": "Sonic-Mainnet",
+        "address": "0x80eede496655fb9047dd39d9f418d5483ed600df"
+      },
+      {
+        "chain": "Ink-Mainnet",
+        "address": "0x80eede496655fb9047dd39d9f418d5483ed600df"
+      },
+      {
+        "chain": "Arbitrum-Mainnet",
+        "address": "0x80eede496655fb9047dd39d9f418d5483ed600df"
+      },
+      {
+        "chain": "Optimism-Mainnet",
+        "address": "0x80eede496655fb9047dd39d9f418d5483ed600df"
+      }
+    ]
+  },
+  {
+    "chain": "Polygon-Mainnet",
+    "type": "OFT",
+    "address": "0x5bff88ca1442c2496f7e475e9e7786383bc070c0",
+    "token": "0x5Bff88cA1442c2496f7E475E9e7786383Bc070c0",
+    "name": "Staked Frax USD",
+    "peers": [
+      {
+        "chain": "Fraxtal-Mainnet",
+        "address": "0x88aa7854d3b2daa5e37e7ce73a1f39669623a361"
+      },
+      {
+        "chain": "Sonic-Mainnet",
+        "address": "0x5bff88ca1442c2496f7e475e9e7786383bc070c0"
+      },
+      {
+        "chain": "Ink-Mainnet",
+        "address": "0x5bff88ca1442c2496f7e475e9e7786383bc070c0"
+      },
+      {
+        "chain": "Arbitrum-Mainnet",
+        "address": "0x5bff88ca1442c2496f7e475e9e7786383bc070c0"
+      },
+      {
+        "chain": "Optimism-Mainnet",
+        "address": "0x5bff88ca1442c2496f7e475e9e7786383bc070c0"
+      }
+    ]
+  },
+  {
+    "chain": "Polygon-Mainnet",
+    "type": "OFT",
+    "address": "0x43eDD7f3831b08FE70B7555ddD373C8bF65a9050",
+    "token": "0x43eDD7f3831b08FE70B7555ddD373C8bF65a9050",
+    "name": "Frax Ether",
+    "peers": [
+      {
+        "chain": "Fraxtal-Mainnet",
+        "address": "0x43edd7f3831b08fe70b7555ddd373c8bf65a9050"
+      },
+      {
+        "chain": "Mode-Mainnet",
+        "address": "0x43edd7f3831b08fe70b7555ddd373c8bf65a9050"
+      },
+      {
+        "chain": "Sei-Mainnet",
+        "address": "0x43edd7f3831b08fe70b7555ddd373c8bf65a9050"
+      },
+      {
+        "chain": "X-Layer-Mainnet",
+        "address": "0x43edd7f3831b08fe70b7555ddd373c8bf65a9050"
+      },
+      {
+        "chain": "Sonic-Mainnet",
+        "address": "0x43edd7f3831b08fe70b7555ddd373c8bf65a9050"
+      },
+      {
+        "chain": "Ink-Mainnet",
+        "address": "0x43edd7f3831b08fe70b7555ddd373c8bf65a9050"
+      },
+      {
+        "chain": "Arbitrum-Mainnet",
+        "address": "0x43edd7f3831b08fe70b7555ddd373c8bf65a9050"
+      },
+      {
+        "chain": "Optimism-Mainnet",
+        "address": "0x43edd7f3831b08fe70b7555ddd373c8bf65a9050"
+      }
+    ]
+  },
+  {
+    "chain": "Polygon-Mainnet",
+    "type": "OFT",
+    "address": "0x3ec3849c33291a9ef4c5db86de593eb4a37fde45",
+    "token": "0x3Ec3849C33291a9eF4c5dB86De593EB4A37fDe45",
+    "name": "Staked Frax Ether",
+    "peers": [
+      {
+        "chain": "Fraxtal-Mainnet",
+        "address": "0x3ec3849c33291a9ef4c5db86de593eb4a37fde45"
+      },
+      {
+        "chain": "Mode-Mainnet",
+        "address": "0x3ec3849c33291a9ef4c5db86de593eb4a37fde45"
+      },
+      {
+        "chain": "Sei-Mainnet",
+        "address": "0x3ec3849c33291a9ef4c5db86de593eb4a37fde45"
+      },
+      {
+        "chain": "X-Layer-Mainnet",
+        "address": "0x3ec3849c33291a9ef4c5db86de593eb4a37fde45"
+      },
+      {
+        "chain": "Sonic-Mainnet",
+        "address": "0x3ec3849c33291a9ef4c5db86de593eb4a37fde45"
+      },
+      {
+        "chain": "Ink-Mainnet",
+        "address": "0x3ec3849c33291a9ef4c5db86de593eb4a37fde45"
+      },
+      {
+        "chain": "Arbitrum-Mainnet",
+        "address": "0x3ec3849c33291a9ef4c5db86de593eb4a37fde45"
+      },
+      {
+        "chain": "Optimism-Mainnet",
+        "address": "0x3ec3849c33291a9ef4c5db86de593eb4a37fde45"
+      }
+    ]
+  },
+  {
+    "chain": "Polygon-Mainnet",
+    "type": "OFT",
+    "address": "0x64445f0aecc51e94ad52d8ac56b7190e764e561a",
+    "token": "0x64445f0aecC51E94aD52d8AC56b7190e764E561a",
+    "name": "Frax Share",
+    "peers": [
+      {
+        "chain": "Fraxtal-Mainnet",
+        "address": "0x64445f0aecc51e94ad52d8ac56b7190e764e561a"
+      },
+      {
+        "chain": "Mode-Mainnet",
+        "address": "0x64445f0aecc51e94ad52d8ac56b7190e764e561a"
+      },
+      {
+        "chain": "Sei-Mainnet",
+        "address": "0x64445f0aecc51e94ad52d8ac56b7190e764e561a"
+      },
+      {
+        "chain": "X-Layer-Mainnet",
+        "address": "0x64445f0aecc51e94ad52d8ac56b7190e764e561a"
+      },
+      {
+        "chain": "Sonic-Mainnet",
+        "address": "0x64445f0aecc51e94ad52d8ac56b7190e764e561a"
+      },
+      {
+        "chain": "Ink-Mainnet",
+        "address": "0x64445f0aecc51e94ad52d8ac56b7190e764e561a"
+      },
+      {
+        "chain": "Arbitrum-Mainnet",
+        "address": "0x64445f0aecc51e94ad52d8ac56b7190e764e561a"
+      },
+      {
+        "chain": "Optimism-Mainnet",
+        "address": "0x64445f0aecc51e94ad52d8ac56b7190e764e561a"
+      }
+    ]
+  },
+  {
+    "chain": "Polygon-Mainnet",
+    "type": "OFT",
+    "address": "0x90581eCa9469D8D7F5D3B60f4715027aDFCf7927",
+    "token": "0x90581eCa9469D8D7F5D3B60f4715027aDFCf7927",
+    "name": "Frax Price Index",
+    "peers": [
+      {
+        "chain": "Fraxtal-Mainnet",
+        "address": "0x90581eca9469d8d7f5d3b60f4715027adfcf7927"
+      },
+      {
+        "chain": "Mode-Mainnet",
+        "address": "0x90581eca9469d8d7f5d3b60f4715027adfcf7927"
+      },
+      {
+        "chain": "Sei-Mainnet",
+        "address": "0x90581eca9469d8d7f5d3b60f4715027adfcf7927"
+      },
+      {
+        "chain": "X-Layer-Mainnet",
+        "address": "0x90581eca9469d8d7f5d3b60f4715027adfcf7927"
+      },
+      {
+        "chain": "Sonic-Mainnet",
+        "address": "0x90581eca9469d8d7f5d3b60f4715027adfcf7927"
+      },
+      {
+        "chain": "Ink-Mainnet",
+        "address": "0x90581eca9469d8d7f5d3b60f4715027adfcf7927"
+      },
+      {
+        "chain": "Arbitrum-Mainnet",
+        "address": "0x90581eca9469d8d7f5d3b60f4715027adfcf7927"
+      },
+      {
+        "chain": "Optimism-Mainnet",
+        "address": "0x90581eca9469d8d7f5d3b60f4715027adfcf7927"
+      }
+    ]
+  },
+  {
+    "chain": "Polygon-zkEVM-Mainnet",
+    "type": "OFT",
+    "address": "0x80eede496655fb9047dd39d9f418d5483ed600df",
+    "token": "0x80Eede496655FB9047dd39d9f418d5483ED600df",
+    "name": "Frax USD",
+    "peers": [
+      {
+        "chain": "Fraxtal-Mainnet",
+        "address": "0x96a394058e2b84a89bac9667b19661ed003cf5d4"
+      },
+      {
+        "chain": "Sonic-Mainnet",
+        "address": "0x80eede496655fb9047dd39d9f418d5483ed600df"
+      },
+      {
+        "chain": "Ink-Mainnet",
+        "address": "0x80eede496655fb9047dd39d9f418d5483ed600df"
+      },
+      {
+        "chain": "Arbitrum-Mainnet",
+        "address": "0x80eede496655fb9047dd39d9f418d5483ed600df"
+      },
+      {
+        "chain": "Optimism-Mainnet",
+        "address": "0x80eede496655fb9047dd39d9f418d5483ed600df"
+      },
+      {
+        "chain": "Polygon-Mainnet",
+        "address": "0x80eede496655fb9047dd39d9f418d5483ed600df"
+      },
+      {
+        "chain": "Avalanche-Mainnet",
+        "address": "0x80eede496655fb9047dd39d9f418d5483ed600df"
+      },
+      {
+        "chain": "BNB-Smart-Chain-Mainnet",
+        "address": "0x80eede496655fb9047dd39d9f418d5483ed600df"
+      }
+    ]
+  },
+  {
+    "chain": "Polygon-zkEVM-Mainnet",
+    "type": "OFT",
+    "address": "0x5bff88ca1442c2496f7e475e9e7786383bc070c0",
+    "token": "0x5Bff88cA1442c2496f7E475E9e7786383Bc070c0",
+    "name": "Staked Frax USD",
+    "peers": [
+      {
+        "chain": "Fraxtal-Mainnet",
+        "address": "0x88aa7854d3b2daa5e37e7ce73a1f39669623a361"
+      },
+      {
+        "chain": "Sonic-Mainnet",
+        "address": "0x5bff88ca1442c2496f7e475e9e7786383bc070c0"
+      },
+      {
+        "chain": "Ink-Mainnet",
+        "address": "0x5bff88ca1442c2496f7e475e9e7786383bc070c0"
+      },
+      {
+        "chain": "Arbitrum-Mainnet",
+        "address": "0x5bff88ca1442c2496f7e475e9e7786383bc070c0"
+      },
+      {
+        "chain": "Optimism-Mainnet",
+        "address": "0x5bff88ca1442c2496f7e475e9e7786383bc070c0"
+      },
+      {
+        "chain": "Polygon-Mainnet",
+        "address": "0x5bff88ca1442c2496f7e475e9e7786383bc070c0"
+      },
+      {
+        "chain": "Avalanche-Mainnet",
+        "address": "0x5bff88ca1442c2496f7e475e9e7786383bc070c0"
+      },
+      {
+        "chain": "BNB-Smart-Chain-Mainnet",
+        "address": "0x5bff88ca1442c2496f7e475e9e7786383bc070c0"
+      }
+    ]
+  },
+  {
+    "chain": "Polygon-zkEVM-Mainnet",
+    "type": "OFT",
+    "address": "0x43eDD7f3831b08FE70B7555ddD373C8bF65a9050",
+    "token": "0x43eDD7f3831b08FE70B7555ddD373C8bF65a9050",
+    "name": "Frax Ether",
+    "peers": [
+      {
+        "chain": "Fraxtal-Mainnet",
+        "address": "0x43edd7f3831b08fe70b7555ddd373c8bf65a9050"
+      },
+      {
+        "chain": "Mode-Mainnet",
+        "address": "0x43edd7f3831b08fe70b7555ddd373c8bf65a9050"
+      },
+      {
+        "chain": "Sei-Mainnet",
+        "address": "0x43edd7f3831b08fe70b7555ddd373c8bf65a9050"
+      },
+      {
+        "chain": "X-Layer-Mainnet",
+        "address": "0x43edd7f3831b08fe70b7555ddd373c8bf65a9050"
+      },
+      {
+        "chain": "Sonic-Mainnet",
+        "address": "0x43edd7f3831b08fe70b7555ddd373c8bf65a9050"
+      },
+      {
+        "chain": "Ink-Mainnet",
+        "address": "0x43edd7f3831b08fe70b7555ddd373c8bf65a9050"
+      },
+      {
+        "chain": "Arbitrum-Mainnet",
+        "address": "0x43edd7f3831b08fe70b7555ddd373c8bf65a9050"
+      },
+      {
+        "chain": "Optimism-Mainnet",
+        "address": "0x43edd7f3831b08fe70b7555ddd373c8bf65a9050"
+      },
+      {
+        "chain": "Polygon-Mainnet",
+        "address": "0x43edd7f3831b08fe70b7555ddd373c8bf65a9050"
+      },
+      {
+        "chain": "Avalanche-Mainnet",
+        "address": "0x43edd7f3831b08fe70b7555ddd373c8bf65a9050"
+      },
+      {
+        "chain": "BNB-Smart-Chain-Mainnet",
+        "address": "0x43edd7f3831b08fe70b7555ddd373c8bf65a9050"
+      }
+    ]
+  },
+  {
+    "chain": "Polygon-zkEVM-Mainnet",
+    "type": "OFT",
+    "address": "0x3ec3849c33291a9ef4c5db86de593eb4a37fde45",
+    "token": "0x3Ec3849C33291a9eF4c5dB86De593EB4A37fDe45",
+    "name": "Staked Frax Ether",
+    "peers": [
+      {
+        "chain": "Fraxtal-Mainnet",
+        "address": "0x3ec3849c33291a9ef4c5db86de593eb4a37fde45"
+      },
+      {
+        "chain": "Mode-Mainnet",
+        "address": "0x3ec3849c33291a9ef4c5db86de593eb4a37fde45"
+      },
+      {
+        "chain": "Sei-Mainnet",
+        "address": "0x3ec3849c33291a9ef4c5db86de593eb4a37fde45"
+      },
+      {
+        "chain": "X-Layer-Mainnet",
+        "address": "0x3ec3849c33291a9ef4c5db86de593eb4a37fde45"
+      },
+      {
+        "chain": "Sonic-Mainnet",
+        "address": "0x3ec3849c33291a9ef4c5db86de593eb4a37fde45"
+      },
+      {
+        "chain": "Ink-Mainnet",
+        "address": "0x3ec3849c33291a9ef4c5db86de593eb4a37fde45"
+      },
+      {
+        "chain": "Arbitrum-Mainnet",
+        "address": "0x3ec3849c33291a9ef4c5db86de593eb4a37fde45"
+      },
+      {
+        "chain": "Optimism-Mainnet",
+        "address": "0x3ec3849c33291a9ef4c5db86de593eb4a37fde45"
+      },
+      {
+        "chain": "Polygon-Mainnet",
+        "address": "0x3ec3849c33291a9ef4c5db86de593eb4a37fde45"
+      },
+      {
+        "chain": "Avalanche-Mainnet",
+        "address": "0x3ec3849c33291a9ef4c5db86de593eb4a37fde45"
+      },
+      {
+        "chain": "BNB-Smart-Chain-Mainnet",
+        "address": "0x3ec3849c33291a9ef4c5db86de593eb4a37fde45"
+      }
+    ]
+  },
+  {
+    "chain": "Polygon-zkEVM-Mainnet",
+    "type": "OFT",
+    "address": "0x64445f0aecc51e94ad52d8ac56b7190e764e561a",
+    "token": "0x64445f0aecC51E94aD52d8AC56b7190e764E561a",
+    "name": "Frax Share",
+    "peers": [
+      {
+        "chain": "Fraxtal-Mainnet",
+        "address": "0x64445f0aecc51e94ad52d8ac56b7190e764e561a"
+      },
+      {
+        "chain": "Mode-Mainnet",
+        "address": "0x64445f0aecc51e94ad52d8ac56b7190e764e561a"
+      },
+      {
+        "chain": "Sei-Mainnet",
+        "address": "0x64445f0aecc51e94ad52d8ac56b7190e764e561a"
+      },
+      {
+        "chain": "X-Layer-Mainnet",
+        "address": "0x64445f0aecc51e94ad52d8ac56b7190e764e561a"
+      },
+      {
+        "chain": "Sonic-Mainnet",
+        "address": "0x64445f0aecc51e94ad52d8ac56b7190e764e561a"
+      },
+      {
+        "chain": "Ink-Mainnet",
+        "address": "0x64445f0aecc51e94ad52d8ac56b7190e764e561a"
+      },
+      {
+        "chain": "Arbitrum-Mainnet",
+        "address": "0x64445f0aecc51e94ad52d8ac56b7190e764e561a"
+      },
+      {
+        "chain": "Optimism-Mainnet",
+        "address": "0x64445f0aecc51e94ad52d8ac56b7190e764e561a"
+      },
+      {
+        "chain": "Polygon-Mainnet",
+        "address": "0x64445f0aecc51e94ad52d8ac56b7190e764e561a"
+      },
+      {
+        "chain": "Avalanche-Mainnet",
+        "address": "0x64445f0aecc51e94ad52d8ac56b7190e764e561a"
+      },
+      {
+        "chain": "BNB-Smart-Chain-Mainnet",
+        "address": "0x64445f0aecc51e94ad52d8ac56b7190e764e561a"
+      }
+    ]
+  },
+  {
+    "chain": "Polygon-zkEVM-Mainnet",
+    "type": "OFT",
+    "address": "0x90581eCa9469D8D7F5D3B60f4715027aDFCf7927",
+    "token": "0x90581eCa9469D8D7F5D3B60f4715027aDFCf7927",
+    "name": "Frax Price Index",
+    "peers": [
+      {
+        "chain": "Fraxtal-Mainnet",
+        "address": "0x90581eca9469d8d7f5d3b60f4715027adfcf7927"
+      },
+      {
+        "chain": "Mode-Mainnet",
+        "address": "0x90581eca9469d8d7f5d3b60f4715027adfcf7927"
+      },
+      {
+        "chain": "Sei-Mainnet",
+        "address": "0x90581eca9469d8d7f5d3b60f4715027adfcf7927"
+      },
+      {
+        "chain": "X-Layer-Mainnet",
+        "address": "0x90581eca9469d8d7f5d3b60f4715027adfcf7927"
+      },
+      {
+        "chain": "Sonic-Mainnet",
+        "address": "0x90581eca9469d8d7f5d3b60f4715027adfcf7927"
+      },
+      {
+        "chain": "Ink-Mainnet",
+        "address": "0x90581eca9469d8d7f5d3b60f4715027adfcf7927"
+      },
+      {
+        "chain": "Arbitrum-Mainnet",
+        "address": "0x90581eca9469d8d7f5d3b60f4715027adfcf7927"
+      },
+      {
+        "chain": "Optimism-Mainnet",
+        "address": "0x90581eca9469d8d7f5d3b60f4715027adfcf7927"
+      },
+      {
+        "chain": "Polygon-Mainnet",
+        "address": "0x90581eca9469d8d7f5d3b60f4715027adfcf7927"
+      },
+      {
+        "chain": "Avalanche-Mainnet",
+        "address": "0x90581eca9469d8d7f5d3b60f4715027adfcf7927"
+      },
+      {
+        "chain": "BNB-Smart-Chain-Mainnet",
+        "address": "0x90581eca9469d8d7f5d3b60f4715027adfcf7927"
+      }
+    ]
+  }
+]

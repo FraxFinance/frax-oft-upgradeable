@@ -3,6 +3,11 @@ import { chains } from "./chains";
 import { ofts, solanaOFTs } from "./oft";
 import { PublicKey } from "@solana/web3.js";
 
+const EthereumPortal = "0x36cb65c1967A0Fb0EEE11569C51C2f2aA1Ca6f6D";
+const EthereumL1Bridge = "0x34C0bD5877A5Ee7099D0f5688D65F4bB9158BDE2";
+const EthereumMultisig = "0xe0d7755252873c4eF5788f7f45764E0e17610508";
+const fxsToken = "0x3432B6A60D23Ca0dFCa7761B7ab56459D9C964D0";
+
 interface TokenSupplyData {
     chain: string;
     blockNumber?: string;
@@ -160,13 +165,6 @@ async function main() {
                     supply: formatTokenAmount(totalSupplyfpi)
                 });
 
-                chainResults.push({
-                    chain: chainName+"-lockbox",
-                    blockNumber: blockNumber.toString(),
-                    token: "fpi",
-                    supply: formatTokenAmount(fpiBal)
-                });
-
                 const tokenfrxeth = await chains[chainName].client.readContract({
                     address: ofts[chainName]["frxETH"].address,
                     abi: ofts[chainName]["frxETH"].abi,
@@ -260,13 +258,6 @@ async function main() {
                 });
                 
                 chainResults.push({
-                    chain: chainName,
-                    blockNumber: blockNumber.toString(),
-                    token: "sfrxETH",
-                    supply: formatTokenAmount(sfrxethBal)
-                });
-                
-                chainResults.push({
                     chain: chainName+"-lockbox",
                     blockNumber: blockNumber.toString(),
                     token: "sfrxETH",
@@ -311,12 +302,107 @@ async function main() {
                         functionName: "totalSupply",
                         blockNumber
                     })
+                    const portalBalancefxs = await chains[chainName].client.readContract({
+                        address: fxsToken,
+                        abi: ERC20ABI,
+                        functionName: "balanceOf",
+                        args: [EthereumPortal],
+                        blockNumber
+                    })
                     chainResults.push({
                         chain: chainName,
                         blockNumber: blockNumber.toString(),
                         token: "wfrax",
                         supply: formatTokenAmount(totalSupplywfrax)
                     });
+                    chainResults.push({
+                        chain: chainName+"-portal",
+                        blockNumber: blockNumber.toString(),
+                        token: "fxs",
+                        supply: formatTokenAmount(portalBalancefxs)
+                    });
+
+                    const l1BridgeBalancefpi = await chains[chainName].client.readContract({
+                        address: tokenfpi,
+                        abi: ERC20ABI,
+                        functionName: "balanceOf",
+                        args: [EthereumL1Bridge],
+                        blockNumber
+                    });
+                    chainResults.push({
+                        chain: chainName+"-l1bridge",
+                        blockNumber: blockNumber.toString(),
+                        token: "fpi",
+                        supply: formatTokenAmount(l1BridgeBalancefpi)
+                    });
+                    const l1BridgeBalancefrxETH = await chains[chainName].client.readContract({
+                        address: tokenfrxeth,
+                        abi: ERC20ABI,
+                        functionName: "balanceOf",
+                        args: [EthereumL1Bridge],
+                        blockNumber
+                    });
+                    const multisigBalancefrxETH = await chains[chainName].client.readContract({
+                        address: tokenfrxeth,
+                        abi: ERC20ABI,
+                        functionName: "balanceOf",
+                        args: [EthereumMultisig],
+                        blockNumber
+                    });
+                    
+                    chainResults.push({
+                        chain: chainName+"-l1bridge",
+                        blockNumber: blockNumber.toString(),
+                        token: "frxETH",
+                        supply: formatTokenAmount(l1BridgeBalancefrxETH)
+                    });
+                    chainResults.push({
+                        chain: chainName+"-multisig",
+                        blockNumber: blockNumber.toString(),
+                        token: "frxETH",
+                        supply: formatTokenAmount(multisigBalancefrxETH)
+                    });
+                    const l1BridgeBalancesfrxETH = await chains[chainName].client.readContract({
+                        address: tokensfrxeth,
+                        abi: ERC20ABI,
+                        functionName: "balanceOf",
+                        args: [EthereumL1Bridge],
+                        blockNumber
+                    });
+                    chainResults.push({
+                        chain: chainName+"-l1bridge",
+                        blockNumber: blockNumber.toString(),
+                        token: "sfrxETH",
+                        supply: formatTokenAmount(l1BridgeBalancesfrxETH)
+                    });
+                    const l1BridgeBalancefrxUSD = await chains[chainName].client.readContract({
+                        address: tokenfrxusd,
+                        abi: ERC20ABI,
+                        functionName: "balanceOf",
+                        args: [EthereumL1Bridge],
+                        blockNumber
+                    });
+                    chainResults.push({
+                        chain: chainName+"-l1bridge",
+                        blockNumber: blockNumber.toString(),
+                        token: "frxUSD",
+                        supply: formatTokenAmount(l1BridgeBalancefrxUSD)
+                    });
+                    const l1BridgeBalancesfrxUSD = await chains[chainName].client.readContract({
+                        address: tokenfrxusd,
+                        abi: ERC20ABI,
+                        functionName: "balanceOf",
+                        args: [EthereumL1Bridge],
+                        blockNumber
+                    });
+                    chainResults.push({
+                        chain: chainName+"-l1bridge",
+                        blockNumber: blockNumber.toString(),
+                        token: "sfrxUSD",
+                        supply: formatTokenAmount(l1BridgeBalancesfrxUSD)
+                    });
+
+
                 } else {
                     const tokenwfrax = await chains[chainName].client.readContract({
                         address: ofts[chainName]["wfrax"].address,
@@ -336,6 +422,7 @@ async function main() {
                         functionName: "totalSupply",
                         blockNumber
                     })
+                    
                     chainResults.push({
                         chain: chainName,
                         blockNumber: blockNumber.toString(),

@@ -1,0 +1,14 @@
+{
+  "function_id": "0xe067037681385b86d8344e6b7746023604c6ac90ddc997ba3c58396c258ad17b::oapp_core::set_send_library",
+  "args": [
+    {
+      "type": "u32",
+      "value": 30255
+    },
+    {
+      "type": "address",
+      "value": "0x3ca0d187f1938cf9776a0aa821487a650fc7bb2ab1c1d241ba319192aae4afc6"
+    }
+  ],
+  "type_args": []
+}

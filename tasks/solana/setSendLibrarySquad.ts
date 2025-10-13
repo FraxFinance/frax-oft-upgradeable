@@ -1,4 +1,5 @@
-import { fetchToken, findAssociatedTokenPda, mplToolbox } from '@metaplex-foundation/mpl-toolbox'
+import * as fs from 'fs';
+import { findAssociatedTokenPda, mplToolbox } from '@metaplex-foundation/mpl-toolbox'
 import { createNoopSigner, publicKey, signerIdentity, transactionBuilder } from '@metaplex-foundation/umi'
 import { fromWeb3JsPublicKey } from '@metaplex-foundation/umi-web3js-adapters'
 import { TOKEN_PROGRAM_ID } from '@solana/spl-token'
@@ -7,7 +8,6 @@ import { task } from 'hardhat/config'
 
 import { types as devtoolsTypes } from '@layerzerolabs/devtools-evm-hardhat'
 import { EndpointId } from '@layerzerolabs/lz-definitions'
-import { addressToBytes32 } from '@layerzerolabs/lz-v2-utilities'
 import { oft } from '@layerzerolabs/oft-v2-solana-sdk'
 import { VersionedMessage, VersionedTransaction } from '@solana/web3.js'
 import {
@@ -23,6 +23,8 @@ interface Args {
     toEid: EndpointId
     tokenProgram: string
     squadsAuthority: string
+    path: string
+    outputFilename: string
 }
 
 // Define a Hardhat task for setting send library for solana oft
@@ -32,8 +34,10 @@ task('lz:oft:solana:setsendlibrary', 'set send library for solana oft')
     .addParam('toEid', 'The destination endpoint ID', undefined, devtoolsTypes.eid)
     .addParam('tokenProgram', 'The Token Program public key', TOKEN_PROGRAM_ID.toBase58(), devtoolsTypes.string, true)
     .addParam('squadsAuthority', 'The Squads authority public key', undefined, devtoolsTypes.string)
+    .addParam('path', 'The path of the output file', './scripts/ops/fix/FixDVNs/txs', devtoolsTypes.string)
+    .addParam('outputFilename', 'Name of file created for writing bs58 transaction', undefined, devtoolsTypes.string)
     .setAction(async (args: Args) => {
-        const { fromEid, library, toEid, tokenProgram: tokenProgramStr, squadsAuthority: squadsAuthorityStr } = args
+        const { fromEid, library, toEid, tokenProgram: tokenProgramStr, squadsAuthority: squadsAuthorityStr, path, outputFilename } = args
 
         const connectionFactory = createSolanaConnectionFactory()
         const connection = await connectionFactory(fromEid)
@@ -46,7 +50,6 @@ task('lz:oft:solana:setsendlibrary', 'set send library for solana oft')
 
         const solanaDeployment = getSolanaDeployment(fromEid)
 
-        const oftProgramId = publicKey(solanaDeployment.programId)
         const mint = publicKey(solanaDeployment.mint)
         const tokenProgramId = tokenProgramStr ? publicKey(tokenProgramStr) : fromWeb3JsPublicKey(TOKEN_PROGRAM_ID)
 
@@ -70,9 +73,7 @@ task('lz:oft:solana:setsendlibrary', 'set send library for solana oft')
             {
                 sendLibraryProgram: publicKey(library),
                 remoteEid: toEid
-            },
-            oftProgramId
-        )
+            })
 
         let txBuilder = transactionBuilder().add([setSetLibraryIX])
         txBuilder.setFeePayer(squadsSigner)
@@ -82,7 +83,9 @@ task('lz:oft:solana:setsendlibrary', 'set send library for solana oft')
         const versionedMessage = VersionedMessage.deserialize(Buffer.from(transactionDataHex, 'hex'))
 
         const tx = new VersionedTransaction(versionedMessage);
-
+        const unixTimestamp = Math.floor(Date.now() / 1000);
+        const base58Tx = bs58.encode(Buffer.from(tx.serialize()));
+        fs.writeFileSync(`${path}/${unixTimestamp}-${outputFilename}`, base58Tx, 'utf8');
         console.log('BASE58: \n')
         console.log(bs58.encode(Buffer.from(tx.serialize())))
         console.log('\nBASE64: \n')

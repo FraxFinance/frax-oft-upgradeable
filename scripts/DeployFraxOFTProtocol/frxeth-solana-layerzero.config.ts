@@ -72,10 +72,13 @@ export default async function () {
 
         if (eid === 0) throw Error(`EID not found for chainid: ${_chainid}`)
         let OFTAddress = zeroAddress as string
+        let confirmations: number[] = []
         if (_chainid === 1) {
             OFTAddress = "0x1c1649A38f4A3c5A0c4a24070f688C525AB7D6E6"
+            confirmations = [15, 32]
         } else if (_chainid === 252) {
             OFTAddress = "0x9aBFE1F8a999B0011ecD6116649AEe8D575F5604"
+            confirmations = [5, 32]
         } else {
             throw Error(`OFT not found for chainid: ${_chainid}`)
         }
@@ -131,7 +134,7 @@ export default async function () {
             evmContract, // Chain A contract
             solanaContract, // Chain B contract
             [requiredSrcDVNs, []], // [ requiredDVN[], [ optionalDVN[], threshold ] ]
-            [15, 32], // [A to B confirmations, B to A confirmations]
+            confirmations, // [A to B confirmations, B to A confirmations]
             [SOLANA_ENFORCED_OPTIONS, EVM_ENFORCED_OPTIONS], // Chain B enforcedOptions, Chain A enforcedOptions
         ])
     }

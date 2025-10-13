@@ -366,6 +366,12 @@ contract DeployFraxOFTProtocol is SetDVNs, BaseL0Script {
                 _oftArray: zkEraProxyOfts
             });
             require(peer != address(0), "Invalid Zk Era peer");
+        } else if (_chainid == 534352) {
+            peer = getPeerFromArray({
+                _oft: _oft,
+                _oftArray: scrollProxyOfts
+            });
+            require(peer != address(0), "Invalid Scroll peer");
         } else if (_chainid == 11155111) {
             peer = getTestnetPeerFromArray({
                 _oft: _oft,
@@ -454,14 +460,12 @@ contract DeployFraxOFTProtocol is SetDVNs, BaseL0Script {
         );
         (bool success, ) = _connectedOft.call(data);
         require(success, "Unable to setPeer");
-        serializedTxs.push(
-            SerializedTx({
-                name: "setPeer",
-                to: _connectedOft,
-                value: 0,
-                data: data
-            })
-        );
+        pushSerializedTx({
+            _name:"setPeer",
+            _to:_connectedOft,
+            _value:0,
+            _data:data
+        });
     }
 
     function setEvmEnforcedOptions(
@@ -569,14 +573,12 @@ contract DeployFraxOFTProtocol is SetDVNs, BaseL0Script {
         );
         (bool success, ) = _connectedOft.call(data);
         require(success, "Unable to setEnforcedOptions");
-        serializedTxs.push(
-            SerializedTx({
-                name: "setEnforcedOptions",
-                to: _connectedOft,
-                value: 0,
-                data: data
-            })
-        );
+        pushSerializedTx({
+            _name:"setEnforcedOptions",
+            _to: _connectedOft,
+            _value:0,
+            _data:data
+        });
     }
 
     function setLibs(
@@ -623,14 +625,13 @@ contract DeployFraxOFTProtocol is SetDVNs, BaseL0Script {
             );
             (bool success,) = _connectedConfig.endpoint.call(data);
             require(success, "Unable to call setSendLibrary");
-            serializedTxs.push(
-                SerializedTx({
-                    name: "setSendLibrary",
-                    to: _connectedConfig.endpoint,
-                    value: 0,
-                    data: data
-                })
-            );
+            pushSerializedTx({
+                _name:"setSendLibrary",
+                _to: _connectedConfig.endpoint,
+                _value : 0,
+                _data:data
+
+            });
         }
 
         // set receiveLib to default if not already set
@@ -647,14 +648,12 @@ contract DeployFraxOFTProtocol is SetDVNs, BaseL0Script {
             );
             (bool success,) = _connectedConfig.endpoint.call(data);
             require(success, "Unable to call setReceiveLibrary");
-            serializedTxs.push(
-                SerializedTx({
-                    name: "setReceiveLibrary",
-                    to: _connectedConfig.endpoint,
-                    value: 0,
-                    data: data
-                })
-            );
+            pushSerializedTx({
+                _name:"setReceiveLibrary",
+                _to: _connectedConfig.endpoint,
+                _value:0,
+                _data:data
+            });
         }
     }
 
@@ -664,7 +663,7 @@ contract DeployFraxOFTProtocol is SetDVNs, BaseL0Script {
         address _to,
         uint256 _value,
         bytes memory _data
-    ) public override {
+    ) public virtual override {
         serializedTxs.push(
             SerializedTx({
                 name: _name,

@@ -3,23 +3,21 @@ import { ExecutorOptionType } from '@layerzerolabs/lz-v2-utilities'
 import { generateConnectionsConfig } from '@layerzerolabs/metadata-tools'
 import { OAppEnforcedOption, OmniPointHardhat } from '@layerzerolabs/toolbox-hardhat'
 import L0Config from "../L0Config.json"
-import { getOftStoreAddress } from '../../tasks/solana'
 import { zeroAddress } from 'viem'
 import { readFileSync } from 'fs'
 import path from 'path'
 
 
 const dvnConfigPath = "config/dvn"
-const zeroBytes22 = '00000000000000000000000000000000000000000000'
 
 const chainIds = [
     1, 252
 ] as const;
-const dvnKeys = ['horizen', 'lz'] as const;
+const dvnKeys = ['bcwGroup', 'frax', 'horizen', 'lz', 'nethermind', 'stargate'] as const;
 
 const solanaContract: OmniPointHardhat = {
     eid: EndpointId.SOLANA_V2_MAINNET,
-    address: getOftStoreAddress(EndpointId.SOLANA_V2_MAINNET),
+    address: "5vqBiG7nxNnoCst8mEVVS6ax7C1ypEEenPfcZ4kLgj9B",
 }
 
 enum MsgType {
@@ -74,10 +72,10 @@ export default async function () {
 
         if (eid === 0) throw Error(`EID not found for chainid: ${_chainid}`)
         let OFTAddress = zeroAddress as string
-        if (_chainid === 252) {
-            OFTAddress = "0xd86fBBd0c8715d2C1f40e451e5C3514e65E7576A"
-        } else if (_chainid === 1) {
+        if (_chainid === 1) {
             OFTAddress = "0x04ACaF8D2865c0714F79da09645C13FD2888977f"
+        } else if (_chainid === 252) {
+            OFTAddress = "0xd86fBBd0c8715d2C1f40e451e5C3514e65E7576A"
         } else {
             throw Error(`OFT not found for chainid: ${_chainid}`)
         }
@@ -88,19 +86,31 @@ export default async function () {
 
         dvnKeys.forEach(key => {
             const dst = dstDVNConfig["111111111"]?.[key] ?? zeroAddress;
-            const src = srcDVNConfig[_chainid]?.[key] ?? zeroBytes22;
+            const src = srcDVNConfig[_chainid]?.[key] ?? zeroAddress;
 
-            if (dst !== zeroAddress || src !== zeroBytes22) {
-                if (dst === zeroAddress || src === zeroBytes22) {
+            if (dst !== zeroAddress || src !== zeroAddress) {
+                if (dst === zeroAddress || src === zeroAddress) {
                     throw new Error(`DVN Stack misconfigured: ${_chainid}<>solana-${key}`);
                 }
                 let dvnName = ""
                 switch (key) {
+                    case "bcwGroup":
+                        dvnName = "BCW Group"
+                        break;
+                    case "frax":
+                        dvnName = "Frax"
+                        break;
                     case "horizen":
                         dvnName = "Horizen"
                         break;
                     case "lz":
                         dvnName = "LayerZero Labs"
+                        break;
+                    case "nethermind":
+                        dvnName = "Nethermind"
+                        break;
+                    case "stargate":
+                        dvnName = "Stargate"
                         break;
                     default:
                         throw new Error(`DVN ${key} not found for ${_chainid}`)
@@ -111,7 +121,7 @@ export default async function () {
 
         const evmContract = {
             eid: eid,
-            contractName: _chainid == 252 ? "FraxOFTMintableUpgradeable" : "FraxOFTUpgradeable",
+            contractName: _chainid === 252 ? "MockFraxMintableOFT" : "MockFraxOFT",
             address: OFTAddress
         }
         contracts.push({ contract: evmContract })

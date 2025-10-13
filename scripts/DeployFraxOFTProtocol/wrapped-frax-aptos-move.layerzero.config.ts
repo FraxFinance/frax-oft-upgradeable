@@ -6,7 +6,7 @@ import { aptosContractConfig, aptosToFraxtalconnectionConfig, fraxtalContractCon
 const fraxtalContract: OmniPointHardhat = {
     eid: EndpointId.FRAXTAL_V2_MAINNET,
     address: "0xd86fBBd0c8715d2C1f40e451e5C3514e65E7576A",
-    contractName: "FraxOFTAdapterUpgradeable"
+    contractName: "MockFraxMintableOFT"
 }
 
 const aptosContract: OmniPointHardhat = {

@@ -13,7 +13,7 @@ import { FraxOFTUpgradeable } from "contracts/FraxOFTUpgradeable.sol";
 // base : forge script scripts/ops/FraxDVNTest/mainnet/5_SendMockFrax.s.sol --rpc-url https://mainnet.base.org --broadcast
 // mode : forge script scripts/ops/FraxDVNTest/mainnet/5_SendMockFrax.s.sol --rpc-url https://mainnet.mode.network/ --broadcast
 // sei : forge script scripts/ops/FraxDVNTest/mainnet/5_SendMockFrax.s.sol --rpc-url https://evm-rpc.sei-apis.com --broadcast
-// TODO: pending txn, xlayer : forge script scripts/ops/FraxDVNTest/mainnet/5_SendMockFrax.s.sol --rpc-url https://mainnet.xlayer-rpc.com --legacy --broadcast
+// xlayer : forge script scripts/ops/FraxDVNTest/mainnet/5_SendMockFrax.s.sol --rpc-url https://mainnet.xlayer-rpc.com --legacy --broadcast
 // sonic : forge script scripts/ops/FraxDVNTest/mainnet/5_SendMockFrax.s.sol --rpc-url https://rpc.soniclabs.com/ --broadcast
 // ink : forge script scripts/ops/FraxDVNTest/mainnet/5_SendMockFrax.s.sol --rpc-url https://rpc-gel.inkonchain.com --broadcast
 // arbitrum : forge script scripts/ops/FraxDVNTest/mainnet/5_SendMockFrax.s.sol --rpc-url https://arb1.arbitrum.io/rpc --broadcast
@@ -29,9 +29,14 @@ import { FraxOFTUpgradeable } from "contracts/FraxOFTUpgradeable.sol";
 // abstract : forge script scripts/ops/FraxDVNTest/mainnet/5_SendMockFrax.s.sol --rpc-url https://api.mainnet.abs.xyz --zksync  // Note: this was performed directly on etherscan
 // unichain : forge script scripts/ops/FraxDVNTest/mainnet/5_SendMockFrax.s.sol --rpc-url https://mainnet.unichain.org --broadcast
 // plumephoenix : forge script scripts/ops/FraxDVNTest/mainnet/5_SendMockFrax.s.sol --rpc-url https://rpc.plume.org --broadcast
+// katana : forge script scripts/ops/FraxDVNTest/mainnet/5_SendMockFrax.s.sol --rpc-url https://rpc.katana.network --broadcast
+// aurora : forge script scripts/ops/FraxDVNTest/mainnet/5_SendMockFrax.s.sol --rpc-url https://mainnet.aurora.dev --legacy --broadcast
+// scroll : forge script scripts/ops/FraxDVNTest/mainnet/5_SendMockFrax.s.sol --rpc-url https://rpc.scroll.io --broadcast
+// hyperliquid : forge script scripts/ops/FraxDVNTest/mainnet/5_SendMockFrax.s.sol --rpc-url https://rpc.hyperliquid.xyz/evm --broadcast --slow
 
 contract SendMockFrax is BaseL0Script {
-    // 1,81457,8453,34443,1329,252,196,146,57073,42161,10,137,43114,56,1101,80094,480,130
+    // 1,81457,8453,34443,1329,252,196,146,57073,42161,10,137,43114,56,1101,80094,480,130,
+    // 98866,747474,534352,999
     address public constant mockFrax = 0x57558Cb8d6005DE0BAe8a2789d5EfaaE52dba5a8;
     address public constant mockFraxWallet = 0x741F0d8Bde14140f62107FC60A0EE122B37D4630;
     // 324, zksync, 30165
@@ -43,8 +48,11 @@ contract SendMockFrax is BaseL0Script {
     // 59144,linea, 30183
     address public constant mockFraxLinea = 0x6185334f1542a9966CbaD694577fFbede3DD1f1F;
     address public constant mockFraxLineaWallet = 0xD555D90A6b23B285575cd6192D972e35F70b5B89;
+    // 1313161554, aurora, 30211
+    address public constant mockFraxAurora = 0xA057D8D4Fc86a62801CE363C169b0A8d192F6cEE;
+    address public constant mockFraxAuroraWallet = 0x4a767e2ef83577225522Ef8Ed71056c6E3acB216;
 
-    uint256 amount = 1 ether;
+    uint256 amount = 0.2 ether;
 
     SendParam[] public sendParams;
     IOFT[] public ofts;
@@ -54,6 +62,8 @@ contract SendMockFrax is BaseL0Script {
         uint256 _totalEthFee;
         address sourceOFT;
         address senderWallet;
+        uint256 start = 0;
+        uint256 end = allConfigs.length;
         for (uint256 _i; _i < allConfigs.length; _i++) {
             if (allConfigs[_i].eid == 30151) continue;
             if (allConfigs[_i].eid == 30376) continue;
@@ -70,6 +80,21 @@ contract SendMockFrax is BaseL0Script {
                     allConfigs[_i].eid == 30108
                 ) continue;
             }
+            if (broadcastConfig.eid == 30375) {
+                // L0 team has not setup defaultSendLibrary and defaultReceiveLibrary on katana for
+                // unichain (30320), plumephoenix, (30370), movement (30325) and aptos (30108)
+                if (
+                    allConfigs[_i].eid == 30320 ||
+                    allConfigs[_i].eid == 30370 ||
+                    allConfigs[_i].eid == 30325 ||
+                    allConfigs[_i].eid == 30108
+                ) continue;
+            }
+            if (broadcastConfig.eid == 30211) {
+                // L0 team has not setup defaultSendLibrary and defaultReceiveLibrary on aurora for
+                // aptos (30108)
+                if (allConfigs[_i].eid == 30108) continue;
+            }
             if (broadcastConfig.chainid == allConfigs[_i].chainid) {
                 if (allConfigs[_i].chainid == 59144) {
                     // linea
@@ -83,8 +108,13 @@ contract SendMockFrax is BaseL0Script {
                     // zksync
                     sourceOFT = mockFraxZkSync;
                     senderWallet = mockFraxZkSyncWallet;
+                } else if (allConfigs[_i].chainid == 1313161554) {
+                    // aurora
+                    sourceOFT = mockFraxAurora;
+                    senderWallet = mockFraxAuroraWallet;
                 } else {
-                    // 1,81457,8453,34443,1329,252,196,146,57073,42161,10,137,43114,56,1101,80094,480,130,98866
+                    // 1,81457,8453,34443,1329,252,196,146,57073,42161,10,137,43114,56,1101,80094,480,130,98866,
+                    // 747474,534352
                     sourceOFT = mockFrax;
                     senderWallet = mockFraxWallet;
                 }
@@ -93,7 +123,7 @@ contract SendMockFrax is BaseL0Script {
         }
         require(sourceOFT != address(0), "SendMockFrax: sourceOFT should not be zero");
         require(senderWallet != address(0), "SendMockFrax: senderWallet should not be zero");
-        for (uint256 _i; _i < allConfigs.length; _i++) {
+        for (uint256 _i = start; _i < end; _i++) {
             if (broadcastConfig.chainid == allConfigs[_i].chainid) continue;
             if (allConfigs[_i].eid == 30151) continue;
             if (allConfigs[_i].eid == 30376) continue;
@@ -110,10 +140,54 @@ contract SendMockFrax is BaseL0Script {
                     allConfigs[_i].eid == 30108
                 ) continue;
             }
+            if (broadcastConfig.eid == 30375) {
+                // L0 team has not setup defaultSendLibrary and defaultReceiveLibrary on katana for
+                // unichain (30320), plumephoenix, (30370), movement (30325) and aptos (30108)
+                // // TODO : temporary block sending to ethereum
+                // if (allConfigs[_i].eid == 30101) continue;
+                if (
+                    allConfigs[_i].eid == 30320 ||
+                    allConfigs[_i].eid == 30370 ||
+                    allConfigs[_i].eid == 30325 ||
+                    allConfigs[_i].eid == 30108
+                ) continue;
+            }
+            if (broadcastConfig.eid == 30211) {
+                // L0 team has not setup defaultSendLibrary and defaultReceiveLibrary on aurora for
+                // Aptos (30108)
+                if (allConfigs[_i].eid == 30108) continue;
+            }
+            if (broadcastConfig.eid == 30367) {
+                // L0 team has not setup defaultSendLibrary and defaultReceiveLibrary on hyperliquid for
+                // Botanix (botanixlabs)
+                if (allConfigs[_i].eid == 30376) continue;
+            }
+            // if (allConfigs[_i].eid != 30367) continue; // Note. change with desired remote id
             bytes32 recipientWallet;
             if (allConfigs[_i].eid == 30168) {
                 // solana
                 recipientWallet = 0x3c1b094729102e0c095ee2417e5940ee4f1eab4763f6113fe75281ab74c62398;
+            } else if (allConfigs[_i].eid == 30325) {
+                // movement
+                // do no include xlayer(196), sei(1329), worldchain(480) and unichain(130)
+                if (
+                    broadcastConfig.chainid == 196 ||
+                    broadcastConfig.chainid == 1329 ||
+                    broadcastConfig.chainid == 480 ||
+                    broadcastConfig.chainid == 130
+                ) continue;
+                recipientWallet = 0x09d0eb2763c96e085fa74ba6cf0d49136f8654c48ec7dbc59279a9066c7dd409;
+            } else if (allConfigs[_i].eid == 30108) {
+                // aptos
+                // do no include zkpolygon(1101), worldchain(480), abstract(2741), ink(57073) and aurora(1313161554)
+                if (
+                    broadcastConfig.chainid == 1101 ||
+                    broadcastConfig.chainid == 480 ||
+                    broadcastConfig.chainid == 2741 ||
+                    broadcastConfig.chainid == 57073 ||
+                    broadcastConfig.chainid == 1313161554
+                ) continue;
+                recipientWallet = 0x09d0eb2763c96e085fa74ba6cf0d49136f8654c48ec7dbc59279a9066c7dd409;
             } else if (allConfigs[_i].chainid == 59144) {
                 // linea
                 recipientWallet = addressToBytes32(mockFraxLineaWallet);
@@ -123,8 +197,12 @@ contract SendMockFrax is BaseL0Script {
             } else if (allConfigs[_i].chainid == 324) {
                 // zksync
                 recipientWallet = addressToBytes32(mockFraxZkSyncWallet);
+            } else if (allConfigs[_i].chainid == 1313161554) {
+                // aurora
+                recipientWallet = addressToBytes32(mockFraxAuroraWallet);
             } else {
-                // 1,81457,8453,34443,1329,252,196,146,57073,42161,10,137,43114,56,1101,80094,480,130
+                // 1,81457,8453,34443,1329,252,196,146,57073,42161,10,137,43114,56,1101,80094,480,130,98866,747474,
+                // 534352,999
                 recipientWallet = addressToBytes32(mockFraxWallet);
             }
             SendParam memory _sendParam = SendParam({

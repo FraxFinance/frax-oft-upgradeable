@@ -173,13 +173,13 @@ contract BaseL0Script is L0Constants, Script {
             connectedOfts[3] = lineaProxyOfts[3];
             connectedOfts[4] = lineaProxyOfts[4];
             connectedOfts[5] = lineaProxyOfts[5];
-        } else if (simulateConfig.chainid == 8453) {
-            connectedOfts[0] = baseProxyOfts[0];
-            connectedOfts[1] = baseProxyOfts[1];
-            connectedOfts[2] = baseProxyOfts[2];
-            connectedOfts[3] = baseProxyOfts[3];
-            connectedOfts[4] = baseProxyOfts[4];
-            connectedOfts[5] = baseProxyOfts[5];
+        } else if (simulateConfig.chainid == 534352) {
+            connectedOfts[0] = scrollProxyOfts[0];
+            connectedOfts[1] = scrollProxyOfts[1];
+            connectedOfts[2] = scrollProxyOfts[2];
+            connectedOfts[3] = scrollProxyOfts[3];
+            connectedOfts[4] = scrollProxyOfts[4];
+            connectedOfts[5] = scrollProxyOfts[5];
         } else if (simulateConfig.chainid == 2741 || simulateConfig.chainid == 324) {
             connectedOfts[0] = zkEraProxyOfts[0];
             connectedOfts[1] = zkEraProxyOfts[1];
@@ -224,8 +224,12 @@ contract BaseL0Script is L0Constants, Script {
 
         string memory name = string.concat(broadcastConfig.chainid.toString(), "-");
         name = string.concat(name, simulateConfig.chainid.toString());
-        name = string.concat(name, ".json");
+        name = string.concat(name, getFileExtension());
         return string.concat(root, name);
+    }
+
+    function getFileExtension() internal view virtual returns (string memory) {
+        return ".json";
     }
 
     function setUp() public virtual {

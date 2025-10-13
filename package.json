@@ -27,7 +27,7 @@
   },
   "resolutions": {
     "@solana/web3.js": "^1.98.0",
-    "ethers": "^5.7.2",
+    "ethers": "^6.13.5",
     "hardhat-deploy": "^0.12.1"
   },
   "devDependencies": {
@@ -106,7 +106,7 @@
     "eslint": "^8.57.1",
     "eslint-plugin-jest-extended": "~2.0.3",
     "ethereumjs-util": "^7.1.5",
-    "ethers": "^5.8.0",
+    "ethers": "^6.13.5",
     "exponential-backoff": "~3.1.2",
     "fp-ts": "^2.16.10",
     "frax-standard-solidity": "github:FraxFinance/frax-standard-solidity",
@@ -133,7 +133,7 @@
   "pnpm": {
     "overrides": {
       "@solana/web3.js": "^1.98.0",
-      "ethers": "^5.7.2",
+      "ethers": "^6.13.5",
       "hardhat-deploy": "^0.12.1"
     },
     "onlyBuiltDependencies": [
@@ -155,7 +155,7 @@
     ]
   },
   "overrides": {
-    "ethers": "^5.7.2",
+    "ethers": "^6.13.5",
     "hardhat-deploy": "^0.12.1",
     "@solana/web3.js": "^1.98.0",
     "dependencies": {
@@ -168,6 +168,8 @@
     "@ethersproject/hash": "^5.8.0",
     "@openzeppelin-5/contracts": "npm:@openzeppelin/contracts@^5.3.0",
     "@openzeppelin-5/contracts-upgradeable": "npm:@openzeppelin/contracts-upgradeable@^5.3.0",
+    "@truffle/hdwallet-provider": "^2.1.15",
+    "tronweb": "^6.0.4",
     "viem": "^2.31.4"
   }
 }

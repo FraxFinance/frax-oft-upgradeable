@@ -113,7 +113,7 @@ contract UpgradeAdapter is DeployFraxOFTProtocol {
         serializedTxs.push(
             SerializedTx({
                 name: "Upgrade Lockbox",
-                to: _lockbox,
+                to: proxyAdmin,
                 value: 0,
                 data: data
             })

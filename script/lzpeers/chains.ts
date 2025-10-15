@@ -5,7 +5,7 @@ import { ChainInfo } from "./types";
 import { Connection } from "@solana/web3.js";
 import { configDotenv } from "dotenv"
 
-configDotenv({ path: "./script/lzpeers/.env" });
+configDotenv({ path: "./.env" });
 
 export const hyperliquid = defineChain({
     id: 999,

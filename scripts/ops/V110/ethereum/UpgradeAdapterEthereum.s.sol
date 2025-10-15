@@ -25,7 +25,7 @@ contract UpgradeAdapter is DeployFraxOFTProtocol {
 
     address frxUsdMintableLockboxImp;
     address sfrxUsdMintableLockboxImp;
-    address fpiMintableLockboxImp;
+    address fpiMintableLockboxImp = 0x2063961F26019B588F48007D1CC43770e8B7383C;
 
     uint256 filecount;
 
@@ -52,14 +52,14 @@ contract UpgradeAdapter is DeployFraxOFTProtocol {
     }
 
     function run() public override {
-        deployMintableLockboxes();
+        // deployMintableLockboxes();
         generateTxs();
     }
 
     function generateTxs() public {
         // addMinterRole(broadcastConfig.delegate, frxUsd, ethFrxUsdLockbox);
         // addMinterRole(0x4b45D73b83686e69d08E61105FdB7F7b51f41Bc1, sfrxUsd, ethSFrxUsdLockbox);
-        addFpiMinterRole();
+        addMinterRole(0x6A7efa964Cf6D9Ab3BC3c47eBdDB853A8853C502, fpi, ethFpiLockbox);
 
         upgradeExistingLockboxes();
     }
@@ -77,59 +77,6 @@ contract UpgradeAdapter is DeployFraxOFTProtocol {
                 to: _token,
                 value: 0,
                 data: data
-            })
-        );
-    }
-
-    function addFpiMinterRole() public {
-        address timelock = 0x8412ebf45bAC1B340BbE8F318b928C466c4E39CA;
-
-        // for fpi timelock arguments
-        address target = fpi;
-        uint256 value = 0;
-        string memory signature = "addMinter(address)";
-        bytes memory data = abi.encode(ethFpiLockbox);
-        uint256 eta = block.timestamp + 2 days + 4 hours; // 4 hour window from tx generation to submission
-
-        queueTransaction(timelock, target, value, signature, data, eta);
-
-        // fast forward to when tx can be executed
-        vm.warp(eta + 1);
-
-        executeTransaction(timelock, target, value, signature, data, eta);
-    }
-
-    function queueTransaction(address timelock, address target, uint256 value, string memory signature, bytes memory data, uint256 eta) public prankAndWriteTxs(broadcastConfig.delegate) {
-        bytes memory txData = abi.encodeCall(
-            Timelock.queueTransaction,
-            (target, value, signature, data, eta)
-        );
-        (bool success, ) = timelock.call(txData);
-        require(success, "Queue transaction failed");
-        serializedTxs.push(
-            SerializedTx({
-                name: "Queue fpi minter role",
-                to: timelock,
-                value: 0,
-                data: txData
-            })
-        );
-    }
-
-    function executeTransaction(address timelock, address target, uint256 value, string memory signature, bytes memory data, uint256 eta) public prankAndWriteTxs(broadcastConfig.delegate) {
-        bytes memory txData = abi.encodeCall(
-            Timelock.executeTransaction,
-            (target, value, signature, data, eta)
-        );
-        (bool success, ) = timelock.call(txData);
-        require(success, "Execute transaction failed");
-        require(IERC20PermitPermissionedOptiMintable(fpi).minters(ethFpiLockbox), "Minter role not granted");
-        serializedTxs.push(
-            SerializedTx({
-                name: "Execute fpi minter role",
-                to: timelock,
-                value: 0,
-                data: txData
             })
         );
     }

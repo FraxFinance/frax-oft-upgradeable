@@ -4,6 +4,7 @@
   "main": "index.js",
   "license": "MIT",
   "dependencies": {
+    "@aptos-labs/ts-sdk": "^5.1.1",
     "@layerzerolabs/oft-v2-solana-sdk": "^3.0.87",
     "@metaplex-foundation/umi-bundle-defaults": "^1.1.1",
     "@solana/kit": "^2.1.0",

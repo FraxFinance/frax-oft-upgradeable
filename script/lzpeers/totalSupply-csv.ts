@@ -1,9 +1,9 @@
 import { encodeFunctionData, parseUnits } from 'viem'
 import { ERC20ABI } from './abis/ERC20'
 import { chains } from './chains'
-import { ofts, solanaOFTs } from './oft'
+import { aptosMovementOFTs, ofts, solanaOFTs } from './oft'
 import { PublicKey } from '@solana/web3.js'
-import * as fs from "fs";
+import * as fs from 'fs'
 
 const EthereumPortal = '0x36cb65c1967A0Fb0EEE11569C51C2f2aA1Ca6f6D'
 const EthereumL1Bridge = '0x34C0bD5877A5Ee7099D0f5688D65F4bB9158BDE2'
@@ -19,23 +19,23 @@ interface TokenSupplyData {
 }
 
 interface Meta {
-    description: string;
-    name: string;
+    description: string
+    name: string
 }
 
 interface Transaction {
-    data: string;
-    operation: string;
-    to: string;
-    value: string;
+    data: string
+    operation: string
+    to: string
+    value: string
 }
 
 interface TransactionBatch {
-    chainId: number;
-    createdAt: number;
-    meta: Meta;
-    transactions: Transaction[];
-    version: string;
+    chainId: number
+    createdAt: number
+    meta: Meta
+    transactions: Transaction[]
+    version: string
 }
 
 const setInitialTotalSupplyAbi = [
@@ -88,7 +88,13 @@ async function main() {
     const chainProcessingPromises = Object.keys(chains).map(async (chainName) => {
         const chainResults: TokenSupplyData[] = []
 
-        if (chainName !== 'fraxtal' && chainName !== 'ethereum' && chainName !== 'solana') {
+        if (
+            chainName !== 'fraxtal' &&
+            chainName !== 'ethereum' &&
+            chainName !== 'solana' &&
+            chainName !== 'movement' &&
+            chainName !== 'aptos'
+        ) {
             try {
                 const blockNumber = await chains[chainName].client.getBlockNumber()
 
@@ -563,6 +569,88 @@ async function main() {
             } catch (error) {
                 console.error(`Error processing ${chainName}:`, error)
             }
+        } else if (chainName === 'aptos' || chainName === 'movement') {
+            try {
+                const totalSupplyfpi = await chains[chainName].client.view({
+                    payload: {
+                        function: `${aptosMovementOFTs.fpi.oft}::oft_fa::supply`,
+                    },
+                })
+
+                chainResults.push({
+                    chain: chainName,
+                    token: 'fpi',
+                    rawSupply: parseUnits(totalSupplyfpi[0] as string, 12).toString(),
+                    supply: totalSupplyfpi[0],
+                })
+
+                const totalSupplyfrxusd = await chains[chainName].client.view({
+                    payload: {
+                        function: `${aptosMovementOFTs.frxUSD.oft}::oft_fa::supply`,
+                    },
+                })
+
+                chainResults.push({
+                    chain: chainName,
+                    token: 'frxUSD',
+                    rawSupply: parseUnits(totalSupplyfrxusd[0] as string, 12).toString(),
+                    supply: totalSupplyfrxusd[0],
+                })
+
+                const totalSupplysfrxusd = await chains[chainName].client.view({
+                    payload: {
+                        function: `${aptosMovementOFTs.sfrxUSD.oft}::oft_fa::supply`,
+                    },
+                })
+
+                chainResults.push({
+                    chain: chainName,
+                    token: 'sfrxUSD',
+                    rawSupply: parseUnits(totalSupplysfrxusd[0] as string, 12).toString(),
+                    supply: totalSupplysfrxusd[0],
+                })
+
+                const totalSupplyfrxeth = await chains[chainName].client.view({
+                    payload: {
+                        function: `${aptosMovementOFTs.frxETH.oft}::oft_fa::supply`,
+                    },
+                })
+
+                chainResults.push({
+                    chain: chainName,
+                    token: 'frxETH',
+                    rawSupply: parseUnits(totalSupplyfrxeth[0] as string, 12).toString(),
+                    supply: totalSupplyfrxeth[0],
+                })
+
+                const totalSupplysfrxeth = await chains[chainName].client.view({
+                    payload: {
+                        function: `${aptosMovementOFTs.sfrxETH.oft}::oft_fa::supply`,
+                    },
+                })
+
+                chainResults.push({
+                    chain: chainName,
+                    token: 'sfrxETH',
+                    rawSupply: parseUnits(totalSupplysfrxeth[0] as string, 12).toString(),
+                    supply: totalSupplysfrxeth[0],
+                })
+
+                const totalSupplywfrax = await chains[chainName].client.view({
+                    payload: {
+                        function: `${aptosMovementOFTs.wfrax.oft}::oft_fa::supply`,
+                    },
+                })
+
+                chainResults.push({
+                    chain: chainName,
+                    token: 'wfrax',
+                    rawSupply: parseUnits(totalSupplywfrax[0] as string, 12).toString(),
+                    supply: totalSupplywfrax[0],
+                })
+            } catch (error) {
+                console.error(`Error processing ${chainName}:`, error)
+            }
         } else {
             console.error(`Unknown chain: ${chainName}`)
         }
@@ -599,123 +687,127 @@ async function main() {
         chainId: 252,
         createdAt: Math.floor(new Date().getTime() / 1000),
         meta: {
-            description: "",
-            name: "Transactions Batch",
+            description: '',
+            name: 'Transactions Batch',
         },
         transactions: [],
-        version: "1.0"
+        version: '1.0',
     }
     const fraxtalSetInitialSupplyMsigfrxusd: TransactionBatch = {
         chainId: 252,
         createdAt: Math.floor(new Date().getTime() / 1000),
         meta: {
-            description: "",
-            name: "Transactions Batch",
+            description: '',
+            name: 'Transactions Batch',
         },
         transactions: [],
-        version: "1.0"
+        version: '1.0',
     }
 
     const fraxtalSetInitialSupplyMsigsfrxusd: TransactionBatch = {
         chainId: 252,
         createdAt: Math.floor(new Date().getTime() / 1000),
         meta: {
-            description: "",
-            name: "Transactions Batch",
+            description: '',
+            name: 'Transactions Batch',
         },
         transactions: [],
-        version: "1.0"
+        version: '1.0',
     }
 
     const ethereumSetInitialSupplyMsigfpi: TransactionBatch = {
         chainId: 1,
         createdAt: Math.floor(new Date().getTime() / 1000),
         meta: {
-            description: "",
-            name: "Transactions Batch",
+            description: '',
+            name: 'Transactions Batch',
         },
         transactions: [],
-        version: "1.0"
+        version: '1.0',
     }
     const ethereumSetInitialSupplyMsigfrxusd: TransactionBatch = {
         chainId: 1,
         createdAt: Math.floor(new Date().getTime() / 1000),
         meta: {
-            description: "",
-            name: "Transactions Batch",
+            description: '',
+            name: 'Transactions Batch',
         },
         transactions: [],
-        version: "1.0"
+        version: '1.0',
     }
     const ethereumSetInitialSupplyMsigsfrxusd: TransactionBatch = {
         chainId: 1,
         createdAt: Math.floor(new Date().getTime() / 1000),
         meta: {
-            description: "",
-            name: "Transactions Batch",
+            description: '',
+            name: 'Transactions Batch',
         },
         transactions: [],
-        version: "1.0"
+        version: '1.0',
     }
 
     results.forEach((result) => {
         if (BigInt(result.rawSupply) > 0) {
-            if (result.chain !== "ethereum-l1bridge" && result.chain !== "ethereum-lockbox" && result.chain !== "fraxtal-lockbox") {
-                if (result.token === "fpi" || result.token === "frxUSD" || result.token === "sfrxUSD") {
+            if (
+                result.chain !== 'ethereum-l1bridge' &&
+                result.chain !== 'ethereum-lockbox' &&
+                result.chain !== 'fraxtal-lockbox'
+            ) {
+                if (result.token === 'fpi' || result.token === 'frxUSD' || result.token === 'sfrxUSD') {
                     try {
                         const encodedData = encodeFunctionData({
                             abi: setInitialTotalSupplyAbi,
                             args: [chains[result.chain].peerId, result.rawSupply],
                         })
-                        if (result.chain !== "fraxtal") {
-                            if (result.token === "fpi") {
+                        if (result.chain !== 'fraxtal') {
+                            if (result.token === 'fpi') {
                                 fraxtalSetInitialSupplyMsigfpi.transactions.push({
                                     data: encodedData,
-                                    operation: "0",
-                                    to: ofts["fraxtal"].fpi.address,
-                                    value: "0"
+                                    operation: '0',
+                                    to: ofts['fraxtal'].fpi.address,
+                                    value: '0',
                                 })
                             }
-                            if (result.token === "frxUSD") {
+                            if (result.token === 'frxUSD') {
                                 fraxtalSetInitialSupplyMsigfrxusd.transactions.push({
                                     data: encodedData,
-                                    operation: "0",
-                                    to: ofts["fraxtal"].frxUSD.address,
-                                    value: "0"
+                                    operation: '0',
+                                    to: ofts['fraxtal'].frxUSD.address,
+                                    value: '0',
                                 })
                             }
-                            if (result.token === "sfrxUSD") {
+                            if (result.token === 'sfrxUSD') {
                                 fraxtalSetInitialSupplyMsigsfrxusd.transactions.push({
                                     data: encodedData,
-                                    operation: "0",
-                                    to: ofts["fraxtal"].sfrxUSD.address,
-                                    value: "0"
+                                    operation: '0',
+                                    to: ofts['fraxtal'].sfrxUSD.address,
+                                    value: '0',
                                 })
                             }
                         }
-                        if (result.chain !== " ethereum") {
-                            if (result.token === "fpi") {
+                        if (result.chain !== ' ethereum') {
+                            if (result.token === 'fpi') {
                                 ethereumSetInitialSupplyMsigfpi.transactions.push({
                                     data: encodedData,
-                                    operation: "0",
-                                    to: ofts["ethereum"].fpi.address,
-                                    value: "0"
+                                    operation: '0',
+                                    to: ofts['ethereum'].fpi.address,
+                                    value: '0',
                                 })
                             }
-                            if (result.token === "frxUSD") {
+                            if (result.token === 'frxUSD') {
                                 ethereumSetInitialSupplyMsigfrxusd.transactions.push({
                                     data: encodedData,
-                                    operation: "0",
-                                    to: ofts["ethereum"].frxUSD.address,
-                                    value: "0"
+                                    operation: '0',
+                                    to: ofts['ethereum'].frxUSD.address,
+                                    value: '0',
                                 })
                             }
-                            if (result.token === "sfrxUSD") {
+                            if (result.token === 'sfrxUSD') {
                                 ethereumSetInitialSupplyMsigsfrxusd.transactions.push({
                                     data: encodedData,
-                                    operation: "0",
-                                    to: ofts["ethereum"].sfrxUSD.address,
-                                    value: "0"
+                                    operation: '0',
+                                    to: ofts['ethereum'].sfrxUSD.address,
+                                    value: '0',
                                 })
                             }
                         }
@@ -727,12 +819,24 @@ async function main() {
         }
     })
 
-    fs.writeFileSync("fraxtalSetInitialSupplyMsig-fpi.json", JSON.stringify(fraxtalSetInitialSupplyMsigfpi, null, 2),)
-    fs.writeFileSync("fraxtalSetInitialSupplyMsig-frxusd.json", JSON.stringify(fraxtalSetInitialSupplyMsigfrxusd, null, 2),)
-    fs.writeFileSync("fraxtalSetInitialSupplyMsig-sfrxusd.json", JSON.stringify(fraxtalSetInitialSupplyMsigsfrxusd, null, 2),)
-    fs.writeFileSync("ethereumSetInitialSupplyMsig-fpi.json", JSON.stringify(ethereumSetInitialSupplyMsigfpi, null, 2),)
-    fs.writeFileSync("ethereumSetInitialSupplyMsig-frxusd.json", JSON.stringify(ethereumSetInitialSupplyMsigfrxusd, null, 2),)
-    fs.writeFileSync("ethereumSetInitialSupplyMsig-sfrxusd.json", JSON.stringify(ethereumSetInitialSupplyMsigsfrxusd, null, 2),)
+    fs.writeFileSync('fraxtalSetInitialSupplyMsig-fpi.json', JSON.stringify(fraxtalSetInitialSupplyMsigfpi, null, 2))
+    fs.writeFileSync(
+        'fraxtalSetInitialSupplyMsig-frxusd.json',
+        JSON.stringify(fraxtalSetInitialSupplyMsigfrxusd, null, 2)
+    )
+    fs.writeFileSync(
+        'fraxtalSetInitialSupplyMsig-sfrxusd.json',
+        JSON.stringify(fraxtalSetInitialSupplyMsigsfrxusd, null, 2)
+    )
+    fs.writeFileSync('ethereumSetInitialSupplyMsig-fpi.json', JSON.stringify(ethereumSetInitialSupplyMsigfpi, null, 2))
+    fs.writeFileSync(
+        'ethereumSetInitialSupplyMsig-frxusd.json',
+        JSON.stringify(ethereumSetInitialSupplyMsigfrxusd, null, 2)
+    )
+    fs.writeFileSync(
+        'ethereumSetInitialSupplyMsig-sfrxusd.json',
+        JSON.stringify(ethereumSetInitialSupplyMsigsfrxusd, null, 2)
+    )
 }
 
 main().catch(console.error)

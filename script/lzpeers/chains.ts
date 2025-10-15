@@ -1,9 +1,9 @@
 import { createPublicClient, defineChain, http } from "viem";
 import { abstract, arbitrum, aurora, avalanche, base, berachain, blast, bsc, fraxtal, ink, katana, linea, mainnet, mode, optimism, plasma, plumeMainnet, polygon, polygonZkEvm, scroll, sei, sonic, unichain, worldchain, xLayer, zksync } from "viem/chains";
 import { ChainInfo } from "./types";
-// import { createUmi } from "@metaplex-foundation/umi-bundle-defaults";
 import { Connection } from "@solana/web3.js";
 import { configDotenv } from "dotenv"
+import { Aptos, AptosConfig, Network } from "@aptos-labs/ts-sdk";
 
 configDotenv({ path: "./.env" });
 
@@ -294,7 +294,7 @@ export const chains: Record<string, ChainInfo> = {
     unichain: {
         client: createPublicClient({
             chain: unichain,
-            transport: http(),
+            transport: http(process.env.UNICHAIN_RPC_URL),
         }),
         peerId: 30320,
         endpoint: "0x6F475642a6e85809B1c36Fa62763669b1b48DD5B",
@@ -322,14 +322,30 @@ export const chains: Record<string, ChainInfo> = {
         sendLib302: "0xC39161c743D0307EB9BCc9FEF03eeb9Dc4802de7",
     },
     solana: {
-        // client: createUmi("https://api.mainnet-beta.solana.com"),
         client: new Connection("https://api.mainnet-beta.solana.com"),
         peerId: 30168,
         endpoint: "76y77prsiCMvXMjuoZ5VRrhG5qYBrUMYTE5WgHqgjEn6",
         receiveLib302: "7a4WjyR8VZ7yZz5XJAKm39BUGn5iT9CKcv2pmG9tdXVH",
         sendLib302: "7a4WjyR8VZ7yZz5XJAKm39BUGn5iT9CKcv2pmG9tdXVH",
-    }
-    // TODO:
-    // Movement
-    // Aptos
+    },
+    movement: {
+        client: new Aptos(new AptosConfig({
+            network: Network.CUSTOM,
+            fullnode: 'https://full.mainnet.movementinfra.xyz/v1',
+        })),
+        peerId: 30325,
+        endpoint: "0xe60045e20fc2c99e869c1c34a65b9291c020cd12a0d37a00a53ac1348af4f43c",
+        receiveLib302: "0xc33752e0220faf79e45385dd73fb28d681dcd9f1569a1480725507c1f3c3aba9",
+        sendLib302: "0xc33752e0220faf79e45385dd73fb28d681dcd9f1569a1480725507c1f3c3aba9",
+    },
+    aptos: {
+        client: new Aptos(new AptosConfig({
+            network: Network.MAINNET,
+            fullnode: 'https://fullnode.mainnet.aptoslabs.com/v1',
+        })),
+        peerId: 30108,
+        endpoint: "0xe60045e20fc2c99e869c1c34a65b9291c020cd12a0d37a00a53ac1348af4f43c",
+        receiveLib302: "0xc33752e0220faf79e45385dd73fb28d681dcd9f1569a1480725507c1f3c3aba9",
+        sendLib302: "0xc33752e0220faf79e45385dd73fb28d681dcd9f1569a1480725507c1f3c3aba9",
+    },
 };

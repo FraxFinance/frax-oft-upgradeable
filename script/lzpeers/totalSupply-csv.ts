@@ -659,67 +659,69 @@ async function main() {
     }
 
     results.forEach((result) => {
-        if (result.chain !== "ethereum-l1bridge" && result.chain !== "ethereum-lockbox" && result.chain !== "fraxtal-lockbox") {
-            if (result.token === "fpi" || result.token === "frxUSD" || result.token === "sfrxUSD") {
-                try {
-                    const encodedData = encodeFunctionData({
-                        abi: setInitialTotalSupplyAbi,
-                        args: [chains[result.chain].peerId, result.rawSupply],
-                    })
-                    if (result.chain !== "fraxtal") {
-                        if (result.token === "fpi") {
-                            fraxtalSetInitialSupplyMsigfpi.transactions.push({
-                                data: encodedData,
-                                operation: "0",
-                                to: "",
-                                value: "0"
-                            })
+        if (BigInt(result.rawSupply) > 0) {
+            if (result.chain !== "ethereum-l1bridge" && result.chain !== "ethereum-lockbox" && result.chain !== "fraxtal-lockbox") {
+                if (result.token === "fpi" || result.token === "frxUSD" || result.token === "sfrxUSD") {
+                    try {
+                        const encodedData = encodeFunctionData({
+                            abi: setInitialTotalSupplyAbi,
+                            args: [chains[result.chain].peerId, result.rawSupply],
+                        })
+                        if (result.chain !== "fraxtal") {
+                            if (result.token === "fpi") {
+                                fraxtalSetInitialSupplyMsigfpi.transactions.push({
+                                    data: encodedData,
+                                    operation: "0",
+                                    to: ofts["fraxtal"].fpi.address,
+                                    value: "0"
+                                })
+                            }
+                            if (result.token === "frxUSD") {
+                                fraxtalSetInitialSupplyMsigfrxusd.transactions.push({
+                                    data: encodedData,
+                                    operation: "0",
+                                    to: ofts["fraxtal"].frxUSD.address,
+                                    value: "0"
+                                })
+                            }
+                            if (result.token === "sfrxUSD") {
+                                fraxtalSetInitialSupplyMsigsfrxusd.transactions.push({
+                                    data: encodedData,
+                                    operation: "0",
+                                    to: ofts["fraxtal"].sfrxUSD.address,
+                                    value: "0"
+                                })
+                            }
                         }
-                        if (result.token === "frxUSD") {
-                            fraxtalSetInitialSupplyMsigfrxusd.transactions.push({
-                                data: encodedData,
-                                operation: "0",
-                                to: "",
-                                value: "0"
-                            })
+                        if (result.chain !== " ethereum") {
+                            if (result.token === "fpi") {
+                                ethereumSetInitialSupplyMsigfpi.transactions.push({
+                                    data: encodedData,
+                                    operation: "0",
+                                    to: ofts["ethereum"].fpi.address,
+                                    value: "0"
+                                })
+                            }
+                            if (result.token === "frxUSD") {
+                                ethereumSetInitialSupplyMsigfrxusd.transactions.push({
+                                    data: encodedData,
+                                    operation: "0",
+                                    to: ofts["ethereum"].frxUSD.address,
+                                    value: "0"
+                                })
+                            }
+                            if (result.token === "sfrxUSD") {
+                                ethereumSetInitialSupplyMsigsfrxusd.transactions.push({
+                                    data: encodedData,
+                                    operation: "0",
+                                    to: ofts["ethereum"].sfrxUSD.address,
+                                    value: "0"
+                                })
+                            }
                         }
-                        if (result.token === "sfrxUSD") {
-                            fraxtalSetInitialSupplyMsigsfrxusd.transactions.push({
-                                data: encodedData,
-                                operation: "0",
-                                to: "",
-                                value: "0"
-                            })
-                        }
+                    } catch (e) {
+                        console.error(`${result.chain}: `, e)
                     }
-                    if (result.chain !== " ethereum") {
-                        if (result.token === "fpi") {
-                            ethereumSetInitialSupplyMsigfpi.transactions.push({
-                                data: encodedData,
-                                operation: "0",
-                                to: "",
-                                value: "0"
-                            })
-                        }
-                        if (result.token === "frxUSD") {
-                            ethereumSetInitialSupplyMsigfrxusd.transactions.push({
-                                data: encodedData,
-                                operation: "0",
-                                to: "",
-                                value: "0"
-                            })
-                        }
-                        if (result.token === "sfrxUSD") {
-                            ethereumSetInitialSupplyMsigsfrxusd.transactions.push({
-                                data: encodedData,
-                                operation: "0",
-                                to: "",
-                                value: "0"
-                            })
-                        }
-                    }
-                } catch (e) {
-                    console.error(`${result.chain}: `, e)
                 }
             }
         }

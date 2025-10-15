@@ -595,7 +595,17 @@ async function main() {
     }
 
     // setInitialTotalSupply msig
-    const fraxtalSetInitialSupplyMsig: TransactionBatch = {
+    const fraxtalSetInitialSupplyMsigfpi: TransactionBatch = {
+        chainId: 252,
+        createdAt: Math.floor(new Date().getTime() / 1000),
+        meta: {
+            description: "",
+            name: "Transactions Batch",
+        },
+        transactions: [],
+        version: "1.0"
+    }
+    const fraxtalSetInitialSupplyMsigfrxusd: TransactionBatch = {
         chainId: 252,
         createdAt: Math.floor(new Date().getTime() / 1000),
         meta: {
@@ -606,8 +616,39 @@ async function main() {
         version: "1.0"
     }
 
-    const ethereumSetInitialSupplyMsig: TransactionBatch = {
+    const fraxtalSetInitialSupplyMsigsfrxusd: TransactionBatch = {
         chainId: 252,
+        createdAt: Math.floor(new Date().getTime() / 1000),
+        meta: {
+            description: "",
+            name: "Transactions Batch",
+        },
+        transactions: [],
+        version: "1.0"
+    }
+
+    const ethereumSetInitialSupplyMsigfpi: TransactionBatch = {
+        chainId: 1,
+        createdAt: Math.floor(new Date().getTime() / 1000),
+        meta: {
+            description: "",
+            name: "Transactions Batch",
+        },
+        transactions: [],
+        version: "1.0"
+    }
+    const ethereumSetInitialSupplyMsigfrxusd: TransactionBatch = {
+        chainId: 1,
+        createdAt: Math.floor(new Date().getTime() / 1000),
+        meta: {
+            description: "",
+            name: "Transactions Batch",
+        },
+        transactions: [],
+        version: "1.0"
+    }
+    const ethereumSetInitialSupplyMsigsfrxusd: TransactionBatch = {
+        chainId: 1,
         createdAt: Math.floor(new Date().getTime() / 1000),
         meta: {
             description: "",
@@ -626,20 +667,56 @@ async function main() {
                         args: [chains[result.chain].peerId, result.rawSupply],
                     })
                     if (result.chain !== "fraxtal") {
-                        fraxtalSetInitialSupplyMsig.transactions.push({
-                            data: encodedData,
-                            operation: "0",
-                            to: "",
-                            value: "0"
-                        })
+                        if (result.token === "fpi") {
+                            fraxtalSetInitialSupplyMsigfpi.transactions.push({
+                                data: encodedData,
+                                operation: "0",
+                                to: "",
+                                value: "0"
+                            })
+                        }
+                        if (result.token === "frxUSD") {
+                            fraxtalSetInitialSupplyMsigfrxusd.transactions.push({
+                                data: encodedData,
+                                operation: "0",
+                                to: "",
+                                value: "0"
+                            })
+                        }
+                        if (result.token === "sfrxUSD") {
+                            fraxtalSetInitialSupplyMsigsfrxusd.transactions.push({
+                                data: encodedData,
+                                operation: "0",
+                                to: "",
+                                value: "0"
+                            })
+                        }
                     }
                     if (result.chain !== " ethereum") {
-                        ethereumSetInitialSupplyMsig.transactions.push({
-                            data: encodedData,
-                            operation: "0",
-                            to: "",
-                            value: "0"
-                        })
+                        if (result.token === "fpi") {
+                            ethereumSetInitialSupplyMsigfpi.transactions.push({
+                                data: encodedData,
+                                operation: "0",
+                                to: "",
+                                value: "0"
+                            })
+                        }
+                        if (result.token === "frxUSD") {
+                            ethereumSetInitialSupplyMsigfrxusd.transactions.push({
+                                data: encodedData,
+                                operation: "0",
+                                to: "",
+                                value: "0"
+                            })
+                        }
+                        if (result.token === "sfrxUSD") {
+                            ethereumSetInitialSupplyMsigsfrxusd.transactions.push({
+                                data: encodedData,
+                                operation: "0",
+                                to: "",
+                                value: "0"
+                            })
+                        }
                     }
                 } catch (e) {
                     console.error(`${result.chain}: `, e)
@@ -648,8 +725,12 @@ async function main() {
         }
     })
 
-    fs.writeFileSync("fraxtalSetInitialSupplyMsig.json", JSON.stringify(fraxtalSetInitialSupplyMsig, null, 2),)
-    fs.writeFileSync("ethereumSetInitialSupplyMsig.json", JSON.stringify(ethereumSetInitialSupplyMsig, null, 2),)
+    fs.writeFileSync("fraxtalSetInitialSupplyMsig-fpi.json", JSON.stringify(fraxtalSetInitialSupplyMsigfpi, null, 2),)
+    fs.writeFileSync("fraxtalSetInitialSupplyMsig-frxusd.json", JSON.stringify(fraxtalSetInitialSupplyMsigfrxusd, null, 2),)
+    fs.writeFileSync("fraxtalSetInitialSupplyMsig-sfrxusd.json", JSON.stringify(fraxtalSetInitialSupplyMsigsfrxusd, null, 2),)
+    fs.writeFileSync("ethereumSetInitialSupplyMsig-fpi.json", JSON.stringify(ethereumSetInitialSupplyMsigfpi, null, 2),)
+    fs.writeFileSync("ethereumSetInitialSupplyMsig-frxusd.json", JSON.stringify(ethereumSetInitialSupplyMsigfrxusd, null, 2),)
+    fs.writeFileSync("ethereumSetInitialSupplyMsig-sfrxusd.json", JSON.stringify(ethereumSetInitialSupplyMsigsfrxusd, null, 2),)
 }
 
 main().catch(console.error)

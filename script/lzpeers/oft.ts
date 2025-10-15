@@ -262,5 +262,6 @@ export const ofts: Record<string, Record<string, OFTMetadata>> = {
     plumephoenix: determinsticOFTs,
     scroll: scrollOFTs,
     unichain: determinsticOFTs,
-    worldchain: determinsticOFTs
+    worldchain: determinsticOFTs,
+    plasma: determinsticOFTs
 }

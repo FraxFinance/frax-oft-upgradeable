@@ -1,5 +1,5 @@
 import { createPublicClient, defineChain, http } from "viem";
-import { abstract, arbitrum, aurora, avalanche, base, berachain, blast, bsc, fraxtal, ink, katana, linea, mainnet, mode, optimism, plumeMainnet, polygon, polygonZkEvm, scroll, sei, sonic, unichain, worldchain, xLayer, zksync } from "viem/chains";
+import { abstract, arbitrum, aurora, avalanche, base, berachain, blast, bsc, fraxtal, ink, katana, linea, mainnet, mode, optimism, plasma, plumeMainnet, polygon, polygonZkEvm, scroll, sei, sonic, unichain, worldchain, xLayer, zksync } from "viem/chains";
 import { ChainInfo } from "./types";
 // import { createUmi } from "@metaplex-foundation/umi-bundle-defaults";
 import { Connection } from "@solana/web3.js";
@@ -307,6 +307,16 @@ export const chains: Record<string, ChainInfo> = {
             transport: http(),
         }),
         peerId: 30319,
+        endpoint: "0x6F475642a6e85809B1c36Fa62763669b1b48DD5B",
+        receiveLib302: "0xe1844c5D63a9543023008D332Bd3d2e6f1FE1043",
+        sendLib302: "0xC39161c743D0307EB9BCc9FEF03eeb9Dc4802de7",
+    },
+    plasma: {
+        client: createPublicClient({
+            chain: plasma,
+            transport: http(),
+        }),
+        peerId: 30383,
         endpoint: "0x6F475642a6e85809B1c36Fa62763669b1b48DD5B",
         receiveLib302: "0xe1844c5D63a9543023008D332Bd3d2e6f1FE1043",
         sendLib302: "0xC39161c743D0307EB9BCc9FEF03eeb9Dc4802de7",

@@ -91,6 +91,7 @@ contract L0Constants {
     address[] public fraxtalTestnetLockboxes;
 
     address public ethSepoliaFrxUsdLockbox = 0x29a5134D3B22F47AD52e0A22A63247363e9F35c2;
+    address public ethSepoliaFrxUsd = 0xcA35C3FE456a87E6CE7827D1D784741613463204;
 
     address public arbitrumSepoliaFrxUsdOft = 0x0768C16445B41137F98Ab68CA545C0afD65A7513;
 

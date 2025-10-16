@@ -5,10 +5,20 @@ import "../../BaseL0Script.sol";
 
 import { SetDVNs } from "scripts/DeployFraxOFTProtocol/inherited/SetDVNs.s.sol";
 
-contract DeployFraxOFTProtocol is SetDVNs, BaseL0Script {
+contract DeployFraxOFTProtocolFraxtalHub is SetDVNs, BaseL0Script {
     using OptionsBuilder for bytes;
     using stdJson for string;
     using Strings for uint256;
+
+    L0Config[] memory fraxtalTestnetConfigAsArray;
+
+    modifier selectForkAndBroadcast(L0Config memory _config) {
+        vm.createSelectFork(_config.RPC);
+
+        vm.startBroadcast(configDeployerPK);
+        _;
+        vm.stopBroadcast();
+    }
 
     function version() public virtual override pure returns (uint256, uint256, uint256) {
         return (1, 3, 1);
@@ -16,34 +26,32 @@ contract DeployFraxOFTProtocol is SetDVNs, BaseL0Script {
 
     function setUp() public virtual override {
         super.setUp();
+
+        for (uint256 i=0; i<testnetConfigs.length; i++) {
+            if (testnetConfigs[i].chainid == 2522) fraxtalTestnetConfigAsArray.push(testnetConfigs[i]);
+        }
+        require(fraxtalTestnetConfigAsArray.length == 1, "fraxtalTestnetConfigAsArray.length != 1");
     }
 
     function run() public virtual {
         deploySource();
         setupSource();
-        setupDestinations();
+        setupFraxtal();
     }
 
     function deploySource() public virtual {
-        preDeployChecks();
+        // preDeployChecks();
         deployFraxOFTUpgradeablesAndProxies();
         postDeployChecks();
     }
 
-    function setupDestinations() public virtual {
-        for (uint256 i=0; i<testnetConfigs.length; i++) {
-            // skip if destination == source
-            if (testnetConfigs[i].eid == broadcastConfig.eid) continue;
-            setupDestination({
-                _connectedConfig: testnetConfigs[i]
-            });
-        }
+    function setupFraxtal() public virtual {
+        setupDestination(fraxtalTestnetConfigAsArray[0]);
     }
-
 
     function setupDestination(
         L0Config memory _connectedConfig
-    ) public virtual simulateAndWriteTxs(_connectedConfig) {
+    ) public virtual selectForkAndBroadcast(_connectedConfig) {
         setEvmEnforcedOptions({
             _connectedOfts: connectedOfts,
             _configs: broadcastConfigArray
@@ -77,13 +85,13 @@ contract DeployFraxOFTProtocol is SetDVNs, BaseL0Script {
         setDVNs({
             _connectedConfig: broadcastConfig,
             _connectedOfts: proxyOfts,
-            _configs: testnetConfigs
+            _configs: fraxtalTestnetConfigAsArray
         });
 
         setLibs({
             _connectedConfig: broadcastConfig,
             _connectedOfts: proxyOfts,
-            _configs: testnetConfigs
+            _configs: fraxtalTestnetConfigAsArray
         });
 
         setPriviledgedRoles();
@@ -92,14 +100,14 @@ contract DeployFraxOFTProtocol is SetDVNs, BaseL0Script {
     function setupEvms() public virtual {
         setEvmEnforcedOptions({
             _connectedOfts: proxyOfts,
-            _configs: testnetConfigs
+            _configs: fraxtalTestnetConfigAsArray
         });
 
         /// @dev Upgradeable OFTs maintaining the same address cross-chain.
         setEvmPeers({
             _connectedOfts: proxyOfts,
             _peerOfts: expectedProxyOfts,
-            _configs: testnetConfigs
+            _configs: fraxtalTestnetConfigAsArray
         });
     }
 

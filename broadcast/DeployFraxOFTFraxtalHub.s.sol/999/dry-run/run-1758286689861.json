@@ -1,7 +1,7 @@
 {
   "transactions": [
     {
-      "hash": null, 
+      "hash": null,
       "transactionType": "CREATE",
       "contractName": "FraxProxyAdmin",
       "contractAddress": "0x223a681fc5c5522c85c96157c0efa18cd6c5405c",

@@ -346,7 +346,7 @@
             "dvnL0": "0x0000000000000000000000000000000000000000",
             "eid": 30367,
             "endpoint": "0x3A73033C0b1407574C76BdBAc67f126f6b4a9AA9",
-            "proxyAdmin": "0x0000000000000000000000000000000000000000",
+            "proxyAdmin": "0x223a681fc5c5522c85c96157c0efa18cd6c5405c",
             "receiveLib302": "0x7cacBe439EaD55fa1c22790330b12835c6884a91",
             "sendLib302": "0xfd76d9CB0Bac839725aB79127E7411fe71b1e3CA"
         },

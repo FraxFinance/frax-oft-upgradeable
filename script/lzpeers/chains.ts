@@ -80,7 +80,7 @@ export const chains: Record<string, ChainInfo> = {
     mode: {
         client: createPublicClient({
             chain: mode,
-            transport: http("https://mainnet.mode.network/"),
+            transport: http(process.env.MODE_RPC_URL),
         }),
         peerId: 30260,
         endpoint: "0x1a44076050125825900e736c501f859c50fE728c",

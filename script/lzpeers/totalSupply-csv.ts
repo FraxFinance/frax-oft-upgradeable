@@ -15,6 +15,10 @@ interface TokenSupplyData {
     blockNumber?: string
     token: string
     rawSupply: string
+    totalTransferFromFraxtal?: string
+    totalTransferToFraxtal?: string
+    totalTransferFromEthereum?: string
+    totalTransferToEthereum?: string
     supply: string
 }
 
@@ -104,11 +108,44 @@ async function main() {
                     functionName: 'totalSupply',
                     blockNumber,
                 })
+
+                const totalTransferToFraxtalfpi = await chains.fraxtal.client.readContract({
+                    address: ofts.fraxtal['fpi'].address,
+                    abi: ofts.fraxtal['fpi'].abi,
+                    functionName: 'totalTransferTo',
+                    args: [chains[chainName].peerId],
+                })
+
+                const totalTransferFromFraxtalfpi = await chains.fraxtal.client.readContract({
+                    address: ofts.fraxtal['fpi'].address,
+                    abi: ofts.fraxtal['fpi'].abi,
+                    functionName: 'totalTransferFrom',
+                    args: [chains[chainName].peerId],
+                })
+
+                const totalTransferToEthereumfpi = await chains.ethereum.client.readContract({
+                    address: ofts.ethereum['fpi'].address,
+                    abi: ofts.ethereum['fpi'].abi,
+                    functionName: 'totalTransferTo',
+                    args: [chains[chainName].peerId],
+                })
+
+                const totalTransferFromEthereumfpi = await chains.ethereum.client.readContract({
+                    address: ofts.ethereum['fpi'].address,
+                    abi: ofts.ethereum['fpi'].abi,
+                    functionName: 'totalTransferFrom',
+                    args: [chains[chainName].peerId],
+                })
+
                 chainResults.push({
                     chain: chainName,
                     blockNumber: blockNumber.toString(),
                     token: 'fpi',
                     rawSupply: totalSupplyfpi,
+                    totalTransferToFraxtal: totalTransferToFraxtalfpi,
+                    totalTransferFromFraxtal: totalTransferFromFraxtalfpi,
+                    totalTransferToEthereum: totalTransferToEthereumfpi,
+                    totalTransferFromEthereum: totalTransferFromEthereumfpi,
                     supply: formatTokenAmount(totalSupplyfpi),
                 })
 
@@ -132,10 +169,41 @@ async function main() {
                     functionName: 'totalSupply',
                     blockNumber,
                 })
+                const totalTransferToFraxtalfrxusd = await chains.fraxtal.client.readContract({
+                    address: ofts.fraxtal['frxUSD'].address,
+                    abi: ofts.fraxtal['frxUSD'].abi,
+                    functionName: 'totalTransferTo',
+                    args: [chains[chainName].peerId],
+                })
+
+                const totalTransferFromFraxtalfrxusd = await chains.fraxtal.client.readContract({
+                    address: ofts.fraxtal['frxUSD'].address,
+                    abi: ofts.fraxtal['frxUSD'].abi,
+                    functionName: 'totalTransferFrom',
+                    args: [chains[chainName].peerId],
+                })
+
+                const totalTransferToEthereumfrxusd = await chains.ethereum.client.readContract({
+                    address: ofts.ethereum['frxUSD'].address,
+                    abi: ofts.ethereum['frxUSD'].abi,
+                    functionName: 'totalTransferTo',
+                    args: [chains[chainName].peerId],
+                })
+
+                const totalTransferFromEthereumfrxusd = await chains.ethereum.client.readContract({
+                    address: ofts.ethereum['frxUSD'].address,
+                    abi: ofts.ethereum['frxUSD'].abi,
+                    functionName: 'totalTransferFrom',
+                    args: [chains[chainName].peerId],
+                })
                 chainResults.push({
                     chain: chainName,
                     blockNumber: blockNumber.toString(),
                     token: 'frxUSD',
+                    totalTransferToFraxtal: totalTransferToFraxtalfrxusd,
+                    totalTransferFromFraxtal: totalTransferFromFraxtalfrxusd,
+                    totalTransferToEthereum: totalTransferToEthereumfrxusd,
+                    totalTransferFromEthereum: totalTransferFromEthereumfrxusd,
                     rawSupply: totalSupplyfrxusd,
                     supply: formatTokenAmount(totalSupplyfrxusd),
                 })
@@ -160,10 +228,41 @@ async function main() {
                     functionName: 'totalSupply',
                     blockNumber,
                 })
+                const totalTransferToFraxtalsfrxusd = await chains.fraxtal.client.readContract({
+                    address: ofts.fraxtal['sfrxUSD'].address,
+                    abi: ofts.fraxtal['sfrxUSD'].abi,
+                    functionName: 'totalTransferTo',
+                    args: [chains[chainName].peerId],
+                })
+
+                const totalTransferFromFraxtalsfrxusd = await chains.fraxtal.client.readContract({
+                    address: ofts.fraxtal['sfrxUSD'].address,
+                    abi: ofts.fraxtal['sfrxUSD'].abi,
+                    functionName: 'totalTransferFrom',
+                    args: [chains[chainName].peerId],
+                })
+
+                const totalTransferToEthereumsfrxusd = await chains.ethereum.client.readContract({
+                    address: ofts.ethereum['sfrxUSD'].address,
+                    abi: ofts.ethereum['sfrxUSD'].abi,
+                    functionName: 'totalTransferTo',
+                    args: [chains[chainName].peerId],
+                })
+
+                const totalTransferFromEthereumsfrxusd = await chains.ethereum.client.readContract({
+                    address: ofts.ethereum['sfrxUSD'].address,
+                    abi: ofts.ethereum['sfrxUSD'].abi,
+                    functionName: 'totalTransferFrom',
+                    args: [chains[chainName].peerId],
+                })
                 chainResults.push({
                     chain: chainName,
                     blockNumber: blockNumber.toString(),
                     token: 'sfrxUSD',
+                    totalTransferToFraxtal: totalTransferToFraxtalsfrxusd,
+                    totalTransferFromFraxtal: totalTransferFromFraxtalsfrxusd,
+                    totalTransferToEthereum: totalTransferToEthereumsfrxusd,
+                    totalTransferFromEthereum: totalTransferFromEthereumsfrxusd,
                     rawSupply: totalSupplysfrxusd,
                     supply: formatTokenAmount(totalSupplysfrxusd),
                 })
@@ -516,17 +615,73 @@ async function main() {
             try {
                 const frxusdmintAddress = new PublicKey(solanaOFTs.frxUSD.mint)
                 let frxusdsupply = await chains[chainName].client.getTokenSupply(frxusdmintAddress)
+                const totalTransferToFraxtalfrxusd = await chains.fraxtal.client.readContract({
+                    address: ofts.fraxtal['frxUSD'].address,
+                    abi: ofts.fraxtal['frxUSD'].abi,
+                    functionName: 'totalTransferTo',
+                    args: [chains[chainName].peerId],
+                })
+                const totalTransferFromFraxtalfrxusd = await chains.fraxtal.client.readContract({
+                    address: ofts.fraxtal['frxUSD'].address,
+                    abi: ofts.fraxtal['frxUSD'].abi,
+                    functionName: 'totalTransferFrom',
+                    args: [chains[chainName].peerId],
+                })
+                const totalTransferFromEthereumfrxusd = await chains.ethereum.client.readContract({
+                    address: ofts.ethereum['frxUSD'].address,
+                    abi: ofts.ethereum['frxUSD'].abi,
+                    functionName: 'totalTransferFrom',
+                    args: [chains[chainName].peerId],
+                })
+                const totalTransferToEthereumfrxusd = await chains.ethereum.client.readContract({
+                    address: ofts.ethereum['frxUSD'].address,
+                    abi: ofts.ethereum['frxUSD'].abi,
+                    functionName: 'totalTransferTo',
+                    args: [chains[chainName].peerId],
+                })
                 chainResults.push({
                     chain: chainName,
                     token: 'frxUSD',
                     rawSupply: parseUnits(frxusdsupply.value.amount, 9).toString(),
+                    totalTransferToFraxtal: totalTransferToFraxtalfrxusd,
+                    totalTransferFromFraxtal: totalTransferFromFraxtalfrxusd,
+                    totalTransferToEthereum: totalTransferToEthereumfrxusd,
+                    totalTransferFromEthereum: totalTransferFromEthereumfrxusd,
                     supply: frxusdsupply.value.uiAmount?.toString() || '0',
                 })
                 const sfrxusdmintAddress = new PublicKey(solanaOFTs.sfrxUSD.mint)
                 let sfrxusdsupply = await chains[chainName].client.getTokenSupply(sfrxusdmintAddress)
+                const totalTransferToFraxtalsfrxusd = await chains.fraxtal.client.readContract({
+                    address: ofts.fraxtal['sfrxUSD'].address,
+                    abi: ofts.fraxtal['sfrxUSD'].abi,
+                    functionName: 'totalTransferTo',
+                    args: [chains[chainName].peerId],
+                })
+                const totalTransferFromFraxtalsfrxusd = await chains.fraxtal.client.readContract({
+                    address: ofts.fraxtal['sfrxUSD'].address,
+                    abi: ofts.fraxtal['sfrxUSD'].abi,
+                    functionName: 'totalTransferFrom',
+                    args: [chains[chainName].peerId],
+                })
+                const totalTransferFromEthereumsfrxusd = await chains.ethereum.client.readContract({
+                    address: ofts.ethereum['sfrxUSD'].address,
+                    abi: ofts.ethereum['sfrxUSD'].abi,
+                    functionName: 'totalTransferFrom',
+                    args: [chains[chainName].peerId],
+                })
+                const totalTransferToEthereumsfrxusd = await chains.ethereum.client.readContract({
+                    address: ofts.ethereum['sfrxUSD'].address,
+                    abi: ofts.ethereum['sfrxUSD'].abi,
+                    functionName: 'totalTransferTo',
+                    args: [chains[chainName].peerId],
+                })
                 chainResults.push({
                     chain: chainName,
                     token: 'sfrxUSD',
+                    totalTransferToFraxtal: totalTransferToFraxtalsfrxusd,
+                    totalTransferFromFraxtal: totalTransferFromFraxtalsfrxusd,
+                    totalTransferToEthereum: totalTransferToEthereumsfrxusd,
+                    totalTransferFromEthereum: totalTransferFromEthereumsfrxusd,
                     rawSupply: parseUnits(sfrxusdsupply.value.amount, 9).toString(),
                     supply: sfrxusdsupply.value.uiAmount?.toString() || '0',
                 })
@@ -560,10 +715,38 @@ async function main() {
 
                 const fpimintAddress = new PublicKey(solanaOFTs.fpi.mint)
                 let fpisupply = await chains[chainName].client.getTokenSupply(fpimintAddress)
+                const totalTransferToFraxtalfpi = await chains.fraxtal.client.readContract({
+                    address: ofts.fraxtal['fpi'].address,
+                    abi: ofts.fraxtal['fpi'].abi,
+                    functionName: 'totalTransferTo',
+                    args: [chains[chainName].peerId],
+                })
+                const totalTransferFromFraxtalfpi = await chains.fraxtal.client.readContract({
+                    address: ofts.fraxtal['fpi'].address,
+                    abi: ofts.fraxtal['fpi'].abi,
+                    functionName: 'totalTransferFrom',
+                    args: [chains[chainName].peerId],
+                })
+                const totalTransferFromEthereumfpi = await chains.ethereum.client.readContract({
+                    address: ofts.ethereum['fpi'].address,
+                    abi: ofts.ethereum['fpi'].abi,
+                    functionName: 'totalTransferFrom',
+                    args: [chains[chainName].peerId],
+                })
+                const totalTransferToEthereumfpi = await chains.ethereum.client.readContract({
+                    address: ofts.ethereum['fpi'].address,
+                    abi: ofts.ethereum['fpi'].abi,
+                    functionName: 'totalTransferTo',
+                    args: [chains[chainName].peerId],
+                })
                 chainResults.push({
                     chain: chainName,
                     token: 'fpi',
                     rawSupply: parseUnits(fpisupply.value.amount, 9).toString(),
+                    totalTransferToFraxtal: totalTransferToFraxtalfpi,
+                    totalTransferFromFraxtal: totalTransferFromFraxtalfpi,
+                    totalTransferToEthereum: totalTransferToEthereumfpi,
+                    totalTransferFromEthereum: totalTransferFromEthereumfpi,
                     supply: fpisupply.value.uiAmount?.toString() || '0',
                 })
             } catch (error) {
@@ -577,11 +760,40 @@ async function main() {
                     },
                 })
 
+                const totalTransferToFraxtalfpi = await chains.fraxtal.client.readContract({
+                    address: ofts.fraxtal['fpi'].address,
+                    abi: ofts.fraxtal['fpi'].abi,
+                    functionName: 'totalTransferTo',
+                    args: [chains[chainName].peerId],
+                })
+                const totalTransferFromFraxtalfpi = await chains.fraxtal.client.readContract({
+                    address: ofts.fraxtal['fpi'].address,
+                    abi: ofts.fraxtal['fpi'].abi,
+                    functionName: 'totalTransferFrom',
+                    args: [chains[chainName].peerId],
+                })
+                const totalTransferFromEthereumfpi = await chains.ethereum.client.readContract({
+                    address: ofts.ethereum['fpi'].address,
+                    abi: ofts.ethereum['fpi'].abi,
+                    functionName: 'totalTransferFrom',
+                    args: [chains[chainName].peerId],
+                })
+                const totalTransferToEthereumfpi = await chains.ethereum.client.readContract({
+                    address: ofts.ethereum['fpi'].address,
+                    abi: ofts.ethereum['fpi'].abi,
+                    functionName: 'totalTransferTo',
+                    args: [chains[chainName].peerId],
+                })
+
                 chainResults.push({
                     chain: chainName,
                     token: 'fpi',
                     rawSupply: parseUnits(totalSupplyfpi[0] as string, 12).toString(),
-                    supply: totalSupplyfpi[0],
+                    totalTransferToFraxtal: totalTransferToFraxtalfpi,
+                    totalTransferFromFraxtal: totalTransferFromFraxtalfpi,
+                    totalTransferToEthereum: totalTransferToEthereumfpi,
+                    totalTransferFromEthereum: totalTransferFromEthereumfpi,
+                    supply: formatTokenAmount(BigInt(parseUnits(totalSupplyfpi[0] as string, 12).toString())),
                 })
 
                 const totalSupplyfrxusd = await chains[chainName].client.view({
@@ -589,25 +801,82 @@ async function main() {
                         function: `${aptosMovementOFTs.frxUSD.oft}::oft_fa::supply`,
                     },
                 })
+                const totalTransferToFraxtalfrxusd = await chains.fraxtal.client.readContract({
+                    address: ofts.fraxtal['frxUSD'].address,
+                    abi: ofts.fraxtal['frxUSD'].abi,
+                    functionName: 'totalTransferTo',
+                    args: [chains[chainName].peerId],
+                })
+                const totalTransferFromFraxtalfrxusd = await chains.fraxtal.client.readContract({
+                    address: ofts.fraxtal['frxUSD'].address,
+                    abi: ofts.fraxtal['frxUSD'].abi,
+                    functionName: 'totalTransferFrom',
+                    args: [chains[chainName].peerId],
+                })
+                const totalTransferFromEthereumfrxusd = await chains.ethereum.client.readContract({
+                    address: ofts.ethereum['frxUSD'].address,
+                    abi: ofts.ethereum['frxUSD'].abi,
+                    functionName: 'totalTransferFrom',
+                    args: [chains[chainName].peerId],
+                })
+                const totalTransferToEthereumfrxusd = await chains.ethereum.client.readContract({
+                    address: ofts.ethereum['frxUSD'].address,
+                    abi: ofts.ethereum['frxUSD'].abi,
+                    functionName: 'totalTransferTo',
+                    args: [chains[chainName].peerId],
+                })
 
                 chainResults.push({
                     chain: chainName,
                     token: 'frxUSD',
                     rawSupply: parseUnits(totalSupplyfrxusd[0] as string, 12).toString(),
-                    supply: totalSupplyfrxusd[0],
+                    totalTransferToFraxtal: totalTransferToFraxtalfrxusd,
+                    totalTransferFromFraxtal: totalTransferFromFraxtalfrxusd,
+                    totalTransferToEthereum: totalTransferToEthereumfrxusd,
+                    totalTransferFromEthereum: totalTransferFromEthereumfrxusd,
+                    supply: formatTokenAmount(BigInt(parseUnits(totalSupplyfrxusd[0] as string, 12).toString())),
                 })
-
+                console.log("totalSupplyfrxusd[0] ", totalSupplyfrxusd[0])
                 const totalSupplysfrxusd = await chains[chainName].client.view({
                     payload: {
                         function: `${aptosMovementOFTs.sfrxUSD.oft}::oft_fa::supply`,
                     },
                 })
 
+                const totalTransferToFraxtalsfrxusd = await chains.fraxtal.client.readContract({
+                    address: ofts.fraxtal['sfrxUSD'].address,
+                    abi: ofts.fraxtal['sfrxUSD'].abi,
+                    functionName: 'totalTransferTo',
+                    args: [chains[chainName].peerId],
+                })
+                const totalTransferFromFraxtalsfrxusd = await chains.fraxtal.client.readContract({
+                    address: ofts.fraxtal['sfrxUSD'].address,
+                    abi: ofts.fraxtal['sfrxUSD'].abi,
+                    functionName: 'totalTransferFrom',
+                    args: [chains[chainName].peerId],
+                })
+                const totalTransferFromEthereumsfrxusd = await chains.ethereum.client.readContract({
+                    address: ofts.ethereum['sfrxUSD'].address,
+                    abi: ofts.ethereum['sfrxUSD'].abi,
+                    functionName: 'totalTransferFrom',
+                    args: [chains[chainName].peerId],
+                })
+                const totalTransferToEthereumsfrxusd = await chains.ethereum.client.readContract({
+                    address: ofts.ethereum['sfrxUSD'].address,
+                    abi: ofts.ethereum['sfrxUSD'].abi,
+                    functionName: 'totalTransferTo',
+                    args: [chains[chainName].peerId],
+                })
+
                 chainResults.push({
                     chain: chainName,
                     token: 'sfrxUSD',
                     rawSupply: parseUnits(totalSupplysfrxusd[0] as string, 12).toString(),
-                    supply: totalSupplysfrxusd[0],
+                    totalTransferToFraxtal: totalTransferToFraxtalsfrxusd,
+                    totalTransferFromFraxtal: totalTransferFromFraxtalsfrxusd,
+                    totalTransferToEthereum: totalTransferToEthereumsfrxusd,
+                    totalTransferFromEthereum: totalTransferFromEthereumsfrxusd,
+                    supply: formatTokenAmount(BigInt(parseUnits(totalSupplysfrxusd[0] as string, 12))),
                 })
 
                 const totalSupplyfrxeth = await chains[chainName].client.view({
@@ -666,9 +935,6 @@ async function main() {
         results.push(...chainResults)
     }
 
-    // Generate CSV output
-    console.log('Chain,Block Number,Token,Supply')
-
     // Sort results by chain name and then by token for consistency
     results.sort((a, b) => {
         if (a.chain !== b.chain) {
@@ -677,9 +943,43 @@ async function main() {
         return a.token.localeCompare(b.token)
     })
 
+    // Generate CSV output
+    console.log('Chain,Block Number,Token,Supply,fraxtal.totalTransferTo,fraxtal.totalTransferFrom,ethereum.totalTransferTo,ethereum.totalTransferFrom')
     for (const result of results) {
-        const blockNumber = result.blockNumber || ''
-        console.log(`${result.chain},${blockNumber},${result.token},${result.supply}`)
+        if (result.token === 'frxUSD') {
+            const blockNumber = result.blockNumber || ''
+            const totalTransferToFraxtal = result.totalTransferToFraxtal || ''
+            const totalTransferFromFraxtal = result.totalTransferFromFraxtal || ''
+            const totalTransferToEthereum = result.totalTransferToEthereum || ''
+            const totalTransferFromEthereum = result.totalTransferFromEthereum || ''
+            console.log(`${result.chain},${blockNumber},${result.token},${result.supply},${totalTransferToFraxtal},${totalTransferFromFraxtal},${totalTransferToEthereum},${totalTransferFromEthereum}`)
+        }
+    }
+
+    // Generate CSV output
+    console.log('Chain,Block Number,Token,Supply,fraxtal.totalTransferTo,fraxtal.totalTransferFrom,ethereum.totalTransferTo,ethereum.totalTransferFrom')
+    for (const result of results) {
+        if (result.token === 'sfrxUSD') {
+            const blockNumber = result.blockNumber || ''
+            const totalTransferToFraxtal = result.totalTransferToFraxtal || ''
+            const totalTransferFromFraxtal = result.totalTransferFromFraxtal || ''
+            const totalTransferToEthereum = result.totalTransferToEthereum || ''
+            const totalTransferFromEthereum = result.totalTransferFromEthereum || ''
+            console.log(`${result.chain},${blockNumber},${result.token},${result.supply},${totalTransferToFraxtal},${totalTransferFromFraxtal},${totalTransferToEthereum},${totalTransferFromEthereum}`)
+        }
+    }
+
+    // Generate CSV output
+    console.log('Chain,Block Number,Token,Supply,fraxtal.totalTransferTo,fraxtal.totalTransferFrom,ethereum.totalTransferTo,ethereum.totalTransferFrom')
+    for (const result of results) {
+        if (result.token === 'fpi') {
+            const blockNumber = result.blockNumber || ''
+            const totalTransferToFraxtal = result.totalTransferToFraxtal || ''
+            const totalTransferFromFraxtal = result.totalTransferFromFraxtal || ''
+            const totalTransferToEthereum = result.totalTransferToEthereum || ''
+            const totalTransferFromEthereum = result.totalTransferFromEthereum || ''
+            console.log(`${result.chain},${blockNumber},${result.token},${result.supply},${totalTransferToFraxtal},${totalTransferFromFraxtal},${totalTransferToEthereum},${totalTransferFromEthereum}`)
+        }
     }
 
     // setInitialTotalSupply msig
@@ -715,51 +1015,54 @@ async function main() {
         version: '1.0',
     }
 
-    const ethereumSetInitialSupplyMsigfpi: TransactionBatch = {
-        chainId: 1,
-        createdAt: Math.floor(new Date().getTime() / 1000),
-        meta: {
-            description: '',
-            name: 'Transactions Batch',
-        },
-        transactions: [],
-        version: '1.0',
-    }
-    const ethereumSetInitialSupplyMsigfrxusd: TransactionBatch = {
-        chainId: 1,
-        createdAt: Math.floor(new Date().getTime() / 1000),
-        meta: {
-            description: '',
-            name: 'Transactions Batch',
-        },
-        transactions: [],
-        version: '1.0',
-    }
-    const ethereumSetInitialSupplyMsigsfrxusd: TransactionBatch = {
-        chainId: 1,
-        createdAt: Math.floor(new Date().getTime() / 1000),
-        meta: {
-            description: '',
-            name: 'Transactions Batch',
-        },
-        transactions: [],
-        version: '1.0',
-    }
+    // const ethereumSetInitialSupplyMsigfpi: TransactionBatch = {
+    //     chainId: 1,
+    //     createdAt: Math.floor(new Date().getTime() / 1000),
+    //     meta: {
+    //         description: '',
+    //         name: 'Transactions Batch',
+    //     },
+    //     transactions: [],
+    //     version: '1.0',
+    // }
+    // const ethereumSetInitialSupplyMsigfrxusd: TransactionBatch = {
+    //     chainId: 1,
+    //     createdAt: Math.floor(new Date().getTime() / 1000),
+    //     meta: {
+    //         description: '',
+    //         name: 'Transactions Batch',
+    //     },
+    //     transactions: [],
+    //     version: '1.0',
+    // }
+    // const ethereumSetInitialSupplyMsigsfrxusd: TransactionBatch = {
+    //     chainId: 1,
+    //     createdAt: Math.floor(new Date().getTime() / 1000),
+    //     meta: {
+    //         description: '',
+    //         name: 'Transactions Batch',
+    //     },
+    //     transactions: [],
+    //     version: '1.0',
+    // }
 
+    let frxUSDSupply = BigInt(0)
     results.forEach((result) => {
-        if (BigInt(result.rawSupply) > 0) {
-            if (
-                result.chain !== 'ethereum-l1bridge' &&
-                result.chain !== 'ethereum-lockbox' &&
-                result.chain !== 'fraxtal-lockbox'
-            ) {
-                if (result.token === 'fpi' || result.token === 'frxUSD' || result.token === 'sfrxUSD') {
-                    try {
+        if (
+            result.chain !== 'ethereum-l1bridge' &&
+            result.chain !== 'ethereum-lockbox' &&
+            result.chain !== 'fraxtal-lockbox'
+        ) {
+            if (result.token === 'fpi' || result.token === 'frxUSD' || result.token === 'sfrxUSD') {
+                try {
+                    if (result.chain !== 'fraxtal' && result.chain !== 'ethereum') {
+                        const initialTotalSupply = BigInt(result.rawSupply) + BigInt(result.totalTransferFromFraxtal as string) - BigInt(result.totalTransferToFraxtal as string)
+                            + BigInt(result.totalTransferFromEthereum as string) - BigInt(result.totalTransferToEthereum as string)
                         const encodedData = encodeFunctionData({
                             abi: setInitialTotalSupplyAbi,
-                            args: [chains[result.chain].peerId, result.rawSupply],
+                            args: [chains[result.chain].peerId, initialTotalSupply],
                         })
-                        if (result.chain !== 'fraxtal') {
+                        if (initialTotalSupply > 0) {
                             if (result.token === 'fpi') {
                                 fraxtalSetInitialSupplyMsigfpi.transactions.push({
                                     data: encodedData,
@@ -769,6 +1072,8 @@ async function main() {
                                 })
                             }
                             if (result.token === 'frxUSD') {
+                                frxUSDSupply += BigInt(result.rawSupply)
+                                console.log(result.rawSupply)
                                 fraxtalSetInitialSupplyMsigfrxusd.transactions.push({
                                     data: encodedData,
                                     operation: '0',
@@ -785,39 +1090,41 @@ async function main() {
                                 })
                             }
                         }
-                        if (result.chain !== ' ethereum') {
-                            if (result.token === 'fpi') {
-                                ethereumSetInitialSupplyMsigfpi.transactions.push({
-                                    data: encodedData,
-                                    operation: '0',
-                                    to: ofts['ethereum'].fpi.address,
-                                    value: '0',
-                                })
-                            }
-                            if (result.token === 'frxUSD') {
-                                ethereumSetInitialSupplyMsigfrxusd.transactions.push({
-                                    data: encodedData,
-                                    operation: '0',
-                                    to: ofts['ethereum'].frxUSD.address,
-                                    value: '0',
-                                })
-                            }
-                            if (result.token === 'sfrxUSD') {
-                                ethereumSetInitialSupplyMsigsfrxusd.transactions.push({
-                                    data: encodedData,
-                                    operation: '0',
-                                    to: ofts['ethereum'].sfrxUSD.address,
-                                    value: '0',
-                                })
-                            }
-                        }
-                    } catch (e) {
-                        console.error(`${result.chain}: `, e)
                     }
+                    // if (result.chain !== 'ethereum') {
+                    //     if (result.token === 'fpi') {
+                    //         ethereumSetInitialSupplyMsigfpi.transactions.push({
+                    //             data: encodedData,
+                    //             operation: '0',
+                    //             to: ofts['ethereum'].fpi.address,
+                    //             value: '0',
+                    //         })
+                    //     }
+                    //     if (result.token === 'frxUSD') {
+                    //         ethereumSetInitialSupplyMsigfrxusd.transactions.push({
+                    //             data: encodedData,
+                    //             operation: '0',
+                    //             to: ofts['ethereum'].frxUSD.address,
+                    //             value: '0',
+                    //         })
+                    //     }
+                    //     if (result.token === 'sfrxUSD') {
+                    //         ethereumSetInitialSupplyMsigsfrxusd.transactions.push({
+                    //             data: encodedData,
+                    //             operation: '0',
+                    //             to: ofts['ethereum'].sfrxUSD.address,
+                    //             value: '0',
+                    //         })
+                    //     }
+                    // }
+                } catch (e) {
+                    console.error(`${result.chain}: `, e)
                 }
             }
         }
     })
+
+    console.log("frxUSDSupply : ", frxUSDSupply)
 
     fs.writeFileSync('fraxtalSetInitialSupplyMsig-fpi.json', JSON.stringify(fraxtalSetInitialSupplyMsigfpi, null, 2))
     fs.writeFileSync(
@@ -828,15 +1135,15 @@ async function main() {
         'fraxtalSetInitialSupplyMsig-sfrxusd.json',
         JSON.stringify(fraxtalSetInitialSupplyMsigsfrxusd, null, 2)
     )
-    fs.writeFileSync('ethereumSetInitialSupplyMsig-fpi.json', JSON.stringify(ethereumSetInitialSupplyMsigfpi, null, 2))
-    fs.writeFileSync(
-        'ethereumSetInitialSupplyMsig-frxusd.json',
-        JSON.stringify(ethereumSetInitialSupplyMsigfrxusd, null, 2)
-    )
-    fs.writeFileSync(
-        'ethereumSetInitialSupplyMsig-sfrxusd.json',
-        JSON.stringify(ethereumSetInitialSupplyMsigsfrxusd, null, 2)
-    )
+    // fs.writeFileSync('ethereumSetInitialSupplyMsig-fpi.json', JSON.stringify(ethereumSetInitialSupplyMsigfpi, null, 2))
+    // fs.writeFileSync(
+    //     'ethereumSetInitialSupplyMsig-frxusd.json',
+    //     JSON.stringify(ethereumSetInitialSupplyMsigfrxusd, null, 2)
+    // )
+    // fs.writeFileSync(
+    //     'ethereumSetInitialSupplyMsig-sfrxusd.json',
+    //     JSON.stringify(ethereumSetInitialSupplyMsigsfrxusd, null, 2)
+    // )
 }
 
 main().catch(console.error)

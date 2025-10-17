@@ -1,5 +1,6 @@
 import OFT_ABI from "./abis/OFT_ABI.json";
 import OFT_ADAPTER_ABI from "./abis/OFT_ADAPTER_ABI.json";
+import OFT_MINTABLE_ADAPTER_ABI from "./abis/OFT_MINTABLE_ADAPTER_ABI.json";
 import { OFTMetadata } from "./types";
 
 export const solanaOFTs: Record<string, Record<string, string>> = {
@@ -104,7 +105,7 @@ const determinsticOFTs: Record<string, OFTMetadata> = {
 export const ethereumOFTs: Record<string, OFTMetadata> = {
     fpi: {
         address: "0x9033BAD7aA130a2466060A2dA71fAe2219781B4b",
-        abi: OFT_ADAPTER_ABI
+        abi: OFT_MINTABLE_ADAPTER_ABI
     },
     frxETH: {
         address: "0x1c1649A38f4A3c5A0c4a24070f688C525AB7D6E6",
@@ -112,7 +113,7 @@ export const ethereumOFTs: Record<string, OFTMetadata> = {
     },
     frxUSD: {
         address: "0x566a6442A5A6e9895B9dCA97cC7879D632c6e4B0",
-        abi: OFT_ADAPTER_ABI
+        abi: OFT_MINTABLE_ADAPTER_ABI
     },
     sfrxETH: {
         address: "0xbBc424e58ED38dd911309611ae2d7A23014Bd960",
@@ -120,7 +121,7 @@ export const ethereumOFTs: Record<string, OFTMetadata> = {
     },
     sfrxUSD: {
         address: "0x7311CEA93ccf5f4F7b789eE31eBA5D9B9290E126",
-        abi: OFT_ADAPTER_ABI
+        abi: OFT_MINTABLE_ADAPTER_ABI
     },
     wfrax: {
         address: "0x04ACaF8D2865c0714F79da09645C13FD2888977f",
@@ -131,23 +132,23 @@ export const ethereumOFTs: Record<string, OFTMetadata> = {
 export const fraxtalOFTs: Record<string, OFTMetadata> = {
     fpi: {
         address: "0x75c38D46001b0F8108c4136216bd2694982C20FC",
-        abi: OFT_ADAPTER_ABI
+        abi: OFT_MINTABLE_ADAPTER_ABI
     },
     frxETH: {
         address: "0x9aBFE1F8a999B0011ecD6116649AEe8D575F5604",
-        abi: OFT_ADAPTER_ABI
+        abi: OFT_MINTABLE_ADAPTER_ABI
     },
     frxUSD: {
         address: "0x96A394058E2b84A89bac9667B19661Ed003cF5D4",
-        abi: OFT_ADAPTER_ABI
+        abi: OFT_MINTABLE_ADAPTER_ABI
     },
     sfrxETH: {
         address: "0x999dfAbe3b1cc2EF66eB032Eea42FeA329bBa168",
-        abi: OFT_ADAPTER_ABI
+        abi: OFT_MINTABLE_ADAPTER_ABI
     },
     sfrxUSD: {
         address: "0x88Aa7854D3b2dAA5e37E7Ce73A1F39669623a361",
-        abi: OFT_ADAPTER_ABI
+        abi: OFT_MINTABLE_ADAPTER_ABI
     },
     wfrax: {
         address: "0xd86fBBd0c8715d2C1f40e451e5C3514e65E7576A",

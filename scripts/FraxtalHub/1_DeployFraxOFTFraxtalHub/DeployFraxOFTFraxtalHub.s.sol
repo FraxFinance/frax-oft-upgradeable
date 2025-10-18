@@ -47,7 +47,11 @@ contract DeployFraxOFTFraxtalHub is DeployFraxOFTProtocol {
         postDeployChecks();
     }
 
-    function deployFraxOFTWalletUpgradeableAndProxy() broadcastAs(oftDeployerPK) public returns (address implementation, address proxy) {
+    function deployFraxOFTWalletUpgradeableAndProxy()
+        public
+        broadcastAs(oftDeployerPK)
+        returns (address implementation, address proxy)
+    {
         implementation = address(new FraxOFTWalletUpgradeable());
         /// @dev: create semi-pre-deterministic proxy address, then initialize with correct implementation
         proxy = address(new TransparentUpgradeableProxy(implementationMock, vm.addr(oftDeployerPK), ""));

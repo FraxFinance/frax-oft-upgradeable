@@ -319,6 +319,12 @@ contract DeployTestnetFraxOFTProtocolFraxtalHub is SetDVNs, BaseL0Script {
                 _oftArray: fraxtalTestnetLockboxes
             });
             require(peer != address(0), "Invalid fraxtal testnet peer");
+        } else if (_chainid == 2201) {
+            peer = getTestnetPeerFromArray({
+                _oft: _oft,
+                _oftArray: stableTestnetOfts
+            });
+            require(peer != address(0), "Invalid stable testnet peer");
         } else {
             peer = getTestnetPeerFromArray({
                 _oft: _oft,

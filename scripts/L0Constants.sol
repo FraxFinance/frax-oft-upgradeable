@@ -86,6 +86,7 @@ contract L0Constants {
     address public ethFpiLockboxLegacy = 0x6Eca253b102D41B6B69AC815B9CC6bD47eF1979d;
 
     // testnet addresses
+    address[] public expectedTestnetProxyOfts;
     address[] public ethSepoliaLockboxes;
     address[] public arbitrumSepoliaOfts;
     address[] public fraxtalTestnetLockboxes;
@@ -159,6 +160,8 @@ contract L0Constants {
         ethLockboxesLegacy.push(ethFpiLockboxLegacy);
 
         // testnet addresses
+        expectedTestnetProxyOfts.push(proxyFrxUsdOft); // NOTE: this is only to support getTestnetPeerFromArray
+
         ethSepoliaLockboxes.push(ethSepoliaFrxUsdLockbox);
 
         arbitrumSepoliaOfts.push(arbitrumSepoliaFrxUsdOft);

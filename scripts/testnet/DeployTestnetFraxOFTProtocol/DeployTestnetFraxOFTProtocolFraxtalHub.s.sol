@@ -4,16 +4,24 @@ pragma solidity ^0.8.19;
 import "../../BaseL0Script.sol";
 
 import { SetDVNs } from "scripts/DeployFraxOFTProtocol/inherited/SetDVNs.s.sol";
+import { TestnetFrxUSDOFTUpgradeable } from "contracts/frxUsd/TestnetFrxUSDOFTUpgradeable.sol";
 
-contract DeployFraxOFTProtocolFraxtalHub is SetDVNs, BaseL0Script {
+/// @dev same as DeployFraxOFTProtocolFraxtalHub but with testnet config and only deploys TestnetFrxUSDOFTUpgradeable
+contract DeployTestnetFraxOFTProtocolFraxtalHub is SetDVNs, BaseL0Script {
     using OptionsBuilder for bytes;
     using stdJson for string;
     using Strings for uint256;
 
-    L0Config[] memory fraxtalTestnetConfigAsArray;
+    L0Config[] fraxtalTestnetConfigAsArray;
 
     modifier selectForkAndBroadcast(L0Config memory _config) {
         vm.createSelectFork(_config.RPC);
+
+        // store for later referencing
+        simulateConfig = _config;
+
+        // use the correct OFT addresses
+        _populateConnectedOfts();
 
         vm.startBroadcast(configDeployerPK);
         _;
@@ -106,7 +114,7 @@ contract DeployFraxOFTProtocolFraxtalHub is SetDVNs, BaseL0Script {
         /// @dev Upgradeable OFTs maintaining the same address cross-chain.
         setEvmPeers({
             _connectedOfts: proxyOfts,
-            _peerOfts: expectedProxyOfts,
+            _peerOfts: expectedTestnetProxyOfts,
             _configs: fraxtalTestnetConfigAsArray
         });
     }
@@ -152,7 +160,7 @@ contract DeployFraxOFTProtocolFraxtalHub is SetDVNs, BaseL0Script {
         implementationMock = address(new ImplementationMock());
 
         // Deploy frxUSD
-        (,frxUsdOft) = deployFrxUsdOFTUpgradeableAndProxy();
+        (,frxUsdOft) = deployTestnetFrxUsdOFTUpgradeableAndProxy();
 
     }
 
@@ -205,8 +213,8 @@ contract DeployFraxOFTProtocolFraxtalHub is SetDVNs, BaseL0Script {
 
     /// @notice Sourced from https://github.com/FraxFinance/LayerZero-v2-upgradeable/blob/e1470197e0cffe0d89dd9c776762c8fdcfc1e160/oapp/test/TestHelper.sol#L266
     ///     With state checks
-    function deployFrxUsdOFTUpgradeableAndProxy() public virtual returns (address implementation, address proxy) {
-        implementation = address(new FrxUSDOFTUpgradeable(broadcastConfig.endpoint)); 
+    function deployTestnetFrxUsdOFTUpgradeableAndProxy() public virtual returns (address implementation, address proxy) {
+        implementation = address(new TestnetFrxUSDOFTUpgradeable(broadcastConfig.endpoint)); 
         /// @dev: create semi-pre-deterministic proxy address, then initialize with correct implementation
         proxy = address(new TransparentUpgradeableProxy(implementationMock, vm.addr(oftDeployerPK), ""));
 
@@ -312,7 +320,11 @@ contract DeployFraxOFTProtocolFraxtalHub is SetDVNs, BaseL0Script {
             });
             require(peer != address(0), "Invalid fraxtal testnet peer");
         } else {
-            revert("Unsupported testnet peer");
+            peer = getTestnetPeerFromArray({
+                _oft: _oft,
+                _oftArray: _peerOfts
+            });
+            require(peer != address(0), "Unsupported testnet peer");
         }
     }
 
@@ -525,52 +537,61 @@ contract DeployFraxOFTProtocolFraxtalHub is SetDVNs, BaseL0Script {
         if (_connectedConfig.eid == _config.eid) return;
 
         // set sendLib to default if not already set
-        address lib = IMessageLibManager(_connectedConfig.endpoint).getSendLibrary({
+        address lib;
+        try IMessageLibManager(_connectedConfig.endpoint).getSendLibrary({
             _sender: _connectedOft,
             _eid: uint32(_config.eid)
-        });
+        }) returns (address _lib) {
+            lib = _lib;
+        } catch {} // entered with `LZ_DefaultSendLibUnavailable()`
+ 
         bool isDefault = IMessageLibManager(_connectedConfig.endpoint).isDefaultSendLibrary({
             _sender: _connectedOft,
             _eid: uint32(_config.eid)
         });
         if (lib != _connectedConfig.sendLib302 || isDefault) {
-            bytes memory data = abi.encodeCall(
-                IMessageLibManager.setSendLibrary,
-                (
-                    _connectedOft, uint32(_config.eid), _connectedConfig.sendLib302
-                )
-            );
-            (bool success,) = _connectedConfig.endpoint.call(data);
-            require(success, "Unable to call setSendLibrary");
-            pushSerializedTx({
-                _name:"setSendLibrary",
-                _to: _connectedConfig.endpoint,
-                _value : 0,
-                _data:data
-
-            });
+            // bytes memory data = abi.encodeCall(
+            //     IMessageLibManager.setSendLibrary,
+            //     (
+            //         _connectedOft, uint32(_config.eid), _connectedConfig.sendLib302
+            //     )
+            // );
+            // (bool success,) = _connectedConfig.endpoint.call(data);
+            // require(success, "Unable to call setSendLibrary");
+            // pushSerializedTx({
+            //     _name:"setSendLibrary",
+            //     _to: _connectedConfig.endpoint,
+            //     _value : 0,
+            //     _data:data
+            // });
         }
 
         // set receiveLib to default if not already set
-        (lib, isDefault) = IMessageLibManager(_connectedConfig.endpoint).getReceiveLibrary({
+        try IMessageLibManager(_connectedConfig.endpoint).getReceiveLibrary({
             _receiver: _connectedOft,
             _eid: uint32(_config.eid)
-        });
+        }) returns (address _lib, bool _isDefault) {
+            lib = _lib;
+            isDefault = _isDefault;
+        } catch { // entered when attempting to read receive lib when default lib is address(0) and receiveLib is not yet set
+            lib = address(0);
+            isDefault = true;
+        }
         if (lib != _connectedConfig.receiveLib302 || isDefault) {
-            bytes memory data = abi.encodeCall(
-                IMessageLibManager.setReceiveLibrary,
-                (
-                    _connectedOft, uint32(_config.eid), _connectedConfig.receiveLib302, 0
-                )
-            );
-            (bool success,) = _connectedConfig.endpoint.call(data);
-            require(success, "Unable to call setReceiveLibrary");
-            pushSerializedTx({
-                _name:"setReceiveLibrary",
-                _to: _connectedConfig.endpoint,
-                _value:0,
-                _data:data
-            });
+            // bytes memory data = abi.encodeCall(
+            //     IMessageLibManager.setReceiveLibrary,
+            //     (
+            //         _connectedOft, uint32(_config.eid), _connectedConfig.receiveLib302, 0
+            //     )
+            // );
+            // (bool success,) = _connectedConfig.endpoint.call(data);
+            // require(success, "Unable to call setReceiveLibrary");
+            // pushSerializedTx({
+            //     _name:"setReceiveLibrary",
+            //     _to: _connectedConfig.endpoint,
+            //     _value:0,
+            //     _data:data
+            // });
         }
     }
 

@@ -24,6 +24,8 @@ export type ChainInfo = {
     receiveLib302: string;
     sendLib302: string;
     oApps?: assetListType;
+    hop?:string;
+    mintRedeemHop?:string;
 };
 
 export type OFTEnforcedOptions = {

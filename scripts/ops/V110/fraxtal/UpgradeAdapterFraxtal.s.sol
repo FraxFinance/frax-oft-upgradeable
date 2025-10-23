@@ -7,7 +7,7 @@ interface IERC20PermitPermissionedOptiMintable {
     function addMinter(address) external;
 }
 
-// forge script scripts/ops/V110/fraxtal/UpgradeAdapterFraxtal.s.sol --rpc-url https://rpc.frax.com --broadcast --verify --verifier etherscan --etherscan-api-key $ETHERSCAN_API_KEY
+// forge script scripts/ops/V110/fraxtal/UpgradeAdapterFraxtal.s.sol --rpc-url https://rpc.frax.com --ffi --broadcast --verify --verifier etherscan --etherscan-api-key $ETHERSCAN_API_KEY
 contract UpgradeAdapter is DeployFraxOFTProtocol {
     
     address frxUsd = 0xFc00000000000000000000000000000000000001;
@@ -16,9 +16,9 @@ contract UpgradeAdapter is DeployFraxOFTProtocol {
 
     address comptroller = 0xC4EB45d80DC1F079045E75D5d55de8eD1c1090E6;
 
-    address frxUsdMintableLockboxImp;
-    address sfrxUsdMintableLockboxImp;
-    address fpiMintableLockboxImp;
+    address frxUsdMintableLockboxImp; // deployed to 0xfF0046437964A597d3a3A50D5b9AA8954749C921
+    address sfrxUsdMintableLockboxImp; // deployed to 0x362B1f0fF85c154170082505D7fB8F5D510730DD
+    address fpiMintableLockboxImp; // deployed to 0xb6b036f91ec6De13BfE0Aa074FE3d7c536c975d2
 
     uint256 msigSubmissionCount;
 
@@ -42,7 +42,7 @@ contract UpgradeAdapter is DeployFraxOFTProtocol {
         root = string.concat(root, "/scripts/ops/V110/fraxtal/txs/UpgradeAdapter");
 
         if (msigSubmissionCount == 1) {
-            return string.concat(root, "-comptroller.json");
+            return string.concat(root, "-frxUSD-fpi.json");
         } else {
             return string.concat(root, "-operator.json");
         }
@@ -51,11 +51,12 @@ contract UpgradeAdapter is DeployFraxOFTProtocol {
     function run() public override {
         deployMintableLockboxes();
         generateComptrollerTxs();
-        generateOperatorTxs();
+        // generateOperatorTxs();
     }
 
     function generateComptrollerTxs() public prankAndWriteTxs(comptroller) {
-        addMinterRoles();
+        // addMinterRoles();
+        upgradeExistingLockboxes();
     }
 
     function addMinterRoles() public {

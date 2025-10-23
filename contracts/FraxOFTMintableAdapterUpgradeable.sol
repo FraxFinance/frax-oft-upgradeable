@@ -18,7 +18,7 @@ contract FraxOFTMintableAdapterUpgradeable is OFTAdapterUpgradeable, SupplyTrack
     }
 
     function version() public pure returns (string memory) {
-        return "1.1.0";
+        return "1.1.1";
     }
 
     /// @notice Recover all tokens to owner

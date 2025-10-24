@@ -435,7 +435,7 @@
             "dvnL0": "0x8eebf8b423b73bfca51a1db4b7354aa0bfca9193",
             "eid": 40161,
             "endpoint": "0x6EDCE65403992e310A62460808c4b910D972f10f",
-            "proxyAdmin": "0x0000000000000000000000000000000000000000",
+            "proxyAdmin": "0x6CA2338a21B2fE9dD39040d2fE06AAD861f77F95",
             "receiveLib302": "0xdAf00F5eE2158dD58E0d3857851c432E34A3A851",
             "sendLib302": "0xcc1ae8Cf5D3904Cef3360A9532B477529b177cCE"
         },
@@ -447,7 +447,7 @@
             "dvnL0": "0x53f488e93b4f1b60e8e83aa374dbe1780a1ee8a8",
             "eid": 40231,
             "endpoint": "0x6EDCE65403992e310A62460808c4b910D972f10f",
-            "proxyAdmin": "0x0000000000000000000000000000000000000000",
+            "proxyAdmin": "0x452420df4AC1e3db5429b5FD629f3047482C543C",
             "receiveLib302": "0x75Db67CDab2824970131D5aa9CECfC9F69c69636",
             "sendLib302": "0x4f7cd4DA19ABB31b0eC98b9066B9e857B1bf9C0E"
         },
@@ -459,9 +459,21 @@
             "dvnL0": "0xf49d162484290eaead7bb8c2c7e3a6f8f52e32d6",
             "eid": 40255,
             "endpoint": "0x6EDCE65403992e310A62460808c4b910D972f10f",
-            "proxyAdmin": "0x0000000000000000000000000000000000000000",
+            "proxyAdmin": "0x009195b94E1b7D545DD0606aCc148916b720Ea5a",
             "receiveLib302": "0xcF1B0F4106B0324F96fEfcC31bA9498caa80701C",
             "sendLib302": "0xd682ECF100f6F4284138AA925348633B0611Ae21"
+        },
+        {
+            "RPC": "https://stable-jsonrpc.testnet.chain0.dev",
+            "chainid": 2201,
+            "delegate": "0x0990be6dB8c785FBbF9deD8bAEc612A10CaE814b",
+            "dvnHorizen": "0x0000000000000000000000000000000000000000",
+            "dvnL0": "0x0000000000000000000000000000000000000000",
+            "eid": 40374,
+            "endpoint": "0x3aCAAf60502791D199a5a5F0B173D78229eBFe32",
+            "proxyAdmin": "0x223a681fc5c5522c85C96157c0efA18cd6c5405c",
+            "receiveLib302": "0xB0487596a0B62D1A71D0C33294bd6eB635Fc6B09",
+            "sendLib302": "0x9eCf72299027e8AeFee5DC5351D6d92294F46d2b"
         }
     ]
 }

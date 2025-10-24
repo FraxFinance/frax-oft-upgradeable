@@ -199,11 +199,7 @@ contract BaseL0Script is L0Constants, Script {
     }
 
     function _validateAndPopulateTestnetOfts() internal virtual {
-        if (proxyOfts.length == 0) {
-            proxyOfts.push(expectedProxyOfts[3]); // frxUSD OFT
-        } else {
-            require(proxyOfts.length == 1, "proxyOfts[0] != frxUSD"); // only frxUSD OFT
-        }
+        require(proxyOfts.length == 1, "proxyOfts[0] != frxUSD"); // only frxUSD OFT
 
         connectedOfts = new address[](1);
 

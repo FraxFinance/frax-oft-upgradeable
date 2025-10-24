@@ -74,13 +74,15 @@ contract SetDVNs is BaseInherited, Script {
         address _oft
     ) public virtual {
         // get the current DVN stack for the given oft and library
-        bytes memory currentUlnConfigBytes = IMessageLibManager(_srcConfig.endpoint).getConfig({
+        UlnConfig memory currentUlnConfig;
+        try IMessageLibManager(_srcConfig.endpoint).getConfig({
             _oapp: _oft,
             _lib: _lib,
             _eid: uint32(_dstConfig.eid),
             _configType: Constant.CONFIG_TYPE_ULN
-        });
-        UlnConfig memory currentUlnConfig = abi.decode(currentUlnConfigBytes, (UlnConfig));
+        }) returns (bytes memory currentUlnConfigBytes) {
+            currentUlnConfig = abi.decode(currentUlnConfigBytes, (UlnConfig));
+        } catch {} /// @dev: this is hit when DVN stack is empty with `LZ_ULN_AtLeastOneDVN()`
 
         // generate the DVN stack as defined in the config
         address[] memory desiredDVNs = craftDvnStack({
@@ -207,6 +209,9 @@ contract SetDVNs is BaseInherited, Script {
         for (uint256 i=0; i<dvnStackTemp.length; i++) {
             desiredDVNs[i] = dvnStackTemp[i];
         }
+        // skip sort of there are no DVNs
+        if (desiredDVNs.length == 0) return desiredDVNs;
+
         desiredDVNs = Arrays.sort(desiredDVNs);
     }
 

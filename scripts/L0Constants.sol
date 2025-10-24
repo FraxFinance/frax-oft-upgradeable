@@ -86,15 +86,20 @@ contract L0Constants {
     address public ethFpiLockboxLegacy = 0x6Eca253b102D41B6B69AC815B9CC6bD47eF1979d;
 
     // testnet addresses
+    address[] public expectedTestnetProxyOfts;
     address[] public ethSepoliaLockboxes;
     address[] public arbitrumSepoliaOfts;
     address[] public fraxtalTestnetLockboxes;
+    address[] public stableTestnetOfts;
 
     address public ethSepoliaFrxUsdLockbox = 0x29a5134D3B22F47AD52e0A22A63247363e9F35c2;
+    address public ethSepoliaFrxUsd = 0xcA35C3FE456a87E6CE7827D1D784741613463204;
 
     address public arbitrumSepoliaFrxUsdOft = 0x0768C16445B41137F98Ab68CA545C0afD65A7513;
 
     address public fraxtalTestnetFrxUsdLockbox = 0x7C9DF6704Ec6E18c5E656A2db542c23ab73CB24d;
+
+    address public stableTestnetFrxUsdOft = 0x64445f0aecC51E94aD52d8AC56b7190e764E561a;
 
     constructor() {
         // array of semi-pre-determined upgradeable OFTs
@@ -158,10 +163,14 @@ contract L0Constants {
         ethLockboxesLegacy.push(ethFpiLockboxLegacy);
 
         // testnet addresses
+        expectedTestnetProxyOfts.push(proxyFrxUsdOft); // NOTE: this is only to support getTestnetPeerFromArray
+
         ethSepoliaLockboxes.push(ethSepoliaFrxUsdLockbox);
 
         arbitrumSepoliaOfts.push(arbitrumSepoliaFrxUsdOft);
 
         fraxtalTestnetLockboxes.push(fraxtalTestnetFrxUsdLockbox);
+
+        stableTestnetOfts.push(stableTestnetFrxUsdOft);
     }
 }

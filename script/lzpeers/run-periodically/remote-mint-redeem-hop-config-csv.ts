@@ -4,6 +4,7 @@ import REMOTE_MINT_REDEEM_HOP_ABI from '../abis/REMOTE_MINT_REDEEM_HOP.json'
 interface HopConfig {
     chain: string
     blockNumber: string
+    remoteMintRedeemHop:string
     fraxtalHop: string
     numDVNs: string
     hopFee: string
@@ -163,6 +164,7 @@ async function main() {
             hopConfigs.push({
                 chain: chainName,
                 blockNumber: blockNumber.toString(),
+                remoteMintRedeemHop:chains[chainName].mintRedeemHop || '',
                 fraxtalHop: fraxtalHop,
                 numDVNs: numDVNS.toString(),
                 hopFee: hopFee.toString(),
@@ -185,9 +187,9 @@ async function main() {
         hopConfigs.push(...hopConfigResult)
     }
 
-    console.log("Chain,Blocknumber,FraxtalHop,NumOfDVNs,Executor,Dvn,Treasury,Eid,frxUsdOFT,sfrxUsdOft,Owner,Threshold,Signers")
+    console.log("Chain,Blocknumber,RemoteMintRedeemHop,FraxtalHop,NumOfDVNs,Executor,Dvn,Treasury,Eid,frxUsdOFT,sfrxUsdOft,Owner,Threshold,Signers")
     hopConfigs.forEach((hopConfig) => {
-        console.log(`${hopConfig.chain},${hopConfig.blockNumber},${hopConfig.fraxtalHop},${hopConfig.numDVNs},${hopConfig.executor},${hopConfig.dvn},${hopConfig.treasury},${hopConfig.eid},${hopConfig.frxUsdOft},${hopConfig.sfrxUsdOft},${hopConfig.owner},${hopConfig.threshold},${hopConfig.signers}`)
+        console.log(`${hopConfig.chain},${hopConfig.blockNumber},${hopConfig.remoteMintRedeemHop},${hopConfig.fraxtalHop},${hopConfig.numDVNs},${hopConfig.executor},${hopConfig.dvn},${hopConfig.treasury},${hopConfig.eid},${hopConfig.frxUsdOft},${hopConfig.sfrxUsdOft},${hopConfig.owner},${hopConfig.threshold},${hopConfig.signers}`)
     })
 }
 

@@ -4,6 +4,7 @@ import REMOTE_HOP_ABI from '../abis/REMOTE_HOP_ABI.json'
 interface HopConfig {
     chain: string
     blockNumber: string
+    hop:string
     fraxtalHop: string
     numDVNs: string
     hopFee: string
@@ -146,6 +147,7 @@ async function main() {
             hopConfigs.push({
                 chain: chainName,
                 blockNumber: blockNumber.toString(),
+                hop:chains[chainName].hop || '',
                 fraxtalHop: fraxtalHop,
                 numDVNs: numDVNS.toString(),
                 hopFee: hopFee.toString(),
@@ -167,9 +169,9 @@ async function main() {
         hopConfigs.push(...hopConfigResult)
     }
 
-    console.log("Chain,Blocknumber,FraxtalHop,NumOfDVNs,SolanaExecutorOptions,Executor,Dvn,Treasury,Version,Owner,Threshold,Signers")
+    console.log("Chain,Blocknumber,RemoteHop,FraxtalHop,NumOfDVNs,SolanaExecutorOptions,Executor,Dvn,Treasury,Version,Owner,Threshold,Signers")
     hopConfigs.forEach((hopConfig) => {
-        console.log(`${hopConfig.chain},${hopConfig.blockNumber},${hopConfig.fraxtalHop},${hopConfig.numDVNs},${hopConfig.executorOptions},${hopConfig.executor},${hopConfig.dvn},${hopConfig.treasury},${hopConfig.version},${hopConfig.owner},${hopConfig.threshold},${hopConfig.signers}`)
+        console.log(`${hopConfig.chain},${hopConfig.blockNumber},${hopConfig.hop},${hopConfig.fraxtalHop},${hopConfig.numDVNs},${hopConfig.executorOptions},${hopConfig.executor},${hopConfig.dvn},${hopConfig.treasury},${hopConfig.version},${hopConfig.owner},${hopConfig.threshold},${hopConfig.signers}`)
     })
 }
 

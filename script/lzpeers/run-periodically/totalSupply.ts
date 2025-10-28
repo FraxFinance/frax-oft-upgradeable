@@ -1,6 +1,6 @@
-import { ERC20ABI } from "./abis/ERC20";
-import { chains } from "./chains";
-import { ofts, solanaOFTs } from "./oft";
+import { ERC20ABI } from "../abis/ERC20";
+import { chains } from "../chains";
+import { ofts, solanaOFTs } from "../oft";
 import { PublicKey } from "@solana/web3.js";
 
 async function main() {

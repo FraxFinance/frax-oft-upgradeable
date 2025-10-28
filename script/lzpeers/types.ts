@@ -82,3 +82,15 @@ export type OFTInfo = {
     executorConfig: ExecutorConfigType;
     defaultExecutorConfig: ExecutorConfigType;
 }
+
+export interface TokenSupplyData {
+    chain: string
+    blockNumber?: string
+    token: string
+    rawSupply: string
+    totalTransferFromFraxtal?: string
+    totalTransferToFraxtal?: string
+    totalTransferFromEthereum?: string
+    totalTransferToEthereum?: string
+    supply: string
+}

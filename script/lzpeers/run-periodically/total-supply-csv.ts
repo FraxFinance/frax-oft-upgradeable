@@ -1,90 +1,15 @@
-import { encodeFunctionData, parseUnits } from 'viem'
-import { ERC20ABI } from './abis/ERC20'
-import { chains } from './chains'
-import { aptosMovementOFTs, ofts, solanaOFTs } from './oft'
+import { parseUnits } from 'viem'
+import { ERC20ABI } from '../abis/ERC20'
+import { chains } from '../chains'
+import { aptosMovementOFTs, ofts, solanaOFTs } from '../oft'
 import { PublicKey } from '@solana/web3.js'
-import * as fs from 'fs'
+import { formatTokenAmount } from '../utils'
+import { TokenSupplyData } from '../types'
 
 const EthereumPortal = '0x36cb65c1967A0Fb0EEE11569C51C2f2aA1Ca6f6D'
 const EthereumL1Bridge = '0x34C0bD5877A5Ee7099D0f5688D65F4bB9158BDE2'
 const EthereumMultisig = '0xe0d7755252873c4eF5788f7f45764E0e17610508'
 const fxsToken = '0x3432B6A60D23Ca0dFCa7761B7ab56459D9C964D0'
-
-interface TokenSupplyData {
-    chain: string
-    blockNumber?: string
-    token: string
-    rawSupply: string
-    totalTransferFromFraxtal?: string
-    totalTransferToFraxtal?: string
-    totalTransferFromEthereum?: string
-    totalTransferToEthereum?: string
-    supply: string
-}
-
-interface Meta {
-    description: string
-    name: string
-}
-
-interface Transaction {
-    data: string
-    operation: string
-    to: string
-    value: string
-}
-
-interface TransactionBatch {
-    chainId: number
-    createdAt: number
-    meta: Meta
-    transactions: Transaction[]
-    version: string
-}
-
-const setInitialTotalSupplyAbi = [
-    {
-        type: 'function',
-        name: 'setInitialTotalSupply',
-        inputs: [
-            {
-                name: '_eid',
-                type: 'uint32',
-                internalType: 'uint32',
-            },
-            {
-                name: '_amount',
-                type: 'uint256',
-                internalType: 'uint256',
-            },
-        ],
-        outputs: [],
-        stateMutability: 'nonpayable',
-    },
-]
-
-// Convert wei (raw token amount) to decimal format by dividing by 10^18
-function formatTokenAmount(amount: bigint | string | number): string {
-    if (typeof amount === 'string' || typeof amount === 'number') {
-        // Handle already decimal values (like from Solana)
-        return amount.toString()
-    }
-
-    // Convert BigInt wei to decimal by dividing by 10^18
-    const divisor = 10n ** 18n
-    const wholePart = amount / divisor
-    const fractionalPart = amount % divisor
-
-    // Convert to decimal string with up to 18 decimal places
-    const fractionalStr = fractionalPart.toString().padStart(18, '0')
-    const trimmedFractional = fractionalStr.replace(/0+$/, '') // Remove trailing zeros
-
-    if (trimmedFractional === '') {
-        return wholePart.toString()
-    } else {
-        return `${wholePart}.${trimmedFractional}`
-    }
-}
 
 async function main() {
     const results: TokenSupplyData[] = []
@@ -836,7 +761,6 @@ async function main() {
                     totalTransferFromEthereum: totalTransferFromEthereumfrxusd,
                     supply: formatTokenAmount(BigInt(parseUnits(totalSupplyfrxusd[0] as string, 12).toString())),
                 })
-                console.log("totalSupplyfrxusd[0] ", totalSupplyfrxusd[0])
                 const totalSupplysfrxusd = await chains[chainName].client.view({
                     payload: {
                         function: `${aptosMovementOFTs.sfrxUSD.oft}::oft_fa::supply`,
@@ -981,169 +905,6 @@ async function main() {
             console.log(`${result.chain},${blockNumber},${result.token},${result.supply},${totalTransferToFraxtal},${totalTransferFromFraxtal},${totalTransferToEthereum},${totalTransferFromEthereum}`)
         }
     }
-
-    // setInitialTotalSupply msig
-    const fraxtalSetInitialSupplyMsigfpi: TransactionBatch = {
-        chainId: 252,
-        createdAt: Math.floor(new Date().getTime() / 1000),
-        meta: {
-            description: '',
-            name: 'Transactions Batch',
-        },
-        transactions: [],
-        version: '1.0',
-    }
-    const fraxtalSetInitialSupplyMsigfrxusd: TransactionBatch = {
-        chainId: 252,
-        createdAt: Math.floor(new Date().getTime() / 1000),
-        meta: {
-            description: '',
-            name: 'Transactions Batch',
-        },
-        transactions: [],
-        version: '1.0',
-    }
-
-    const fraxtalSetInitialSupplyMsigsfrxusd: TransactionBatch = {
-        chainId: 252,
-        createdAt: Math.floor(new Date().getTime() / 1000),
-        meta: {
-            description: '',
-            name: 'Transactions Batch',
-        },
-        transactions: [],
-        version: '1.0',
-    }
-
-    // const ethereumSetInitialSupplyMsigfpi: TransactionBatch = {
-    //     chainId: 1,
-    //     createdAt: Math.floor(new Date().getTime() / 1000),
-    //     meta: {
-    //         description: '',
-    //         name: 'Transactions Batch',
-    //     },
-    //     transactions: [],
-    //     version: '1.0',
-    // }
-    // const ethereumSetInitialSupplyMsigfrxusd: TransactionBatch = {
-    //     chainId: 1,
-    //     createdAt: Math.floor(new Date().getTime() / 1000),
-    //     meta: {
-    //         description: '',
-    //         name: 'Transactions Batch',
-    //     },
-    //     transactions: [],
-    //     version: '1.0',
-    // }
-    // const ethereumSetInitialSupplyMsigsfrxusd: TransactionBatch = {
-    //     chainId: 1,
-    //     createdAt: Math.floor(new Date().getTime() / 1000),
-    //     meta: {
-    //         description: '',
-    //         name: 'Transactions Batch',
-    //     },
-    //     transactions: [],
-    //     version: '1.0',
-    // }
-
-    let frxUSDSupply = BigInt(0)
-    results.forEach((result) => {
-        if (
-            result.chain !== 'ethereum-l1bridge' &&
-            result.chain !== 'ethereum-lockbox' &&
-            result.chain !== 'fraxtal-lockbox'
-        ) {
-            if (result.token === 'fpi' || result.token === 'frxUSD' || result.token === 'sfrxUSD') {
-                try {
-                    if (result.chain !== 'fraxtal' && result.chain !== 'ethereum') {
-                        const initialTotalSupply = BigInt(result.rawSupply) + BigInt(result.totalTransferFromFraxtal as string) - BigInt(result.totalTransferToFraxtal as string)
-                            + BigInt(result.totalTransferFromEthereum as string) - BigInt(result.totalTransferToEthereum as string)
-                        const encodedData = encodeFunctionData({
-                            abi: setInitialTotalSupplyAbi,
-                            args: [chains[result.chain].peerId, initialTotalSupply],
-                        })
-                        if (initialTotalSupply > 0) {
-                            if (result.token === 'fpi') {
-                                fraxtalSetInitialSupplyMsigfpi.transactions.push({
-                                    data: encodedData,
-                                    operation: '0',
-                                    to: ofts['fraxtal'].fpi.address,
-                                    value: '0',
-                                })
-                            }
-                            if (result.token === 'frxUSD') {
-                                frxUSDSupply += BigInt(result.rawSupply)
-                                console.log(result.rawSupply)
-                                fraxtalSetInitialSupplyMsigfrxusd.transactions.push({
-                                    data: encodedData,
-                                    operation: '0',
-                                    to: ofts['fraxtal'].frxUSD.address,
-                                    value: '0',
-                                })
-                            }
-                            if (result.token === 'sfrxUSD') {
-                                fraxtalSetInitialSupplyMsigsfrxusd.transactions.push({
-                                    data: encodedData,
-                                    operation: '0',
-                                    to: ofts['fraxtal'].sfrxUSD.address,
-                                    value: '0',
-                                })
-                            }
-                        }
-                    }
-                    // if (result.chain !== 'ethereum') {
-                    //     if (result.token === 'fpi') {
-                    //         ethereumSetInitialSupplyMsigfpi.transactions.push({
-                    //             data: encodedData,
-                    //             operation: '0',
-                    //             to: ofts['ethereum'].fpi.address,
-                    //             value: '0',
-                    //         })
-                    //     }
-                    //     if (result.token === 'frxUSD') {
-                    //         ethereumSetInitialSupplyMsigfrxusd.transactions.push({
-                    //             data: encodedData,
-                    //             operation: '0',
-                    //             to: ofts['ethereum'].frxUSD.address,
-                    //             value: '0',
-                    //         })
-                    //     }
-                    //     if (result.token === 'sfrxUSD') {
-                    //         ethereumSetInitialSupplyMsigsfrxusd.transactions.push({
-                    //             data: encodedData,
-                    //             operation: '0',
-                    //             to: ofts['ethereum'].sfrxUSD.address,
-                    //             value: '0',
-                    //         })
-                    //     }
-                    // }
-                } catch (e) {
-                    console.error(`${result.chain}: `, e)
-                }
-            }
-        }
-    })
-
-    console.log("frxUSDSupply : ", frxUSDSupply)
-
-    fs.writeFileSync('fraxtalSetInitialSupplyMsig-fpi.json', JSON.stringify(fraxtalSetInitialSupplyMsigfpi, null, 2))
-    fs.writeFileSync(
-        'fraxtalSetInitialSupplyMsig-frxusd.json',
-        JSON.stringify(fraxtalSetInitialSupplyMsigfrxusd, null, 2)
-    )
-    fs.writeFileSync(
-        'fraxtalSetInitialSupplyMsig-sfrxusd.json',
-        JSON.stringify(fraxtalSetInitialSupplyMsigsfrxusd, null, 2)
-    )
-    // fs.writeFileSync('ethereumSetInitialSupplyMsig-fpi.json', JSON.stringify(ethereumSetInitialSupplyMsigfpi, null, 2))
-    // fs.writeFileSync(
-    //     'ethereumSetInitialSupplyMsig-frxusd.json',
-    //     JSON.stringify(ethereumSetInitialSupplyMsigfrxusd, null, 2)
-    // )
-    // fs.writeFileSync(
-    //     'ethereumSetInitialSupplyMsig-sfrxusd.json',
-    //     JSON.stringify(ethereumSetInitialSupplyMsigsfrxusd, null, 2)
-    // )
 }
 
 main().catch(console.error)

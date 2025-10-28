@@ -1,5 +1,5 @@
-import { chains } from './chains'
-import REMOTE_HOP_ABI from './abis/REMOTE_HOP_ABI.json'
+import { chains } from '../chains'
+import REMOTE_HOP_ABI from '../abis/REMOTE_HOP_ABI.json'
 
 interface HopConfig {
     chain: string
@@ -119,7 +119,7 @@ async function main() {
                 })
                 version = _version
             } catch (error) {
-                console.error(`${chainName}`, error)
+                console.error(`error fetching version for ${chainName}`)
             }
 
             const owner = await chains[chainName].client.readContract({
@@ -167,8 +167,9 @@ async function main() {
         hopConfigs.push(...hopConfigResult)
     }
 
+    console.log("Chain,Blocknumber,FraxtalHop,NumOfDVNs,SolanaExecutorOptions,Executor,Dvn,Treasury,Version,Owner,Threshold,Signers")
     hopConfigs.forEach((hopConfig) => {
-        console.log(hopConfig)
+        console.log(`${hopConfig.chain},${hopConfig.blockNumber},${hopConfig.fraxtalHop},${hopConfig.numDVNs},${hopConfig.executorOptions},${hopConfig.executor},${hopConfig.dvn},${hopConfig.treasury},${hopConfig.version},${hopConfig.owner},${hopConfig.threshold},${hopConfig.signers}`)
     })
 }
 

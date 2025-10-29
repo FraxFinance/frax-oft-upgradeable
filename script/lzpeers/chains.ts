@@ -1,7 +1,8 @@
 import { createPublicClient, defineChain, http } from "viem";
 import { abstract, arbitrum, aurora, avalanche, base, berachain, blast, bsc, fraxtal, ink, katana, linea, mainnet, mode, optimism, plasma, plumeMainnet, polygon, polygonZkEvm, scroll, sei, sonic, unichain, worldchain, xLayer, zksync } from "viem/chains";
 import { ChainInfo } from "./types";
-import { Connection } from "@solana/web3.js";
+// import { Connection } from "@solana/web3.js";
+import { createUmi } from "@metaplex-foundation/umi-bundle-defaults";
 import { configDotenv } from "dotenv"
 import { Aptos, AptosConfig, Network } from "@aptos-labs/ts-sdk";
 
@@ -376,7 +377,8 @@ export const chains: Record<string, ChainInfo> = {
         mintRedeemHop:"0xb85A8FDa7F5e52E32fa5582847CFfFee9456a5Dc"
     },
     solana: {
-        client: new Connection("https://api.mainnet-beta.solana.com"),
+        // client: new Connection("https://api.mainnet-beta.solana.com"),
+        client: createUmi("https://api.mainnet-beta.solana.com"),
         peerId: 30168,
         endpoint: "76y77prsiCMvXMjuoZ5VRrhG5qYBrUMYTE5WgHqgjEn6",
         receiveLib302: "7a4WjyR8VZ7yZz5XJAKm39BUGn5iT9CKcv2pmG9tdXVH",

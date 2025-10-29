@@ -5,9 +5,11 @@
   "license": "MIT",
   "dependencies": {
     "@aptos-labs/ts-sdk": "^5.1.1",
+    "@layerzerolabs/devtools": "^2.0.1",
     "@layerzerolabs/oft-v2-solana-sdk": "^3.0.87",
     "@metaplex-foundation/umi-bundle-defaults": "^1.1.1",
     "@solana/kit": "^2.1.0",
+    "bs58": "^6.0.0",
     "dotenv": "^16.4.7",
     "ethers": "^6.13.5",
     "viem": "^2.37.3"

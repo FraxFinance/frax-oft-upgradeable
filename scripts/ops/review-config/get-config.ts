@@ -2,22 +2,30 @@ import { bytesToHex, createPublicClient, decodeAbiParameters, getAddress, Hex, h
 import {
     abstract,
     arbitrum,
+    aurora,
     avalanche,
     base,
     berachain,
     blast,
     bsc,
     fraxtal,
+    // hyperEVM
     ink,
+    // katana
     linea,
     mainnet,
     metis,
     mode,
     optimism,
+    // plasma
+    plume,
     polygon,
     polygonZkEvm,
+    scroll,
     sei,
     sonic,
+    unichain,
+    worldchain,
     xLayer,
     zksync,
 } from "viem/chains";

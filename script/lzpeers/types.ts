@@ -23,6 +23,7 @@ export type ChainInfo = {
     endpoint: string;
     receiveLib302: string;
     sendLib302: string;
+    blockSendLib:string;
     oApps?: assetListType;
     hop?:string;
     mintRedeemHop?:string;

@@ -3,14 +3,14 @@ pragma solidity ^0.8.19;
 
 import "../BaseL0Script.sol";
 
-// forge script scripts/SubmitSends/SubmitSend.s.sol --rpc-url https://rpc-gel.inkonchain.com
+// forge script scripts/SubmitSends/SubmitSend.s.sol --broadcast --rpc-url https://eth-sepolia.public.blastapi.io
 contract SubmitSend is BaseL0Script {
     using OptionsBuilder for bytes;
 
-    uint256 amount = 1e18;
-    address public oft = 0x88Aa7854D3b2dAA5e37E7Ce73A1F39669623a361; // sfrxUSD
-    uint32 public dstEid = 30339; // ink
-    address to = /* vm.addr(senderDeployerPK) */ 0x17e06ce6914E3969f7BD37D8b2a563890cA1c96e; // sam
+    uint256 amount = 100_000e18;
+    address public oft = 0x29a5134D3B22F47AD52e0A22A63247363e9F35c2; // frxUSD
+    uint32 public dstEid = 40231; // arb sep
+    address to = vm.addr(senderDeployerPK);
 
     function run() public broadcastAs(senderDeployerPK) {
         address token = IOFT(oft).token();

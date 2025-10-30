@@ -91,6 +91,7 @@ contract L0Constants {
     address[] public arbitrumSepoliaOfts;
     address[] public fraxtalTestnetLockboxes;
     address[] public stableTestnetOfts;
+    address[] public opSepoliaOfts;
 
     address public ethSepoliaFrxUsdLockbox = 0x29a5134D3B22F47AD52e0A22A63247363e9F35c2;
     address public ethSepoliaFrxUsd = 0xcA35C3FE456a87E6CE7827D1D784741613463204;
@@ -100,6 +101,8 @@ contract L0Constants {
     address public fraxtalTestnetFrxUsdLockbox = 0x7C9DF6704Ec6E18c5E656A2db542c23ab73CB24d;
 
     address public stableTestnetFrxUsdOft = 0x64445f0aecC51E94aD52d8AC56b7190e764E561a;
+
+    address public opSepoliaFrxUsdOft = 0x64445f0aecC51E94aD52d8AC56b7190e764E561a;
 
     constructor() {
         // array of semi-pre-determined upgradeable OFTs
@@ -172,5 +175,7 @@ contract L0Constants {
         fraxtalTestnetLockboxes.push(fraxtalTestnetFrxUsdLockbox);
 
         stableTestnetOfts.push(stableTestnetFrxUsdOft);
+
+        opSepoliaOfts.push(opSepoliaFrxUsdOft);
     }
 }

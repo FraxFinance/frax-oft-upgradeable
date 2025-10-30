@@ -36,7 +36,8 @@ contract DeployTestnetFraxOFTProtocolFraxtalHub is SetDVNs, BaseL0Script {
         super.setUp();
 
         for (uint256 i=0; i<testnetConfigs.length; i++) {
-            if (testnetConfigs[i].chainid == 2522) fraxtalTestnetConfigAsArray.push(testnetConfigs[i]);
+            // TODO: change back to 2522 once fraxtal testnet is back and running
+            if (testnetConfigs[i].chainid == 11155111) fraxtalTestnetConfigAsArray.push(testnetConfigs[i]);
         }
         require(fraxtalTestnetConfigAsArray.length == 1, "fraxtalTestnetConfigAsArray.length != 1");
     }
@@ -325,6 +326,12 @@ contract DeployTestnetFraxOFTProtocolFraxtalHub is SetDVNs, BaseL0Script {
                 _oftArray: stableTestnetOfts
             });
             require(peer != address(0), "Invalid stable testnet peer");
+        } else if (_chainid == 11155420) {
+            peer = getTestnetPeerFromArray({
+                _oft: _oft,
+                _oftArray: opSepoliaOfts
+            });
+            require(peer != address(0), "Invalid op sepolia peer");
         } else {
             peer = getTestnetPeerFromArray({
                 _oft: _oft,

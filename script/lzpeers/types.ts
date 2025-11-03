@@ -13,8 +13,8 @@ export type assetListType = {
     sfrxUSD: string;
     frxETH: string;
     sfrxETH: string;
-    WFRAX: string;
-    FPI: string;
+    wfrax: string;
+    fpi: string;
 }
 
 export type ChainInfo = {
@@ -23,10 +23,11 @@ export type ChainInfo = {
     endpoint: string;
     receiveLib302: string;
     sendLib302: string;
-    blockSendLib:string;
+    blockSendLib: string;
+    fraxProxyAdmin: string;
     oApps?: assetListType;
-    hop?:string;
-    mintRedeemHop?:string;
+    hop?: string;
+    mintRedeemHop?: string;
 };
 
 export type OFTEnforcedOptions = {

@@ -17,8 +17,10 @@ This repository contains all of the contracts and deployment code used to manage
     - `0xe59dcae52a4ffa39be99588486c84bc2dc1ba52f`
 
 - Msigs (links to gnosis safe and squad for Solana)
-  - [`Ethereum`](https://app.safe.global/home?safe=eth:0xB1748C79709f4Ba2Dd82834B8c82D4a505003f27)
-  - [`Blast`](https://app.safe.global/home?safe=blast:0x33A133020b2C2CD41a24F74033B11EC2fC0bF97a)
+  - `Ethereum`
+    - [OFT Admin](https://app.safe.global/home?safe=eth:0xB1748C79709f4Ba2Dd82834B8c82D4a505003f27)
+    - [Hop Admin](https://app.safe.global/home?safe=eth:0x6cCF3F2Ca29591F90ADB403D67E4dcB49cEcC634)
+  - [`Blast`](https://console.brahma.fi/account/0x33a133020b2c2cd41a24f74033b11ec2fc0bf97a)
   - [`Metis`](https://metissafe.tech/home?safe=metis-andromeda:0xF4A4F32732F9B2fB84Ee28c58616946F3bF80F7d)
   - [`Base`](https://app.safe.global/home?safe=base:0xCBfd4Ef00a8cf91Fd1e1Fe97dC05910772c15E53)
   - [`Mode`](https://safe.optimism.io/home?safe=mode:0x6336CFA6eDBeC2A459d869031DB77fC2770Eaa66)

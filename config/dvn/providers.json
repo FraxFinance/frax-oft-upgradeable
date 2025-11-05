@@ -290,5 +290,15 @@
             "https://1rpc.io/scroll"
         ],
         "quorum": 2
+    },
+    "plasma": {
+        "uris": [
+            "https://api.trongrid.io/jsonrpc",
+            "https://tron.drpc.org",
+            "https://tron.therpc.io/jsonrpc",
+            "https://rpc.ankr.com/tron_jsonrpc",
+            "https://tron.rpc.grove.city/v1/01fdb492",
+        ],
+        "quorum": 2
     }
 }

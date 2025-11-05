@@ -69,7 +69,7 @@
     "@layerzerolabs/test-devtools-evm-foundry": "~6.0.3",
     "@layerzerolabs/test-devtools-evm-hardhat": "~0.5.2",
     "@layerzerolabs/toolbox-foundry": "0.1.5",
-    "@layerzerolabs/toolbox-hardhat": "^0.6.12",
+    "@layerzerolabs/toolbox-hardhat": "~0.6.12",
     "@layerzerolabs/ua-devtools": "~3.0.6",
     "@layerzerolabs/ua-devtools-evm": "~5.0.7",
     "@layerzerolabs/ua-devtools-evm-hardhat": "~6.0.11",

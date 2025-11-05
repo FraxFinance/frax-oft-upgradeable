@@ -12,7 +12,7 @@ const dvnConfigPath = "config/dvn"
 
 const chainIds = [
     1, 10, 56, 130, 137, 146, 196, 252, 324, 480, 1101, 1329, 2741, 8453, 34443, 42161, 43114, 57073, 59144, 80094, 81457, 98866, 747474,
-    1313161554, 534352, 999
+    1313161554, 534352, 999, 9745
 ] as const;
 const dvnKeys = ['bcwGroup', 'frax', 'horizen', 'lz', 'nethermind', 'stargate'] as const;
 

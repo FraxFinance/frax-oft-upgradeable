@@ -182,6 +182,11 @@ const config: HardhatUserConfig = {
             url: process.env.RPC_URL_HYPERLIQUID || 'https://rpc.hyperliquid.xyz/evm',
             accounts,
         },
+        "plasma-mainnet":{
+            eid: EndpointId.PLASMA_V2_MAINNET,
+            url: process.env.RPC_URL_PLASMA || 'https://rpc.plasma.to',
+            accounts,
+        },
         sepolia: {
             eid: EndpointId.SEPOLIA_V2_TESTNET,
             url: process.env.RPC_URL_SEPOLIA || 'https://rpc.sepolia.org/',

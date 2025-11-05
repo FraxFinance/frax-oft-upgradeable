@@ -28,9 +28,9 @@ abstract contract SetupSourceFraxOFTFraxtalHub is DeployFraxOFTProtocol {
         setupSource();
     }
 
-    function setupNonEvms() public override {}
+    function setupNonEvms() public virtual override {}
 
-    function setupSource() public override broadcastAs(configDeployerPK) {
+    function setupSource() public virtual override broadcastAs(configDeployerPK) {
         /// @dev set enforced options / peers separately
         setupEvms();
         setupNonEvms();
@@ -42,7 +42,7 @@ abstract contract SetupSourceFraxOFTFraxtalHub is DeployFraxOFTProtocol {
         setPriviledgedRoles();
     }
 
-    function _validateAddrs() internal view {
+    function _validateAddrs() internal view virtual {
         require(isStringEqual(IERC20Metadata(frxUsdOft).symbol(), "frxUSD"), "frxUsdOft != frxUSD");
         require(isStringEqual(IERC20Metadata(sfrxUsdOft).symbol(), "sfrxUSD"), "sfrxUsdOft != sfrxUSD");
         require(isStringEqual(IERC20Metadata(frxEthOft).symbol(), "frxETH"), "frxEthOft != frxETH");

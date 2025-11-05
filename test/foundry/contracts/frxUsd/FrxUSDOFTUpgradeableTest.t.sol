@@ -383,4 +383,56 @@ contract FrxUSDOFTUpgradeableTest is FraxTest {
         vm.expectRevert();
         oft.burnMany(accounts, amounts);
     }
+
+
+    function test_onlyOwner_addMinter() external {
+        vm.expectRevert(bytes("Ownable: caller is not the owner"));
+        oft.addMinter(al);
+    }
+
+    function test_onlyOwner_removeMinter() external {
+        vm.expectRevert(bytes("Ownable: caller is not the owner"));
+        oft.removeMinter(al);
+    }
+
+    function test_canAddMinter() public {
+        vm.prank(oft.owner());
+        oft.addMinter(al);
+
+        assertEq({
+            a: oft.minters(al),
+            b: true
+        });
+        address _m = oft.minters_array(0);
+        assertEq({
+            a: _m,
+            b: al
+        });
+    }
+
+    function test_minterCanMint() external {
+        test_canAddMinter();
+
+        uint tsBefore = oft.totalSupply();
+        uint balAlBefore = oft.balanceOf(al);
+        vm.prank(al);
+        oft.minter_mint(address(0x39383928), 100e18);
+        uint tsAfter = oft.totalSupply();
+        uint balAlAfter = oft.balanceOf(address(0x39383928));
+
+        assertEq({
+            a: tsAfter - tsBefore,
+            b: 100e18
+        });
+        assertEq({
+            a: balAlAfter - balAlBefore,
+            b: 100e18
+        });
+    }
+
+    function test_onlyMinterCanMint() external {
+        vm.expectRevert(bytes4(keccak256("OnlyMinter()")));
+        vm.prank(al);
+        oft.minter_mint(address(0x39383928), 100e18);
+    }
 }

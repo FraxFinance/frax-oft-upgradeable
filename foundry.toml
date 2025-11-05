@@ -31,3 +31,6 @@ remappings = [
 via_ir = false
 optimizer = true
 optimizer_runs = 200
+
+[lint]
+lint_on_build = false

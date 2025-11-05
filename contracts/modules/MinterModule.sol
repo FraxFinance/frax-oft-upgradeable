@@ -1,0 +1,111 @@
+pragma solidity ^0.8.0;
+
+abstract contract MinterModule {
+
+    //==============================================================================
+    // Storage
+    //==============================================================================
+
+    struct MinterModuleStorage {
+        address[] minters_array;
+        mapping(address => bool) minters;
+    }
+
+    // keccak256(abi.encode(uint256(keccak256("frax.storage.MinterModulde")) - 1)) & ~bytes32(uint256(0xff))
+    bytes32 private constant MinterModuleStorageLocation = 0x16de46d3f16cc00f05a39b90c9dbb3c2a12f55cc3d88865db990f6fa55fae300;
+
+    function _getMinterModuleStorage() private pure returns(MinterModuleStorage storage $) {
+        assembly {
+            $.slot := MinterModuleStorageLocation
+        }
+    }
+
+    /// @notice A modifier that only allows a minters to call
+    modifier onlyMinters() {
+        MinterModuleStorage storage $ = _getMinterModuleStorage();
+        if (!$.minters[msg.sender]) revert OnlyMinter();
+        _;
+    }
+
+
+    /// @notice Adds a minter
+    /// @param minter_address Address of minter to add
+    function _addMinter(address minter_address) internal {
+        MinterModuleStorage storage $ = _getMinterModuleStorage();
+        if ($.minters[minter_address]) revert AlreadyExists();
+        $.minters[minter_address] = true;
+        $.minters_array.push(minter_address);
+        emit MinterAdded(minter_address);
+    }
+
+    /// @notice Removes a non-bridge minter
+    /// @param minter_address Address of minter to remove
+    function _removeMinter(address minter_address) internal {
+        MinterModuleStorage storage $ = _getMinterModuleStorage();
+        if (!$.minters[minter_address]) revert AddressNonexistant();
+        delete $.minters[minter_address];
+        for (uint256 i = 0; i < $.minters_array.length; i++) {
+            if ($.minters_array[i] == minter_address) {
+                $.minters_array[i] = address(0); // This will leave a null in the array and keep the indices the same
+                break;
+            }
+        }
+        emit MinterRemoved(minter_address);
+    }
+
+    /// @notice Used by minters to mint new tokens
+    /// @param m_address Address of the account to mint to
+    /// @param m_amount Amount of tokens to mint
+    function _minter_mint(address m_address, uint256 m_amount) internal {
+        _mint(m_address, m_amount);
+        emit TokenMinterMinted(msg.sender, m_address, m_amount);
+    }
+
+
+    //==============================================================================
+    // Overridden methods
+    //==============================================================================
+
+    function _mint(address,uint256) internal virtual;
+    
+    //==============================================================================
+    // Views
+    //==============================================================================
+
+    function minters(address _address) public view returns(bool) {
+        MinterModuleStorage storage $ = _getMinterModuleStorage();
+        return $.minters[_address];
+    }
+
+    function minters_array(uint256 _idx) public view returns(address) {
+        MinterModuleStorage storage $ = _getMinterModuleStorage();
+        return $.minters_array[_idx];
+    }
+
+    //==============================================================================
+    // Events
+    //==============================================================================
+
+    /// @notice Emitted when a non-bridge minter is added
+    /// @param minter_address Address of the new minter
+    event MinterAdded(address minter_address);
+
+    /// @notice Emitted when a non-bridge minter is removed
+    /// @param minter_address Address of the removed minter
+    event MinterRemoved(address minter_address);
+
+    /// @notice Emitted when a non-bridge minter mints tokens
+    /// @param from The minter doing the minting
+    /// @param to The account that gets the newly minted tokens
+    /// @param amount Amount of tokens minted
+    event TokenMinterMinted(address indexed from, address indexed to, uint256 amount);
+
+    //==============================================================================
+    // Errors
+    //==============================================================================
+    
+    error OnlyMinter();
+    error ZeroAddress();
+    error AlreadyExists();
+    error AddressNonexistant();
+}

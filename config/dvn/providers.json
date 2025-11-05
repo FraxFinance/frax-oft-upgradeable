@@ -297,8 +297,14 @@
             "https://tron.drpc.org",
             "https://tron.therpc.io/jsonrpc",
             "https://rpc.ankr.com/tron_jsonrpc",
-            "https://tron.rpc.grove.city/v1/01fdb492",
+            "https://tron.rpc.grove.city/v1/01fdb492"
         ],
         "quorum": 2
+    },
+    "monad":{
+        "uris":[
+            
+        ],
+        "quorum":2
     }
 }

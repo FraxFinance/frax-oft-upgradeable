@@ -264,7 +264,7 @@ async function main() {
     }
     for (const oft of Object.keys(peerJson)) {
         fs.writeFileSync(
-            `./check-peers-csv/check-${oft}-peer.csv`,
+            `./run-periodically/check-peers-csv/check-${oft}-peer.csv`,
             generatePeerConnectionCSV(peerJson[oft])
         )
     }

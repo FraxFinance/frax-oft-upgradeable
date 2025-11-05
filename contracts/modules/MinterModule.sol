@@ -11,8 +11,8 @@ abstract contract MinterModule {
         mapping(address => bool) minters;
     }
 
-    // keccak256(abi.encode(uint256(keccak256("frax.storage.MinterModulde")) - 1)) & ~bytes32(uint256(0xff))
-    bytes32 private constant MinterModuleStorageLocation = 0x16de46d3f16cc00f05a39b90c9dbb3c2a12f55cc3d88865db990f6fa55fae300;
+    // keccak256(abi.encode(uint256(keccak256("frax.storage.MinterModule")) - 1)) & ~bytes32(uint256(0xff))
+    bytes32 private constant MinterModuleStorageLocation = 0x7a20b3b4fafc14b62295555dcdd80cd62ae312ce9abdfc5568be6a1913cbf700;
 
     function _getMinterModuleStorage() private pure returns(MinterModuleStorage storage $) {
         assembly {

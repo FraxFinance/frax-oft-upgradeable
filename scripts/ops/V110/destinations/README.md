@@ -447,7 +447,7 @@ Note: verified to zkevm.polygonscan.com which is now deprecated.
     - Proxy: [`0x93cdc5d29293cb6983f059fec6e4ffeb656b6a62`](https://scrollscan.com/address/0x93cdc5d29293cb6983f059fec6e4ffeb656b6a62)
     - Implementation: [`0x231788c09f3936cd343c4f1bded89f0fbe80719c`](https://scrollscan.com/address/0x231788c09f3936cd343c4f1bded89f0fbe80719c)
 
-#### Katana (TODO: verify)
+#### Katana
 - WFRAX
     - Proxy: [`0x64445f0aecc51e94ad52d8ac56b7190e764e561a`](https://katanascan.com/address/0x64445f0aecc51e94ad52d8ac56b7190e764e561a)
     - Implementation: [`0x36c28ef9a8116a64752efd6b9efa3056f24a82ae`](https://katanascan.com/address/0x36c28ef9a8116a64752efd6b9efa3056f24a82ae)

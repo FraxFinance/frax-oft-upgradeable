@@ -2,8 +2,8 @@
 
 #### Ethereum
 - WFRAX
-    - Proxy - [`0x04acaf8d2865c0714f79da09645c13fd2888977f`](https://etherscan.io/address/0x04acaf8d2865c0714f79da09645c13fd2888977f)
-    - Imp - [`0x8b71237c759052c29a97408ce4b3b7cfebc525e0`](https://etherscan.io/address/0x8b71237c759052c29a97408ce4b3b7cfebc525e0)
+    - Proxy: [`0x04acaf8d2865c0714f79da09645c13fd2888977f`](https://etherscan.io/address/0x04acaf8d2865c0714f79da09645c13fd2888977f)
+    - Implementation: [`0x8b71237c759052c29a97408ce4b3b7cfebc525e0`](https://etherscan.io/address/0x8b71237c759052c29a97408ce4b3b7cfebc525e0)
 
 #### Optimism
 - WFRAX
@@ -25,7 +25,7 @@
     - Proxy: [`0x90581eca9469d8d7f5d3b60f4715027adfcf7927`](https://optimistic.etherscan.io/address/0x90581eca9469d8d7f5d3b60f4715027adfcf7927)
     - Implementation: [`0x08f27a096cc262b9d100f169b5510ffda6596a99`](https://optimistic.etherscan.io/address/0x08f27a096cc262b9d100f169b5510ffda6596a99)
 
-#### 56
+#### BSC
 - WFRAX
     - Proxy: [`0x64445f0aecc51e94ad52d8ac56b7190e764e561a`](https://bscscan.com/address/0x64445f0aecc51e94ad52d8ac56b7190e764e561a)
     - Implementation: [`0xea12ae50e998d2551efabe01c569be4274a6a684`](https://bscscan.com/address/0xea12ae50e998d2551efabe01c569be4274a6a684)
@@ -145,7 +145,7 @@
     - Proxy: [`0x580f2ee1476edf4b1760bd68f6aabad57dec420e`](https://era.zksync.network/address/0x580f2ee1476edf4b1760bd68f6aabad57dec420e)
     - Implementation: [`0xfd316f51f0ff2c6d4d170e3744b40f7b315eda41`](https://era.zksync.network/address/0xfd316f51f0ff2c6d4d170e3744b40f7b315eda41)
 
-### Worldchain
+#### Worldchain
 - WFRAX
     - Proxy: [`0x64445f0aecc51e94ad52d8ac56b7190e764e561a`](https://worldscan.org/address/0x64445f0aecc51e94ad52d8ac56b7190e764e561a)
     - Implementation: [`0x803dedb83fe86c20369b9cb26cd8a293fd1c78e7`](https://worldscan.org/address/0x803dedb83fe86c20369b9cb26cd8a293fd1c78e7)
@@ -165,7 +165,7 @@
     - Proxy: [`0x90581eca9469d8d7f5d3b60f4715027adfcf7927`](https://worldscan.org/address/0x90581eca9469d8d7f5d3b60f4715027adfcf7927)
     - Implementation: [`0xab7d4c8fa387e57d99cbd976ced90d480fec4916`](https://worldscan.org/address/0xab7d4c8fa387e57d99cbd976ced90d480fec4916)
 
-### Hyperliquid
+#### Hyperliquid
 - WFRAX
     - Proxy: [`0x64445f0aecc51e94ad52d8ac56b7190e764e561a`](https://hyperevmscan.io/address/0x64445f0aecc51e94ad52d8ac56b7190e764e561a)
     - Implementation: [`0x36c28ef9a8116a64752efd6b9efa3056f24a82ae`](https://hyperevmscan.io/address/0x36c28ef9a8116a64752efd6b9efa3056f24a82ae)
@@ -265,7 +265,6 @@ Note: verified to zkevm.polygonscan.com which is now deprecated.
 - FPI
     - Proxy: [`0xeedd3a0dddf977462a97c1f0ebb89c3fbe8d084b`](https://basescan.org/address/0xeedd3a0dddf977462a97c1f0ebb89c3fbe8d084b)
     - Implementation: [`0xccc012d6a3e68ab69f8f5b1dfe5c2ddc92c9f6d7`](https://basescan.org/address/0xccc012d6a3e68ab69f8f5b1dfe5c2ddc92c9f6d7)
-
 
 #### Plasma
 - WFRAX

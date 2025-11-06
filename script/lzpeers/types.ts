@@ -66,6 +66,7 @@ export type OFTInfo = {
     combinedOptionsSend: OFTEnforcedOptions
     combinedOptionsSendAndCall: OFTEnforcedOptions
     enforcedOptions: OFTEnforcedOptions
+    blockedLib: string;
     defaultReceiveLibrary: string;
     defaultReceiveLibraryTimeOut: ReceiveLibraryTimeOutInfo;
     defaultSendLibrary: string;
@@ -80,6 +81,7 @@ export type OFTInfo = {
     receiveLibrary: ReceiveLibraryType;
     sendLibrary: string;
     isDefaultSendLibrary: boolean;
+    isDefaultReceiveLibrary: boolean;
     receiveLibraryTimeOut: ReceiveLibraryTimeOutInfo;
     executorConfig: ExecutorConfigType;
     defaultExecutorConfig: ExecutorConfigType;
@@ -95,4 +97,41 @@ export interface TokenSupplyData {
     totalTransferFromEthereum?: string
     totalTransferToEthereum?: string
     supply: string
+}
+
+export interface Params {
+    oftProxy: string
+    actualImplementation: string
+    expectedImplementation: string
+    actualProxyAdmin: string
+    expectedProxyAdmin: string
+    expectedEndpoint: string
+    actualEndpoint: string
+    delegate: string
+    delegateThreshold: string
+    delegateMembers: string[]
+    owner: string
+    ownerThreshold: string
+    ownerMembers: string[]
+    proxyAdmin: string
+    proxyAdminOwner: string
+    proxyAdminOwnerThreshold: string
+    proxyAdminOwnermembers: string[]
+}
+
+export interface DstChainConfig {
+    [dstChain: string]: OFTInfo
+}
+
+export interface SrcChainConfig {
+    params: Params
+    dstChains: DstChainConfig
+}
+
+export interface ChainConfig {
+    [srcChain: string]: SrcChainConfig
+}
+
+export interface TokenConfig {
+    [token: string]: ChainConfig
 }

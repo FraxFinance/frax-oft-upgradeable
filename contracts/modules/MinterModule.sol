@@ -9,6 +9,8 @@ abstract contract MinterModule {
     struct MinterModuleStorage {
         address[] minters_array;
         mapping(address => bool) minters;
+        uint256 totalMinted;
+        uint256 totalBurned;
     }
 
     // keccak256(abi.encode(uint256(keccak256("frax.storage.MinterModule")) - 1)) & ~bytes32(uint256(0xff))
@@ -26,7 +28,6 @@ abstract contract MinterModule {
         if (!$.minters[msg.sender]) revert OnlyMinter();
         _;
     }
-
 
     /// @notice Adds a minter
     /// @param minter_address Address of minter to add
@@ -57,8 +58,29 @@ abstract contract MinterModule {
     /// @param m_address Address of the account to mint to
     /// @param m_amount Amount of tokens to mint
     function _minter_mint(address m_address, uint256 m_amount) internal {
+        MinterModuleStorage storage $ = _getMinterModuleStorage();
         _mint(m_address, m_amount);
+        $.totalMinted += m_amount;
         emit TokenMinterMinted(msg.sender, m_address, m_amount);
+    }
+
+    /// @notice Used by minters to burn tokens
+    /// @param b_address Address of the account to burn from
+    /// @param b_amount Amount of tokens to burn
+    function _minter_burn_from(address b_address, uint256 b_amount) internal {
+        MinterModuleStorage storage $ = _getMinterModuleStorage();
+        _burnFrom(b_address, b_amount);
+        $.totalBurned += b_amount;
+        emit TokenMinterBurned(b_address, msg.sender, b_amount);
+    }
+
+    /// @notice Destroys a `value` amount of tokens from `account`, deducting from
+    ///         the caller's allowance.
+    /// @param account Account to burn tokens from 
+    /// @param value the amount to burn from account caller must have allowance
+    function _burnFrom(address account, uint256 value) internal {
+        _spendAllowance(account, msg.sender, value);
+        _burn(account, value);
     }
 
 
@@ -67,6 +89,10 @@ abstract contract MinterModule {
     //==============================================================================
 
     function _mint(address,uint256) internal virtual;
+
+    function _burn(address,uint256) internal virtual;
+
+    function _spendAllowance(address,address,uint256) internal virtual;
     
     //==============================================================================
     // Views
@@ -80,6 +106,16 @@ abstract contract MinterModule {
     function minters_array(uint256 _idx) public view returns(address) {
         MinterModuleStorage storage $ = _getMinterModuleStorage();
         return $.minters_array[_idx];
+    }
+
+    function totalMinted() public view returns(uint256) {
+        MinterModuleStorage storage $ = _getMinterModuleStorage();
+        return $.totalMinted;
+    }
+
+    function totalBurned() public view returns(uint256) {
+        MinterModuleStorage storage $ = _getMinterModuleStorage();
+        return $.totalBurned;
     }
 
     //==============================================================================
@@ -99,6 +135,12 @@ abstract contract MinterModule {
     /// @param to The account that gets the newly minted tokens
     /// @param amount Amount of tokens minted
     event TokenMinterMinted(address indexed from, address indexed to, uint256 amount);
+
+    /// @notice Emitted when a non-bridge minter burns tokens
+    /// @param from The account whose tokens are burned
+    /// @param to The minter doing the burning
+    /// @param amount Amount of tokens burned
+    event TokenMinterBurned(address indexed from, address indexed to, uint256 amount);
 
     //==============================================================================
     // Errors

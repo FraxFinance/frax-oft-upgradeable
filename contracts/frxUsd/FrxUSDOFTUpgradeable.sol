@@ -133,6 +133,13 @@ contract FrxUSDOFTUpgradeable is OFTUpgradeable, EIP3009Module, PermitModule, Fr
         _minter_mint(m_address, m_amount);
     }
 
+    /// @notice Used by minters to burn tokens
+    /// @param b_address Address of the account to burn from
+    /// @param b_amount Amount of tokens to burn
+    function minter_burn_from(address b_address, uint256 b_amount) external onlyMinters {
+        _minter_burn_from(b_address, b_amount);
+    }
+
     /// @notice Adds a minter
     /// @param minter_address Address of minter to add
     /// @dev Added in v1.2.0
@@ -204,6 +211,14 @@ contract FrxUSDOFTUpgradeable is OFTUpgradeable, EIP3009Module, PermitModule, Fr
     /// @dev supports minter module 
     function _mint(address account, uint256 value) internal override(MinterModule, ERC20Upgradeable){
         ERC20Upgradeable._mint(account, value);
+    }
+
+    function _spendAllowance(address owner, address spender, uint256 amount) internal override(MinterModule, ERC20Upgradeable) {
+        ERC20Upgradeable._spendAllowance(owner, spender, amount);
+    }
+
+    function _burn(address account, uint256 amount) internal override(MinterModule, ERC20Upgradeable) {
+        ERC20Upgradeable._burn(account, amount);
     }
     
     /* ========== ERRORS ========== */

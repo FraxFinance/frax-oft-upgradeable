@@ -410,22 +410,26 @@ contract FrxUSDOFTUpgradeableTest is FraxTest {
         });
     }
 
-    function test_minterCanMint() external {
+    function test_minterCanMint() public {
         test_canAddMinter();
 
         uint tsBefore = oft.totalSupply();
-        uint balAlBefore = oft.balanceOf(al);
+        uint balUserBefore = oft.balanceOf(address(bob));
         vm.prank(al);
-        oft.minter_mint(address(0x39383928), 100e18);
+        oft.minter_mint(address(bob), 100e18);
         uint tsAfter = oft.totalSupply();
-        uint balAlAfter = oft.balanceOf(address(0x39383928));
+        uint balUserAfter = oft.balanceOf(address(bob));
 
         assertEq({
             a: tsAfter - tsBefore,
             b: 100e18
         });
         assertEq({
-            a: balAlAfter - balAlBefore,
+            a: balUserAfter - balUserBefore,
+            b: 100e18
+        });
+        assertEq({
+            a: oft.totalMinted(),
             b: 100e18
         });
     }
@@ -434,5 +438,38 @@ contract FrxUSDOFTUpgradeableTest is FraxTest {
         vm.expectRevert(bytes4(keccak256("OnlyMinter()")));
         vm.prank(al);
         oft.minter_mint(address(0x39383928), 100e18);
+    }
+
+    function test_onlyMinterCanBurn() external {
+        vm.expectRevert(bytes4(keccak256("OnlyMinter()")));
+        vm.prank(al);
+        oft.minter_burn_from(address(0x39383928), 100e18);
+    }
+
+    function test_minterCanBurn() external {
+        test_minterCanMint();
+        vm.prank(bob);
+        oft.approve(al, 100e18);
+
+
+        uint tsBefore = oft.totalSupply();
+        uint balBobBefore = oft.balanceOf(bob);
+        vm.prank(al);
+        oft.minter_burn_from(bob, 100e18);
+        uint tsAfter = oft.totalSupply();
+        uint balBobAfter = oft.balanceOf(bob);
+
+        assertEq({
+            a: tsBefore - tsAfter,
+            b: 100e18
+        });
+        assertEq({
+            a:  balBobBefore - balBobAfter,
+            b: 100e18
+        });
+        assertEq({
+            a: oft.totalBurned(),
+            b: 100e18
+        });
     }
 }

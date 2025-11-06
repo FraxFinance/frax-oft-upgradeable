@@ -1,636 +1,6 @@
 // SPDX-License-Identifier: UNLICENSED
 pragma solidity >=0.8.0 ^0.8.0 ^0.8.1 ^0.8.2 ^0.8.20 ^0.8.22;
 
-// node_modules/@fraxfinance/layerzero-v2-upgradeable/oapp/contracts/oapp/interfaces/IOAppMsgInspector.sol
-
-/**
- * @title IOAppMsgInspector
- * @dev Interface for the OApp Message Inspector, allowing examination of message and options contents.
- */
-interface IOAppMsgInspector {
-    // Custom error message for inspection failure
-    error InspectionFailed(bytes message, bytes options);
-
-    /**
-     * @notice Allows the inspector to examine LayerZero message contents and optionally throw a revert if invalid.
-     * @param _message The message payload to be inspected.
-     * @param _options Additional options or parameters for inspection.
-     * @return valid A boolean indicating whether the inspection passed (true) or failed (false).
-     *
-     * @dev Optionally done as a revert, OR use the boolean provided to handle the failure.
-     */
-    function inspect(bytes calldata _message, bytes calldata _options) external view returns (bool valid);
-}
-
-// node_modules/@fraxfinance/layerzero-v2-upgradeable/oapp/contracts/oapp/interfaces/IOAppOptionsType3.sol
-
-/**
- * @dev Struct representing enforced option parameters.
- */
-struct EnforcedOptionParam {
-    uint32 eid; // Endpoint ID
-    uint16 msgType; // Message Type
-    bytes options; // Additional options
-}
-
-/**
- * @title IOAppOptionsType3
- * @dev Interface for the OApp with Type 3 Options, allowing the setting and combining of enforced options.
- */
-interface IOAppOptionsType3 {
-    // Custom error message for invalid options
-    error InvalidOptions(bytes options);
-
-    // Event emitted when enforced options are set
-    event EnforcedOptionSet(EnforcedOptionParam[] _enforcedOptions);
-
-    /**
-     * @notice Sets enforced options for specific endpoint and message type combinations.
-     * @param _enforcedOptions An array of EnforcedOptionParam structures specifying enforced options.
-     */
-    function setEnforcedOptions(EnforcedOptionParam[] calldata _enforcedOptions) external;
-
-    /**
-     * @notice Combines options for a given endpoint and message type.
-     * @param _eid The endpoint ID.
-     * @param _msgType The OApp message type.
-     * @param _extraOptions Additional options passed by the caller.
-     * @return options The combination of caller specified options AND enforced options.
-     */
-    function combineOptions(
-        uint32 _eid,
-        uint16 _msgType,
-        bytes calldata _extraOptions
-    ) external view returns (bytes memory options);
-}
-
-// node_modules/@fraxfinance/layerzero-v2-upgradeable/oapp/contracts/oft/libs/OFTComposeMsgCodec.sol
-
-library OFTComposeMsgCodec {
-    // Offset constants for decoding composed messages
-    uint8 private constant NONCE_OFFSET = 8;
-    uint8 private constant SRC_EID_OFFSET = 12;
-    uint8 private constant AMOUNT_LD_OFFSET = 44;
-    uint8 private constant COMPOSE_FROM_OFFSET = 76;
-
-    /**
-     * @dev Encodes a OFT composed message.
-     * @param _nonce The nonce value.
-     * @param _srcEid The source endpoint ID.
-     * @param _amountLD The amount in local decimals.
-     * @param _composeMsg The composed message.
-     * @return _msg The encoded Composed message.
-     */
-    function encode(
-        uint64 _nonce,
-        uint32 _srcEid,
-        uint256 _amountLD,
-        bytes memory _composeMsg // 0x[composeFrom][composeMsg]
-    ) internal pure returns (bytes memory _msg) {
-        _msg = abi.encodePacked(_nonce, _srcEid, _amountLD, _composeMsg);
-    }
-
-    /**
-     * @dev Retrieves the nonce from the composed message.
-     * @param _msg The message.
-     * @return The nonce value.
-     */
-    function nonce(bytes calldata _msg) internal pure returns (uint64) {
-        return uint64(bytes8(_msg[:NONCE_OFFSET]));
-    }
-
-    /**
-     * @dev Retrieves the source endpoint ID from the composed message.
-     * @param _msg The message.
-     * @return The source endpoint ID.
-     */
-    function srcEid(bytes calldata _msg) internal pure returns (uint32) {
-        return uint32(bytes4(_msg[NONCE_OFFSET:SRC_EID_OFFSET]));
-    }
-
-    /**
-     * @dev Retrieves the amount in local decimals from the composed message.
-     * @param _msg The message.
-     * @return The amount in local decimals.
-     */
-    function amountLD(bytes calldata _msg) internal pure returns (uint256) {
-        return uint256(bytes32(_msg[SRC_EID_OFFSET:AMOUNT_LD_OFFSET]));
-    }
-
-    /**
-     * @dev Retrieves the composeFrom value from the composed message.
-     * @param _msg The message.
-     * @return The composeFrom value.
-     */
-    function composeFrom(bytes calldata _msg) internal pure returns (bytes32) {
-        return bytes32(_msg[AMOUNT_LD_OFFSET:COMPOSE_FROM_OFFSET]);
-    }
-
-    /**
-     * @dev Retrieves the composed message.
-     * @param _msg The message.
-     * @return The composed message.
-     */
-    function composeMsg(bytes calldata _msg) internal pure returns (bytes memory) {
-        return _msg[COMPOSE_FROM_OFFSET:];
-    }
-
-    /**
-     * @dev Converts an address to bytes32.
-     * @param _addr The address to convert.
-     * @return The bytes32 representation of the address.
-     */
-    function addressToBytes32(address _addr) internal pure returns (bytes32) {
-        return bytes32(uint256(uint160(_addr)));
-    }
-
-    /**
-     * @dev Converts bytes32 to an address.
-     * @param _b The bytes32 value to convert.
-     * @return The address representation of bytes32.
-     */
-    function bytes32ToAddress(bytes32 _b) internal pure returns (address) {
-        return address(uint160(uint256(_b)));
-    }
-}
-
-// node_modules/@fraxfinance/layerzero-v2-upgradeable/oapp/contracts/oft/libs/OFTMsgCodec.sol
-
-library OFTMsgCodec {
-    // Offset constants for encoding and decoding OFT messages
-    uint8 private constant SEND_TO_OFFSET = 32;
-    uint8 private constant SEND_AMOUNT_SD_OFFSET = 40;
-
-    /**
-     * @dev Encodes an OFT LayerZero message.
-     * @param _sendTo The recipient address.
-     * @param _amountShared The amount in shared decimals.
-     * @param _composeMsg The composed message.
-     * @return _msg The encoded message.
-     * @return hasCompose A boolean indicating whether the message has a composed payload.
-     */
-    function encode(
-        bytes32 _sendTo,
-        uint64 _amountShared,
-        bytes memory _composeMsg
-    ) internal view returns (bytes memory _msg, bool hasCompose) {
-        hasCompose = _composeMsg.length > 0;
-        // @dev Remote chains will want to know the composed function caller ie. msg.sender on the src.
-        _msg = hasCompose
-            ? abi.encodePacked(_sendTo, _amountShared, addressToBytes32(msg.sender), _composeMsg)
-            : abi.encodePacked(_sendTo, _amountShared);
-    }
-
-    /**
-     * @dev Checks if the OFT message is composed.
-     * @param _msg The OFT message.
-     * @return A boolean indicating whether the message is composed.
-     */
-    function isComposed(bytes calldata _msg) internal pure returns (bool) {
-        return _msg.length > SEND_AMOUNT_SD_OFFSET;
-    }
-
-    /**
-     * @dev Retrieves the recipient address from the OFT message.
-     * @param _msg The OFT message.
-     * @return The recipient address.
-     */
-    function sendTo(bytes calldata _msg) internal pure returns (bytes32) {
-        return bytes32(_msg[:SEND_TO_OFFSET]);
-    }
-
-    /**
-     * @dev Retrieves the amount in shared decimals from the OFT message.
-     * @param _msg The OFT message.
-     * @return The amount in shared decimals.
-     */
-    function amountSD(bytes calldata _msg) internal pure returns (uint64) {
-        return uint64(bytes8(_msg[SEND_TO_OFFSET:SEND_AMOUNT_SD_OFFSET]));
-    }
-
-    /**
-     * @dev Retrieves the composed message from the OFT message.
-     * @param _msg The OFT message.
-     * @return The composed message.
-     */
-    function composeMsg(bytes calldata _msg) internal pure returns (bytes memory) {
-        return _msg[SEND_AMOUNT_SD_OFFSET:];
-    }
-
-    /**
-     * @dev Converts an address to bytes32.
-     * @param _addr The address to convert.
-     * @return The bytes32 representation of the address.
-     */
-    function addressToBytes32(address _addr) internal pure returns (bytes32) {
-        return bytes32(uint256(uint160(_addr)));
-    }
-
-    /**
-     * @dev Converts bytes32 to an address.
-     * @param _b The bytes32 value to convert.
-     * @return The address representation of bytes32.
-     */
-    function bytes32ToAddress(bytes32 _b) internal pure returns (address) {
-        return address(uint160(uint256(_b)));
-    }
-}
-
-// node_modules/@fraxfinance/layerzero-v2-upgradeable/oapp/contracts/precrime/interfaces/IPreCrime.sol
-
-struct PreCrimePeer {
-    uint32 eid;
-    bytes32 preCrime;
-    bytes32 oApp;
-}
-
-// TODO not done yet
-interface IPreCrime {
-    error OnlyOffChain();
-
-    // for simulate()
-    error PacketOversize(uint256 max, uint256 actual);
-    error PacketUnsorted();
-    error SimulationFailed(bytes reason);
-
-    // for preCrime()
-    error SimulationResultNotFound(uint32 eid);
-    error InvalidSimulationResult(uint32 eid, bytes reason);
-    error CrimeFound(bytes crime);
-
-    function getConfig(bytes[] calldata _packets, uint256[] calldata _packetMsgValues) external returns (bytes memory);
-
-    function simulate(
-        bytes[] calldata _packets,
-        uint256[] calldata _packetMsgValues
-    ) external payable returns (bytes memory);
-
-    function buildSimulationResult() external view returns (bytes memory);
-
-    function preCrime(
-        bytes[] calldata _packets,
-        uint256[] calldata _packetMsgValues,
-        bytes[] calldata _simulations
-    ) external;
-
-    function version() external view returns (uint64 major, uint8 minor);
-}
-
-// node_modules/@layerzerolabs/lz-evm-protocol-v2/contracts/interfaces/IMessageLibManager.sol
-
-struct SetConfigParam {
-    uint32 eid;
-    uint32 configType;
-    bytes config;
-}
-
-interface IMessageLibManager {
-    struct Timeout {
-        address lib;
-        uint256 expiry;
-    }
-
-    event LibraryRegistered(address newLib);
-    event DefaultSendLibrarySet(uint32 eid, address newLib);
-    event DefaultReceiveLibrarySet(uint32 eid, address newLib);
-    event DefaultReceiveLibraryTimeoutSet(uint32 eid, address oldLib, uint256 expiry);
-    event SendLibrarySet(address sender, uint32 eid, address newLib);
-    event ReceiveLibrarySet(address receiver, uint32 eid, address newLib);
-    event ReceiveLibraryTimeoutSet(address receiver, uint32 eid, address oldLib, uint256 timeout);
-
-    function registerLibrary(address _lib) external;
-
-    function isRegisteredLibrary(address _lib) external view returns (bool);
-
-    function getRegisteredLibraries() external view returns (address[] memory);
-
-    function setDefaultSendLibrary(uint32 _eid, address _newLib) external;
-
-    function defaultSendLibrary(uint32 _eid) external view returns (address);
-
-    function setDefaultReceiveLibrary(uint32 _eid, address _newLib, uint256 _gracePeriod) external;
-
-    function defaultReceiveLibrary(uint32 _eid) external view returns (address);
-
-    function setDefaultReceiveLibraryTimeout(uint32 _eid, address _lib, uint256 _expiry) external;
-
-    function defaultReceiveLibraryTimeout(uint32 _eid) external view returns (address lib, uint256 expiry);
-
-    function isSupportedEid(uint32 _eid) external view returns (bool);
-
-    function isValidReceiveLibrary(address _receiver, uint32 _eid, address _lib) external view returns (bool);
-
-    /// ------------------- OApp interfaces -------------------
-    function setSendLibrary(address _oapp, uint32 _eid, address _newLib) external;
-
-    function getSendLibrary(address _sender, uint32 _eid) external view returns (address lib);
-
-    function isDefaultSendLibrary(address _sender, uint32 _eid) external view returns (bool);
-
-    function setReceiveLibrary(address _oapp, uint32 _eid, address _newLib, uint256 _gracePeriod) external;
-
-    function getReceiveLibrary(address _receiver, uint32 _eid) external view returns (address lib, bool isDefault);
-
-    function setReceiveLibraryTimeout(address _oapp, uint32 _eid, address _lib, uint256 _expiry) external;
-
-    function receiveLibraryTimeout(address _receiver, uint32 _eid) external view returns (address lib, uint256 expiry);
-
-    function setConfig(address _oapp, address _lib, SetConfigParam[] calldata _params) external;
-
-    function getConfig(
-        address _oapp,
-        address _lib,
-        uint32 _eid,
-        uint32 _configType
-    ) external view returns (bytes memory config);
-}
-
-// node_modules/@layerzerolabs/lz-evm-protocol-v2/contracts/interfaces/IMessagingChannel.sol
-
-interface IMessagingChannel {
-    event InboundNonceSkipped(uint32 srcEid, bytes32 sender, address receiver, uint64 nonce);
-    event PacketNilified(uint32 srcEid, bytes32 sender, address receiver, uint64 nonce, bytes32 payloadHash);
-    event PacketBurnt(uint32 srcEid, bytes32 sender, address receiver, uint64 nonce, bytes32 payloadHash);
-
-    function eid() external view returns (uint32);
-
-    // this is an emergency function if a message cannot be verified for some reasons
-    // required to provide _nextNonce to avoid race condition
-    function skip(address _oapp, uint32 _srcEid, bytes32 _sender, uint64 _nonce) external;
-
-    function nilify(address _oapp, uint32 _srcEid, bytes32 _sender, uint64 _nonce, bytes32 _payloadHash) external;
-
-    function burn(address _oapp, uint32 _srcEid, bytes32 _sender, uint64 _nonce, bytes32 _payloadHash) external;
-
-    function nextGuid(address _sender, uint32 _dstEid, bytes32 _receiver) external view returns (bytes32);
-
-    function inboundNonce(address _receiver, uint32 _srcEid, bytes32 _sender) external view returns (uint64);
-
-    function outboundNonce(address _sender, uint32 _dstEid, bytes32 _receiver) external view returns (uint64);
-
-    function inboundPayloadHash(
-        address _receiver,
-        uint32 _srcEid,
-        bytes32 _sender,
-        uint64 _nonce
-    ) external view returns (bytes32);
-
-    function lazyInboundNonce(address _receiver, uint32 _srcEid, bytes32 _sender) external view returns (uint64);
-}
-
-// node_modules/@layerzerolabs/lz-evm-protocol-v2/contracts/interfaces/IMessagingComposer.sol
-
-interface IMessagingComposer {
-    event ComposeSent(address from, address to, bytes32 guid, uint16 index, bytes message);
-    event ComposeDelivered(address from, address to, bytes32 guid, uint16 index);
-    event LzComposeAlert(
-        address indexed from,
-        address indexed to,
-        address indexed executor,
-        bytes32 guid,
-        uint16 index,
-        uint256 gas,
-        uint256 value,
-        bytes message,
-        bytes extraData,
-        bytes reason
-    );
-
-    function composeQueue(
-        address _from,
-        address _to,
-        bytes32 _guid,
-        uint16 _index
-    ) external view returns (bytes32 messageHash);
-
-    function sendCompose(address _to, bytes32 _guid, uint16 _index, bytes calldata _message) external;
-
-    function lzCompose(
-        address _from,
-        address _to,
-        bytes32 _guid,
-        uint16 _index,
-        bytes calldata _message,
-        bytes calldata _extraData
-    ) external payable;
-}
-
-// node_modules/@layerzerolabs/lz-evm-protocol-v2/contracts/interfaces/IMessagingContext.sol
-
-interface IMessagingContext {
-    function isSendingMessage() external view returns (bool);
-
-    function getSendContext() external view returns (uint32 dstEid, address sender);
-}
-
-// node_modules/@layerzerolabs/lz-evm-protocol-v2/contracts/libs/AddressCast.sol
-
-library AddressCast {
-    error AddressCast_InvalidSizeForAddress();
-    error AddressCast_InvalidAddress();
-
-    function toBytes32(bytes calldata _addressBytes) internal pure returns (bytes32 result) {
-        if (_addressBytes.length > 32) revert AddressCast_InvalidAddress();
-        result = bytes32(_addressBytes);
-        unchecked {
-            uint256 offset = 32 - _addressBytes.length;
-            result = result >> (offset * 8);
-        }
-    }
-
-    function toBytes32(address _address) internal pure returns (bytes32 result) {
-        result = bytes32(uint256(uint160(_address)));
-    }
-
-    function toBytes(bytes32 _addressBytes32, uint256 _size) internal pure returns (bytes memory result) {
-        if (_size == 0 || _size > 32) revert AddressCast_InvalidSizeForAddress();
-        result = new bytes(_size);
-        unchecked {
-            uint256 offset = 256 - _size * 8;
-            assembly {
-                mstore(add(result, 32), shl(offset, _addressBytes32))
-            }
-        }
-    }
-
-    function toAddress(bytes32 _addressBytes32) internal pure returns (address result) {
-        result = address(uint160(uint256(_addressBytes32)));
-    }
-
-    function toAddress(bytes calldata _addressBytes) internal pure returns (address result) {
-        if (_addressBytes.length != 20) revert AddressCast_InvalidAddress();
-        result = address(bytes20(_addressBytes));
-    }
-}
-
-// node_modules/@openzeppelin/contracts/token/ERC20/IERC20.sol
-
-// OpenZeppelin Contracts (last updated v4.9.0) (token/ERC20/IERC20.sol)
-
-/**
- * @dev Interface of the ERC20 standard as defined in the EIP.
- */
-interface IERC20 {
-    /**
-     * @dev Emitted when `value` tokens are moved from one account (`from`) to
-     * another (`to`).
-     *
-     * Note that `value` may be zero.
-     */
-    event Transfer(address indexed from, address indexed to, uint256 value);
-
-    /**
-     * @dev Emitted when the allowance of a `spender` for an `owner` is set by
-     * a call to {approve}. `value` is the new allowance.
-     */
-    event Approval(address indexed owner, address indexed spender, uint256 value);
-
-    /**
-     * @dev Returns the amount of tokens in existence.
-     */
-    function totalSupply() external view returns (uint256);
-
-    /**
-     * @dev Returns the amount of tokens owned by `account`.
-     */
-    function balanceOf(address account) external view returns (uint256);
-
-    /**
-     * @dev Moves `amount` tokens from the caller's account to `to`.
-     *
-     * Returns a boolean value indicating whether the operation succeeded.
-     *
-     * Emits a {Transfer} event.
-     */
-    function transfer(address to, uint256 amount) external returns (bool);
-
-    /**
-     * @dev Returns the remaining number of tokens that `spender` will be
-     * allowed to spend on behalf of `owner` through {transferFrom}. This is
-     * zero by default.
-     *
-     * This value changes when {approve} or {transferFrom} are called.
-     */
-    function allowance(address owner, address spender) external view returns (uint256);
-
-    /**
-     * @dev Sets `amount` as the allowance of `spender` over the caller's tokens.
-     *
-     * Returns a boolean value indicating whether the operation succeeded.
-     *
-     * IMPORTANT: Beware that changing an allowance with this method brings the risk
-     * that someone may use both the old and the new allowance by unfortunate
-     * transaction ordering. One possible solution to mitigate this race
-     * condition is to first reduce the spender's allowance to 0 and set the
-     * desired value afterwards:
-     * https://github.com/ethereum/EIPs/issues/20#issuecomment-263524729
-     *
-     * Emits an {Approval} event.
-     */
-    function approve(address spender, uint256 amount) external returns (bool);
-
-    /**
-     * @dev Moves `amount` tokens from `from` to `to` using the
-     * allowance mechanism. `amount` is then deducted from the caller's
-     * allowance.
-     *
-     * Returns a boolean value indicating whether the operation succeeded.
-     *
-     * Emits a {Transfer} event.
-     */
-    function transferFrom(address from, address to, uint256 amount) external returns (bool);
-}
-
-// node_modules/@openzeppelin/contracts/token/ERC20/extensions/IERC20Permit.sol
-
-// OpenZeppelin Contracts (last updated v4.9.4) (token/ERC20/extensions/IERC20Permit.sol)
-
-/**
- * @dev Interface of the ERC20 Permit extension allowing approvals to be made via signatures, as defined in
- * https://eips.ethereum.org/EIPS/eip-2612[EIP-2612].
- *
- * Adds the {permit} method, which can be used to change an account's ERC20 allowance (see {IERC20-allowance}) by
- * presenting a message signed by the account. By not relying on {IERC20-approve}, the token holder account doesn't
- * need to send a transaction, and thus is not required to hold Ether at all.
- *
- * ==== Security Considerations
- *
- * There are two important considerations concerning the use of `permit`. The first is that a valid permit signature
- * expresses an allowance, and it should not be assumed to convey additional meaning. In particular, it should not be
- * considered as an intention to spend the allowance in any specific way. The second is that because permits have
- * built-in replay protection and can be submitted by anyone, they can be frontrun. A protocol that uses permits should
- * take this into consideration and allow a `permit` call to fail. Combining these two aspects, a pattern that may be
- * generally recommended is:
- *
- * ```solidity
- * function doThingWithPermit(..., uint256 value, uint256 deadline, uint8 v, bytes32 r, bytes32 s) public {
- *     try token.permit(msg.sender, address(this), value, deadline, v, r, s) {} catch {}
- *     doThing(..., value);
- * }
- *
- * function doThing(..., uint256 value) public {
- *     token.safeTransferFrom(msg.sender, address(this), value);
- *     ...
- * }
- * ```
- *
- * Observe that: 1) `msg.sender` is used as the owner, leaving no ambiguity as to the signer intent, and 2) the use of
- * `try/catch` allows the permit to fail and makes the code tolerant to frontrunning. (See also
- * {SafeERC20-safeTransferFrom}).
- *
- * Additionally, note that smart contract wallets (such as Argent or Safe) are not able to produce permit signatures, so
- * contracts should have entry points that don't rely on permit.
- */
-interface IERC20Permit {
-    /**
-     * @dev Sets `value` as the allowance of `spender` over ``owner``'s tokens,
-     * given ``owner``'s signed approval.
-     *
-     * IMPORTANT: The same issues {IERC20-approve} has related to transaction
-     * ordering also apply here.
-     *
-     * Emits an {Approval} event.
-     *
-     * Requirements:
-     *
-     * - `spender` cannot be the zero address.
-     * - `deadline` must be a timestamp in the future.
-     * - `v`, `r` and `s` must be a valid `secp256k1` signature from `owner`
-     * over the EIP712-formatted function arguments.
-     * - the signature must use ``owner``'s current nonce (see {nonces}).
-     *
-     * For more information on the signature format, see the
-     * https://eips.ethereum.org/EIPS/eip-2612#specification[relevant EIP
-     * section].
-     *
-     * CAUTION: See Security Considerations above.
-     */
-    function permit(
-        address owner,
-        address spender,
-        uint256 value,
-        uint256 deadline,
-        uint8 v,
-        bytes32 r,
-        bytes32 s
-    ) external;
-
-    /**
-     * @dev Returns the current nonce for `owner`. This value must be
-     * included whenever a signature is generated for {permit}.
-     *
-     * Every successful call to {permit} increases ``owner``'s nonce by one. This
-     * prevents a signature from being used multiple times.
-     */
-    function nonces(address owner) external view returns (uint256);
-
-    /**
-     * @dev Returns the domain separator used in the encoding of the signature for {permit}, as defined by {EIP712}.
-     */
-    // solhint-disable-next-line func-name-mixedcase
-    function DOMAIN_SEPARATOR() external view returns (bytes32);
-}
-
 // node_modules/@openzeppelin/contracts/utils/Address.sol
 
 // OpenZeppelin Contracts (last updated v4.9.0) (utils/Address.sol)
@@ -875,107 +245,44 @@ library Address {
     }
 }
 
-// node_modules/@openzeppelin/contracts/utils/introspection/IERC165.sol
+// node_modules/@layerzerolabs/lz-evm-protocol-v2/contracts/libs/AddressCast.sol
 
-// OpenZeppelin Contracts v4.4.1 (utils/introspection/IERC165.sol)
+library AddressCast {
+    error AddressCast_InvalidSizeForAddress();
+    error AddressCast_InvalidAddress();
 
-/**
- * @dev Interface of the ERC165 standard, as defined in the
- * https://eips.ethereum.org/EIPS/eip-165[EIP].
- *
- * Implementers can declare support of contract interfaces, which can then be
- * queried by others ({ERC165Checker}).
- *
- * For an implementation, see {ERC165}.
- */
-interface IERC165 {
-    /**
-     * @dev Returns true if this contract implements the interface defined by
-     * `interfaceId`. See the corresponding
-     * https://eips.ethereum.org/EIPS/eip-165#how-interfaces-are-identified[EIP section]
-     * to learn more about how these ids are created.
-     *
-     * This function call must use less than 30 000 gas.
-     */
-    function supportsInterface(bytes4 interfaceId) external view returns (bool);
-}
+    function toBytes32(bytes calldata _addressBytes) internal pure returns (bytes32 result) {
+        if (_addressBytes.length > 32) revert AddressCast_InvalidAddress();
+        result = bytes32(_addressBytes);
+        unchecked {
+            uint256 offset = 32 - _addressBytes.length;
+            result = result >> (offset * 8);
+        }
+    }
 
-// node_modules/@openzeppelin/contracts-upgradeable/token/ERC20/IERC20Upgradeable.sol
+    function toBytes32(address _address) internal pure returns (bytes32 result) {
+        result = bytes32(uint256(uint160(_address)));
+    }
 
-// OpenZeppelin Contracts (last updated v4.9.0) (token/ERC20/IERC20.sol)
+    function toBytes(bytes32 _addressBytes32, uint256 _size) internal pure returns (bytes memory result) {
+        if (_size == 0 || _size > 32) revert AddressCast_InvalidSizeForAddress();
+        result = new bytes(_size);
+        unchecked {
+            uint256 offset = 256 - _size * 8;
+            assembly {
+                mstore(add(result, 32), shl(offset, _addressBytes32))
+            }
+        }
+    }
 
-/**
- * @dev Interface of the ERC20 standard as defined in the EIP.
- */
-interface IERC20Upgradeable {
-    /**
-     * @dev Emitted when `value` tokens are moved from one account (`from`) to
-     * another (`to`).
-     *
-     * Note that `value` may be zero.
-     */
-    event Transfer(address indexed from, address indexed to, uint256 value);
+    function toAddress(bytes32 _addressBytes32) internal pure returns (address result) {
+        result = address(uint160(uint256(_addressBytes32)));
+    }
 
-    /**
-     * @dev Emitted when the allowance of a `spender` for an `owner` is set by
-     * a call to {approve}. `value` is the new allowance.
-     */
-    event Approval(address indexed owner, address indexed spender, uint256 value);
-
-    /**
-     * @dev Returns the amount of tokens in existence.
-     */
-    function totalSupply() external view returns (uint256);
-
-    /**
-     * @dev Returns the amount of tokens owned by `account`.
-     */
-    function balanceOf(address account) external view returns (uint256);
-
-    /**
-     * @dev Moves `amount` tokens from the caller's account to `to`.
-     *
-     * Returns a boolean value indicating whether the operation succeeded.
-     *
-     * Emits a {Transfer} event.
-     */
-    function transfer(address to, uint256 amount) external returns (bool);
-
-    /**
-     * @dev Returns the remaining number of tokens that `spender` will be
-     * allowed to spend on behalf of `owner` through {transferFrom}. This is
-     * zero by default.
-     *
-     * This value changes when {approve} or {transferFrom} are called.
-     */
-    function allowance(address owner, address spender) external view returns (uint256);
-
-    /**
-     * @dev Sets `amount` as the allowance of `spender` over the caller's tokens.
-     *
-     * Returns a boolean value indicating whether the operation succeeded.
-     *
-     * IMPORTANT: Beware that changing an allowance with this method brings the risk
-     * that someone may use both the old and the new allowance by unfortunate
-     * transaction ordering. One possible solution to mitigate this race
-     * condition is to first reduce the spender's allowance to 0 and set the
-     * desired value afterwards:
-     * https://github.com/ethereum/EIPs/issues/20#issuecomment-263524729
-     *
-     * Emits an {Approval} event.
-     */
-    function approve(address spender, uint256 amount) external returns (bool);
-
-    /**
-     * @dev Moves `amount` tokens from `from` to `to` using the
-     * allowance mechanism. `amount` is then deducted from the caller's
-     * allowance.
-     *
-     * Returns a boolean value indicating whether the operation succeeded.
-     *
-     * Emits a {Transfer} event.
-     */
-    function transferFrom(address from, address to, uint256 amount) external returns (bool);
+    function toAddress(bytes calldata _addressBytes) internal pure returns (address result) {
+        if (_addressBytes.length != 20) revert AddressCast_InvalidAddress();
+        result = address(bytes20(_addressBytes));
+    }
 }
 
 // node_modules/@openzeppelin/contracts-upgradeable/utils/AddressUpgradeable.sol
@@ -1222,6 +529,2147 @@ library AddressUpgradeable {
     }
 }
 
+// node_modules/@openzeppelin/contracts/utils/Counters.sol
+
+// OpenZeppelin Contracts v4.4.1 (utils/Counters.sol)
+
+/**
+ * @title Counters
+ * @author Matt Condon (@shrugs)
+ * @dev Provides counters that can only be incremented, decremented or reset. This can be used e.g. to track the number
+ * of elements in a mapping, issuing ERC721 ids, or counting request ids.
+ *
+ * Include with `using Counters for Counters.Counter;`
+ */
+library Counters {
+    struct Counter {
+        // This variable should never be directly accessed by users of the library: interactions must be restricted to
+        // the library's function. As of Solidity v0.5.2, this cannot be enforced, though there is a proposal to add
+        // this feature: see https://github.com/ethereum/solidity/issues/4637
+        uint256 _value; // default: 0
+    }
+
+    function current(Counter storage counter) internal view returns (uint256) {
+        return counter._value;
+    }
+
+    function increment(Counter storage counter) internal {
+        unchecked {
+            counter._value += 1;
+        }
+    }
+
+    function decrement(Counter storage counter) internal {
+        uint256 value = counter._value;
+        require(value > 0, "Counter: decrement overflow");
+        unchecked {
+            counter._value = value - 1;
+        }
+    }
+
+    function reset(Counter storage counter) internal {
+        counter._value = 0;
+    }
+}
+
+// node_modules/@openzeppelin/contracts/utils/structs/EnumerableSet.sol
+
+// OpenZeppelin Contracts (last updated v4.9.0) (utils/structs/EnumerableSet.sol)
+// This file was procedurally generated from scripts/generate/templates/EnumerableSet.js.
+
+/**
+ * @dev Library for managing
+ * https://en.wikipedia.org/wiki/Set_(abstract_data_type)[sets] of primitive
+ * types.
+ *
+ * Sets have the following properties:
+ *
+ * - Elements are added, removed, and checked for existence in constant time
+ * (O(1)).
+ * - Elements are enumerated in O(n). No guarantees are made on the ordering.
+ *
+ * ```solidity
+ * contract Example {
+ *     // Add the library methods
+ *     using EnumerableSet for EnumerableSet.AddressSet;
+ *
+ *     // Declare a set state variable
+ *     EnumerableSet.AddressSet private mySet;
+ * }
+ * ```
+ *
+ * As of v3.3.0, sets of type `bytes32` (`Bytes32Set`), `address` (`AddressSet`)
+ * and `uint256` (`UintSet`) are supported.
+ *
+ * [WARNING]
+ * ====
+ * Trying to delete such a structure from storage will likely result in data corruption, rendering the structure
+ * unusable.
+ * See https://github.com/ethereum/solidity/pull/11843[ethereum/solidity#11843] for more info.
+ *
+ * In order to clean an EnumerableSet, you can either remove all elements one by one or create a fresh instance using an
+ * array of EnumerableSet.
+ * ====
+ */
+library EnumerableSet {
+    // To implement this library for multiple types with as little code
+    // repetition as possible, we write it in terms of a generic Set type with
+    // bytes32 values.
+    // The Set implementation uses private functions, and user-facing
+    // implementations (such as AddressSet) are just wrappers around the
+    // underlying Set.
+    // This means that we can only create new EnumerableSets for types that fit
+    // in bytes32.
+
+    struct Set {
+        // Storage of set values
+        bytes32[] _values;
+        // Position of the value in the `values` array, plus 1 because index 0
+        // means a value is not in the set.
+        mapping(bytes32 => uint256) _indexes;
+    }
+
+    /**
+     * @dev Add a value to a set. O(1).
+     *
+     * Returns true if the value was added to the set, that is if it was not
+     * already present.
+     */
+    function _add(Set storage set, bytes32 value) private returns (bool) {
+        if (!_contains(set, value)) {
+            set._values.push(value);
+            // The value is stored at length-1, but we add 1 to all indexes
+            // and use 0 as a sentinel value
+            set._indexes[value] = set._values.length;
+            return true;
+        } else {
+            return false;
+        }
+    }
+
+    /**
+     * @dev Removes a value from a set. O(1).
+     *
+     * Returns true if the value was removed from the set, that is if it was
+     * present.
+     */
+    function _remove(Set storage set, bytes32 value) private returns (bool) {
+        // We read and store the value's index to prevent multiple reads from the same storage slot
+        uint256 valueIndex = set._indexes[value];
+
+        if (valueIndex != 0) {
+            // Equivalent to contains(set, value)
+            // To delete an element from the _values array in O(1), we swap the element to delete with the last one in
+            // the array, and then remove the last element (sometimes called as 'swap and pop').
+            // This modifies the order of the array, as noted in {at}.
+
+            uint256 toDeleteIndex = valueIndex - 1;
+            uint256 lastIndex = set._values.length - 1;
+
+            if (lastIndex != toDeleteIndex) {
+                bytes32 lastValue = set._values[lastIndex];
+
+                // Move the last value to the index where the value to delete is
+                set._values[toDeleteIndex] = lastValue;
+                // Update the index for the moved value
+                set._indexes[lastValue] = valueIndex; // Replace lastValue's index to valueIndex
+            }
+
+            // Delete the slot where the moved value was stored
+            set._values.pop();
+
+            // Delete the index for the deleted slot
+            delete set._indexes[value];
+
+            return true;
+        } else {
+            return false;
+        }
+    }
+
+    /**
+     * @dev Returns true if the value is in the set. O(1).
+     */
+    function _contains(Set storage set, bytes32 value) private view returns (bool) {
+        return set._indexes[value] != 0;
+    }
+
+    /**
+     * @dev Returns the number of values on the set. O(1).
+     */
+    function _length(Set storage set) private view returns (uint256) {
+        return set._values.length;
+    }
+
+    /**
+     * @dev Returns the value stored at position `index` in the set. O(1).
+     *
+     * Note that there are no guarantees on the ordering of values inside the
+     * array, and it may change when more values are added or removed.
+     *
+     * Requirements:
+     *
+     * - `index` must be strictly less than {length}.
+     */
+    function _at(Set storage set, uint256 index) private view returns (bytes32) {
+        return set._values[index];
+    }
+
+    /**
+     * @dev Return the entire set in an array
+     *
+     * WARNING: This operation will copy the entire storage to memory, which can be quite expensive. This is designed
+     * to mostly be used by view accessors that are queried without any gas fees. Developers should keep in mind that
+     * this function has an unbounded cost, and using it as part of a state-changing function may render the function
+     * uncallable if the set grows to a point where copying to memory consumes too much gas to fit in a block.
+     */
+    function _values(Set storage set) private view returns (bytes32[] memory) {
+        return set._values;
+    }
+
+    // Bytes32Set
+
+    struct Bytes32Set {
+        Set _inner;
+    }
+
+    /**
+     * @dev Add a value to a set. O(1).
+     *
+     * Returns true if the value was added to the set, that is if it was not
+     * already present.
+     */
+    function add(Bytes32Set storage set, bytes32 value) internal returns (bool) {
+        return _add(set._inner, value);
+    }
+
+    /**
+     * @dev Removes a value from a set. O(1).
+     *
+     * Returns true if the value was removed from the set, that is if it was
+     * present.
+     */
+    function remove(Bytes32Set storage set, bytes32 value) internal returns (bool) {
+        return _remove(set._inner, value);
+    }
+
+    /**
+     * @dev Returns true if the value is in the set. O(1).
+     */
+    function contains(Bytes32Set storage set, bytes32 value) internal view returns (bool) {
+        return _contains(set._inner, value);
+    }
+
+    /**
+     * @dev Returns the number of values in the set. O(1).
+     */
+    function length(Bytes32Set storage set) internal view returns (uint256) {
+        return _length(set._inner);
+    }
+
+    /**
+     * @dev Returns the value stored at position `index` in the set. O(1).
+     *
+     * Note that there are no guarantees on the ordering of values inside the
+     * array, and it may change when more values are added or removed.
+     *
+     * Requirements:
+     *
+     * - `index` must be strictly less than {length}.
+     */
+    function at(Bytes32Set storage set, uint256 index) internal view returns (bytes32) {
+        return _at(set._inner, index);
+    }
+
+    /**
+     * @dev Return the entire set in an array
+     *
+     * WARNING: This operation will copy the entire storage to memory, which can be quite expensive. This is designed
+     * to mostly be used by view accessors that are queried without any gas fees. Developers should keep in mind that
+     * this function has an unbounded cost, and using it as part of a state-changing function may render the function
+     * uncallable if the set grows to a point where copying to memory consumes too much gas to fit in a block.
+     */
+    function values(Bytes32Set storage set) internal view returns (bytes32[] memory) {
+        bytes32[] memory store = _values(set._inner);
+        bytes32[] memory result;
+
+        /// @solidity memory-safe-assembly
+        assembly {
+            result := store
+        }
+
+        return result;
+    }
+
+    // AddressSet
+
+    struct AddressSet {
+        Set _inner;
+    }
+
+    /**
+     * @dev Add a value to a set. O(1).
+     *
+     * Returns true if the value was added to the set, that is if it was not
+     * already present.
+     */
+    function add(AddressSet storage set, address value) internal returns (bool) {
+        return _add(set._inner, bytes32(uint256(uint160(value))));
+    }
+
+    /**
+     * @dev Removes a value from a set. O(1).
+     *
+     * Returns true if the value was removed from the set, that is if it was
+     * present.
+     */
+    function remove(AddressSet storage set, address value) internal returns (bool) {
+        return _remove(set._inner, bytes32(uint256(uint160(value))));
+    }
+
+    /**
+     * @dev Returns true if the value is in the set. O(1).
+     */
+    function contains(AddressSet storage set, address value) internal view returns (bool) {
+        return _contains(set._inner, bytes32(uint256(uint160(value))));
+    }
+
+    /**
+     * @dev Returns the number of values in the set. O(1).
+     */
+    function length(AddressSet storage set) internal view returns (uint256) {
+        return _length(set._inner);
+    }
+
+    /**
+     * @dev Returns the value stored at position `index` in the set. O(1).
+     *
+     * Note that there are no guarantees on the ordering of values inside the
+     * array, and it may change when more values are added or removed.
+     *
+     * Requirements:
+     *
+     * - `index` must be strictly less than {length}.
+     */
+    function at(AddressSet storage set, uint256 index) internal view returns (address) {
+        return address(uint160(uint256(_at(set._inner, index))));
+    }
+
+    /**
+     * @dev Return the entire set in an array
+     *
+     * WARNING: This operation will copy the entire storage to memory, which can be quite expensive. This is designed
+     * to mostly be used by view accessors that are queried without any gas fees. Developers should keep in mind that
+     * this function has an unbounded cost, and using it as part of a state-changing function may render the function
+     * uncallable if the set grows to a point where copying to memory consumes too much gas to fit in a block.
+     */
+    function values(AddressSet storage set) internal view returns (address[] memory) {
+        bytes32[] memory store = _values(set._inner);
+        address[] memory result;
+
+        /// @solidity memory-safe-assembly
+        assembly {
+            result := store
+        }
+
+        return result;
+    }
+
+    // UintSet
+
+    struct UintSet {
+        Set _inner;
+    }
+
+    /**
+     * @dev Add a value to a set. O(1).
+     *
+     * Returns true if the value was added to the set, that is if it was not
+     * already present.
+     */
+    function add(UintSet storage set, uint256 value) internal returns (bool) {
+        return _add(set._inner, bytes32(value));
+    }
+
+    /**
+     * @dev Removes a value from a set. O(1).
+     *
+     * Returns true if the value was removed from the set, that is if it was
+     * present.
+     */
+    function remove(UintSet storage set, uint256 value) internal returns (bool) {
+        return _remove(set._inner, bytes32(value));
+    }
+
+    /**
+     * @dev Returns true if the value is in the set. O(1).
+     */
+    function contains(UintSet storage set, uint256 value) internal view returns (bool) {
+        return _contains(set._inner, bytes32(value));
+    }
+
+    /**
+     * @dev Returns the number of values in the set. O(1).
+     */
+    function length(UintSet storage set) internal view returns (uint256) {
+        return _length(set._inner);
+    }
+
+    /**
+     * @dev Returns the value stored at position `index` in the set. O(1).
+     *
+     * Note that there are no guarantees on the ordering of values inside the
+     * array, and it may change when more values are added or removed.
+     *
+     * Requirements:
+     *
+     * - `index` must be strictly less than {length}.
+     */
+    function at(UintSet storage set, uint256 index) internal view returns (uint256) {
+        return uint256(_at(set._inner, index));
+    }
+
+    /**
+     * @dev Return the entire set in an array
+     *
+     * WARNING: This operation will copy the entire storage to memory, which can be quite expensive. This is designed
+     * to mostly be used by view accessors that are queried without any gas fees. Developers should keep in mind that
+     * this function has an unbounded cost, and using it as part of a state-changing function may render the function
+     * uncallable if the set grows to a point where copying to memory consumes too much gas to fit in a block.
+     */
+    function values(UintSet storage set) internal view returns (uint256[] memory) {
+        bytes32[] memory store = _values(set._inner);
+        uint256[] memory result;
+
+        /// @solidity memory-safe-assembly
+        assembly {
+            result := store
+        }
+
+        return result;
+    }
+}
+
+// node_modules/@openzeppelin/contracts/interfaces/IERC1271.sol
+
+// OpenZeppelin Contracts v4.4.1 (interfaces/IERC1271.sol)
+
+/**
+ * @dev Interface of the ERC1271 standard signature validation method for
+ * contracts as defined in https://eips.ethereum.org/EIPS/eip-1271[ERC-1271].
+ *
+ * _Available since v4.1._
+ */
+interface IERC1271 {
+    /**
+     * @dev Should return whether the signature provided is valid for the provided data
+     * @param hash      Hash of the data to be signed
+     * @param signature Signature byte array associated with _data
+     */
+    function isValidSignature(bytes32 hash, bytes memory signature) external view returns (bytes4 magicValue);
+}
+
+// node_modules/@openzeppelin/contracts/utils/introspection/IERC165.sol
+
+// OpenZeppelin Contracts v4.4.1 (utils/introspection/IERC165.sol)
+
+/**
+ * @dev Interface of the ERC165 standard, as defined in the
+ * https://eips.ethereum.org/EIPS/eip-165[EIP].
+ *
+ * Implementers can declare support of contract interfaces, which can then be
+ * queried by others ({ERC165Checker}).
+ *
+ * For an implementation, see {ERC165}.
+ */
+interface IERC165 {
+    /**
+     * @dev Returns true if this contract implements the interface defined by
+     * `interfaceId`. See the corresponding
+     * https://eips.ethereum.org/EIPS/eip-165#how-interfaces-are-identified[EIP section]
+     * to learn more about how these ids are created.
+     *
+     * This function call must use less than 30 000 gas.
+     */
+    function supportsInterface(bytes4 interfaceId) external view returns (bool);
+}
+
+// node_modules/@openzeppelin/contracts/token/ERC20/IERC20.sol
+
+// OpenZeppelin Contracts (last updated v4.9.0) (token/ERC20/IERC20.sol)
+
+/**
+ * @dev Interface of the ERC20 standard as defined in the EIP.
+ */
+interface IERC20 {
+    /**
+     * @dev Emitted when `value` tokens are moved from one account (`from`) to
+     * another (`to`).
+     *
+     * Note that `value` may be zero.
+     */
+    event Transfer(address indexed from, address indexed to, uint256 value);
+
+    /**
+     * @dev Emitted when the allowance of a `spender` for an `owner` is set by
+     * a call to {approve}. `value` is the new allowance.
+     */
+    event Approval(address indexed owner, address indexed spender, uint256 value);
+
+    /**
+     * @dev Returns the amount of tokens in existence.
+     */
+    function totalSupply() external view returns (uint256);
+
+    /**
+     * @dev Returns the amount of tokens owned by `account`.
+     */
+    function balanceOf(address account) external view returns (uint256);
+
+    /**
+     * @dev Moves `amount` tokens from the caller's account to `to`.
+     *
+     * Returns a boolean value indicating whether the operation succeeded.
+     *
+     * Emits a {Transfer} event.
+     */
+    function transfer(address to, uint256 amount) external returns (bool);
+
+    /**
+     * @dev Returns the remaining number of tokens that `spender` will be
+     * allowed to spend on behalf of `owner` through {transferFrom}. This is
+     * zero by default.
+     *
+     * This value changes when {approve} or {transferFrom} are called.
+     */
+    function allowance(address owner, address spender) external view returns (uint256);
+
+    /**
+     * @dev Sets `amount` as the allowance of `spender` over the caller's tokens.
+     *
+     * Returns a boolean value indicating whether the operation succeeded.
+     *
+     * IMPORTANT: Beware that changing an allowance with this method brings the risk
+     * that someone may use both the old and the new allowance by unfortunate
+     * transaction ordering. One possible solution to mitigate this race
+     * condition is to first reduce the spender's allowance to 0 and set the
+     * desired value afterwards:
+     * https://github.com/ethereum/EIPs/issues/20#issuecomment-263524729
+     *
+     * Emits an {Approval} event.
+     */
+    function approve(address spender, uint256 amount) external returns (bool);
+
+    /**
+     * @dev Moves `amount` tokens from `from` to `to` using the
+     * allowance mechanism. `amount` is then deducted from the caller's
+     * allowance.
+     *
+     * Returns a boolean value indicating whether the operation succeeded.
+     *
+     * Emits a {Transfer} event.
+     */
+    function transferFrom(address from, address to, uint256 amount) external returns (bool);
+}
+
+// node_modules/@openzeppelin/contracts/token/ERC20/extensions/IERC20Permit.sol
+
+// OpenZeppelin Contracts (last updated v4.9.4) (token/ERC20/extensions/IERC20Permit.sol)
+
+/**
+ * @dev Interface of the ERC20 Permit extension allowing approvals to be made via signatures, as defined in
+ * https://eips.ethereum.org/EIPS/eip-2612[EIP-2612].
+ *
+ * Adds the {permit} method, which can be used to change an account's ERC20 allowance (see {IERC20-allowance}) by
+ * presenting a message signed by the account. By not relying on {IERC20-approve}, the token holder account doesn't
+ * need to send a transaction, and thus is not required to hold Ether at all.
+ *
+ * ==== Security Considerations
+ *
+ * There are two important considerations concerning the use of `permit`. The first is that a valid permit signature
+ * expresses an allowance, and it should not be assumed to convey additional meaning. In particular, it should not be
+ * considered as an intention to spend the allowance in any specific way. The second is that because permits have
+ * built-in replay protection and can be submitted by anyone, they can be frontrun. A protocol that uses permits should
+ * take this into consideration and allow a `permit` call to fail. Combining these two aspects, a pattern that may be
+ * generally recommended is:
+ *
+ * ```solidity
+ * function doThingWithPermit(..., uint256 value, uint256 deadline, uint8 v, bytes32 r, bytes32 s) public {
+ *     try token.permit(msg.sender, address(this), value, deadline, v, r, s) {} catch {}
+ *     doThing(..., value);
+ * }
+ *
+ * function doThing(..., uint256 value) public {
+ *     token.safeTransferFrom(msg.sender, address(this), value);
+ *     ...
+ * }
+ * ```
+ *
+ * Observe that: 1) `msg.sender` is used as the owner, leaving no ambiguity as to the signer intent, and 2) the use of
+ * `try/catch` allows the permit to fail and makes the code tolerant to frontrunning. (See also
+ * {SafeERC20-safeTransferFrom}).
+ *
+ * Additionally, note that smart contract wallets (such as Argent or Safe) are not able to produce permit signatures, so
+ * contracts should have entry points that don't rely on permit.
+ */
+interface IERC20Permit {
+    /**
+     * @dev Sets `value` as the allowance of `spender` over ``owner``'s tokens,
+     * given ``owner``'s signed approval.
+     *
+     * IMPORTANT: The same issues {IERC20-approve} has related to transaction
+     * ordering also apply here.
+     *
+     * Emits an {Approval} event.
+     *
+     * Requirements:
+     *
+     * - `spender` cannot be the zero address.
+     * - `deadline` must be a timestamp in the future.
+     * - `v`, `r` and `s` must be a valid `secp256k1` signature from `owner`
+     * over the EIP712-formatted function arguments.
+     * - the signature must use ``owner``'s current nonce (see {nonces}).
+     *
+     * For more information on the signature format, see the
+     * https://eips.ethereum.org/EIPS/eip-2612#specification[relevant EIP
+     * section].
+     *
+     * CAUTION: See Security Considerations above.
+     */
+    function permit(
+        address owner,
+        address spender,
+        uint256 value,
+        uint256 deadline,
+        uint8 v,
+        bytes32 r,
+        bytes32 s
+    ) external;
+
+    /**
+     * @dev Returns the current nonce for `owner`. This value must be
+     * included whenever a signature is generated for {permit}.
+     *
+     * Every successful call to {permit} increases ``owner``'s nonce by one. This
+     * prevents a signature from being used multiple times.
+     */
+    function nonces(address owner) external view returns (uint256);
+
+    /**
+     * @dev Returns the domain separator used in the encoding of the signature for {permit}, as defined by {EIP712}.
+     */
+    // solhint-disable-next-line func-name-mixedcase
+    function DOMAIN_SEPARATOR() external view returns (bytes32);
+}
+
+// node_modules/@openzeppelin/contracts-upgradeable/token/ERC20/IERC20Upgradeable.sol
+
+// OpenZeppelin Contracts (last updated v4.9.0) (token/ERC20/IERC20.sol)
+
+/**
+ * @dev Interface of the ERC20 standard as defined in the EIP.
+ */
+interface IERC20Upgradeable {
+    /**
+     * @dev Emitted when `value` tokens are moved from one account (`from`) to
+     * another (`to`).
+     *
+     * Note that `value` may be zero.
+     */
+    event Transfer(address indexed from, address indexed to, uint256 value);
+
+    /**
+     * @dev Emitted when the allowance of a `spender` for an `owner` is set by
+     * a call to {approve}. `value` is the new allowance.
+     */
+    event Approval(address indexed owner, address indexed spender, uint256 value);
+
+    /**
+     * @dev Returns the amount of tokens in existence.
+     */
+    function totalSupply() external view returns (uint256);
+
+    /**
+     * @dev Returns the amount of tokens owned by `account`.
+     */
+    function balanceOf(address account) external view returns (uint256);
+
+    /**
+     * @dev Moves `amount` tokens from the caller's account to `to`.
+     *
+     * Returns a boolean value indicating whether the operation succeeded.
+     *
+     * Emits a {Transfer} event.
+     */
+    function transfer(address to, uint256 amount) external returns (bool);
+
+    /**
+     * @dev Returns the remaining number of tokens that `spender` will be
+     * allowed to spend on behalf of `owner` through {transferFrom}. This is
+     * zero by default.
+     *
+     * This value changes when {approve} or {transferFrom} are called.
+     */
+    function allowance(address owner, address spender) external view returns (uint256);
+
+    /**
+     * @dev Sets `amount` as the allowance of `spender` over the caller's tokens.
+     *
+     * Returns a boolean value indicating whether the operation succeeded.
+     *
+     * IMPORTANT: Beware that changing an allowance with this method brings the risk
+     * that someone may use both the old and the new allowance by unfortunate
+     * transaction ordering. One possible solution to mitigate this race
+     * condition is to first reduce the spender's allowance to 0 and set the
+     * desired value afterwards:
+     * https://github.com/ethereum/EIPs/issues/20#issuecomment-263524729
+     *
+     * Emits an {Approval} event.
+     */
+    function approve(address spender, uint256 amount) external returns (bool);
+
+    /**
+     * @dev Moves `amount` tokens from `from` to `to` using the
+     * allowance mechanism. `amount` is then deducted from the caller's
+     * allowance.
+     *
+     * Returns a boolean value indicating whether the operation succeeded.
+     *
+     * Emits a {Transfer} event.
+     */
+    function transferFrom(address from, address to, uint256 amount) external returns (bool);
+}
+
+// node_modules/@openzeppelin/contracts/interfaces/IERC5267.sol
+
+// OpenZeppelin Contracts (last updated v4.9.0) (interfaces/IERC5267.sol)
+
+interface IERC5267 {
+    /**
+     * @dev MAY be emitted to signal that the domain could have changed.
+     */
+    event EIP712DomainChanged();
+
+    /**
+     * @dev returns the fields and values that describe the domain separator used by this contract for EIP-712
+     * signature.
+     */
+    function eip712Domain()
+        external
+        view
+        returns (
+            bytes1 fields,
+            string memory name,
+            string memory version,
+            uint256 chainId,
+            address verifyingContract,
+            bytes32 salt,
+            uint256[] memory extensions
+        );
+}
+
+// node_modules/@layerzerolabs/lz-evm-protocol-v2/contracts/interfaces/IMessageLibManager.sol
+
+struct SetConfigParam {
+    uint32 eid;
+    uint32 configType;
+    bytes config;
+}
+
+interface IMessageLibManager {
+    struct Timeout {
+        address lib;
+        uint256 expiry;
+    }
+
+    event LibraryRegistered(address newLib);
+    event DefaultSendLibrarySet(uint32 eid, address newLib);
+    event DefaultReceiveLibrarySet(uint32 eid, address newLib);
+    event DefaultReceiveLibraryTimeoutSet(uint32 eid, address oldLib, uint256 expiry);
+    event SendLibrarySet(address sender, uint32 eid, address newLib);
+    event ReceiveLibrarySet(address receiver, uint32 eid, address newLib);
+    event ReceiveLibraryTimeoutSet(address receiver, uint32 eid, address oldLib, uint256 timeout);
+
+    function registerLibrary(address _lib) external;
+
+    function isRegisteredLibrary(address _lib) external view returns (bool);
+
+    function getRegisteredLibraries() external view returns (address[] memory);
+
+    function setDefaultSendLibrary(uint32 _eid, address _newLib) external;
+
+    function defaultSendLibrary(uint32 _eid) external view returns (address);
+
+    function setDefaultReceiveLibrary(uint32 _eid, address _newLib, uint256 _gracePeriod) external;
+
+    function defaultReceiveLibrary(uint32 _eid) external view returns (address);
+
+    function setDefaultReceiveLibraryTimeout(uint32 _eid, address _lib, uint256 _expiry) external;
+
+    function defaultReceiveLibraryTimeout(uint32 _eid) external view returns (address lib, uint256 expiry);
+
+    function isSupportedEid(uint32 _eid) external view returns (bool);
+
+    function isValidReceiveLibrary(address _receiver, uint32 _eid, address _lib) external view returns (bool);
+
+    /// ------------------- OApp interfaces -------------------
+    function setSendLibrary(address _oapp, uint32 _eid, address _newLib) external;
+
+    function getSendLibrary(address _sender, uint32 _eid) external view returns (address lib);
+
+    function isDefaultSendLibrary(address _sender, uint32 _eid) external view returns (bool);
+
+    function setReceiveLibrary(address _oapp, uint32 _eid, address _newLib, uint256 _gracePeriod) external;
+
+    function getReceiveLibrary(address _receiver, uint32 _eid) external view returns (address lib, bool isDefault);
+
+    function setReceiveLibraryTimeout(address _oapp, uint32 _eid, address _lib, uint256 _expiry) external;
+
+    function receiveLibraryTimeout(address _receiver, uint32 _eid) external view returns (address lib, uint256 expiry);
+
+    function setConfig(address _oapp, address _lib, SetConfigParam[] calldata _params) external;
+
+    function getConfig(
+        address _oapp,
+        address _lib,
+        uint32 _eid,
+        uint32 _configType
+    ) external view returns (bytes memory config);
+}
+
+// node_modules/@layerzerolabs/lz-evm-protocol-v2/contracts/interfaces/IMessagingChannel.sol
+
+interface IMessagingChannel {
+    event InboundNonceSkipped(uint32 srcEid, bytes32 sender, address receiver, uint64 nonce);
+    event PacketNilified(uint32 srcEid, bytes32 sender, address receiver, uint64 nonce, bytes32 payloadHash);
+    event PacketBurnt(uint32 srcEid, bytes32 sender, address receiver, uint64 nonce, bytes32 payloadHash);
+
+    function eid() external view returns (uint32);
+
+    // this is an emergency function if a message cannot be verified for some reasons
+    // required to provide _nextNonce to avoid race condition
+    function skip(address _oapp, uint32 _srcEid, bytes32 _sender, uint64 _nonce) external;
+
+    function nilify(address _oapp, uint32 _srcEid, bytes32 _sender, uint64 _nonce, bytes32 _payloadHash) external;
+
+    function burn(address _oapp, uint32 _srcEid, bytes32 _sender, uint64 _nonce, bytes32 _payloadHash) external;
+
+    function nextGuid(address _sender, uint32 _dstEid, bytes32 _receiver) external view returns (bytes32);
+
+    function inboundNonce(address _receiver, uint32 _srcEid, bytes32 _sender) external view returns (uint64);
+
+    function outboundNonce(address _sender, uint32 _dstEid, bytes32 _receiver) external view returns (uint64);
+
+    function inboundPayloadHash(
+        address _receiver,
+        uint32 _srcEid,
+        bytes32 _sender,
+        uint64 _nonce
+    ) external view returns (bytes32);
+
+    function lazyInboundNonce(address _receiver, uint32 _srcEid, bytes32 _sender) external view returns (uint64);
+}
+
+// node_modules/@layerzerolabs/lz-evm-protocol-v2/contracts/interfaces/IMessagingComposer.sol
+
+interface IMessagingComposer {
+    event ComposeSent(address from, address to, bytes32 guid, uint16 index, bytes message);
+    event ComposeDelivered(address from, address to, bytes32 guid, uint16 index);
+    event LzComposeAlert(
+        address indexed from,
+        address indexed to,
+        address indexed executor,
+        bytes32 guid,
+        uint16 index,
+        uint256 gas,
+        uint256 value,
+        bytes message,
+        bytes extraData,
+        bytes reason
+    );
+
+    function composeQueue(
+        address _from,
+        address _to,
+        bytes32 _guid,
+        uint16 _index
+    ) external view returns (bytes32 messageHash);
+
+    function sendCompose(address _to, bytes32 _guid, uint16 _index, bytes calldata _message) external;
+
+    function lzCompose(
+        address _from,
+        address _to,
+        bytes32 _guid,
+        uint16 _index,
+        bytes calldata _message,
+        bytes calldata _extraData
+    ) external payable;
+}
+
+// node_modules/@layerzerolabs/lz-evm-protocol-v2/contracts/interfaces/IMessagingContext.sol
+
+interface IMessagingContext {
+    function isSendingMessage() external view returns (bool);
+
+    function getSendContext() external view returns (uint32 dstEid, address sender);
+}
+
+// node_modules/@fraxfinance/layerzero-v2-upgradeable/oapp/contracts/oapp/interfaces/IOAppMsgInspector.sol
+
+/**
+ * @title IOAppMsgInspector
+ * @dev Interface for the OApp Message Inspector, allowing examination of message and options contents.
+ */
+interface IOAppMsgInspector {
+    // Custom error message for inspection failure
+    error InspectionFailed(bytes message, bytes options);
+
+    /**
+     * @notice Allows the inspector to examine LayerZero message contents and optionally throw a revert if invalid.
+     * @param _message The message payload to be inspected.
+     * @param _options Additional options or parameters for inspection.
+     * @return valid A boolean indicating whether the inspection passed (true) or failed (false).
+     *
+     * @dev Optionally done as a revert, OR use the boolean provided to handle the failure.
+     */
+    function inspect(bytes calldata _message, bytes calldata _options) external view returns (bool valid);
+}
+
+// node_modules/@fraxfinance/layerzero-v2-upgradeable/oapp/contracts/oapp/interfaces/IOAppOptionsType3.sol
+
+/**
+ * @dev Struct representing enforced option parameters.
+ */
+struct EnforcedOptionParam {
+    uint32 eid; // Endpoint ID
+    uint16 msgType; // Message Type
+    bytes options; // Additional options
+}
+
+/**
+ * @title IOAppOptionsType3
+ * @dev Interface for the OApp with Type 3 Options, allowing the setting and combining of enforced options.
+ */
+interface IOAppOptionsType3 {
+    // Custom error message for invalid options
+    error InvalidOptions(bytes options);
+
+    // Event emitted when enforced options are set
+    event EnforcedOptionSet(EnforcedOptionParam[] _enforcedOptions);
+
+    /**
+     * @notice Sets enforced options for specific endpoint and message type combinations.
+     * @param _enforcedOptions An array of EnforcedOptionParam structures specifying enforced options.
+     */
+    function setEnforcedOptions(EnforcedOptionParam[] calldata _enforcedOptions) external;
+
+    /**
+     * @notice Combines options for a given endpoint and message type.
+     * @param _eid The endpoint ID.
+     * @param _msgType The OApp message type.
+     * @param _extraOptions Additional options passed by the caller.
+     * @return options The combination of caller specified options AND enforced options.
+     */
+    function combineOptions(
+        uint32 _eid,
+        uint16 _msgType,
+        bytes calldata _extraOptions
+    ) external view returns (bytes memory options);
+}
+
+// node_modules/@fraxfinance/layerzero-v2-upgradeable/oapp/contracts/precrime/interfaces/IPreCrime.sol
+
+struct PreCrimePeer {
+    uint32 eid;
+    bytes32 preCrime;
+    bytes32 oApp;
+}
+
+// TODO not done yet
+interface IPreCrime {
+    error OnlyOffChain();
+
+    // for simulate()
+    error PacketOversize(uint256 max, uint256 actual);
+    error PacketUnsorted();
+    error SimulationFailed(bytes reason);
+
+    // for preCrime()
+    error SimulationResultNotFound(uint32 eid);
+    error InvalidSimulationResult(uint32 eid, bytes reason);
+    error CrimeFound(bytes crime);
+
+    function getConfig(bytes[] calldata _packets, uint256[] calldata _packetMsgValues) external returns (bytes memory);
+
+    function simulate(
+        bytes[] calldata _packets,
+        uint256[] calldata _packetMsgValues
+    ) external payable returns (bytes memory);
+
+    function buildSimulationResult() external view returns (bytes memory);
+
+    function preCrime(
+        bytes[] calldata _packets,
+        uint256[] calldata _packetMsgValues,
+        bytes[] calldata _simulations
+    ) external;
+
+    function version() external view returns (uint64 major, uint8 minor);
+}
+
+// node_modules/@openzeppelin/contracts/utils/math/Math.sol
+
+// OpenZeppelin Contracts (last updated v4.9.0) (utils/math/Math.sol)
+
+/**
+ * @dev Standard math utilities missing in the Solidity language.
+ */
+library Math {
+    enum Rounding {
+        Down, // Toward negative infinity
+        Up, // Toward infinity
+        Zero // Toward zero
+    }
+
+    /**
+     * @dev Returns the largest of two numbers.
+     */
+    function max(uint256 a, uint256 b) internal pure returns (uint256) {
+        return a > b ? a : b;
+    }
+
+    /**
+     * @dev Returns the smallest of two numbers.
+     */
+    function min(uint256 a, uint256 b) internal pure returns (uint256) {
+        return a < b ? a : b;
+    }
+
+    /**
+     * @dev Returns the average of two numbers. The result is rounded towards
+     * zero.
+     */
+    function average(uint256 a, uint256 b) internal pure returns (uint256) {
+        // (a + b) / 2 can overflow.
+        return (a & b) + (a ^ b) / 2;
+    }
+
+    /**
+     * @dev Returns the ceiling of the division of two numbers.
+     *
+     * This differs from standard division with `/` in that it rounds up instead
+     * of rounding down.
+     */
+    function ceilDiv(uint256 a, uint256 b) internal pure returns (uint256) {
+        // (a + b - 1) / b can overflow on addition, so we distribute.
+        return a == 0 ? 0 : (a - 1) / b + 1;
+    }
+
+    /**
+     * @notice Calculates floor(x * y / denominator) with full precision. Throws if result overflows a uint256 or denominator == 0
+     * @dev Original credit to Remco Bloemen under MIT license (https://xn--2-umb.com/21/muldiv)
+     * with further edits by Uniswap Labs also under MIT license.
+     */
+    function mulDiv(uint256 x, uint256 y, uint256 denominator) internal pure returns (uint256 result) {
+        unchecked {
+            // 512-bit multiply [prod1 prod0] = x * y. Compute the product mod 2^256 and mod 2^256 - 1, then use
+            // use the Chinese Remainder Theorem to reconstruct the 512 bit result. The result is stored in two 256
+            // variables such that product = prod1 * 2^256 + prod0.
+            uint256 prod0; // Least significant 256 bits of the product
+            uint256 prod1; // Most significant 256 bits of the product
+            assembly {
+                let mm := mulmod(x, y, not(0))
+                prod0 := mul(x, y)
+                prod1 := sub(sub(mm, prod0), lt(mm, prod0))
+            }
+
+            // Handle non-overflow cases, 256 by 256 division.
+            if (prod1 == 0) {
+                // Solidity will revert if denominator == 0, unlike the div opcode on its own.
+                // The surrounding unchecked block does not change this fact.
+                // See https://docs.soliditylang.org/en/latest/control-structures.html#checked-or-unchecked-arithmetic.
+                return prod0 / denominator;
+            }
+
+            // Make sure the result is less than 2^256. Also prevents denominator == 0.
+            require(denominator > prod1, "Math: mulDiv overflow");
+
+            ///////////////////////////////////////////////
+            // 512 by 256 division.
+            ///////////////////////////////////////////////
+
+            // Make division exact by subtracting the remainder from [prod1 prod0].
+            uint256 remainder;
+            assembly {
+                // Compute remainder using mulmod.
+                remainder := mulmod(x, y, denominator)
+
+                // Subtract 256 bit number from 512 bit number.
+                prod1 := sub(prod1, gt(remainder, prod0))
+                prod0 := sub(prod0, remainder)
+            }
+
+            // Factor powers of two out of denominator and compute largest power of two divisor of denominator. Always >= 1.
+            // See https://cs.stackexchange.com/q/138556/92363.
+
+            // Does not overflow because the denominator cannot be zero at this stage in the function.
+            uint256 twos = denominator & (~denominator + 1);
+            assembly {
+                // Divide denominator by twos.
+                denominator := div(denominator, twos)
+
+                // Divide [prod1 prod0] by twos.
+                prod0 := div(prod0, twos)
+
+                // Flip twos such that it is 2^256 / twos. If twos is zero, then it becomes one.
+                twos := add(div(sub(0, twos), twos), 1)
+            }
+
+            // Shift in bits from prod1 into prod0.
+            prod0 |= prod1 * twos;
+
+            // Invert denominator mod 2^256. Now that denominator is an odd number, it has an inverse modulo 2^256 such
+            // that denominator * inv = 1 mod 2^256. Compute the inverse by starting with a seed that is correct for
+            // four bits. That is, denominator * inv = 1 mod 2^4.
+            uint256 inverse = (3 * denominator) ^ 2;
+
+            // Use the Newton-Raphson iteration to improve the precision. Thanks to Hensel's lifting lemma, this also works
+            // in modular arithmetic, doubling the correct bits in each step.
+            inverse *= 2 - denominator * inverse; // inverse mod 2^8
+            inverse *= 2 - denominator * inverse; // inverse mod 2^16
+            inverse *= 2 - denominator * inverse; // inverse mod 2^32
+            inverse *= 2 - denominator * inverse; // inverse mod 2^64
+            inverse *= 2 - denominator * inverse; // inverse mod 2^128
+            inverse *= 2 - denominator * inverse; // inverse mod 2^256
+
+            // Because the division is now exact we can divide by multiplying with the modular inverse of denominator.
+            // This will give us the correct result modulo 2^256. Since the preconditions guarantee that the outcome is
+            // less than 2^256, this is the final result. We don't need to compute the high bits of the result and prod1
+            // is no longer required.
+            result = prod0 * inverse;
+            return result;
+        }
+    }
+
+    /**
+     * @notice Calculates x * y / denominator with full precision, following the selected rounding direction.
+     */
+    function mulDiv(uint256 x, uint256 y, uint256 denominator, Rounding rounding) internal pure returns (uint256) {
+        uint256 result = mulDiv(x, y, denominator);
+        if (rounding == Rounding.Up && mulmod(x, y, denominator) > 0) {
+            result += 1;
+        }
+        return result;
+    }
+
+    /**
+     * @dev Returns the square root of a number. If the number is not a perfect square, the value is rounded down.
+     *
+     * Inspired by Henry S. Warren, Jr.'s "Hacker's Delight" (Chapter 11).
+     */
+    function sqrt(uint256 a) internal pure returns (uint256) {
+        if (a == 0) {
+            return 0;
+        }
+
+        // For our first guess, we get the biggest power of 2 which is smaller than the square root of the target.
+        //
+        // We know that the "msb" (most significant bit) of our target number `a` is a power of 2 such that we have
+        // `msb(a) <= a < 2*msb(a)`. This value can be written `msb(a)=2**k` with `k=log2(a)`.
+        //
+        // This can be rewritten `2**log2(a) <= a < 2**(log2(a) + 1)`
+        // → `sqrt(2**k) <= sqrt(a) < sqrt(2**(k+1))`
+        // → `2**(k/2) <= sqrt(a) < 2**((k+1)/2) <= 2**(k/2 + 1)`
+        //
+        // Consequently, `2**(log2(a) / 2)` is a good first approximation of `sqrt(a)` with at least 1 correct bit.
+        uint256 result = 1 << (log2(a) >> 1);
+
+        // At this point `result` is an estimation with one bit of precision. We know the true value is a uint128,
+        // since it is the square root of a uint256. Newton's method converges quadratically (precision doubles at
+        // every iteration). We thus need at most 7 iteration to turn our partial result with one bit of precision
+        // into the expected uint128 result.
+        unchecked {
+            result = (result + a / result) >> 1;
+            result = (result + a / result) >> 1;
+            result = (result + a / result) >> 1;
+            result = (result + a / result) >> 1;
+            result = (result + a / result) >> 1;
+            result = (result + a / result) >> 1;
+            result = (result + a / result) >> 1;
+            return min(result, a / result);
+        }
+    }
+
+    /**
+     * @notice Calculates sqrt(a), following the selected rounding direction.
+     */
+    function sqrt(uint256 a, Rounding rounding) internal pure returns (uint256) {
+        unchecked {
+            uint256 result = sqrt(a);
+            return result + (rounding == Rounding.Up && result * result < a ? 1 : 0);
+        }
+    }
+
+    /**
+     * @dev Return the log in base 2, rounded down, of a positive value.
+     * Returns 0 if given 0.
+     */
+    function log2(uint256 value) internal pure returns (uint256) {
+        uint256 result = 0;
+        unchecked {
+            if (value >> 128 > 0) {
+                value >>= 128;
+                result += 128;
+            }
+            if (value >> 64 > 0) {
+                value >>= 64;
+                result += 64;
+            }
+            if (value >> 32 > 0) {
+                value >>= 32;
+                result += 32;
+            }
+            if (value >> 16 > 0) {
+                value >>= 16;
+                result += 16;
+            }
+            if (value >> 8 > 0) {
+                value >>= 8;
+                result += 8;
+            }
+            if (value >> 4 > 0) {
+                value >>= 4;
+                result += 4;
+            }
+            if (value >> 2 > 0) {
+                value >>= 2;
+                result += 2;
+            }
+            if (value >> 1 > 0) {
+                result += 1;
+            }
+        }
+        return result;
+    }
+
+    /**
+     * @dev Return the log in base 2, following the selected rounding direction, of a positive value.
+     * Returns 0 if given 0.
+     */
+    function log2(uint256 value, Rounding rounding) internal pure returns (uint256) {
+        unchecked {
+            uint256 result = log2(value);
+            return result + (rounding == Rounding.Up && 1 << result < value ? 1 : 0);
+        }
+    }
+
+    /**
+     * @dev Return the log in base 10, rounded down, of a positive value.
+     * Returns 0 if given 0.
+     */
+    function log10(uint256 value) internal pure returns (uint256) {
+        uint256 result = 0;
+        unchecked {
+            if (value >= 10 ** 64) {
+                value /= 10 ** 64;
+                result += 64;
+            }
+            if (value >= 10 ** 32) {
+                value /= 10 ** 32;
+                result += 32;
+            }
+            if (value >= 10 ** 16) {
+                value /= 10 ** 16;
+                result += 16;
+            }
+            if (value >= 10 ** 8) {
+                value /= 10 ** 8;
+                result += 8;
+            }
+            if (value >= 10 ** 4) {
+                value /= 10 ** 4;
+                result += 4;
+            }
+            if (value >= 10 ** 2) {
+                value /= 10 ** 2;
+                result += 2;
+            }
+            if (value >= 10 ** 1) {
+                result += 1;
+            }
+        }
+        return result;
+    }
+
+    /**
+     * @dev Return the log in base 10, following the selected rounding direction, of a positive value.
+     * Returns 0 if given 0.
+     */
+    function log10(uint256 value, Rounding rounding) internal pure returns (uint256) {
+        unchecked {
+            uint256 result = log10(value);
+            return result + (rounding == Rounding.Up && 10 ** result < value ? 1 : 0);
+        }
+    }
+
+    /**
+     * @dev Return the log in base 256, rounded down, of a positive value.
+     * Returns 0 if given 0.
+     *
+     * Adding one to the result gives the number of pairs of hex symbols needed to represent `value` as a hex string.
+     */
+    function log256(uint256 value) internal pure returns (uint256) {
+        uint256 result = 0;
+        unchecked {
+            if (value >> 128 > 0) {
+                value >>= 128;
+                result += 16;
+            }
+            if (value >> 64 > 0) {
+                value >>= 64;
+                result += 8;
+            }
+            if (value >> 32 > 0) {
+                value >>= 32;
+                result += 4;
+            }
+            if (value >> 16 > 0) {
+                value >>= 16;
+                result += 2;
+            }
+            if (value >> 8 > 0) {
+                result += 1;
+            }
+        }
+        return result;
+    }
+
+    /**
+     * @dev Return the log in base 256, following the selected rounding direction, of a positive value.
+     * Returns 0 if given 0.
+     */
+    function log256(uint256 value, Rounding rounding) internal pure returns (uint256) {
+        unchecked {
+            uint256 result = log256(value);
+            return result + (rounding == Rounding.Up && 1 << (result << 3) < value ? 1 : 0);
+        }
+    }
+}
+
+// node_modules/@openzeppelin/contracts-upgradeable/utils/math/MathUpgradeable.sol
+
+// OpenZeppelin Contracts (last updated v4.9.0) (utils/math/Math.sol)
+
+/**
+ * @dev Standard math utilities missing in the Solidity language.
+ */
+library MathUpgradeable {
+    enum Rounding {
+        Down, // Toward negative infinity
+        Up, // Toward infinity
+        Zero // Toward zero
+    }
+
+    /**
+     * @dev Returns the largest of two numbers.
+     */
+    function max(uint256 a, uint256 b) internal pure returns (uint256) {
+        return a > b ? a : b;
+    }
+
+    /**
+     * @dev Returns the smallest of two numbers.
+     */
+    function min(uint256 a, uint256 b) internal pure returns (uint256) {
+        return a < b ? a : b;
+    }
+
+    /**
+     * @dev Returns the average of two numbers. The result is rounded towards
+     * zero.
+     */
+    function average(uint256 a, uint256 b) internal pure returns (uint256) {
+        // (a + b) / 2 can overflow.
+        return (a & b) + (a ^ b) / 2;
+    }
+
+    /**
+     * @dev Returns the ceiling of the division of two numbers.
+     *
+     * This differs from standard division with `/` in that it rounds up instead
+     * of rounding down.
+     */
+    function ceilDiv(uint256 a, uint256 b) internal pure returns (uint256) {
+        // (a + b - 1) / b can overflow on addition, so we distribute.
+        return a == 0 ? 0 : (a - 1) / b + 1;
+    }
+
+    /**
+     * @notice Calculates floor(x * y / denominator) with full precision. Throws if result overflows a uint256 or denominator == 0
+     * @dev Original credit to Remco Bloemen under MIT license (https://xn--2-umb.com/21/muldiv)
+     * with further edits by Uniswap Labs also under MIT license.
+     */
+    function mulDiv(uint256 x, uint256 y, uint256 denominator) internal pure returns (uint256 result) {
+        unchecked {
+            // 512-bit multiply [prod1 prod0] = x * y. Compute the product mod 2^256 and mod 2^256 - 1, then use
+            // use the Chinese Remainder Theorem to reconstruct the 512 bit result. The result is stored in two 256
+            // variables such that product = prod1 * 2^256 + prod0.
+            uint256 prod0; // Least significant 256 bits of the product
+            uint256 prod1; // Most significant 256 bits of the product
+            assembly {
+                let mm := mulmod(x, y, not(0))
+                prod0 := mul(x, y)
+                prod1 := sub(sub(mm, prod0), lt(mm, prod0))
+            }
+
+            // Handle non-overflow cases, 256 by 256 division.
+            if (prod1 == 0) {
+                // Solidity will revert if denominator == 0, unlike the div opcode on its own.
+                // The surrounding unchecked block does not change this fact.
+                // See https://docs.soliditylang.org/en/latest/control-structures.html#checked-or-unchecked-arithmetic.
+                return prod0 / denominator;
+            }
+
+            // Make sure the result is less than 2^256. Also prevents denominator == 0.
+            require(denominator > prod1, "Math: mulDiv overflow");
+
+            ///////////////////////////////////////////////
+            // 512 by 256 division.
+            ///////////////////////////////////////////////
+
+            // Make division exact by subtracting the remainder from [prod1 prod0].
+            uint256 remainder;
+            assembly {
+                // Compute remainder using mulmod.
+                remainder := mulmod(x, y, denominator)
+
+                // Subtract 256 bit number from 512 bit number.
+                prod1 := sub(prod1, gt(remainder, prod0))
+                prod0 := sub(prod0, remainder)
+            }
+
+            // Factor powers of two out of denominator and compute largest power of two divisor of denominator. Always >= 1.
+            // See https://cs.stackexchange.com/q/138556/92363.
+
+            // Does not overflow because the denominator cannot be zero at this stage in the function.
+            uint256 twos = denominator & (~denominator + 1);
+            assembly {
+                // Divide denominator by twos.
+                denominator := div(denominator, twos)
+
+                // Divide [prod1 prod0] by twos.
+                prod0 := div(prod0, twos)
+
+                // Flip twos such that it is 2^256 / twos. If twos is zero, then it becomes one.
+                twos := add(div(sub(0, twos), twos), 1)
+            }
+
+            // Shift in bits from prod1 into prod0.
+            prod0 |= prod1 * twos;
+
+            // Invert denominator mod 2^256. Now that denominator is an odd number, it has an inverse modulo 2^256 such
+            // that denominator * inv = 1 mod 2^256. Compute the inverse by starting with a seed that is correct for
+            // four bits. That is, denominator * inv = 1 mod 2^4.
+            uint256 inverse = (3 * denominator) ^ 2;
+
+            // Use the Newton-Raphson iteration to improve the precision. Thanks to Hensel's lifting lemma, this also works
+            // in modular arithmetic, doubling the correct bits in each step.
+            inverse *= 2 - denominator * inverse; // inverse mod 2^8
+            inverse *= 2 - denominator * inverse; // inverse mod 2^16
+            inverse *= 2 - denominator * inverse; // inverse mod 2^32
+            inverse *= 2 - denominator * inverse; // inverse mod 2^64
+            inverse *= 2 - denominator * inverse; // inverse mod 2^128
+            inverse *= 2 - denominator * inverse; // inverse mod 2^256
+
+            // Because the division is now exact we can divide by multiplying with the modular inverse of denominator.
+            // This will give us the correct result modulo 2^256. Since the preconditions guarantee that the outcome is
+            // less than 2^256, this is the final result. We don't need to compute the high bits of the result and prod1
+            // is no longer required.
+            result = prod0 * inverse;
+            return result;
+        }
+    }
+
+    /**
+     * @notice Calculates x * y / denominator with full precision, following the selected rounding direction.
+     */
+    function mulDiv(uint256 x, uint256 y, uint256 denominator, Rounding rounding) internal pure returns (uint256) {
+        uint256 result = mulDiv(x, y, denominator);
+        if (rounding == Rounding.Up && mulmod(x, y, denominator) > 0) {
+            result += 1;
+        }
+        return result;
+    }
+
+    /**
+     * @dev Returns the square root of a number. If the number is not a perfect square, the value is rounded down.
+     *
+     * Inspired by Henry S. Warren, Jr.'s "Hacker's Delight" (Chapter 11).
+     */
+    function sqrt(uint256 a) internal pure returns (uint256) {
+        if (a == 0) {
+            return 0;
+        }
+
+        // For our first guess, we get the biggest power of 2 which is smaller than the square root of the target.
+        //
+        // We know that the "msb" (most significant bit) of our target number `a` is a power of 2 such that we have
+        // `msb(a) <= a < 2*msb(a)`. This value can be written `msb(a)=2**k` with `k=log2(a)`.
+        //
+        // This can be rewritten `2**log2(a) <= a < 2**(log2(a) + 1)`
+        // → `sqrt(2**k) <= sqrt(a) < sqrt(2**(k+1))`
+        // → `2**(k/2) <= sqrt(a) < 2**((k+1)/2) <= 2**(k/2 + 1)`
+        //
+        // Consequently, `2**(log2(a) / 2)` is a good first approximation of `sqrt(a)` with at least 1 correct bit.
+        uint256 result = 1 << (log2(a) >> 1);
+
+        // At this point `result` is an estimation with one bit of precision. We know the true value is a uint128,
+        // since it is the square root of a uint256. Newton's method converges quadratically (precision doubles at
+        // every iteration). We thus need at most 7 iteration to turn our partial result with one bit of precision
+        // into the expected uint128 result.
+        unchecked {
+            result = (result + a / result) >> 1;
+            result = (result + a / result) >> 1;
+            result = (result + a / result) >> 1;
+            result = (result + a / result) >> 1;
+            result = (result + a / result) >> 1;
+            result = (result + a / result) >> 1;
+            result = (result + a / result) >> 1;
+            return min(result, a / result);
+        }
+    }
+
+    /**
+     * @notice Calculates sqrt(a), following the selected rounding direction.
+     */
+    function sqrt(uint256 a, Rounding rounding) internal pure returns (uint256) {
+        unchecked {
+            uint256 result = sqrt(a);
+            return result + (rounding == Rounding.Up && result * result < a ? 1 : 0);
+        }
+    }
+
+    /**
+     * @dev Return the log in base 2, rounded down, of a positive value.
+     * Returns 0 if given 0.
+     */
+    function log2(uint256 value) internal pure returns (uint256) {
+        uint256 result = 0;
+        unchecked {
+            if (value >> 128 > 0) {
+                value >>= 128;
+                result += 128;
+            }
+            if (value >> 64 > 0) {
+                value >>= 64;
+                result += 64;
+            }
+            if (value >> 32 > 0) {
+                value >>= 32;
+                result += 32;
+            }
+            if (value >> 16 > 0) {
+                value >>= 16;
+                result += 16;
+            }
+            if (value >> 8 > 0) {
+                value >>= 8;
+                result += 8;
+            }
+            if (value >> 4 > 0) {
+                value >>= 4;
+                result += 4;
+            }
+            if (value >> 2 > 0) {
+                value >>= 2;
+                result += 2;
+            }
+            if (value >> 1 > 0) {
+                result += 1;
+            }
+        }
+        return result;
+    }
+
+    /**
+     * @dev Return the log in base 2, following the selected rounding direction, of a positive value.
+     * Returns 0 if given 0.
+     */
+    function log2(uint256 value, Rounding rounding) internal pure returns (uint256) {
+        unchecked {
+            uint256 result = log2(value);
+            return result + (rounding == Rounding.Up && 1 << result < value ? 1 : 0);
+        }
+    }
+
+    /**
+     * @dev Return the log in base 10, rounded down, of a positive value.
+     * Returns 0 if given 0.
+     */
+    function log10(uint256 value) internal pure returns (uint256) {
+        uint256 result = 0;
+        unchecked {
+            if (value >= 10 ** 64) {
+                value /= 10 ** 64;
+                result += 64;
+            }
+            if (value >= 10 ** 32) {
+                value /= 10 ** 32;
+                result += 32;
+            }
+            if (value >= 10 ** 16) {
+                value /= 10 ** 16;
+                result += 16;
+            }
+            if (value >= 10 ** 8) {
+                value /= 10 ** 8;
+                result += 8;
+            }
+            if (value >= 10 ** 4) {
+                value /= 10 ** 4;
+                result += 4;
+            }
+            if (value >= 10 ** 2) {
+                value /= 10 ** 2;
+                result += 2;
+            }
+            if (value >= 10 ** 1) {
+                result += 1;
+            }
+        }
+        return result;
+    }
+
+    /**
+     * @dev Return the log in base 10, following the selected rounding direction, of a positive value.
+     * Returns 0 if given 0.
+     */
+    function log10(uint256 value, Rounding rounding) internal pure returns (uint256) {
+        unchecked {
+            uint256 result = log10(value);
+            return result + (rounding == Rounding.Up && 10 ** result < value ? 1 : 0);
+        }
+    }
+
+    /**
+     * @dev Return the log in base 256, rounded down, of a positive value.
+     * Returns 0 if given 0.
+     *
+     * Adding one to the result gives the number of pairs of hex symbols needed to represent `value` as a hex string.
+     */
+    function log256(uint256 value) internal pure returns (uint256) {
+        uint256 result = 0;
+        unchecked {
+            if (value >> 128 > 0) {
+                value >>= 128;
+                result += 16;
+            }
+            if (value >> 64 > 0) {
+                value >>= 64;
+                result += 8;
+            }
+            if (value >> 32 > 0) {
+                value >>= 32;
+                result += 4;
+            }
+            if (value >> 16 > 0) {
+                value >>= 16;
+                result += 2;
+            }
+            if (value >> 8 > 0) {
+                result += 1;
+            }
+        }
+        return result;
+    }
+
+    /**
+     * @dev Return the log in base 256, following the selected rounding direction, of a positive value.
+     * Returns 0 if given 0.
+     */
+    function log256(uint256 value, Rounding rounding) internal pure returns (uint256) {
+        unchecked {
+            uint256 result = log256(value);
+            return result + (rounding == Rounding.Up && 1 << (result << 3) < value ? 1 : 0);
+        }
+    }
+}
+
+// node_modules/@fraxfinance/layerzero-v2-upgradeable/oapp/contracts/oft/libs/OFTComposeMsgCodec.sol
+
+library OFTComposeMsgCodec {
+    // Offset constants for decoding composed messages
+    uint8 private constant NONCE_OFFSET = 8;
+    uint8 private constant SRC_EID_OFFSET = 12;
+    uint8 private constant AMOUNT_LD_OFFSET = 44;
+    uint8 private constant COMPOSE_FROM_OFFSET = 76;
+
+    /**
+     * @dev Encodes a OFT composed message.
+     * @param _nonce The nonce value.
+     * @param _srcEid The source endpoint ID.
+     * @param _amountLD The amount in local decimals.
+     * @param _composeMsg The composed message.
+     * @return _msg The encoded Composed message.
+     */
+    function encode(
+        uint64 _nonce,
+        uint32 _srcEid,
+        uint256 _amountLD,
+        bytes memory _composeMsg // 0x[composeFrom][composeMsg]
+    ) internal pure returns (bytes memory _msg) {
+        _msg = abi.encodePacked(_nonce, _srcEid, _amountLD, _composeMsg);
+    }
+
+    /**
+     * @dev Retrieves the nonce from the composed message.
+     * @param _msg The message.
+     * @return The nonce value.
+     */
+    function nonce(bytes calldata _msg) internal pure returns (uint64) {
+        return uint64(bytes8(_msg[:NONCE_OFFSET]));
+    }
+
+    /**
+     * @dev Retrieves the source endpoint ID from the composed message.
+     * @param _msg The message.
+     * @return The source endpoint ID.
+     */
+    function srcEid(bytes calldata _msg) internal pure returns (uint32) {
+        return uint32(bytes4(_msg[NONCE_OFFSET:SRC_EID_OFFSET]));
+    }
+
+    /**
+     * @dev Retrieves the amount in local decimals from the composed message.
+     * @param _msg The message.
+     * @return The amount in local decimals.
+     */
+    function amountLD(bytes calldata _msg) internal pure returns (uint256) {
+        return uint256(bytes32(_msg[SRC_EID_OFFSET:AMOUNT_LD_OFFSET]));
+    }
+
+    /**
+     * @dev Retrieves the composeFrom value from the composed message.
+     * @param _msg The message.
+     * @return The composeFrom value.
+     */
+    function composeFrom(bytes calldata _msg) internal pure returns (bytes32) {
+        return bytes32(_msg[AMOUNT_LD_OFFSET:COMPOSE_FROM_OFFSET]);
+    }
+
+    /**
+     * @dev Retrieves the composed message.
+     * @param _msg The message.
+     * @return The composed message.
+     */
+    function composeMsg(bytes calldata _msg) internal pure returns (bytes memory) {
+        return _msg[COMPOSE_FROM_OFFSET:];
+    }
+
+    /**
+     * @dev Converts an address to bytes32.
+     * @param _addr The address to convert.
+     * @return The bytes32 representation of the address.
+     */
+    function addressToBytes32(address _addr) internal pure returns (bytes32) {
+        return bytes32(uint256(uint160(_addr)));
+    }
+
+    /**
+     * @dev Converts bytes32 to an address.
+     * @param _b The bytes32 value to convert.
+     * @return The address representation of bytes32.
+     */
+    function bytes32ToAddress(bytes32 _b) internal pure returns (address) {
+        return address(uint160(uint256(_b)));
+    }
+}
+
+// node_modules/@fraxfinance/layerzero-v2-upgradeable/oapp/contracts/oft/libs/OFTMsgCodec.sol
+
+library OFTMsgCodec {
+    // Offset constants for encoding and decoding OFT messages
+    uint8 private constant SEND_TO_OFFSET = 32;
+    uint8 private constant SEND_AMOUNT_SD_OFFSET = 40;
+
+    /**
+     * @dev Encodes an OFT LayerZero message.
+     * @param _sendTo The recipient address.
+     * @param _amountShared The amount in shared decimals.
+     * @param _composeMsg The composed message.
+     * @return _msg The encoded message.
+     * @return hasCompose A boolean indicating whether the message has a composed payload.
+     */
+    function encode(
+        bytes32 _sendTo,
+        uint64 _amountShared,
+        bytes memory _composeMsg
+    ) internal view returns (bytes memory _msg, bool hasCompose) {
+        hasCompose = _composeMsg.length > 0;
+        // @dev Remote chains will want to know the composed function caller ie. msg.sender on the src.
+        _msg = hasCompose
+            ? abi.encodePacked(_sendTo, _amountShared, addressToBytes32(msg.sender), _composeMsg)
+            : abi.encodePacked(_sendTo, _amountShared);
+    }
+
+    /**
+     * @dev Checks if the OFT message is composed.
+     * @param _msg The OFT message.
+     * @return A boolean indicating whether the message is composed.
+     */
+    function isComposed(bytes calldata _msg) internal pure returns (bool) {
+        return _msg.length > SEND_AMOUNT_SD_OFFSET;
+    }
+
+    /**
+     * @dev Retrieves the recipient address from the OFT message.
+     * @param _msg The OFT message.
+     * @return The recipient address.
+     */
+    function sendTo(bytes calldata _msg) internal pure returns (bytes32) {
+        return bytes32(_msg[:SEND_TO_OFFSET]);
+    }
+
+    /**
+     * @dev Retrieves the amount in shared decimals from the OFT message.
+     * @param _msg The OFT message.
+     * @return The amount in shared decimals.
+     */
+    function amountSD(bytes calldata _msg) internal pure returns (uint64) {
+        return uint64(bytes8(_msg[SEND_TO_OFFSET:SEND_AMOUNT_SD_OFFSET]));
+    }
+
+    /**
+     * @dev Retrieves the composed message from the OFT message.
+     * @param _msg The OFT message.
+     * @return The composed message.
+     */
+    function composeMsg(bytes calldata _msg) internal pure returns (bytes memory) {
+        return _msg[SEND_AMOUNT_SD_OFFSET:];
+    }
+
+    /**
+     * @dev Converts an address to bytes32.
+     * @param _addr The address to convert.
+     * @return The bytes32 representation of the address.
+     */
+    function addressToBytes32(address _addr) internal pure returns (bytes32) {
+        return bytes32(uint256(uint160(_addr)));
+    }
+
+    /**
+     * @dev Converts bytes32 to an address.
+     * @param _b The bytes32 value to convert.
+     * @return The address representation of bytes32.
+     */
+    function bytes32ToAddress(bytes32 _b) internal pure returns (address) {
+        return address(uint160(uint256(_b)));
+    }
+}
+
+// contracts/modules/PauseModule.sol
+
+/*
+  * @title PauseModule
+  * @dev Contract module that allows pausing and unpausing of the contract.
+*/
+abstract contract PauseModule {
+
+    struct PauseStorage {
+        bool isPaused;
+    }
+
+    /// @dev keccak256(abi.encode(uint256(keccak256("frax.storage.PauseModule")) - 1)) & ~bytes32(uint256(0xff))
+    bytes32 private constant PauseStorageLocation = 0x242e96562e738afaa26e2a4eb34bb6ab09c26cd11226ccf8fbc02da32756d300;
+
+    function _getPauseStorage() private pure returns (PauseStorage storage $) {
+        assembly {
+            $.slot := PauseStorageLocation
+        }
+    }
+
+    function _pause() internal virtual {
+        PauseStorage storage $ =_getPauseStorage();
+        if ($.isPaused) revert IsPaused();
+        $.isPaused = true;
+        emit Paused();
+    }
+
+    function _unpause() internal virtual {
+        PauseStorage storage $ = _getPauseStorage();
+        if (!$.isPaused) revert NotPaused();
+        $.isPaused = false;
+        emit Unpaused();
+    }
+
+    /// @notice Return whether the contract is paused
+    /// @return bool True if paused, false otherwise
+    function isPaused() public view virtual returns (bool) {
+        PauseStorage storage $ = _getPauseStorage();
+        return $.isPaused;
+    }
+
+    /* ========== EVENTS ========== */
+    /// @notice Event Emitted when the contract is paused
+    event Paused();
+
+    /// @notice Event Emitted when the contract is unpaused
+    event Unpaused();
+
+    /* ========== ERRORS ========== */
+    error IsPaused();
+    error NotPaused();
+}
+
+// node_modules/@openzeppelin/contracts/utils/math/SignedMath.sol
+
+// OpenZeppelin Contracts (last updated v4.8.0) (utils/math/SignedMath.sol)
+
+/**
+ * @dev Standard signed math utilities missing in the Solidity language.
+ */
+library SignedMath {
+    /**
+     * @dev Returns the largest of two signed numbers.
+     */
+    function max(int256 a, int256 b) internal pure returns (int256) {
+        return a > b ? a : b;
+    }
+
+    /**
+     * @dev Returns the smallest of two signed numbers.
+     */
+    function min(int256 a, int256 b) internal pure returns (int256) {
+        return a < b ? a : b;
+    }
+
+    /**
+     * @dev Returns the average of two signed numbers without overflow.
+     * The result is rounded towards zero.
+     */
+    function average(int256 a, int256 b) internal pure returns (int256) {
+        // Formula from the book "Hacker's Delight"
+        int256 x = (a & b) + ((a ^ b) >> 1);
+        return x + (int256(uint256(x) >> 255) & (a ^ b));
+    }
+
+    /**
+     * @dev Returns the absolute unsigned value of a signed value.
+     */
+    function abs(int256 n) internal pure returns (uint256) {
+        unchecked {
+            // must be unchecked in order to support `n = type(int256).min`
+            return uint256(n >= 0 ? n : -n);
+        }
+    }
+}
+
+// node_modules/@openzeppelin/contracts-upgradeable/utils/math/SignedMathUpgradeable.sol
+
+// OpenZeppelin Contracts (last updated v4.8.0) (utils/math/SignedMath.sol)
+
+/**
+ * @dev Standard signed math utilities missing in the Solidity language.
+ */
+library SignedMathUpgradeable {
+    /**
+     * @dev Returns the largest of two signed numbers.
+     */
+    function max(int256 a, int256 b) internal pure returns (int256) {
+        return a > b ? a : b;
+    }
+
+    /**
+     * @dev Returns the smallest of two signed numbers.
+     */
+    function min(int256 a, int256 b) internal pure returns (int256) {
+        return a < b ? a : b;
+    }
+
+    /**
+     * @dev Returns the average of two signed numbers without overflow.
+     * The result is rounded towards zero.
+     */
+    function average(int256 a, int256 b) internal pure returns (int256) {
+        // Formula from the book "Hacker's Delight"
+        int256 x = (a & b) + ((a ^ b) >> 1);
+        return x + (int256(uint256(x) >> 255) & (a ^ b));
+    }
+
+    /**
+     * @dev Returns the absolute unsigned value of a signed value.
+     */
+    function abs(int256 n) internal pure returns (uint256) {
+        unchecked {
+            // must be unchecked in order to support `n = type(int256).min`
+            return uint256(n >= 0 ? n : -n);
+        }
+    }
+}
+
+// contracts/modules/FreezeThawModule.sol
+
+/**
+ * @title FreezeThawModule
+ * @dev Contract module that allows freezing and thawing of accounts.
+ */
+abstract contract FreezeThawModule {
+
+    using EnumerableSet for EnumerableSet.AddressSet;
+
+    struct FreezeThawStorage {
+        EnumerableSet.AddressSet freezers;
+        EnumerableSet.AddressSet frozen;
+    }
+
+    /// @dev keccak256(abi.encode(uint256(keccak256("frax.storage.FreezeThawModule")) - 1)) & ~bytes32(uint256(0xff))
+    bytes32 private constant FreezeThawStorageLocation = 0xf6192aebe04228448ed4fd2802d59c009f5324cdd6a110c65bd318373b6e1d00;
+
+    function _getFreezeThawStorage() private pure returns (FreezeThawStorage storage $) {
+        assembly {
+            $.slot := FreezeThawStorageLocation
+        }
+    }
+
+    /// @notice Internal helper function to freeze an account
+    /// @param account The account to freeze
+    /// @dev To be called externally by admin
+    /// @dev Does not revert if the account is already frozen so that freezing always succeeds
+    function _freeze(address account) internal virtual {
+        FreezeThawStorage storage $ = _getFreezeThawStorage();
+        $.frozen.add(account);
+        emit AccountFrozen(account);
+    }
+
+    /// @notice Internal helper function to unfreeze an account
+    /// @param account The account to unfreeze
+    /// @dev To be called externally by admin
+    /// @dev Does not revert if the account is not frozen so that thawing always succeeds
+    function _thaw(address account) internal virtual {
+        FreezeThawStorage storage $ = _getFreezeThawStorage();
+        $.frozen.remove(account);
+        emit AccountThawed(account);
+    }
+
+    /// @notice Internal helper function to freeze an array of accounts
+    /// @param accounts The accounts to freeze
+    /// @dev To be called externally by admin
+    function _freezeMany(address[] memory accounts) internal virtual {
+        uint256 len = accounts.length;
+        for (uint256 i; i < len; ++i) {
+            _freeze(accounts[i]);
+        }
+    }
+
+    /// @notice Internal helper function to unfreeze an array of accounts
+    /// @param accounts The accounts to be unfrozen
+    /// @dev To be called externally by admin
+    function _thawMany(address[] memory accounts) internal virtual {
+        uint256 len = accounts.length;
+        for (uint256 i; i < len; ++i) {
+            _thaw(accounts[i]);
+        }
+    }
+
+    /// @notice Add a freezer role to an account
+    /// @param account The account to add as a freezer
+    /// @dev To be called externally by admin
+    /// @dev Reverts if the account is already a freezer
+    function _addFreezer(address account) internal virtual {
+        FreezeThawStorage storage $ = _getFreezeThawStorage();
+        if (!$.freezers.add(account)) revert AlreadyFreezer();
+        emit AddFreezer(account);
+    }
+
+    /// @notice Remove a freezer role from an account
+    /// @param account The account to remove as a freezer
+    /// @dev To be called externally by admin
+    /// @dev Reverts if the account is not a freezer
+    function _removeFreezer(address account) internal virtual {
+        FreezeThawStorage storage $ = _getFreezeThawStorage();
+        if (!$.freezers.remove(account)) revert NotFreezer();
+        emit RemoveFreezer(account);
+    }
+
+    /// @notice Check if an account is frozen
+    /// @param account The account to check
+    /// @return bool True if the account is frozen, false otherwise
+    function isFrozen(address account) public view virtual returns (bool) {
+        FreezeThawStorage storage $ = _getFreezeThawStorage();
+        return $.frozen.contains(account);
+    }
+
+    /// @notice Check if an account is an authorized freezer
+    /// @param account The account to check
+    /// @return bool True if the account is a freezer, false otherwise
+    function isFreezer(address account) public view virtual returns (bool) {
+        FreezeThawStorage storage $ =_getFreezeThawStorage();
+        return $.freezers.contains(account);
+    }
+
+    /// @notice Get the list of all frozen accounts
+    /// @return addres[] An array set of all frozen accounts
+    function frozen() external view virtual returns (address[] memory) {
+        FreezeThawStorage storage $ = _getFreezeThawStorage();
+        return $.frozen.values();
+    }
+
+    /// @notice Get the list of all freezer accounts
+    /// @return address[] An array set of all freezer accounts
+    function freezers() external view virtual returns (address[] memory) {
+        FreezeThawStorage storage $ = _getFreezeThawStorage();
+        return $.freezers.values();
+    }
+
+    /* ========== EVENTS ========== */
+    /// @notice Event Emitted when a freezer is aded
+    /// @param account The account being added as a freezre
+    event AddFreezer(address indexed account);
+
+    /// @notice Event Emitted when a freezer is removed
+    /// @param account The account being removed as a freezer
+    event RemoveFreezer(address indexed account);
+
+    /// @notice Event Emitted when an address is frozen
+    /// @param account The account being frozen
+    event AccountFrozen(address account);
+
+    /// @notice Event Emitted when an address is unfrozen
+    /// @param account The account being thawed
+    event AccountThawed(address account);
+
+    /* ========== ERRORS ========== */
+    error AlreadyFreezer();
+    error NotFreezer();
+}
+
+// node_modules/@openzeppelin/contracts-upgradeable/token/ERC20/extensions/IERC20MetadataUpgradeable.sol
+
+// OpenZeppelin Contracts v4.4.1 (token/ERC20/extensions/IERC20Metadata.sol)
+
+/**
+ * @dev Interface for the optional metadata functions from the ERC20 standard.
+ *
+ * _Available since v4.1._
+ */
+interface IERC20MetadataUpgradeable is IERC20Upgradeable {
+    /**
+     * @dev Returns the name of the token.
+     */
+    function name() external view returns (string memory);
+
+    /**
+     * @dev Returns the symbol of the token.
+     */
+    function symbol() external view returns (string memory);
+
+    /**
+     * @dev Returns the decimals places of the token.
+     */
+    function decimals() external view returns (uint8);
+}
+
 // node_modules/@openzeppelin/contracts-upgradeable/proxy/utils/Initializable.sol
 
 // OpenZeppelin Contracts (last updated v4.9.0) (proxy/utils/Initializable.sol)
@@ -1386,53 +2834,6 @@ abstract contract Initializable {
     }
 }
 
-// node_modules/@openzeppelin/contracts-upgradeable/token/ERC20/extensions/IERC20MetadataUpgradeable.sol
-
-// OpenZeppelin Contracts v4.4.1 (token/ERC20/extensions/IERC20Metadata.sol)
-
-/**
- * @dev Interface for the optional metadata functions from the ERC20 standard.
- *
- * _Available since v4.1._
- */
-interface IERC20MetadataUpgradeable is IERC20Upgradeable {
-    /**
-     * @dev Returns the name of the token.
-     */
-    function name() external view returns (string memory);
-
-    /**
-     * @dev Returns the symbol of the token.
-     */
-    function symbol() external view returns (string memory);
-
-    /**
-     * @dev Returns the decimals places of the token.
-     */
-    function decimals() external view returns (uint8);
-}
-
-// node_modules/@layerzerolabs/lz-evm-protocol-v2/contracts/interfaces/IMessageLib.sol
-
-enum MessageLibType {
-    Send,
-    Receive,
-    SendAndReceive
-}
-
-interface IMessageLib is IERC165 {
-    function setConfig(address _oapp, SetConfigParam[] calldata _config) external;
-
-    function getConfig(uint32 _eid, address _oapp, uint32 _configType) external view returns (bytes memory config);
-
-    function isSupportedEid(uint32 _eid) external view returns (bool);
-
-    // message libs of same major version are compatible
-    function version() external view returns (uint64 major, uint8 minor, uint8 endpointVersion);
-
-    function messageLibType() external view returns (MessageLibType);
-}
-
 // node_modules/@openzeppelin/contracts-upgradeable/utils/ContextUpgradeable.sol
 
 // OpenZeppelin Contracts (last updated v4.9.4) (utils/Context.sol)
@@ -1471,6 +2872,713 @@ abstract contract ContextUpgradeable is Initializable {
      * See https://docs.openzeppelin.com/contracts/4.x/upgradeable#storage_gaps
      */
     uint256[50] private __gap;
+}
+
+// node_modules/@layerzerolabs/lz-evm-protocol-v2/contracts/interfaces/IMessageLib.sol
+
+enum MessageLibType {
+    Send,
+    Receive,
+    SendAndReceive
+}
+
+interface IMessageLib is IERC165 {
+    function setConfig(address _oapp, SetConfigParam[] calldata _config) external;
+
+    function getConfig(uint32 _eid, address _oapp, uint32 _configType) external view returns (bytes memory config);
+
+    function isSupportedEid(uint32 _eid) external view returns (bool);
+
+    // message libs of same major version are compatible
+    function version() external view returns (uint64 major, uint8 minor, uint8 endpointVersion);
+
+    function messageLibType() external view returns (MessageLibType);
+}
+
+// node_modules/@openzeppelin/contracts/utils/Strings.sol
+
+// OpenZeppelin Contracts (last updated v4.9.0) (utils/Strings.sol)
+
+/**
+ * @dev String operations.
+ */
+library Strings {
+    bytes16 private constant _SYMBOLS = "0123456789abcdef";
+    uint8 private constant _ADDRESS_LENGTH = 20;
+
+    /**
+     * @dev Converts a `uint256` to its ASCII `string` decimal representation.
+     */
+    function toString(uint256 value) internal pure returns (string memory) {
+        unchecked {
+            uint256 length = Math.log10(value) + 1;
+            string memory buffer = new string(length);
+            uint256 ptr;
+            /// @solidity memory-safe-assembly
+            assembly {
+                ptr := add(buffer, add(32, length))
+            }
+            while (true) {
+                ptr--;
+                /// @solidity memory-safe-assembly
+                assembly {
+                    mstore8(ptr, byte(mod(value, 10), _SYMBOLS))
+                }
+                value /= 10;
+                if (value == 0) break;
+            }
+            return buffer;
+        }
+    }
+
+    /**
+     * @dev Converts a `int256` to its ASCII `string` decimal representation.
+     */
+    function toString(int256 value) internal pure returns (string memory) {
+        return string(abi.encodePacked(value < 0 ? "-" : "", toString(SignedMath.abs(value))));
+    }
+
+    /**
+     * @dev Converts a `uint256` to its ASCII `string` hexadecimal representation.
+     */
+    function toHexString(uint256 value) internal pure returns (string memory) {
+        unchecked {
+            return toHexString(value, Math.log256(value) + 1);
+        }
+    }
+
+    /**
+     * @dev Converts a `uint256` to its ASCII `string` hexadecimal representation with fixed length.
+     */
+    function toHexString(uint256 value, uint256 length) internal pure returns (string memory) {
+        bytes memory buffer = new bytes(2 * length + 2);
+        buffer[0] = "0";
+        buffer[1] = "x";
+        for (uint256 i = 2 * length + 1; i > 1; --i) {
+            buffer[i] = _SYMBOLS[value & 0xf];
+            value >>= 4;
+        }
+        require(value == 0, "Strings: hex length insufficient");
+        return string(buffer);
+    }
+
+    /**
+     * @dev Converts an `address` with fixed length of 20 bytes to its not checksummed ASCII `string` hexadecimal representation.
+     */
+    function toHexString(address addr) internal pure returns (string memory) {
+        return toHexString(uint256(uint160(addr)), _ADDRESS_LENGTH);
+    }
+
+    /**
+     * @dev Returns true if the two strings are equal.
+     */
+    function equal(string memory a, string memory b) internal pure returns (bool) {
+        return keccak256(bytes(a)) == keccak256(bytes(b));
+    }
+}
+
+// node_modules/@openzeppelin/contracts-upgradeable/utils/StringsUpgradeable.sol
+
+// OpenZeppelin Contracts (last updated v4.9.0) (utils/Strings.sol)
+
+/**
+ * @dev String operations.
+ */
+library StringsUpgradeable {
+    bytes16 private constant _SYMBOLS = "0123456789abcdef";
+    uint8 private constant _ADDRESS_LENGTH = 20;
+
+    /**
+     * @dev Converts a `uint256` to its ASCII `string` decimal representation.
+     */
+    function toString(uint256 value) internal pure returns (string memory) {
+        unchecked {
+            uint256 length = MathUpgradeable.log10(value) + 1;
+            string memory buffer = new string(length);
+            uint256 ptr;
+            /// @solidity memory-safe-assembly
+            assembly {
+                ptr := add(buffer, add(32, length))
+            }
+            while (true) {
+                ptr--;
+                /// @solidity memory-safe-assembly
+                assembly {
+                    mstore8(ptr, byte(mod(value, 10), _SYMBOLS))
+                }
+                value /= 10;
+                if (value == 0) break;
+            }
+            return buffer;
+        }
+    }
+
+    /**
+     * @dev Converts a `int256` to its ASCII `string` decimal representation.
+     */
+    function toString(int256 value) internal pure returns (string memory) {
+        return string(abi.encodePacked(value < 0 ? "-" : "", toString(SignedMathUpgradeable.abs(value))));
+    }
+
+    /**
+     * @dev Converts a `uint256` to its ASCII `string` hexadecimal representation.
+     */
+    function toHexString(uint256 value) internal pure returns (string memory) {
+        unchecked {
+            return toHexString(value, MathUpgradeable.log256(value) + 1);
+        }
+    }
+
+    /**
+     * @dev Converts a `uint256` to its ASCII `string` hexadecimal representation with fixed length.
+     */
+    function toHexString(uint256 value, uint256 length) internal pure returns (string memory) {
+        bytes memory buffer = new bytes(2 * length + 2);
+        buffer[0] = "0";
+        buffer[1] = "x";
+        for (uint256 i = 2 * length + 1; i > 1; --i) {
+            buffer[i] = _SYMBOLS[value & 0xf];
+            value >>= 4;
+        }
+        require(value == 0, "Strings: hex length insufficient");
+        return string(buffer);
+    }
+
+    /**
+     * @dev Converts an `address` with fixed length of 20 bytes to its not checksummed ASCII `string` hexadecimal representation.
+     */
+    function toHexString(address addr) internal pure returns (string memory) {
+        return toHexString(uint256(uint160(addr)), _ADDRESS_LENGTH);
+    }
+
+    /**
+     * @dev Returns true if the two strings are equal.
+     */
+    function equal(string memory a, string memory b) internal pure returns (bool) {
+        return keccak256(bytes(a)) == keccak256(bytes(b));
+    }
+}
+
+// node_modules/@openzeppelin/contracts/utils/cryptography/ECDSA.sol
+
+// OpenZeppelin Contracts (last updated v4.9.0) (utils/cryptography/ECDSA.sol)
+
+/**
+ * @dev Elliptic Curve Digital Signature Algorithm (ECDSA) operations.
+ *
+ * These functions can be used to verify that a message was signed by the holder
+ * of the private keys of a given address.
+ */
+library ECDSA {
+    enum RecoverError {
+        NoError,
+        InvalidSignature,
+        InvalidSignatureLength,
+        InvalidSignatureS,
+        InvalidSignatureV // Deprecated in v4.8
+    }
+
+    function _throwError(RecoverError error) private pure {
+        if (error == RecoverError.NoError) {
+            return; // no error: do nothing
+        } else if (error == RecoverError.InvalidSignature) {
+            revert("ECDSA: invalid signature");
+        } else if (error == RecoverError.InvalidSignatureLength) {
+            revert("ECDSA: invalid signature length");
+        } else if (error == RecoverError.InvalidSignatureS) {
+            revert("ECDSA: invalid signature 's' value");
+        }
+    }
+
+    /**
+     * @dev Returns the address that signed a hashed message (`hash`) with
+     * `signature` or error string. This address can then be used for verification purposes.
+     *
+     * The `ecrecover` EVM opcode allows for malleable (non-unique) signatures:
+     * this function rejects them by requiring the `s` value to be in the lower
+     * half order, and the `v` value to be either 27 or 28.
+     *
+     * IMPORTANT: `hash` _must_ be the result of a hash operation for the
+     * verification to be secure: it is possible to craft signatures that
+     * recover to arbitrary addresses for non-hashed data. A safe way to ensure
+     * this is by receiving a hash of the original message (which may otherwise
+     * be too long), and then calling {toEthSignedMessageHash} on it.
+     *
+     * Documentation for signature generation:
+     * - with https://web3js.readthedocs.io/en/v1.3.4/web3-eth-accounts.html#sign[Web3.js]
+     * - with https://docs.ethers.io/v5/api/signer/#Signer-signMessage[ethers]
+     *
+     * _Available since v4.3._
+     */
+    function tryRecover(bytes32 hash, bytes memory signature) internal pure returns (address, RecoverError) {
+        if (signature.length == 65) {
+            bytes32 r;
+            bytes32 s;
+            uint8 v;
+            // ecrecover takes the signature parameters, and the only way to get them
+            // currently is to use assembly.
+            /// @solidity memory-safe-assembly
+            assembly {
+                r := mload(add(signature, 0x20))
+                s := mload(add(signature, 0x40))
+                v := byte(0, mload(add(signature, 0x60)))
+            }
+            return tryRecover(hash, v, r, s);
+        } else {
+            return (address(0), RecoverError.InvalidSignatureLength);
+        }
+    }
+
+    /**
+     * @dev Returns the address that signed a hashed message (`hash`) with
+     * `signature`. This address can then be used for verification purposes.
+     *
+     * The `ecrecover` EVM opcode allows for malleable (non-unique) signatures:
+     * this function rejects them by requiring the `s` value to be in the lower
+     * half order, and the `v` value to be either 27 or 28.
+     *
+     * IMPORTANT: `hash` _must_ be the result of a hash operation for the
+     * verification to be secure: it is possible to craft signatures that
+     * recover to arbitrary addresses for non-hashed data. A safe way to ensure
+     * this is by receiving a hash of the original message (which may otherwise
+     * be too long), and then calling {toEthSignedMessageHash} on it.
+     */
+    function recover(bytes32 hash, bytes memory signature) internal pure returns (address) {
+        (address recovered, RecoverError error) = tryRecover(hash, signature);
+        _throwError(error);
+        return recovered;
+    }
+
+    /**
+     * @dev Overload of {ECDSA-tryRecover} that receives the `r` and `vs` short-signature fields separately.
+     *
+     * See https://eips.ethereum.org/EIPS/eip-2098[EIP-2098 short signatures]
+     *
+     * _Available since v4.3._
+     */
+    function tryRecover(bytes32 hash, bytes32 r, bytes32 vs) internal pure returns (address, RecoverError) {
+        bytes32 s = vs & bytes32(0x7fffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff);
+        uint8 v = uint8((uint256(vs) >> 255) + 27);
+        return tryRecover(hash, v, r, s);
+    }
+
+    /**
+     * @dev Overload of {ECDSA-recover} that receives the `r and `vs` short-signature fields separately.
+     *
+     * _Available since v4.2._
+     */
+    function recover(bytes32 hash, bytes32 r, bytes32 vs) internal pure returns (address) {
+        (address recovered, RecoverError error) = tryRecover(hash, r, vs);
+        _throwError(error);
+        return recovered;
+    }
+
+    /**
+     * @dev Overload of {ECDSA-tryRecover} that receives the `v`,
+     * `r` and `s` signature fields separately.
+     *
+     * _Available since v4.3._
+     */
+    function tryRecover(bytes32 hash, uint8 v, bytes32 r, bytes32 s) internal pure returns (address, RecoverError) {
+        // EIP-2 still allows signature malleability for ecrecover(). Remove this possibility and make the signature
+        // unique. Appendix F in the Ethereum Yellow paper (https://ethereum.github.io/yellowpaper/paper.pdf), defines
+        // the valid range for s in (301): 0 < s < secp256k1n ÷ 2 + 1, and for v in (302): v ∈ {27, 28}. Most
+        // signatures from current libraries generate a unique signature with an s-value in the lower half order.
+        //
+        // If your library generates malleable signatures, such as s-values in the upper range, calculate a new s-value
+        // with 0xFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFEBAAEDCE6AF48A03BBFD25E8CD0364141 - s1 and flip v from 27 to 28 or
+        // vice versa. If your library also generates signatures with 0/1 for v instead 27/28, add 27 to v to accept
+        // these malleable signatures as well.
+        if (uint256(s) > 0x7FFFFFFFFFFFFFFFFFFFFFFFFFFFFFFF5D576E7357A4501DDFE92F46681B20A0) {
+            return (address(0), RecoverError.InvalidSignatureS);
+        }
+
+        // If the signature is valid (and not malleable), return the signer address
+        address signer = ecrecover(hash, v, r, s);
+        if (signer == address(0)) {
+            return (address(0), RecoverError.InvalidSignature);
+        }
+
+        return (signer, RecoverError.NoError);
+    }
+
+    /**
+     * @dev Overload of {ECDSA-recover} that receives the `v`,
+     * `r` and `s` signature fields separately.
+     */
+    function recover(bytes32 hash, uint8 v, bytes32 r, bytes32 s) internal pure returns (address) {
+        (address recovered, RecoverError error) = tryRecover(hash, v, r, s);
+        _throwError(error);
+        return recovered;
+    }
+
+    /**
+     * @dev Returns an Ethereum Signed Message, created from a `hash`. This
+     * produces hash corresponding to the one signed with the
+     * https://eth.wiki/json-rpc/API#eth_sign[`eth_sign`]
+     * JSON-RPC method as part of EIP-191.
+     *
+     * See {recover}.
+     */
+    function toEthSignedMessageHash(bytes32 hash) internal pure returns (bytes32 message) {
+        // 32 is the length in bytes of hash,
+        // enforced by the type signature above
+        /// @solidity memory-safe-assembly
+        assembly {
+            mstore(0x00, "\x19Ethereum Signed Message:\n32")
+            mstore(0x1c, hash)
+            message := keccak256(0x00, 0x3c)
+        }
+    }
+
+    /**
+     * @dev Returns an Ethereum Signed Message, created from `s`. This
+     * produces hash corresponding to the one signed with the
+     * https://eth.wiki/json-rpc/API#eth_sign[`eth_sign`]
+     * JSON-RPC method as part of EIP-191.
+     *
+     * See {recover}.
+     */
+    function toEthSignedMessageHash(bytes memory s) internal pure returns (bytes32) {
+        return keccak256(abi.encodePacked("\x19Ethereum Signed Message:\n", Strings.toString(s.length), s));
+    }
+
+    /**
+     * @dev Returns an Ethereum Signed Typed Data, created from a
+     * `domainSeparator` and a `structHash`. This produces hash corresponding
+     * to the one signed with the
+     * https://eips.ethereum.org/EIPS/eip-712[`eth_signTypedData`]
+     * JSON-RPC method as part of EIP-712.
+     *
+     * See {recover}.
+     */
+    function toTypedDataHash(bytes32 domainSeparator, bytes32 structHash) internal pure returns (bytes32 data) {
+        /// @solidity memory-safe-assembly
+        assembly {
+            let ptr := mload(0x40)
+            mstore(ptr, "\x19\x01")
+            mstore(add(ptr, 0x02), domainSeparator)
+            mstore(add(ptr, 0x22), structHash)
+            data := keccak256(ptr, 0x42)
+        }
+    }
+
+    /**
+     * @dev Returns an Ethereum Signed Data with intended validator, created from a
+     * `validator` and `data` according to the version 0 of EIP-191.
+     *
+     * See {recover}.
+     */
+    function toDataWithIntendedValidatorHash(address validator, bytes memory data) internal pure returns (bytes32) {
+        return keccak256(abi.encodePacked("\x19\x00", validator, data));
+    }
+}
+
+// node_modules/@openzeppelin/contracts-upgradeable/utils/cryptography/ECDSAUpgradeable.sol
+
+// OpenZeppelin Contracts (last updated v4.9.0) (utils/cryptography/ECDSA.sol)
+
+/**
+ * @dev Elliptic Curve Digital Signature Algorithm (ECDSA) operations.
+ *
+ * These functions can be used to verify that a message was signed by the holder
+ * of the private keys of a given address.
+ */
+library ECDSAUpgradeable {
+    enum RecoverError {
+        NoError,
+        InvalidSignature,
+        InvalidSignatureLength,
+        InvalidSignatureS,
+        InvalidSignatureV // Deprecated in v4.8
+    }
+
+    function _throwError(RecoverError error) private pure {
+        if (error == RecoverError.NoError) {
+            return; // no error: do nothing
+        } else if (error == RecoverError.InvalidSignature) {
+            revert("ECDSA: invalid signature");
+        } else if (error == RecoverError.InvalidSignatureLength) {
+            revert("ECDSA: invalid signature length");
+        } else if (error == RecoverError.InvalidSignatureS) {
+            revert("ECDSA: invalid signature 's' value");
+        }
+    }
+
+    /**
+     * @dev Returns the address that signed a hashed message (`hash`) with
+     * `signature` or error string. This address can then be used for verification purposes.
+     *
+     * The `ecrecover` EVM opcode allows for malleable (non-unique) signatures:
+     * this function rejects them by requiring the `s` value to be in the lower
+     * half order, and the `v` value to be either 27 or 28.
+     *
+     * IMPORTANT: `hash` _must_ be the result of a hash operation for the
+     * verification to be secure: it is possible to craft signatures that
+     * recover to arbitrary addresses for non-hashed data. A safe way to ensure
+     * this is by receiving a hash of the original message (which may otherwise
+     * be too long), and then calling {toEthSignedMessageHash} on it.
+     *
+     * Documentation for signature generation:
+     * - with https://web3js.readthedocs.io/en/v1.3.4/web3-eth-accounts.html#sign[Web3.js]
+     * - with https://docs.ethers.io/v5/api/signer/#Signer-signMessage[ethers]
+     *
+     * _Available since v4.3._
+     */
+    function tryRecover(bytes32 hash, bytes memory signature) internal pure returns (address, RecoverError) {
+        if (signature.length == 65) {
+            bytes32 r;
+            bytes32 s;
+            uint8 v;
+            // ecrecover takes the signature parameters, and the only way to get them
+            // currently is to use assembly.
+            /// @solidity memory-safe-assembly
+            assembly {
+                r := mload(add(signature, 0x20))
+                s := mload(add(signature, 0x40))
+                v := byte(0, mload(add(signature, 0x60)))
+            }
+            return tryRecover(hash, v, r, s);
+        } else {
+            return (address(0), RecoverError.InvalidSignatureLength);
+        }
+    }
+
+    /**
+     * @dev Returns the address that signed a hashed message (`hash`) with
+     * `signature`. This address can then be used for verification purposes.
+     *
+     * The `ecrecover` EVM opcode allows for malleable (non-unique) signatures:
+     * this function rejects them by requiring the `s` value to be in the lower
+     * half order, and the `v` value to be either 27 or 28.
+     *
+     * IMPORTANT: `hash` _must_ be the result of a hash operation for the
+     * verification to be secure: it is possible to craft signatures that
+     * recover to arbitrary addresses for non-hashed data. A safe way to ensure
+     * this is by receiving a hash of the original message (which may otherwise
+     * be too long), and then calling {toEthSignedMessageHash} on it.
+     */
+    function recover(bytes32 hash, bytes memory signature) internal pure returns (address) {
+        (address recovered, RecoverError error) = tryRecover(hash, signature);
+        _throwError(error);
+        return recovered;
+    }
+
+    /**
+     * @dev Overload of {ECDSA-tryRecover} that receives the `r` and `vs` short-signature fields separately.
+     *
+     * See https://eips.ethereum.org/EIPS/eip-2098[EIP-2098 short signatures]
+     *
+     * _Available since v4.3._
+     */
+    function tryRecover(bytes32 hash, bytes32 r, bytes32 vs) internal pure returns (address, RecoverError) {
+        bytes32 s = vs & bytes32(0x7fffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff);
+        uint8 v = uint8((uint256(vs) >> 255) + 27);
+        return tryRecover(hash, v, r, s);
+    }
+
+    /**
+     * @dev Overload of {ECDSA-recover} that receives the `r and `vs` short-signature fields separately.
+     *
+     * _Available since v4.2._
+     */
+    function recover(bytes32 hash, bytes32 r, bytes32 vs) internal pure returns (address) {
+        (address recovered, RecoverError error) = tryRecover(hash, r, vs);
+        _throwError(error);
+        return recovered;
+    }
+
+    /**
+     * @dev Overload of {ECDSA-tryRecover} that receives the `v`,
+     * `r` and `s` signature fields separately.
+     *
+     * _Available since v4.3._
+     */
+    function tryRecover(bytes32 hash, uint8 v, bytes32 r, bytes32 s) internal pure returns (address, RecoverError) {
+        // EIP-2 still allows signature malleability for ecrecover(). Remove this possibility and make the signature
+        // unique. Appendix F in the Ethereum Yellow paper (https://ethereum.github.io/yellowpaper/paper.pdf), defines
+        // the valid range for s in (301): 0 < s < secp256k1n ÷ 2 + 1, and for v in (302): v ∈ {27, 28}. Most
+        // signatures from current libraries generate a unique signature with an s-value in the lower half order.
+        //
+        // If your library generates malleable signatures, such as s-values in the upper range, calculate a new s-value
+        // with 0xFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFEBAAEDCE6AF48A03BBFD25E8CD0364141 - s1 and flip v from 27 to 28 or
+        // vice versa. If your library also generates signatures with 0/1 for v instead 27/28, add 27 to v to accept
+        // these malleable signatures as well.
+        if (uint256(s) > 0x7FFFFFFFFFFFFFFFFFFFFFFFFFFFFFFF5D576E7357A4501DDFE92F46681B20A0) {
+            return (address(0), RecoverError.InvalidSignatureS);
+        }
+
+        // If the signature is valid (and not malleable), return the signer address
+        address signer = ecrecover(hash, v, r, s);
+        if (signer == address(0)) {
+            return (address(0), RecoverError.InvalidSignature);
+        }
+
+        return (signer, RecoverError.NoError);
+    }
+
+    /**
+     * @dev Overload of {ECDSA-recover} that receives the `v`,
+     * `r` and `s` signature fields separately.
+     */
+    function recover(bytes32 hash, uint8 v, bytes32 r, bytes32 s) internal pure returns (address) {
+        (address recovered, RecoverError error) = tryRecover(hash, v, r, s);
+        _throwError(error);
+        return recovered;
+    }
+
+    /**
+     * @dev Returns an Ethereum Signed Message, created from a `hash`. This
+     * produces hash corresponding to the one signed with the
+     * https://eth.wiki/json-rpc/API#eth_sign[`eth_sign`]
+     * JSON-RPC method as part of EIP-191.
+     *
+     * See {recover}.
+     */
+    function toEthSignedMessageHash(bytes32 hash) internal pure returns (bytes32 message) {
+        // 32 is the length in bytes of hash,
+        // enforced by the type signature above
+        /// @solidity memory-safe-assembly
+        assembly {
+            mstore(0x00, "\x19Ethereum Signed Message:\n32")
+            mstore(0x1c, hash)
+            message := keccak256(0x00, 0x3c)
+        }
+    }
+
+    /**
+     * @dev Returns an Ethereum Signed Message, created from `s`. This
+     * produces hash corresponding to the one signed with the
+     * https://eth.wiki/json-rpc/API#eth_sign[`eth_sign`]
+     * JSON-RPC method as part of EIP-191.
+     *
+     * See {recover}.
+     */
+    function toEthSignedMessageHash(bytes memory s) internal pure returns (bytes32) {
+        return keccak256(abi.encodePacked("\x19Ethereum Signed Message:\n", StringsUpgradeable.toString(s.length), s));
+    }
+
+    /**
+     * @dev Returns an Ethereum Signed Typed Data, created from a
+     * `domainSeparator` and a `structHash`. This produces hash corresponding
+     * to the one signed with the
+     * https://eips.ethereum.org/EIPS/eip-712[`eth_signTypedData`]
+     * JSON-RPC method as part of EIP-712.
+     *
+     * See {recover}.
+     */
+    function toTypedDataHash(bytes32 domainSeparator, bytes32 structHash) internal pure returns (bytes32 data) {
+        /// @solidity memory-safe-assembly
+        assembly {
+            let ptr := mload(0x40)
+            mstore(ptr, "\x19\x01")
+            mstore(add(ptr, 0x02), domainSeparator)
+            mstore(add(ptr, 0x22), structHash)
+            data := keccak256(ptr, 0x42)
+        }
+    }
+
+    /**
+     * @dev Returns an Ethereum Signed Data with intended validator, created from a
+     * `validator` and `data` according to the version 0 of EIP-191.
+     *
+     * See {recover}.
+     */
+    function toDataWithIntendedValidatorHash(address validator, bytes memory data) internal pure returns (bytes32) {
+        return keccak256(abi.encodePacked("\x19\x00", validator, data));
+    }
+}
+
+// node_modules/@openzeppelin/contracts-upgradeable/access/OwnableUpgradeable.sol
+
+// OpenZeppelin Contracts (last updated v4.9.0) (access/Ownable.sol)
+
+/**
+ * @dev Contract module which provides a basic access control mechanism, where
+ * there is an account (an owner) that can be granted exclusive access to
+ * specific functions.
+ *
+ * By default, the owner account will be the one that deploys the contract. This
+ * can later be changed with {transferOwnership}.
+ *
+ * This module is used through inheritance. It will make available the modifier
+ * `onlyOwner`, which can be applied to your functions to restrict their use to
+ * the owner.
+ */
+abstract contract OwnableUpgradeable is Initializable, ContextUpgradeable {
+    address private _owner;
+
+    event OwnershipTransferred(address indexed previousOwner, address indexed newOwner);
+
+    /**
+     * @dev Initializes the contract setting the deployer as the initial owner.
+     */
+    function __Ownable_init() internal onlyInitializing {
+        __Ownable_init_unchained();
+    }
+
+    function __Ownable_init_unchained() internal onlyInitializing {
+        _transferOwnership(_msgSender());
+    }
+
+    /**
+     * @dev Throws if called by any account other than the owner.
+     */
+    modifier onlyOwner() {
+        _checkOwner();
+        _;
+    }
+
+    /**
+     * @dev Returns the address of the current owner.
+     */
+    function owner() public view virtual returns (address) {
+        return _owner;
+    }
+
+    /**
+     * @dev Throws if the sender is not the owner.
+     */
+    function _checkOwner() internal view virtual {
+        require(owner() == _msgSender(), "Ownable: caller is not the owner");
+    }
+
+    /**
+     * @dev Leaves the contract without owner. It will not be possible to call
+     * `onlyOwner` functions. Can only be called by the current owner.
+     *
+     * NOTE: Renouncing ownership will leave the contract without an owner,
+     * thereby disabling any functionality that is only available to the owner.
+     */
+    function renounceOwnership() public virtual onlyOwner {
+        _transferOwnership(address(0));
+    }
+
+    /**
+     * @dev Transfers ownership of the contract to a new account (`newOwner`).
+     * Can only be called by the current owner.
+     */
+    function transferOwnership(address newOwner) public virtual onlyOwner {
+        require(newOwner != address(0), "Ownable: new owner is the zero address");
+        _transferOwnership(newOwner);
+    }
+
+    /**
+     * @dev Transfers ownership of the contract to a new account (`newOwner`).
+     * Internal function without access restriction.
+     */
+    function _transferOwnership(address newOwner) internal virtual {
+        address oldOwner = _owner;
+        _owner = newOwner;
+        emit OwnershipTransferred(oldOwner, newOwner);
+    }
+
+    /**
+     * @dev This empty reserved space is put in place to allow future versions to add new
+     * variables without shifting down storage in the inheritance chain.
+     * See https://docs.openzeppelin.com/contracts/4.x/upgradeable#storage_gaps
+     */
+    uint256[49] private __gap;
 }
 
 // node_modules/@openzeppelin/contracts/token/ERC20/utils/SafeERC20.sol
@@ -1612,98 +3720,6 @@ library SafeERC20 {
     }
 }
 
-// node_modules/@openzeppelin/contracts-upgradeable/access/OwnableUpgradeable.sol
-
-// OpenZeppelin Contracts (last updated v4.9.0) (access/Ownable.sol)
-
-/**
- * @dev Contract module which provides a basic access control mechanism, where
- * there is an account (an owner) that can be granted exclusive access to
- * specific functions.
- *
- * By default, the owner account will be the one that deploys the contract. This
- * can later be changed with {transferOwnership}.
- *
- * This module is used through inheritance. It will make available the modifier
- * `onlyOwner`, which can be applied to your functions to restrict their use to
- * the owner.
- */
-abstract contract OwnableUpgradeable is Initializable, ContextUpgradeable {
-    address private _owner;
-
-    event OwnershipTransferred(address indexed previousOwner, address indexed newOwner);
-
-    /**
-     * @dev Initializes the contract setting the deployer as the initial owner.
-     */
-    function __Ownable_init() internal onlyInitializing {
-        __Ownable_init_unchained();
-    }
-
-    function __Ownable_init_unchained() internal onlyInitializing {
-        _transferOwnership(_msgSender());
-    }
-
-    /**
-     * @dev Throws if called by any account other than the owner.
-     */
-    modifier onlyOwner() {
-        _checkOwner();
-        _;
-    }
-
-    /**
-     * @dev Returns the address of the current owner.
-     */
-    function owner() public view virtual returns (address) {
-        return _owner;
-    }
-
-    /**
-     * @dev Throws if the sender is not the owner.
-     */
-    function _checkOwner() internal view virtual {
-        require(owner() == _msgSender(), "Ownable: caller is not the owner");
-    }
-
-    /**
-     * @dev Leaves the contract without owner. It will not be possible to call
-     * `onlyOwner` functions. Can only be called by the current owner.
-     *
-     * NOTE: Renouncing ownership will leave the contract without an owner,
-     * thereby disabling any functionality that is only available to the owner.
-     */
-    function renounceOwnership() public virtual onlyOwner {
-        _transferOwnership(address(0));
-    }
-
-    /**
-     * @dev Transfers ownership of the contract to a new account (`newOwner`).
-     * Can only be called by the current owner.
-     */
-    function transferOwnership(address newOwner) public virtual onlyOwner {
-        require(newOwner != address(0), "Ownable: new owner is the zero address");
-        _transferOwnership(newOwner);
-    }
-
-    /**
-     * @dev Transfers ownership of the contract to a new account (`newOwner`).
-     * Internal function without access restriction.
-     */
-    function _transferOwnership(address newOwner) internal virtual {
-        address oldOwner = _owner;
-        _owner = newOwner;
-        emit OwnershipTransferred(oldOwner, newOwner);
-    }
-
-    /**
-     * @dev This empty reserved space is put in place to allow future versions to add new
-     * variables without shifting down storage in the inheritance chain.
-     * See https://docs.openzeppelin.com/contracts/4.x/upgradeable#storage_gaps
-     */
-    uint256[49] private __gap;
-}
-
 // node_modules/@layerzerolabs/lz-evm-protocol-v2/contracts/interfaces/ILayerZeroEndpointV2.sol
 
 struct MessagingParams {
@@ -1787,174 +3803,220 @@ interface ILayerZeroEndpointV2 is IMessageLibManager, IMessagingComposer, IMessa
     function setDelegate(address _delegate) external;
 }
 
-// node_modules/@fraxfinance/layerzero-v2-upgradeable/oapp/contracts/oapp/interfaces/IOAppCore.sol
+// contracts/modules/signatureModule/EIP712Upgradeable.sol
+
+// OpenZeppelin Contracts (last updated v5.3.0) (utils/cryptography/EIP712.sol)
 
 /**
- * @title IOAppCore
- */
-interface IOAppCore {
-    // Custom error messages
-    error OnlyPeer(uint32 eid, bytes32 sender);
-    error NoPeer(uint32 eid);
-    error InvalidEndpointCall();
-    error InvalidDelegate();
+  @notice This contract is a blend of OZ 4 and 5 to
+    - Utilize 4.x, as utilized by LZ
+    - Utilize 5.x namespaced storage, protecting from storage clashes
 
-    // Event emitted when a peer (OApp) is set for a corresponding endpoint
-    event PeerSet(uint32 eid, bytes32 peer);
-
-    /**
-     * @notice Retrieves the OApp version information.
-     * @return senderVersion The version of the OAppSender.sol contract.
-     * @return receiverVersion The version of the OAppReceiver.sol contract.
-     */
-    function oAppVersion() external view returns (uint64 senderVersion, uint64 receiverVersion);
-
-    /**
-     * @notice Retrieves the LayerZero endpoint associated with the OApp.
-     * @return iEndpoint The LayerZero endpoint as an interface.
-     */
-    function endpoint() external view returns (ILayerZeroEndpointV2 iEndpoint);
-
-    /**
-     * @notice Retrieves the peer (OApp) associated with a corresponding endpoint.
-     * @param _eid The endpoint ID.
-     * @return peer The peer address (OApp instance) associated with the corresponding endpoint.
-     */
-    function peers(uint32 _eid) external view returns (bytes32 peer);
-
-    /**
-     * @notice Sets the peer address (OApp instance) for a corresponding endpoint.
-     * @param _eid The endpoint ID.
-     * @param _peer The address of the peer to be associated with the corresponding endpoint.
-     */
-    function setPeer(uint32 _eid, bytes32 _peer) external;
-
-    /**
-     * @notice Sets the delegate address for the OApp Core.
-     * @param _delegate The address of the delegate to be set.
-     */
-    function setDelegate(address _delegate) external;
-}
-
-// node_modules/@fraxfinance/layerzero-v2-upgradeable/oapp/contracts/oapp/libs/OAppOptionsType3Upgradeable.sol
+  @dev Starting at OZ 5.3, key changes are
+    - Initializable removed
+    - MessageHashUtils (5.x) replaced with ECDSAUpgradeable (4.x)
+*/
 
 /**
- * @title OAppOptionsType3
- * @dev Abstract contract implementing the IOAppOptionsType3 interface with type 3 options.
+ * @dev https://eips.ethereum.org/EIPS/eip-712[EIP-712] is a standard for hashing and signing of typed structured data.
+ *
+ * The encoding scheme specified in the EIP requires a domain separator and a hash of the typed structured data, whose
+ * encoding is very generic and therefore its implementation in Solidity is not feasible, thus this contract
+ * does not implement the encoding itself. Protocols need to implement the type-specific encoding they need in order to
+ * produce the hash of their typed data using a combination of `abi.encode` and `keccak256`.
+ *
+ * This contract implements the EIP-712 domain separator ({_domainSeparatorV4}) that is used as part of the encoding
+ * scheme, and the final step of the encoding to obtain the message digest that is then signed via ECDSA
+ * ({_hashTypedDataV4}).
+ *
+ * The implementation of the domain separator was designed to be as efficient as possible while still properly updating
+ * the chain id to protect against replay attacks on an eventual fork of the chain.
+ *
+ * NOTE: This contract implements the version of the encoding known as "v4", as implemented by the JSON RPC method
+ * https://docs.metamask.io/guide/signing-data.html[`eth_signTypedDataV4` in MetaMask].
+ *
+ * NOTE: In the upgradeable version of this contract, the cached values will correspond to the address, and the domain
+ * separator of the implementation contract. This will cause the {_domainSeparatorV4} function to always rebuild the
+ * separator from the immutable values, which is cheaper than accessing a cached version in cold storage.
  */
-abstract contract OAppOptionsType3Upgradeable is IOAppOptionsType3, OwnableUpgradeable {
-    struct OAppOptionsType3Storage {
-        // @dev The "msgType" should be defined in the child contract.
-        mapping(uint32 => mapping(uint16 => bytes)) enforcedOptions;
+abstract contract EIP712Upgradeable is IERC5267 {
+    bytes32 private constant TYPE_HASH =
+        keccak256("EIP712Domain(string name,string version,uint256 chainId,address verifyingContract)");
+
+    /// @custom:storage-location erc7201:openzeppelin.storage.EIP712
+    struct EIP712Storage {
+        /// @custom:oz-renamed-from _HASHED_NAME
+        bytes32 _hashedName;
+        /// @custom:oz-renamed-from _HASHED_VERSION
+        bytes32 _hashedVersion;
+
+        string _name;
+        string _version;
     }
 
-    // keccak256(abi.encode(uint256(keccak256("layerzerov2.storage.oappoptionstype3")) - 1)) & ~bytes32(uint256(0xff))
-    bytes32 private constant OAppOptionsType3StorageLocation =
-        0x8d2bda5d9f6ffb5796910376005392955773acee5548d0fcdb10e7c264ea0000;
+    // keccak256(abi.encode(uint256(keccak256("openzeppelin.storage.EIP712")) - 1)) & ~bytes32(uint256(0xff))
+    bytes32 private constant EIP712StorageLocation = 0xa16a46d94261c7517cc8ff89f61c0ce93598e3c849801011dee649a6a557d100;
 
-    uint16 internal constant OPTION_TYPE_3 = 3;
-
-    function _getOAppOptionsType3Storage() internal pure returns (OAppOptionsType3Storage storage $) {
+    function _getEIP712Storage() private pure returns (EIP712Storage storage $) {
         assembly {
-            $.slot := OAppOptionsType3StorageLocation
+            $.slot := EIP712StorageLocation
         }
     }
 
     /**
-     * @dev Ownable is not initialized here on purpose. It should be initialized in the child contract to
-     * accommodate the different version of Ownable.
-     */
-    function __OAppOptionsType3_init() internal onlyInitializing {}
-
-    function __OAppOptionsType3_init_unchained() internal onlyInitializing {}
-
-    function enforcedOptions(uint32 _eid, uint16 _msgType) public view returns (bytes memory) {
-        OAppOptionsType3Storage storage $ = _getOAppOptionsType3Storage();
-        return $.enforcedOptions[_eid][_msgType];
-    }
-
-    /**
-     * @dev Sets the enforced options for specific endpoint and message type combinations.
-     * @param _enforcedOptions An array of EnforcedOptionParam structures specifying enforced options.
+     * @dev Initializes the domain separator and parameter caches.
      *
-     * @dev Only the owner/admin of the OApp can call this function.
-     * @dev Provides a way for the OApp to enforce things like paying for PreCrime, AND/OR minimum dst lzReceive gas amounts etc.
-     * @dev These enforced options can vary as the potential options/execution on the remote may differ as per the msgType.
-     * eg. Amount of lzReceive() gas necessary to deliver a lzCompose() message adds overhead you dont want to pay
-     * if you are only making a standard LayerZero message ie. lzReceive() WITHOUT sendCompose().
-     */
-    function setEnforcedOptions(EnforcedOptionParam[] calldata _enforcedOptions) public virtual onlyOwner {
-        OAppOptionsType3Storage storage $ = _getOAppOptionsType3Storage();
-        for (uint256 i = 0; i < _enforcedOptions.length; i++) {
-            // @dev Enforced options are only available for optionType 3, as type 1 and 2 dont support combining.
-            _assertOptionsType3(_enforcedOptions[i].options);
-            $.enforcedOptions[_enforcedOptions[i].eid][_enforcedOptions[i].msgType] = _enforcedOptions[i].options;
-        }
-
-        emit EnforcedOptionSet(_enforcedOptions);
-    }
-
-    /**
-     * @notice Combines options for a given endpoint and message type.
-     * @param _eid The endpoint ID.
-     * @param _msgType The OAPP message type.
-     * @param _extraOptions Additional options passed by the caller.
-     * @return options The combination of caller specified options AND enforced options.
+     * The meaning of `name` and `version` is specified in
+     * https://eips.ethereum.org/EIPS/eip-712#definition-of-domainseparator[EIP-712]:
      *
-     * @dev If there is an enforced lzReceive option:
-     * - {gasLimit: 200k, msg.value: 1 ether} AND a caller supplies a lzReceive option: {gasLimit: 100k, msg.value: 0.5 ether}
-     * - The resulting options will be {gasLimit: 300k, msg.value: 1.5 ether} when the message is executed on the remote lzReceive() function.
-     * @dev This presence of duplicated options is handled off-chain in the verifier/executor.
+     * - `name`: the user readable name of the signing domain, i.e. the name of the DApp or the protocol.
+     * - `version`: the current major version of the signing domain.
+     *
+     * NOTE: These parameters cannot be changed except through a xref:learn::upgrading-smart-contracts.adoc[smart
+     * contract upgrade].
      */
-    function combineOptions(
-        uint32 _eid,
-        uint16 _msgType,
-        bytes calldata _extraOptions
-    ) public view virtual returns (bytes memory) {
-        OAppOptionsType3Storage storage $ = _getOAppOptionsType3Storage();
-        bytes memory enforced = $.enforcedOptions[_eid][_msgType];
+    function __EIP712_init(string memory name, string memory version) internal {
+        __EIP712_init_unchained(name, version);
+    }
 
-        // No enforced options, pass whatever the caller supplied, even if it's empty or legacy type 1/2 options.
-        if (enforced.length == 0) return _extraOptions;
+    function __EIP712_init_unchained(string memory name, string memory version) internal {
+        EIP712Storage storage $ = _getEIP712Storage();
+        $._name = name;
+        $._version = version;
 
-        // No caller options, return enforced
-        if (_extraOptions.length == 0) return enforced;
-
-        // @dev If caller provided _extraOptions, must be type 3 as its the ONLY type that can be combined.
-        if (_extraOptions.length >= 2) {
-            _assertOptionsType3(_extraOptions);
-            // @dev Remove the first 2 bytes containing the type from the _extraOptions and combine with enforced.
-            return bytes.concat(enforced, _extraOptions[2:]);
-        }
-
-        // No valid set of options was found.
-        revert InvalidOptions(_extraOptions);
+        // Reset prior values in storage if upgrading
+        $._hashedName = 0;
+        $._hashedVersion = 0;
     }
 
     /**
-     * @dev Internal function to assert that options are of type 3.
-     * @param _options The options to be checked.
+     * @dev Returns the domain separator for the current chain.
      */
-    function _assertOptionsType3(bytes calldata _options) internal pure virtual {
-        uint16 optionsType = uint16(bytes2(_options[0:2]));
-        if (optionsType != OPTION_TYPE_3) revert InvalidOptions(_options);
+    function _domainSeparatorV4() internal view returns (bytes32) {
+        return _buildDomainSeparator();
     }
-}
 
-// node_modules/@layerzerolabs/lz-evm-protocol-v2/contracts/interfaces/ILayerZeroReceiver.sol
+    function _buildDomainSeparator() private view returns (bytes32) {
+        return keccak256(abi.encode(TYPE_HASH, _EIP712NameHash(), _EIP712VersionHash(), block.chainid, address(this)));
+    }
 
-interface ILayerZeroReceiver {
-    function allowInitializePath(Origin calldata _origin) external view returns (bool);
+    /**
+     * @dev Given an already https://eips.ethereum.org/EIPS/eip-712#definition-of-hashstruct[hashed struct], this
+     * function returns the hash of the fully encoded EIP712 message for this domain.
+     *
+     * This hash can be used together with {ECDSA-recover} to obtain the signer of a message. For example:
+     *
+     * ```solidity
+     * bytes32 digest = _hashTypedDataV4(keccak256(abi.encode(
+     *     keccak256("Mail(address to,strAing contents)"),
+     *     mailTo,
+     *     keccak256(bytes(mailContents))
+     * )));
+     * address signer = ECDSA.recover(digest, signature);
+     * ```
+     */
+    function _hashTypedDataV4(bytes32 structHash) internal view virtual returns (bytes32) {
+        return ECDSAUpgradeable.toTypedDataHash(_domainSeparatorV4(), structHash);
+    }
 
-    function nextNonce(uint32 _eid, bytes32 _sender) external view returns (uint64);
+    /**
+     * @inheritdoc IERC5267
+     */
+    function eip712Domain()
+        public
+        view
+        virtual
+        returns (
+            bytes1 fields,
+            string memory name,
+            string memory version,
+            uint256 chainId,
+            address verifyingContract,
+            bytes32 salt,
+            uint256[] memory extensions
+        )
+    {
+        EIP712Storage storage $ = _getEIP712Storage();
+        // If the hashed name and version in storage are non-zero, the contract hasn't been properly initialized
+        // and the EIP712 domain is not reliable, as it will be missing name and version.
+        require($._hashedName == 0 && $._hashedVersion == 0, "EIP712: Uninitialized");
 
-    function lzReceive(
-        Origin calldata _origin,
-        bytes32 _guid,
-        bytes calldata _message,
-        address _executor,
-        bytes calldata _extraData
-    ) external payable;
+        return (
+            hex"0f", // 01111
+            _EIP712Name(),
+            _EIP712Version(),
+            block.chainid,
+            address(this),
+            bytes32(0),
+            new uint256[](0)
+        );
+    }
+
+    /**
+     * @dev The name parameter for the EIP712 domain.
+     *
+     * NOTE: This function reads from storage by default, but can be redefined to return a constant value if gas costs
+     * are a concern.
+     */
+    function _EIP712Name() internal view virtual returns (string memory) {
+        EIP712Storage storage $ = _getEIP712Storage();
+        return $._name;
+    }
+
+    /**
+     * @dev The version parameter for the EIP712 domain.
+     *
+     * NOTE: This function reads from storage by default, but can be redefined to return a constant value if gas costs
+     * are a concern.
+     */
+    function _EIP712Version() internal view virtual returns (string memory) {
+        EIP712Storage storage $ = _getEIP712Storage();
+        return $._version;
+    }
+
+    /**
+     * @dev The hash of the name parameter for the EIP712 domain.
+     *
+     * NOTE: In previous versions this function was virtual. In this version you should override `_EIP712Name` instead.
+     */
+    function _EIP712NameHash() internal view returns (bytes32) {
+        EIP712Storage storage $ = _getEIP712Storage();
+        string memory name = _EIP712Name();
+        if (bytes(name).length > 0) {
+            return keccak256(bytes(name));
+        } else {
+            // If the name is empty, the contract may have been upgraded without initializing the new storage.
+            // We return the name hash in storage if non-zero, otherwise we assume the name is empty by design.
+            bytes32 hashedName = $._hashedName;
+            if (hashedName != 0) {
+                return hashedName;
+            } else {
+                return keccak256("");
+            }
+        }
+    }
+
+    /**
+     * @dev The hash of the version parameter for the EIP712 domain.
+     *
+     * NOTE: In previous versions this function was virtual. In this version you should override `_EIP712Version` instead.
+     */
+    function _EIP712VersionHash() internal view returns (bytes32) {
+        EIP712Storage storage $ = _getEIP712Storage();
+        string memory version = _EIP712Version();
+        if (bytes(version).length > 0) {
+            return keccak256(bytes(version));
+        } else {
+            // If the version is empty, the contract may have been upgraded without initializing the new storage.
+            // We return the version hash in storage if non-zero, otherwise we assume the version is empty by design.
+            bytes32 hashedVersion = $._hashedVersion;
+            if (hashedVersion != 0) {
+                return hashedVersion;
+            } else {
+                return keccak256("");
+            }
+        }
+    }
 }
 
 // node_modules/@openzeppelin/contracts-upgradeable/token/ERC20/ERC20Upgradeable.sol
@@ -2329,6 +4391,223 @@ contract ERC20Upgradeable is Initializable, ContextUpgradeable, IERC20Upgradeabl
     uint256[45] private __gap;
 }
 
+// node_modules/@layerzerolabs/lz-evm-protocol-v2/contracts/interfaces/ILayerZeroReceiver.sol
+
+interface ILayerZeroReceiver {
+    function allowInitializePath(Origin calldata _origin) external view returns (bool);
+
+    function nextNonce(uint32 _eid, bytes32 _sender) external view returns (uint64);
+
+    function lzReceive(
+        Origin calldata _origin,
+        bytes32 _guid,
+        bytes calldata _message,
+        address _executor,
+        bytes calldata _extraData
+    ) external payable;
+}
+
+// node_modules/@fraxfinance/layerzero-v2-upgradeable/oapp/contracts/oapp/interfaces/IOAppCore.sol
+
+/**
+ * @title IOAppCore
+ */
+interface IOAppCore {
+    // Custom error messages
+    error OnlyPeer(uint32 eid, bytes32 sender);
+    error NoPeer(uint32 eid);
+    error InvalidEndpointCall();
+    error InvalidDelegate();
+
+    // Event emitted when a peer (OApp) is set for a corresponding endpoint
+    event PeerSet(uint32 eid, bytes32 peer);
+
+    /**
+     * @notice Retrieves the OApp version information.
+     * @return senderVersion The version of the OAppSender.sol contract.
+     * @return receiverVersion The version of the OAppReceiver.sol contract.
+     */
+    function oAppVersion() external view returns (uint64 senderVersion, uint64 receiverVersion);
+
+    /**
+     * @notice Retrieves the LayerZero endpoint associated with the OApp.
+     * @return iEndpoint The LayerZero endpoint as an interface.
+     */
+    function endpoint() external view returns (ILayerZeroEndpointV2 iEndpoint);
+
+    /**
+     * @notice Retrieves the peer (OApp) associated with a corresponding endpoint.
+     * @param _eid The endpoint ID.
+     * @return peer The peer address (OApp instance) associated with the corresponding endpoint.
+     */
+    function peers(uint32 _eid) external view returns (bytes32 peer);
+
+    /**
+     * @notice Sets the peer address (OApp instance) for a corresponding endpoint.
+     * @param _eid The endpoint ID.
+     * @param _peer The address of the peer to be associated with the corresponding endpoint.
+     */
+    function setPeer(uint32 _eid, bytes32 _peer) external;
+
+    /**
+     * @notice Sets the delegate address for the OApp Core.
+     * @param _delegate The address of the delegate to be set.
+     */
+    function setDelegate(address _delegate) external;
+}
+
+// node_modules/@fraxfinance/layerzero-v2-upgradeable/oapp/contracts/oapp/libs/OAppOptionsType3Upgradeable.sol
+
+/**
+ * @title OAppOptionsType3
+ * @dev Abstract contract implementing the IOAppOptionsType3 interface with type 3 options.
+ */
+abstract contract OAppOptionsType3Upgradeable is IOAppOptionsType3, OwnableUpgradeable {
+    struct OAppOptionsType3Storage {
+        // @dev The "msgType" should be defined in the child contract.
+        mapping(uint32 => mapping(uint16 => bytes)) enforcedOptions;
+    }
+
+    // keccak256(abi.encode(uint256(keccak256("layerzerov2.storage.oappoptionstype3")) - 1)) & ~bytes32(uint256(0xff))
+    bytes32 private constant OAppOptionsType3StorageLocation =
+        0x8d2bda5d9f6ffb5796910376005392955773acee5548d0fcdb10e7c264ea0000;
+
+    uint16 internal constant OPTION_TYPE_3 = 3;
+
+    function _getOAppOptionsType3Storage() internal pure returns (OAppOptionsType3Storage storage $) {
+        assembly {
+            $.slot := OAppOptionsType3StorageLocation
+        }
+    }
+
+    /**
+     * @dev Ownable is not initialized here on purpose. It should be initialized in the child contract to
+     * accommodate the different version of Ownable.
+     */
+    function __OAppOptionsType3_init() internal onlyInitializing {}
+
+    function __OAppOptionsType3_init_unchained() internal onlyInitializing {}
+
+    function enforcedOptions(uint32 _eid, uint16 _msgType) public view returns (bytes memory) {
+        OAppOptionsType3Storage storage $ = _getOAppOptionsType3Storage();
+        return $.enforcedOptions[_eid][_msgType];
+    }
+
+    /**
+     * @dev Sets the enforced options for specific endpoint and message type combinations.
+     * @param _enforcedOptions An array of EnforcedOptionParam structures specifying enforced options.
+     *
+     * @dev Only the owner/admin of the OApp can call this function.
+     * @dev Provides a way for the OApp to enforce things like paying for PreCrime, AND/OR minimum dst lzReceive gas amounts etc.
+     * @dev These enforced options can vary as the potential options/execution on the remote may differ as per the msgType.
+     * eg. Amount of lzReceive() gas necessary to deliver a lzCompose() message adds overhead you dont want to pay
+     * if you are only making a standard LayerZero message ie. lzReceive() WITHOUT sendCompose().
+     */
+    function setEnforcedOptions(EnforcedOptionParam[] calldata _enforcedOptions) public virtual onlyOwner {
+        OAppOptionsType3Storage storage $ = _getOAppOptionsType3Storage();
+        for (uint256 i = 0; i < _enforcedOptions.length; i++) {
+            // @dev Enforced options are only available for optionType 3, as type 1 and 2 dont support combining.
+            _assertOptionsType3(_enforcedOptions[i].options);
+            $.enforcedOptions[_enforcedOptions[i].eid][_enforcedOptions[i].msgType] = _enforcedOptions[i].options;
+        }
+
+        emit EnforcedOptionSet(_enforcedOptions);
+    }
+
+    /**
+     * @notice Combines options for a given endpoint and message type.
+     * @param _eid The endpoint ID.
+     * @param _msgType The OAPP message type.
+     * @param _extraOptions Additional options passed by the caller.
+     * @return options The combination of caller specified options AND enforced options.
+     *
+     * @dev If there is an enforced lzReceive option:
+     * - {gasLimit: 200k, msg.value: 1 ether} AND a caller supplies a lzReceive option: {gasLimit: 100k, msg.value: 0.5 ether}
+     * - The resulting options will be {gasLimit: 300k, msg.value: 1.5 ether} when the message is executed on the remote lzReceive() function.
+     * @dev This presence of duplicated options is handled off-chain in the verifier/executor.
+     */
+    function combineOptions(
+        uint32 _eid,
+        uint16 _msgType,
+        bytes calldata _extraOptions
+    ) public view virtual returns (bytes memory) {
+        OAppOptionsType3Storage storage $ = _getOAppOptionsType3Storage();
+        bytes memory enforced = $.enforcedOptions[_eid][_msgType];
+
+        // No enforced options, pass whatever the caller supplied, even if it's empty or legacy type 1/2 options.
+        if (enforced.length == 0) return _extraOptions;
+
+        // No caller options, return enforced
+        if (_extraOptions.length == 0) return enforced;
+
+        // @dev If caller provided _extraOptions, must be type 3 as its the ONLY type that can be combined.
+        if (_extraOptions.length >= 2) {
+            _assertOptionsType3(_extraOptions);
+            // @dev Remove the first 2 bytes containing the type from the _extraOptions and combine with enforced.
+            return bytes.concat(enforced, _extraOptions[2:]);
+        }
+
+        // No valid set of options was found.
+        revert InvalidOptions(_extraOptions);
+    }
+
+    /**
+     * @dev Internal function to assert that options are of type 3.
+     * @param _options The options to be checked.
+     */
+    function _assertOptionsType3(bytes calldata _options) internal pure virtual {
+        uint16 optionsType = uint16(bytes2(_options[0:2]));
+        if (optionsType != OPTION_TYPE_3) revert InvalidOptions(_options);
+    }
+}
+
+// node_modules/@openzeppelin/contracts/utils/cryptography/SignatureChecker.sol
+
+// OpenZeppelin Contracts (last updated v4.9.0) (utils/cryptography/SignatureChecker.sol)
+
+/**
+ * @dev Signature verification helper that can be used instead of `ECDSA.recover` to seamlessly support both ECDSA
+ * signatures from externally owned accounts (EOAs) as well as ERC1271 signatures from smart contract wallets like
+ * Argent and Gnosis Safe.
+ *
+ * _Available since v4.1._
+ */
+library SignatureChecker {
+    /**
+     * @dev Checks if a signature is valid for a given signer and data hash. If the signer is a smart contract, the
+     * signature is validated against that smart contract using ERC1271, otherwise it's validated using `ECDSA.recover`.
+     *
+     * NOTE: Unlike ECDSA signatures, contract signatures are revocable, and the outcome of this function can thus
+     * change through time. It could return true at block N and false at block N+1 (or the opposite).
+     */
+    function isValidSignatureNow(address signer, bytes32 hash, bytes memory signature) internal view returns (bool) {
+        (address recovered, ECDSA.RecoverError error) = ECDSA.tryRecover(hash, signature);
+        return
+            (error == ECDSA.RecoverError.NoError && recovered == signer) ||
+            isValidERC1271SignatureNow(signer, hash, signature);
+    }
+
+    /**
+     * @dev Checks if a signature is valid for a given signer and data hash. The signature is validated
+     * against the signer smart contract using ERC1271.
+     *
+     * NOTE: Unlike ECDSA signatures, contract signatures are revocable, and the outcome of this function can thus
+     * change through time. It could return true at block N and false at block N+1 (or the opposite).
+     */
+    function isValidERC1271SignatureNow(
+        address signer,
+        bytes32 hash,
+        bytes memory signature
+    ) internal view returns (bool) {
+        (bool success, bytes memory result) = signer.staticcall(
+            abi.encodeWithSelector(IERC1271.isValidSignature.selector, hash, signature)
+        );
+        return (success &&
+            result.length >= 32 &&
+            abi.decode(result, (bytes32)) == bytes32(IERC1271.isValidSignature.selector));
+    }
+}
+
 // node_modules/@fraxfinance/layerzero-v2-upgradeable/oapp/contracts/oapp/interfaces/IOAppReceiver.sol
 
 interface IOAppReceiver is ILayerZeroReceiver {
@@ -2688,6 +4967,320 @@ interface IOAppPreCrimeSimulator {
     function isPeer(uint32 _eid, bytes32 _peer) external view returns (bool);
 }
 
+// contracts/modules/signatureModule/SignatureModule.sol
+
+abstract contract SignatureModule is EIP712Upgradeable {
+    /// @notice Error thrown when a signature is invalid
+    error InvalidSignature();
+
+    /// @dev Added supportive function to check if the signature is valid
+    function _requireIsValidSignatureNow(address signer, bytes32 structHash, bytes memory signature) internal view {
+        if (
+            !SignatureChecker.isValidSignatureNow({
+                signer: signer,
+                hash: _hashTypedDataV4({structHash: structHash}),
+                signature: signature
+            }) || signer == address(0)
+        ) revert InvalidSignature();
+    }
+}
+
+// contracts/modules/EIP3009Module.sol
+
+/// @title Eip3009
+/// @notice Eip3009 provides internal implementations for gas-abstracted transfers under Eip3009 guidelines
+/// @author Frax Finance, inspired by Agora (thanks Drake)
+abstract contract EIP3009Module is SignatureModule {
+
+    /// @notice keccak256("TransferWithAuthorization(address from,address to,uint256 value,uint256 validAfter,uint256 validBefore,bytes32 nonce)")
+    bytes32 internal constant TRANSFER_WITH_AUTHORIZATION_TYPEHASH =
+        0x7c7c6cdb67a18743f49ec6fa9b35f50d52ed05cbed4cc592e13b44501c1a2267;
+
+    /// @notice keccak256("ReceiveWithAuthorization(address from,address to,uint256 value,uint256 validAfter,uint256 validBefore,bytes32 nonce)")
+    bytes32 internal constant RECEIVE_WITH_AUTHORIZATION_TYPEHASH =
+        0xd099cc98ef71107a616c4f0f941f04c322d8e254fe26b3c6668db87aae413de8;
+
+    /// @notice keccak256("CancelAuthorization(address authorizer,bytes32 nonce)")
+    bytes32 internal constant CANCEL_AUTHORIZATION_TYPEHASH =
+        0x158b0a9edf7a828aad02f63cd515c68ef2f50ba807396f6d12842833a1597429;
+
+    //==============================================================================
+    // Storage
+    //==============================================================================
+
+    struct EIP3009ModuleStorage {
+        mapping(address authorizer => mapping(bytes32 nonce => bool used)) isAuthorizationUsed;
+    }
+
+    // keccak256(abi.encode(uint256(keccak256("frax.storage.EIP3009Module")) - 1)) & ~bytes32(uint256(0xff))
+    bytes32 private constant EIP3009ModuleStorageLocation = 0x6607eb842e76408d8b3956685dc6b9da5897a1d9b47edcc993ce266e603fa500;
+
+    function _getEIP3009ModuleStorage() private pure returns (EIP3009ModuleStorage storage $) {
+        assembly {
+            $.slot := EIP3009ModuleStorageLocation
+        }
+    }
+
+    //==============================================================================
+    // Functions
+    //==============================================================================
+
+    /// @notice The ```transferWithAuthorization``` function executes a transfer with a signed authorization according to Eip3009
+    /// @dev EOA wallet signatures should be packed in the order of r, s, v
+    /// @dev added in v1.1.0
+    /// @param from Payer's address (Authorizer)
+    /// @param to Payee's address
+    /// @param value Amount to be transferred
+    /// @param validAfter The block.timestamp after which the authorization is valid
+    /// @param validBefore The block.timestamp before which the authorization is valid
+    /// @param nonce Unique nonce
+    /// @param v ECDSA signature parameter v
+    /// @param r ECDSA signature parameters r
+    /// @param s ECDSA signature parameters s
+    function transferWithAuthorization(
+        address from,
+        address to,
+        uint256 value,
+        uint256 validAfter,
+        uint256 validBefore,
+        bytes32 nonce,
+        uint8 v,
+        bytes32 r,
+        bytes32 s
+    ) external {
+        // Packs signature pieces into bytes
+        transferWithAuthorization({
+            from: from,
+            to: to,
+            value: value,
+            validAfter: validAfter,
+            validBefore: validBefore,
+            nonce: nonce,
+            signature: abi.encodePacked(r, s, v)
+        });
+    }
+
+    /// @notice The ```transferWithAuthorization``` function executes a transfer with a signed authorization
+    /// @dev EOA wallet signatures should be packed in the order of r, s, v
+    /// @param from Payer's address (Authorizer)
+    /// @param to Payee's address
+    /// @param value Amount to be transferred
+    /// @param validAfter The time after which this is valid (unix time)
+    /// @param validBefore The time before which this is valid (unix time)
+    /// @param nonce Unique nonce
+    /// @param signature Signature byte array produced by an EOA wallet or a contract wallet
+    function transferWithAuthorization(
+        address from,
+        address to,
+        uint256 value,
+        uint256 validAfter,
+        uint256 validBefore,
+        bytes32 nonce,
+        bytes memory signature
+    ) public {
+        // Checks: authorization validity
+        if (block.timestamp <= validAfter) revert InvalidAuthorization();
+        if (block.timestamp >= validBefore) revert ExpiredAuthorization();
+        _requireUnusedAuthorization({ authorizer: from, nonce: nonce });
+
+        // Checks: valid signature
+        _requireIsValidSignatureNow({
+            signer: from,
+            structHash: keccak256(
+                abi.encode(TRANSFER_WITH_AUTHORIZATION_TYPEHASH, from, to, value, validAfter, validBefore, nonce)
+            ),
+            signature: signature
+        });
+
+        // Effects: mark authorization as used and transfer
+        _markAuthorizationAsUsed({ authorizer: from, nonce: nonce });
+        _transfer({ from: from, to: to, amount: value });
+    }
+
+    /// @notice The ```receiveWithAuthorization``` function receives a transfer with a signed authorization from the payer
+    /// @dev This has an additional check to ensure that the payee's address matches the caller of this function to prevent front-running attacks
+    /// @dev EOA wallet signatures should be packed in the order of r, s, v
+    /// @param from Payer's address (Authorizer)
+    /// @param to Payee's address
+    /// @param value Amount to be transferred
+    /// @param validAfter The block.timestamp after which the authorization is valid
+    /// @param validBefore The block.timestamp before which the authorization is valid
+    /// @param nonce Unique nonce
+    /// @param v ECDSA signature parameter v
+    /// @param r ECDSA signature parameters r
+    /// @param s ECDSA signature parameters s
+    function receiveWithAuthorization(
+        address from,
+        address to,
+        uint256 value,
+        uint256 validAfter,
+        uint256 validBefore,
+        bytes32 nonce,
+        uint8 v,
+        bytes32 r,
+        bytes32 s
+    ) external {
+        // Packs signature pieces into bytes
+        receiveWithAuthorization({
+            from: from,
+            to: to,
+            value: value,
+            validAfter: validAfter,
+            validBefore: validBefore,
+            nonce: nonce,
+            signature: abi.encodePacked(r, s, v)
+        });
+    }
+
+    /// @notice The ```receiveWithAuthorization``` function receives a transfer with a signed authorization from the payer
+    /// @dev This has an additional check to ensure that the payee's address matches the caller of this function to prevent front-running attacks
+    /// @dev EOA wallet signatures should be packed in the order of r, s, v
+    /// @param from Payer's address (Authorizer)
+    /// @param to Payee's address
+    /// @param value Amount to be transferred
+    /// @param validAfter The block.timestamp after which the authorization is valid
+    /// @param validBefore The block.timestamp before which the authorization is valid
+    /// @param nonce Unique nonce
+    /// @param signature Signature byte array produced by an EOA wallet or a contract wallet
+    function receiveWithAuthorization(
+        address from,
+        address to,
+        uint256 value,
+        uint256 validAfter,
+        uint256 validBefore,
+        bytes32 nonce,
+        bytes memory signature
+    ) public {
+        // Checks: authorization validity
+        if (to != msg.sender) revert InvalidPayee({ caller: msg.sender, payee: to });
+        if (block.timestamp <= validAfter) revert InvalidAuthorization();
+        if (block.timestamp >= validBefore) revert ExpiredAuthorization();
+        _requireUnusedAuthorization({ authorizer: from, nonce: nonce });
+
+        // Checks: valid signature
+        _requireIsValidSignatureNow({
+            signer: from,
+            structHash: keccak256(
+                abi.encode(RECEIVE_WITH_AUTHORIZATION_TYPEHASH, from, to, value, validAfter, validBefore, nonce)
+            ),
+            signature: signature
+        });
+
+        // Effects: mark authorization as used and transfer
+        _markAuthorizationAsUsed({ authorizer: from, nonce: nonce });
+        _transfer({ from: from, to: to, amount: value });
+    }
+
+    /// @notice The ```cancelAuthorization``` function cancels an authorization nonce
+    /// @dev EOA wallet signatures should be packed in the order of r, s, v
+    /// @param authorizer   Authorizer's address
+    /// @param nonce        Nonce of the authorization
+    /// @param v            ECDSA signature v value
+    /// @param r            ECDSA signature r value
+    /// @param s            ECDSA signature s value
+    function cancelAuthorization(address authorizer, bytes32 nonce, uint8 v, bytes32 r, bytes32 s) external {
+        cancelAuthorization({ authorizer: authorizer, nonce: nonce, signature: abi.encodePacked(r, s, v) });
+    }
+
+    /// @notice The ```cancelAuthorization``` function cancels an authorization nonce
+    /// @dev EOA wallet signatures should be packed in the order of r, s, v
+    /// @param authorizer    Authorizer's address
+    /// @param nonce         Nonce of the authorization
+    /// @param signature     Signature byte array produced by an EOA wallet or a contract wallet
+    function cancelAuthorization(address authorizer, bytes32 nonce, bytes memory signature) public {
+        _requireUnusedAuthorization({ authorizer: authorizer, nonce: nonce });
+        _requireIsValidSignatureNow({
+            signer: authorizer,
+            structHash: keccak256(abi.encode(CANCEL_AUTHORIZATION_TYPEHASH, authorizer, nonce)),
+            signature: signature
+        });
+
+        _getEIP3009ModuleStorage().isAuthorizationUsed[authorizer][nonce] = true;
+        emit AuthorizationCanceled({ authorizer: authorizer, nonce: nonce });
+    }
+
+    //==============================================================================
+    // Internal Checks Functions
+    //==============================================================================
+
+    /// @notice The ```_requireUnusedAuthorization``` checks that an authorization nonce is unused
+    /// @param authorizer    Authorizer's address
+    /// @param nonce         Nonce of the authorization
+    function _requireUnusedAuthorization(address authorizer, bytes32 nonce) private view {
+        if (_getEIP3009ModuleStorage().isAuthorizationUsed[authorizer][nonce])
+            revert UsedOrCanceledAuthorization();
+    }
+
+    //==============================================================================
+    // Internal Effects Functions
+    //==============================================================================
+
+    /// @notice The ```_markAuthorizationAsUsed``` function marks an authorization nonce as used
+    /// @param authorizer    Authorizer's address
+    /// @param nonce         Nonce of the authorization
+    function _markAuthorizationAsUsed(address authorizer, bytes32 nonce) private {
+        _getEIP3009ModuleStorage().isAuthorizationUsed[authorizer][nonce] = true;
+        emit AuthorizationUsed({ authorizer: authorizer, nonce: nonce });
+    }
+
+    //==============================================================================
+    // Views
+    //==============================================================================
+
+    /**
+    * @notice Returns the state of an authorization
+    * @dev Nonces are randomly generated 32-byte data unique to the authorizer's
+    * address
+    * @param authorizer    Authorizer's address
+    * @param nonce         Nonce of the authorization
+    * @return True if the nonce is used
+    */
+    function authorizationState(
+        address authorizer,
+        bytes32 nonce
+    ) external view returns (bool) {
+        return _getEIP3009ModuleStorage().isAuthorizationUsed[authorizer][nonce];
+    }
+
+    //==============================================================================
+    // Overridden methods
+    //==============================================================================
+
+    function _transfer(address from, address to, uint256 amount) internal virtual {}
+
+    //==============================================================================
+    // Events
+    //==============================================================================
+
+    /// @notice ```AuthorizationUsed``` event is emitted when an authorization is used
+    /// @param authorizer Authorizer's address
+    /// @param nonce Nonce of the authorization
+    event AuthorizationUsed(address indexed authorizer, bytes32 indexed nonce);
+
+    /// @notice ```AuthorizationCanceled``` event is emitted when an authorization is canceled
+    /// @param authorizer Authorizer's address
+    /// @param nonce Nonce of the authorization
+    event AuthorizationCanceled(address indexed authorizer, bytes32 indexed nonce);
+
+    //==============================================================================
+    // Errors
+    //==============================================================================
+
+    /// @notice The ```InvalidPayee``` error is emitted when the payee does not match sender in receiveWithAuthorization
+    /// @param caller The caller of the function
+    /// @param payee The expected payee in the function
+    error InvalidPayee(address caller, address payee);
+
+    /// @notice The ```InvalidAuthorization``` error is emitted when the authorization is invalid because its too early
+    error InvalidAuthorization();
+
+    /// @notice The ```ExpiredAuthorization``` error is emitted when the authorization is expired
+    error ExpiredAuthorization();
+
+    /// @notice The ```UsedOrCanceledAuthorization``` error is emitted when the authorization nonce is already used or canceled
+    error UsedOrCanceledAuthorization();
+}
+
 // node_modules/@fraxfinance/layerzero-v2-upgradeable/oapp/contracts/oapp/OAppReceiverUpgradeable.sol
 
 /**
@@ -2802,6 +5395,95 @@ abstract contract OAppReceiverUpgradeable is IOAppReceiver, OAppCoreUpgradeable 
         address _executor,
         bytes calldata _extraData
     ) internal virtual;
+}
+
+// contracts/modules/PermitModule.sol
+
+/// @dev Ripped from OZ 4.9.4 ERC20Permit.sol with namespaced storage and support of ERC1271 signatures
+abstract contract PermitModule is SignatureModule {
+
+    using Counters for Counters.Counter;
+
+    //==============================================================================
+    // Storage
+    //==============================================================================
+
+    bytes32 private constant PERMIT_TYPEHASH =
+        keccak256("Permit(address owner,address spender,uint256 value,uint256 nonce,uint256 deadline)");
+
+    struct PermitModuleStorage {
+        mapping(address => Counters.Counter) nonces;
+    }
+
+    // keccak256(abi.encode(uint256(keccak256("frax.storage.PermitModule")) - 1)) & ~bytes32(uint256(0xff))    
+    bytes32 private constant PermitModuleStorageLocation = 0xb39b43abb0b115e0a59dece28477e279ee5f8e2fd55fbe200557c3ab864a0300;
+
+    function _getPermitModuleStorage() private pure returns (PermitModuleStorage storage $) {
+        assembly {
+            $.slot := PermitModuleStorageLocation
+        }
+    }
+
+    //==============================================================================
+    // Functions
+    //==============================================================================
+
+    function permit(
+        address owner,
+        address spender,
+        uint256 value,
+        uint256 deadline,
+        uint8 v,
+        bytes32 r,
+        bytes32 s
+    ) external virtual {
+        permit({
+            owner: owner,
+            spender: spender,
+            value: value,
+            deadline: deadline,
+            signature: abi.encodePacked(r, s, v)
+        });
+    }
+
+    function permit(
+        address owner,
+        address spender,
+        uint256 value,
+        uint256 deadline,
+        bytes memory signature
+    ) public virtual {
+        require(block.timestamp <= deadline, "ERC20Permit: expired deadline");
+
+        _requireIsValidSignatureNow({
+            signer: owner,
+            structHash: keccak256(abi.encode(PERMIT_TYPEHASH, owner, spender, value, _useNonce(owner), deadline)),
+            signature: signature
+        });
+
+        _approve(owner, spender, value);
+    }
+
+    function nonces(address owner) public view virtual returns (uint256) {
+        PermitModuleStorage storage $ = _getPermitModuleStorage();
+        return $.nonces[owner].current();
+    }
+
+    function DOMAIN_SEPARATOR() external view returns (bytes32) {
+        return _domainSeparatorV4();
+    }
+
+    function _useNonce(address owner) internal virtual returns (uint256 current) {
+        PermitModuleStorage storage $ = _getPermitModuleStorage();
+        current = $.nonces[owner].current();
+        $.nonces[owner].increment();
+    }
+
+    //==============================================================================
+    // Virtual overriden methods
+    //==============================================================================
+
+    function _approve(address owner, address spender, uint256 amount) internal virtual {}
 }
 
 // node_modules/@fraxfinance/layerzero-v2-upgradeable/oapp/contracts/oapp/OAppSenderUpgradeable.sol
@@ -3798,29 +6480,133 @@ abstract contract OFTUpgradeable is OFTCoreUpgradeable, ERC20Upgradeable {
 
 // contracts/frxUsd/FrxUSDOFTUpgradeable.sol
 
-contract FrxUSDOFTUpgradeable is OFTUpgradeable {
-    constructor(address _lzEndpoint) OFTUpgradeable(_lzEndpoint) {}
-
-    function version() external pure returns (uint256 major, uint256 minor, uint256 patch) {
-        major = 1;
-        minor = 0;
-        patch = 0;
+contract FrxUSDOFTUpgradeable is OFTUpgradeable, EIP3009Module, PermitModule, FreezeThawModule, PauseModule {
+    constructor(address _lzEndpoint) OFTUpgradeable(_lzEndpoint) {
+        _disableInitializers();
     }
 
-    // Admin
-
-    function initialize(string memory _name, string memory _symbol, address _delegate) external initializer {
-        __OFT_init(_name, _symbol, _delegate);
-        __Ownable_init();
-        _transferOwnership(_delegate);
+    function version() public pure returns (string memory) {
+        return "1.1.0";
     }
-
+    
+    /// @dev overrides state where previous OFT versions were named the legacy "FRAX"
     function name() public pure override returns (string memory) {
         return "Frax USD";
     }
 
+    /// @dev overrides state where previous OFT versions were named the legacy "FRAX"
     function symbol() public pure override returns (string memory) {
         return "frxUSD";
+    }
+
+    // Admin
+
+    /// @dev This method is called specifically when deploying a new OFT
+    function initialize(address _delegate) external reinitializer(3) {
+        __OFT_init(name(), symbol(), _delegate);
+        __EIP712_init(name(), version());
+        
+        __Ownable_init();
+        _transferOwnership(_delegate);
+    }
+        
+    /// @dev This method is called specifically when upgrading an existing OFT
+    function initializeV110() external reinitializer(3) {
+        __EIP712_init(name(), version());
+    }
+
+    /// @notice External admin gated function to add a freezer role to an account
+    /// @param account The account to be added as a freezer
+    /// @dev Added in v1.1.0
+    function addFreezer(address account) external onlyOwner {
+        _addFreezer(account);
+    }
+
+    /// @notice External admin gated function to remove a freezer role from an account
+    /// @param account The account to be removed as a freezer
+    /// @dev Added in v1.1.0
+    function removeFreezer(address account) external onlyOwner {
+        _removeFreezer(account);
+    }
+
+    /// @notice External admin gated function to unfreeze a set of accounts
+    /// @param accounts Array of accounts to be unfrozen
+    /// @dev Added in v1.1.0
+    function thawMany(address[] memory accounts) external onlyOwner {
+        _thawMany(accounts);
+    }
+
+    /// @notice External admin gated function to unfreeze an account
+    /// @param account The account to be unfrozen
+    /// @dev Added in v1.1.0
+    function thaw(address account) external onlyOwner {
+        _thaw(account);
+    }
+
+    /// @notice External admin gated function to batch freeze a set of accounts
+    /// @param accounts Array of accounts to be frozen
+    /// @dev Added in v1.1.0
+    function freezeMany(address[] memory accounts) external {
+        if (!isFreezer(msg.sender) && msg.sender != owner()) revert NotFreezer();
+        _freezeMany(accounts);
+    }
+
+    /// @notice External admin gated function to freeze a given account
+    /// @param account The account to be
+    /// @dev Added in v1.1.0
+    function freeze(address account) external {
+        if (!isFreezer(msg.sender) && msg.sender != owner()) revert NotFreezer();
+        _freeze(account);
+    }
+
+    /// @notice External admin gated function to batch burn balance from a set of accounts
+    /// @param accounts Array of accounts whose balances will be burned
+    /// @param amounts Array of amounts corresponding to the balances to be burned
+    /// @dev Added in v1.1.0
+    /// @dev if `amount` == 0, entire balance will be burned
+    function burnMany(address[] memory accounts, uint256[] memory amounts) external onlyOwner {
+        uint lenOwner = accounts.length;
+        if (accounts.length != amounts.length) revert ArrayMisMatch();
+        for (uint i; i < lenOwner; ++i) {
+            if (amounts[i] == 0) amounts[i] = balanceOf(accounts[i]);
+            _burn(accounts[i], amounts[i]);
+        }
+    }
+
+    /// @notice External admin gated function to burn balance from a given account
+    /// @param account  The account whose balance will be burned
+    /// @param amount The amount of balance to burn
+    /// @dev Added in v1.1.0
+    /// @dev if `amount` == 0, entire balance will be burned
+    function burn(address account, uint256 amount) external onlyOwner {
+        if (amount == 0) amount = balanceOf(account);
+        _burn(account, amount);
+    }
+
+    /// @notice External admin gated pause function
+    /// @dev Added in v1.1.0
+    function pause() external onlyOwner {
+        _pause();
+    }
+
+    /// @notice External admin gated unpause function
+    /// @dev Added in v1.1.0
+    function unpause() external onlyOwner {
+        _unpause();
+    }
+
+    function _beforeTokenTransfer(
+        address from,
+        address to,
+        uint256 amount
+    ) internal override {
+        if (msg.sender != owner()) {
+            if (
+                isPaused() ||
+                isFrozen(to) || isFrozen(from) || isFrozen(msg.sender)
+            ) revert BeforeTokenTransferBlocked();
+        }
+        super._beforeTokenTransfer(from, to, amount);
     }
 
     // Helper views
@@ -3849,5 +6635,22 @@ contract FrxUSDOFTUpgradeable is OFTUpgradeable {
         return _buildMsgAndOptions(_sendParam, _amountLD);
     }
 
+    //==============================================================================
+    // Overrides
+    //==============================================================================
+
+    /// @dev supports EIP3009
+    function _transfer(address from, address to, uint256 amount) internal override(EIP3009Module, ERC20Upgradeable) {
+        return ERC20Upgradeable._transfer(from, to, amount);
+    }
+
+    /// @dev supports EIP2612
+    function _approve(address owner, address spender, uint256 amount) internal override(PermitModule, ERC20Upgradeable) {
+        return ERC20Upgradeable._approve(owner, spender, amount);
+    }
+    
+    /* ========== ERRORS ========== */
+    error ArrayMisMatch();
+    error BeforeTokenTransferBlocked();
 }
 

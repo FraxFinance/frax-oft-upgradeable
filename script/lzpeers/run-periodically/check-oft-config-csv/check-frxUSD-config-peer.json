@@ -1,0 +1,2113 @@
+{
+  "ethereum": {
+    "params": {
+      "oftProxy": "0x566a6442A5A6e9895B9dCA97cC7879D632c6e4B0",
+      "expectedEndpoint": "0x1a44076050125825900e736c501f859c50fE728c",
+      "actualEndpoint": "0x1a44076050125825900e736c501f859c50fE728c",
+      "owner": "0xB1748C79709f4Ba2Dd82834B8c82D4a505003f27",
+      "expectedImplementation": "0x175e4B98075c81511E476c0c5446ddA95d9106c8",
+      "expectedProxyAdmin": "0x223a681fc5c5522c85C96157c0efA18cd6c5405c",
+      "delegate": "0xB1748C79709f4Ba2Dd82834B8c82D4a505003f27",
+      "ownerThreshold": "3",
+      "ownerMembers": [
+        "0x6933BCC3e96f1C4d2cb73Cb391d854b18Ab7A4F2",
+        "0xcbc616D595D38483e6AdC45C7E426f44bF230928",
+        "0x17e06ce6914E3969f7BD37D8b2a563890cA1c96e",
+        "0xc8dE9f45601DA8C76158b8CAF3E56E8A037F2228",
+        "0x6e74053a3798e0fC9a9775F7995316b27f21c4D2"
+      ],
+      "proxyAdminOwner": "0xB1748C79709f4Ba2Dd82834B8c82D4a505003f27",
+      "delegateThreshold": "3",
+      "delegateMembers": [
+        "0x6933BCC3e96f1C4d2cb73Cb391d854b18Ab7A4F2",
+        "0xcbc616D595D38483e6AdC45C7E426f44bF230928",
+        "0x17e06ce6914E3969f7BD37D8b2a563890cA1c96e",
+        "0xc8dE9f45601DA8C76158b8CAF3E56E8A037F2228",
+        "0x6e74053a3798e0fC9a9775F7995316b27f21c4D2"
+      ],
+      "proxyAdminOwnerThreshold": "3",
+      "proxyAdminOwnermembers": [
+        "0x6933BCC3e96f1C4d2cb73Cb391d854b18Ab7A4F2",
+        "0xcbc616D595D38483e6AdC45C7E426f44bF230928",
+        "0x17e06ce6914E3969f7BD37D8b2a563890cA1c96e",
+        "0xc8dE9f45601DA8C76158b8CAF3E56E8A037F2228",
+        "0x6e74053a3798e0fC9a9775F7995316b27f21c4D2"
+      ]
+    },
+    "dstChains": {
+      "fraxtal": {
+        "peerAddressBytes32": "0x00000000000000000000000096a394058e2b84a89bac9667b19661ed003cf5d4",
+        "peerAddress": "0x96A394058E2b84A89bac9667B19661Ed003cF5D4"
+      },
+      "base": {
+        "peerAddressBytes32": "0x000000000000000000000000e5020a6d073a794b6e7f05678707de47986fb0b6",
+        "peerAddress": "0xe5020A6d073a794B6E7f05678707dE47986Fb0b6"
+      },
+      "blast": {
+        "peerAddressBytes32": "0x00000000000000000000000080eede496655fb9047dd39d9f418d5483ed600df",
+        "peerAddress": "0x80Eede496655FB9047dd39d9f418d5483ED600df"
+      },
+      "mode": {
+        "peerAddressBytes32": "0x00000000000000000000000080eede496655fb9047dd39d9f418d5483ed600df",
+        "peerAddress": "0x80Eede496655FB9047dd39d9f418d5483ED600df"
+      },
+      "sei": {
+        "peerAddressBytes32": "0x00000000000000000000000080eede496655fb9047dd39d9f418d5483ed600df",
+        "peerAddress": "0x80Eede496655FB9047dd39d9f418d5483ED600df"
+      },
+      "xlayer": {
+        "peerAddressBytes32": "0x00000000000000000000000080eede496655fb9047dd39d9f418d5483ed600df",
+        "peerAddress": "0x80Eede496655FB9047dd39d9f418d5483ED600df"
+      },
+      "sonic": {
+        "peerAddressBytes32": "0x00000000000000000000000080eede496655fb9047dd39d9f418d5483ed600df",
+        "peerAddress": "0x80Eede496655FB9047dd39d9f418d5483ED600df"
+      },
+      "ink": {
+        "peerAddressBytes32": "0x00000000000000000000000080eede496655fb9047dd39d9f418d5483ed600df",
+        "peerAddress": "0x80Eede496655FB9047dd39d9f418d5483ED600df"
+      },
+      "arbitrum": {
+        "peerAddressBytes32": "0x00000000000000000000000080eede496655fb9047dd39d9f418d5483ed600df",
+        "peerAddress": "0x80Eede496655FB9047dd39d9f418d5483ED600df"
+      },
+      "optimism": {
+        "peerAddressBytes32": "0x00000000000000000000000080eede496655fb9047dd39d9f418d5483ed600df",
+        "peerAddress": "0x80Eede496655FB9047dd39d9f418d5483ED600df"
+      },
+      "polygon": {
+        "peerAddressBytes32": "0x00000000000000000000000080eede496655fb9047dd39d9f418d5483ed600df",
+        "peerAddress": "0x80Eede496655FB9047dd39d9f418d5483ED600df"
+      },
+      "avalanche": {
+        "peerAddressBytes32": "0x00000000000000000000000080eede496655fb9047dd39d9f418d5483ed600df",
+        "peerAddress": "0x80Eede496655FB9047dd39d9f418d5483ED600df"
+      },
+      "bnb": {
+        "peerAddressBytes32": "0x00000000000000000000000080eede496655fb9047dd39d9f418d5483ed600df",
+        "peerAddress": "0x80Eede496655FB9047dd39d9f418d5483ED600df"
+      },
+      "zkevm": {
+        "peerAddressBytes32": "0x00000000000000000000000080eede496655fb9047dd39d9f418d5483ed600df",
+        "peerAddress": "0x80Eede496655FB9047dd39d9f418d5483ED600df"
+      },
+      "solana": {
+        "peerAddressBytes32": "0x5e208a73d5bb1c78e9dbf53badd7299afd6bee9acacdcd4fd668833e53c538ad",
+        "peerAddress": "7LS6y37WXXCyBHkBU6zVpiqaqbkXLr4P85ZhQi3eonSp"
+      }
+    }
+  },
+  "fraxtal": {
+    "params": {
+      "oftProxy": "0x96A394058E2b84A89bac9667B19661Ed003cF5D4",
+      "expectedEndpoint": "0x1a44076050125825900e736c501f859c50fE728c",
+      "actualEndpoint": "0x1a44076050125825900e736c501f859c50fE728c",
+      "owner": "0x5f25218ed9474b721d6a38c115107428E832fA2E",
+      "expectedImplementation": "0x8861AB8683CfD1FCC84327415888B870aB144f51",
+      "expectedProxyAdmin": "0x223a681fc5c5522c85C96157c0efA18cd6c5405c",
+      "delegate": "0x5f25218ed9474b721d6a38c115107428E832fA2E",
+      "ownerThreshold": "3",
+      "ownerMembers": [
+        "0x6e74053a3798e0fC9a9775F7995316b27f21c4D2",
+        "0x17e06ce6914E3969f7BD37D8b2a563890cA1c96e",
+        "0x8d8290d49e88D16d81C6aDf6C8774eD88762274A",
+        "0x6933BCC3e96f1C4d2cb73Cb391d854b18Ab7A4F2",
+        "0xcbc616D595D38483e6AdC45C7E426f44bF230928",
+        "0x13Fe84D36d7a507Bb4bdAC6dCaF13a10961fc470"
+      ],
+      "proxyAdminOwner": "0xC4EB45d80DC1F079045E75D5d55de8eD1c1090E6",
+      "delegateThreshold": "3",
+      "delegateMembers": [
+        "0x6e74053a3798e0fC9a9775F7995316b27f21c4D2",
+        "0x17e06ce6914E3969f7BD37D8b2a563890cA1c96e",
+        "0x8d8290d49e88D16d81C6aDf6C8774eD88762274A",
+        "0x6933BCC3e96f1C4d2cb73Cb391d854b18Ab7A4F2",
+        "0xcbc616D595D38483e6AdC45C7E426f44bF230928",
+        "0x13Fe84D36d7a507Bb4bdAC6dCaF13a10961fc470"
+      ],
+      "proxyAdminOwnerThreshold": "3",
+      "proxyAdminOwnermembers": [
+        "0x8da4E997e051605878c9C0B793c496556EACC2C0",
+        "0x6e74053a3798e0fC9a9775F7995316b27f21c4D2",
+        "0x6933BCC3e96f1C4d2cb73Cb391d854b18Ab7A4F2",
+        "0x17e06ce6914E3969f7BD37D8b2a563890cA1c96e",
+        "0xcbc616D595D38483e6AdC45C7E426f44bF230928"
+      ]
+    },
+    "dstChains": {
+      "ethereum": {
+        "peerAddressBytes32": "0x000000000000000000000000566a6442a5a6e9895b9dca97cc7879d632c6e4b0",
+        "peerAddress": "0x566a6442A5A6e9895B9dCA97cC7879D632c6e4B0"
+      },
+      "base": {
+        "peerAddressBytes32": "0x000000000000000000000000e5020a6d073a794b6e7f05678707de47986fb0b6",
+        "peerAddress": "0xe5020A6d073a794B6E7f05678707dE47986Fb0b6"
+      },
+      "blast": {
+        "peerAddressBytes32": "0x00000000000000000000000080eede496655fb9047dd39d9f418d5483ed600df",
+        "peerAddress": "0x80Eede496655FB9047dd39d9f418d5483ED600df"
+      },
+      "mode": {
+        "peerAddressBytes32": "0x00000000000000000000000080eede496655fb9047dd39d9f418d5483ed600df",
+        "peerAddress": "0x80Eede496655FB9047dd39d9f418d5483ED600df"
+      },
+      "sei": {
+        "peerAddressBytes32": "0x00000000000000000000000080eede496655fb9047dd39d9f418d5483ed600df",
+        "peerAddress": "0x80Eede496655FB9047dd39d9f418d5483ED600df"
+      },
+      "xlayer": {
+        "peerAddressBytes32": "0x00000000000000000000000080eede496655fb9047dd39d9f418d5483ed600df",
+        "peerAddress": "0x80Eede496655FB9047dd39d9f418d5483ED600df"
+      },
+      "sonic": {
+        "peerAddressBytes32": "0x00000000000000000000000080eede496655fb9047dd39d9f418d5483ed600df",
+        "peerAddress": "0x80Eede496655FB9047dd39d9f418d5483ED600df"
+      },
+      "ink": {
+        "peerAddressBytes32": "0x00000000000000000000000080eede496655fb9047dd39d9f418d5483ed600df",
+        "peerAddress": "0x80Eede496655FB9047dd39d9f418d5483ED600df"
+      },
+      "arbitrum": {
+        "peerAddressBytes32": "0x00000000000000000000000080eede496655fb9047dd39d9f418d5483ed600df",
+        "peerAddress": "0x80Eede496655FB9047dd39d9f418d5483ED600df"
+      },
+      "optimism": {
+        "peerAddressBytes32": "0x00000000000000000000000080eede496655fb9047dd39d9f418d5483ed600df",
+        "peerAddress": "0x80Eede496655FB9047dd39d9f418d5483ED600df"
+      },
+      "polygon": {
+        "peerAddressBytes32": "0x00000000000000000000000080eede496655fb9047dd39d9f418d5483ed600df",
+        "peerAddress": "0x80Eede496655FB9047dd39d9f418d5483ED600df"
+      },
+      "avalanche": {
+        "peerAddressBytes32": "0x00000000000000000000000080eede496655fb9047dd39d9f418d5483ed600df",
+        "peerAddress": "0x80Eede496655FB9047dd39d9f418d5483ED600df"
+      },
+      "bnb": {
+        "peerAddressBytes32": "0x00000000000000000000000080eede496655fb9047dd39d9f418d5483ed600df",
+        "peerAddress": "0x80Eede496655FB9047dd39d9f418d5483ED600df"
+      },
+      "zkevm": {
+        "peerAddressBytes32": "0x00000000000000000000000080eede496655fb9047dd39d9f418d5483ed600df",
+        "peerAddress": "0x80Eede496655FB9047dd39d9f418d5483ED600df"
+      },
+      "zksync": {
+        "peerAddressBytes32": "0x000000000000000000000000ea77c590bb36c43ef7139ce649cfbcfd6163170d",
+        "peerAddress": "0xEa77c590Bb36c43ef7139cE649cFBCFD6163170d"
+      },
+      "abstract": {
+        "peerAddressBytes32": "0x000000000000000000000000ea77c590bb36c43ef7139ce649cfbcfd6163170d",
+        "peerAddress": "0xEa77c590Bb36c43ef7139cE649cFBCFD6163170d"
+      },
+      "berachain": {
+        "peerAddressBytes32": "0x00000000000000000000000080eede496655fb9047dd39d9f418d5483ed600df",
+        "peerAddress": "0x80Eede496655FB9047dd39d9f418d5483ED600df"
+      },
+      "linea": {
+        "peerAddressBytes32": "0x000000000000000000000000c7346783f5e645aa998b106ef9e7f499528673d8",
+        "peerAddress": "0xC7346783f5e645aa998B106Ef9E7f499528673D8"
+      },
+      "aurora": {
+        "peerAddressBytes32": "0x00000000000000000000000080eede496655fb9047dd39d9f418d5483ed600df",
+        "peerAddress": "0x80Eede496655FB9047dd39d9f418d5483ED600df"
+      },
+      "hyperliquid": {
+        "peerAddressBytes32": "0x00000000000000000000000080eede496655fb9047dd39d9f418d5483ed600df",
+        "peerAddress": "0x80Eede496655FB9047dd39d9f418d5483ED600df"
+      },
+      "katana": {
+        "peerAddressBytes32": "0x00000000000000000000000080eede496655fb9047dd39d9f418d5483ed600df",
+        "peerAddress": "0x80Eede496655FB9047dd39d9f418d5483ED600df"
+      },
+      "plumephoenix": {
+        "peerAddressBytes32": "0x00000000000000000000000080eede496655fb9047dd39d9f418d5483ed600df",
+        "peerAddress": "0x80Eede496655FB9047dd39d9f418d5483ED600df"
+      },
+      "scroll": {
+        "peerAddressBytes32": "0x000000000000000000000000397f939c3b91a74c321ea7129396492ba9cdce82",
+        "peerAddress": "0x397F939C3b91A74C321ea7129396492bA9Cdce82"
+      },
+      "unichain": {
+        "peerAddressBytes32": "0x00000000000000000000000080eede496655fb9047dd39d9f418d5483ed600df",
+        "peerAddress": "0x80Eede496655FB9047dd39d9f418d5483ED600df"
+      },
+      "worldchain": {
+        "peerAddressBytes32": "0x00000000000000000000000080eede496655fb9047dd39d9f418d5483ed600df",
+        "peerAddress": "0x80Eede496655FB9047dd39d9f418d5483ED600df"
+      },
+      "plasma": {
+        "peerAddressBytes32": "0x00000000000000000000000080eede496655fb9047dd39d9f418d5483ed600df",
+        "peerAddress": "0x80Eede496655FB9047dd39d9f418d5483ED600df"
+      },
+      "solana": {
+        "peerAddressBytes32": "0x5e208a73d5bb1c78e9dbf53badd7299afd6bee9acacdcd4fd668833e53c538ad",
+        "peerAddress": "7LS6y37WXXCyBHkBU6zVpiqaqbkXLr4P85ZhQi3eonSp"
+      },
+      "movement": {
+        "peerAddressBytes32": "0xe067037681385b86d8344e6b7746023604c6ac90ddc997ba3c58396c258ad17b",
+        "peerAddress": "0xe067037681385b86d8344e6b7746023604c6ac90ddc997ba3c58396c258ad17b"
+      },
+      "aptos": {
+        "peerAddressBytes32": "0xe067037681385b86d8344e6b7746023604c6ac90ddc997ba3c58396c258ad17b",
+        "peerAddress": "0xe067037681385b86d8344e6b7746023604c6ac90ddc997ba3c58396c258ad17b"
+      }
+    }
+  },
+  "base": {
+    "params": {
+      "oftProxy": "0xe5020A6d073a794B6E7f05678707dE47986Fb0b6",
+      "expectedEndpoint": "0x1a44076050125825900e736c501f859c50fE728c",
+      "actualEndpoint": "0x1a44076050125825900e736c501f859c50fE728c",
+      "owner": "0xCBfd4Ef00a8cf91Fd1e1Fe97dC05910772c15E53",
+      "expectedImplementation": "0xf2913Eb7724D184a2337ebb74195EeC4241840eB",
+      "expectedProxyAdmin": "0xF59C41A57AB4565AF7424F64981523DfD7A453c5",
+      "delegate": "0xCBfd4Ef00a8cf91Fd1e1Fe97dC05910772c15E53",
+      "ownerThreshold": "3",
+      "ownerMembers": [
+        "0x13Fe84D36d7a507Bb4bdAC6dCaF13a10961fc470",
+        "0x17e06ce6914E3969f7BD37D8b2a563890cA1c96e",
+        "0x8d8290d49e88D16d81C6aDf6C8774eD88762274A",
+        "0xcbc616D595D38483e6AdC45C7E426f44bF230928",
+        "0x381e2495e683868F693AA5B1414F712f21d34b40",
+        "0x6e74053a3798e0fC9a9775F7995316b27f21c4D2"
+      ],
+      "proxyAdminOwner": "0xCBfd4Ef00a8cf91Fd1e1Fe97dC05910772c15E53",
+      "delegateThreshold": "3",
+      "delegateMembers": [
+        "0x13Fe84D36d7a507Bb4bdAC6dCaF13a10961fc470",
+        "0x17e06ce6914E3969f7BD37D8b2a563890cA1c96e",
+        "0x8d8290d49e88D16d81C6aDf6C8774eD88762274A",
+        "0xcbc616D595D38483e6AdC45C7E426f44bF230928",
+        "0x381e2495e683868F693AA5B1414F712f21d34b40",
+        "0x6e74053a3798e0fC9a9775F7995316b27f21c4D2"
+      ],
+      "proxyAdminOwnerThreshold": "3",
+      "proxyAdminOwnermembers": [
+        "0x13Fe84D36d7a507Bb4bdAC6dCaF13a10961fc470",
+        "0x17e06ce6914E3969f7BD37D8b2a563890cA1c96e",
+        "0x8d8290d49e88D16d81C6aDf6C8774eD88762274A",
+        "0xcbc616D595D38483e6AdC45C7E426f44bF230928",
+        "0x381e2495e683868F693AA5B1414F712f21d34b40",
+        "0x6e74053a3798e0fC9a9775F7995316b27f21c4D2"
+      ]
+    },
+    "dstChains": {
+      "ethereum": {
+        "peerAddressBytes32": "0x000000000000000000000000566a6442a5a6e9895b9dca97cc7879d632c6e4b0",
+        "peerAddress": "0x566a6442A5A6e9895B9dCA97cC7879D632c6e4B0"
+      },
+      "fraxtal": {
+        "peerAddressBytes32": "0x00000000000000000000000096a394058e2b84a89bac9667b19661ed003cf5d4",
+        "peerAddress": "0x96A394058E2b84A89bac9667B19661Ed003cF5D4"
+      },
+      "blast": {
+        "peerAddressBytes32": "0x00000000000000000000000080eede496655fb9047dd39d9f418d5483ed600df",
+        "peerAddress": "0x80Eede496655FB9047dd39d9f418d5483ED600df"
+      },
+      "mode": {
+        "peerAddressBytes32": "0x00000000000000000000000080eede496655fb9047dd39d9f418d5483ed600df",
+        "peerAddress": "0x80Eede496655FB9047dd39d9f418d5483ED600df"
+      },
+      "sei": {
+        "peerAddressBytes32": "0x00000000000000000000000080eede496655fb9047dd39d9f418d5483ed600df",
+        "peerAddress": "0x80Eede496655FB9047dd39d9f418d5483ED600df"
+      },
+      "xlayer": {
+        "peerAddressBytes32": "0x00000000000000000000000080eede496655fb9047dd39d9f418d5483ed600df",
+        "peerAddress": "0x80Eede496655FB9047dd39d9f418d5483ED600df"
+      },
+      "sonic": {
+        "peerAddressBytes32": "0x00000000000000000000000080eede496655fb9047dd39d9f418d5483ed600df",
+        "peerAddress": "0x80Eede496655FB9047dd39d9f418d5483ED600df"
+      },
+      "ink": {
+        "peerAddressBytes32": "0x00000000000000000000000080eede496655fb9047dd39d9f418d5483ed600df",
+        "peerAddress": "0x80Eede496655FB9047dd39d9f418d5483ED600df"
+      },
+      "arbitrum": {
+        "peerAddressBytes32": "0x00000000000000000000000080eede496655fb9047dd39d9f418d5483ed600df",
+        "peerAddress": "0x80Eede496655FB9047dd39d9f418d5483ED600df"
+      },
+      "optimism": {
+        "peerAddressBytes32": "0x00000000000000000000000080eede496655fb9047dd39d9f418d5483ed600df",
+        "peerAddress": "0x80Eede496655FB9047dd39d9f418d5483ED600df"
+      },
+      "polygon": {
+        "peerAddressBytes32": "0x00000000000000000000000080eede496655fb9047dd39d9f418d5483ed600df",
+        "peerAddress": "0x80Eede496655FB9047dd39d9f418d5483ED600df"
+      },
+      "avalanche": {
+        "peerAddressBytes32": "0x00000000000000000000000080eede496655fb9047dd39d9f418d5483ed600df",
+        "peerAddress": "0x80Eede496655FB9047dd39d9f418d5483ED600df"
+      },
+      "bnb": {
+        "peerAddressBytes32": "0x00000000000000000000000080eede496655fb9047dd39d9f418d5483ed600df",
+        "peerAddress": "0x80Eede496655FB9047dd39d9f418d5483ED600df"
+      },
+      "zkevm": {
+        "peerAddressBytes32": "0x00000000000000000000000080eede496655fb9047dd39d9f418d5483ed600df",
+        "peerAddress": "0x80Eede496655FB9047dd39d9f418d5483ED600df"
+      }
+    }
+  },
+  "blast": {
+    "params": {
+      "oftProxy": "0x80Eede496655FB9047dd39d9f418d5483ED600df",
+      "expectedEndpoint": "0x1a44076050125825900e736c501f859c50fE728c",
+      "actualEndpoint": "0x1a44076050125825900e736c501f859c50fE728c",
+      "owner": "0x33A133020b2C2CD41a24F74033B11EC2fC0bF97a",
+      "expectedImplementation": "0x6A678cEfcA10d5bBe4638D27C671CE7d56865037",
+      "expectedProxyAdmin": "0x223a681fc5c5522c85C96157c0efA18cd6c5405c",
+      "delegate": "0x33A133020b2C2CD41a24F74033B11EC2fC0bF97a",
+      "ownerThreshold": "3",
+      "ownerMembers": [
+        "0x381e2495e683868F693AA5B1414F712f21d34b40",
+        "0x13Fe84D36d7a507Bb4bdAC6dCaF13a10961fc470",
+        "0x17e06ce6914E3969f7BD37D8b2a563890cA1c96e",
+        "0xcbc616D595D38483e6AdC45C7E426f44bF230928",
+        "0x6e74053a3798e0fC9a9775F7995316b27f21c4D2",
+        "0x8d8290d49e88D16d81C6aDf6C8774eD88762274A"
+      ],
+      "proxyAdminOwner": "0x33A133020b2C2CD41a24F74033B11EC2fC0bF97a",
+      "delegateThreshold": "3",
+      "delegateMembers": [
+        "0x381e2495e683868F693AA5B1414F712f21d34b40",
+        "0x13Fe84D36d7a507Bb4bdAC6dCaF13a10961fc470",
+        "0x17e06ce6914E3969f7BD37D8b2a563890cA1c96e",
+        "0xcbc616D595D38483e6AdC45C7E426f44bF230928",
+        "0x6e74053a3798e0fC9a9775F7995316b27f21c4D2",
+        "0x8d8290d49e88D16d81C6aDf6C8774eD88762274A"
+      ],
+      "proxyAdminOwnerThreshold": "3",
+      "proxyAdminOwnermembers": [
+        "0x381e2495e683868F693AA5B1414F712f21d34b40",
+        "0x13Fe84D36d7a507Bb4bdAC6dCaF13a10961fc470",
+        "0x17e06ce6914E3969f7BD37D8b2a563890cA1c96e",
+        "0xcbc616D595D38483e6AdC45C7E426f44bF230928",
+        "0x6e74053a3798e0fC9a9775F7995316b27f21c4D2",
+        "0x8d8290d49e88D16d81C6aDf6C8774eD88762274A"
+      ]
+    },
+    "dstChains": {
+      "ethereum": {
+        "peerAddressBytes32": "0x000000000000000000000000566a6442a5a6e9895b9dca97cc7879d632c6e4b0",
+        "peerAddress": "0x566a6442A5A6e9895B9dCA97cC7879D632c6e4B0"
+      },
+      "fraxtal": {
+        "peerAddressBytes32": "0x00000000000000000000000096a394058e2b84a89bac9667b19661ed003cf5d4",
+        "peerAddress": "0x96A394058E2b84A89bac9667B19661Ed003cF5D4"
+      },
+      "base": {
+        "peerAddressBytes32": "0x000000000000000000000000e5020a6d073a794b6e7f05678707de47986fb0b6",
+        "peerAddress": "0xe5020A6d073a794B6E7f05678707dE47986Fb0b6"
+      },
+      "mode": {
+        "peerAddressBytes32": "0x00000000000000000000000080eede496655fb9047dd39d9f418d5483ed600df",
+        "peerAddress": "0x80Eede496655FB9047dd39d9f418d5483ED600df"
+      },
+      "sei": {
+        "peerAddressBytes32": "0x00000000000000000000000080eede496655fb9047dd39d9f418d5483ed600df",
+        "peerAddress": "0x80Eede496655FB9047dd39d9f418d5483ED600df"
+      },
+      "xlayer": {
+        "peerAddressBytes32": "0x00000000000000000000000080eede496655fb9047dd39d9f418d5483ed600df",
+        "peerAddress": "0x80Eede496655FB9047dd39d9f418d5483ED600df"
+      },
+      "sonic": {
+        "peerAddressBytes32": "0x00000000000000000000000080eede496655fb9047dd39d9f418d5483ed600df",
+        "peerAddress": "0x80Eede496655FB9047dd39d9f418d5483ED600df"
+      },
+      "ink": {
+        "peerAddressBytes32": "0x00000000000000000000000080eede496655fb9047dd39d9f418d5483ed600df",
+        "peerAddress": "0x80Eede496655FB9047dd39d9f418d5483ED600df"
+      },
+      "arbitrum": {
+        "peerAddressBytes32": "0x00000000000000000000000080eede496655fb9047dd39d9f418d5483ed600df",
+        "peerAddress": "0x80Eede496655FB9047dd39d9f418d5483ED600df"
+      },
+      "optimism": {
+        "peerAddressBytes32": "0x00000000000000000000000080eede496655fb9047dd39d9f418d5483ed600df",
+        "peerAddress": "0x80Eede496655FB9047dd39d9f418d5483ED600df"
+      },
+      "polygon": {
+        "peerAddressBytes32": "0x00000000000000000000000080eede496655fb9047dd39d9f418d5483ed600df",
+        "peerAddress": "0x80Eede496655FB9047dd39d9f418d5483ED600df"
+      },
+      "avalanche": {
+        "peerAddressBytes32": "0x00000000000000000000000080eede496655fb9047dd39d9f418d5483ed600df",
+        "peerAddress": "0x80Eede496655FB9047dd39d9f418d5483ED600df"
+      },
+      "bnb": {
+        "peerAddressBytes32": "0x00000000000000000000000080eede496655fb9047dd39d9f418d5483ed600df",
+        "peerAddress": "0x80Eede496655FB9047dd39d9f418d5483ED600df"
+      },
+      "zkevm": {
+        "peerAddressBytes32": "0x00000000000000000000000080eede496655fb9047dd39d9f418d5483ed600df",
+        "peerAddress": "0x80Eede496655FB9047dd39d9f418d5483ED600df"
+      }
+    }
+  },
+  "mode": {
+    "params": {
+      "oftProxy": "0x80Eede496655FB9047dd39d9f418d5483ED600df",
+      "expectedEndpoint": "0x1a44076050125825900e736c501f859c50fE728c",
+      "actualEndpoint": "0x1a44076050125825900e736c501f859c50fE728c",
+      "owner": "0x6336CFA6eDBeC2A459d869031DB77fC2770Eaa66",
+      "expectedImplementation": "0xEEdd3A0DDDF977462A97C1F0eBb89C3fbe8D084B",
+      "expectedProxyAdmin": "0x223a681fc5c5522c85C96157c0efA18cd6c5405c",
+      "delegate": "0x6336CFA6eDBeC2A459d869031DB77fC2770Eaa66",
+      "ownerThreshold": "3",
+      "ownerMembers": [
+        "0x13Fe84D36d7a507Bb4bdAC6dCaF13a10961fc470",
+        "0x6e74053a3798e0fC9a9775F7995316b27f21c4D2",
+        "0x17e06ce6914E3969f7BD37D8b2a563890cA1c96e",
+        "0x8d8290d49e88D16d81C6aDf6C8774eD88762274A",
+        "0xcbc616D595D38483e6AdC45C7E426f44bF230928",
+        "0x381e2495e683868F693AA5B1414F712f21d34b40"
+      ],
+      "proxyAdminOwner": "0x6336CFA6eDBeC2A459d869031DB77fC2770Eaa66",
+      "delegateThreshold": "3",
+      "delegateMembers": [
+        "0x13Fe84D36d7a507Bb4bdAC6dCaF13a10961fc470",
+        "0x6e74053a3798e0fC9a9775F7995316b27f21c4D2",
+        "0x17e06ce6914E3969f7BD37D8b2a563890cA1c96e",
+        "0x8d8290d49e88D16d81C6aDf6C8774eD88762274A",
+        "0xcbc616D595D38483e6AdC45C7E426f44bF230928",
+        "0x381e2495e683868F693AA5B1414F712f21d34b40"
+      ],
+      "proxyAdminOwnerThreshold": "3",
+      "proxyAdminOwnermembers": [
+        "0x13Fe84D36d7a507Bb4bdAC6dCaF13a10961fc470",
+        "0x6e74053a3798e0fC9a9775F7995316b27f21c4D2",
+        "0x17e06ce6914E3969f7BD37D8b2a563890cA1c96e",
+        "0x8d8290d49e88D16d81C6aDf6C8774eD88762274A",
+        "0xcbc616D595D38483e6AdC45C7E426f44bF230928",
+        "0x381e2495e683868F693AA5B1414F712f21d34b40"
+      ]
+    },
+    "dstChains": {
+      "ethereum": {
+        "peerAddressBytes32": "0x000000000000000000000000566a6442a5a6e9895b9dca97cc7879d632c6e4b0",
+        "peerAddress": "0x566a6442A5A6e9895B9dCA97cC7879D632c6e4B0"
+      },
+      "fraxtal": {
+        "peerAddressBytes32": "0x00000000000000000000000096a394058e2b84a89bac9667b19661ed003cf5d4",
+        "peerAddress": "0x96A394058E2b84A89bac9667B19661Ed003cF5D4"
+      },
+      "base": {
+        "peerAddressBytes32": "0x000000000000000000000000e5020a6d073a794b6e7f05678707de47986fb0b6",
+        "peerAddress": "0xe5020A6d073a794B6E7f05678707dE47986Fb0b6"
+      },
+      "blast": {
+        "peerAddressBytes32": "0x00000000000000000000000080eede496655fb9047dd39d9f418d5483ed600df",
+        "peerAddress": "0x80Eede496655FB9047dd39d9f418d5483ED600df"
+      },
+      "sei": {
+        "peerAddressBytes32": "0x00000000000000000000000080eede496655fb9047dd39d9f418d5483ed600df",
+        "peerAddress": "0x80Eede496655FB9047dd39d9f418d5483ED600df"
+      },
+      "xlayer": {
+        "peerAddressBytes32": "0x00000000000000000000000080eede496655fb9047dd39d9f418d5483ed600df",
+        "peerAddress": "0x80Eede496655FB9047dd39d9f418d5483ED600df"
+      },
+      "sonic": {
+        "peerAddressBytes32": "0x00000000000000000000000080eede496655fb9047dd39d9f418d5483ed600df",
+        "peerAddress": "0x80Eede496655FB9047dd39d9f418d5483ED600df"
+      },
+      "ink": {
+        "peerAddressBytes32": "0x00000000000000000000000080eede496655fb9047dd39d9f418d5483ed600df",
+        "peerAddress": "0x80Eede496655FB9047dd39d9f418d5483ED600df"
+      },
+      "arbitrum": {
+        "peerAddressBytes32": "0x00000000000000000000000080eede496655fb9047dd39d9f418d5483ed600df",
+        "peerAddress": "0x80Eede496655FB9047dd39d9f418d5483ED600df"
+      },
+      "optimism": {
+        "peerAddressBytes32": "0x00000000000000000000000080eede496655fb9047dd39d9f418d5483ed600df",
+        "peerAddress": "0x80Eede496655FB9047dd39d9f418d5483ED600df"
+      },
+      "polygon": {
+        "peerAddressBytes32": "0x00000000000000000000000080eede496655fb9047dd39d9f418d5483ed600df",
+        "peerAddress": "0x80Eede496655FB9047dd39d9f418d5483ED600df"
+      },
+      "avalanche": {
+        "peerAddressBytes32": "0x00000000000000000000000080eede496655fb9047dd39d9f418d5483ed600df",
+        "peerAddress": "0x80Eede496655FB9047dd39d9f418d5483ED600df"
+      },
+      "bnb": {
+        "peerAddressBytes32": "0x00000000000000000000000080eede496655fb9047dd39d9f418d5483ed600df",
+        "peerAddress": "0x80Eede496655FB9047dd39d9f418d5483ED600df"
+      },
+      "zkevm": {
+        "peerAddressBytes32": "0x00000000000000000000000080eede496655fb9047dd39d9f418d5483ed600df",
+        "peerAddress": "0x80Eede496655FB9047dd39d9f418d5483ED600df"
+      },
+      "solana": {
+        "peerAddressBytes32": "0x5e208a73d5bb1c78e9dbf53badd7299afd6bee9acacdcd4fd668833e53c538ad",
+        "peerAddress": "7LS6y37WXXCyBHkBU6zVpiqaqbkXLr4P85ZhQi3eonSp"
+      }
+    }
+  },
+  "sei": {
+    "params": {
+      "oftProxy": "0x80Eede496655FB9047dd39d9f418d5483ED600df",
+      "expectedEndpoint": "0x1a44076050125825900e736c501f859c50fE728c",
+      "actualEndpoint": "0x1a44076050125825900e736c501f859c50fE728c",
+      "owner": "0x0357D02fc95320b990322d3ff69204c3D251171b",
+      "expectedImplementation": "0x8c65aa3215bd20DBe20374BB5d9AaE891973D0d6",
+      "expectedProxyAdmin": "0x223a681fc5c5522c85C96157c0efA18cd6c5405c",
+      "delegate": "0x0357D02fc95320b990322d3ff69204c3D251171b",
+      "ownerThreshold": "3",
+      "ownerMembers": [
+        "0x13Fe84D36d7a507Bb4bdAC6dCaF13a10961fc470",
+        "0x17e06ce6914E3969f7BD37D8b2a563890cA1c96e",
+        "0x8d8290d49e88D16d81C6aDf6C8774eD88762274A",
+        "0xcbc616D595D38483e6AdC45C7E426f44bF230928",
+        "0x381e2495e683868F693AA5B1414F712f21d34b40",
+        "0x6e74053a3798e0fC9a9775F7995316b27f21c4D2"
+      ],
+      "proxyAdminOwner": "0x0357D02fc95320b990322d3ff69204c3D251171b",
+      "delegateThreshold": "3",
+      "delegateMembers": [
+        "0x13Fe84D36d7a507Bb4bdAC6dCaF13a10961fc470",
+        "0x17e06ce6914E3969f7BD37D8b2a563890cA1c96e",
+        "0x8d8290d49e88D16d81C6aDf6C8774eD88762274A",
+        "0xcbc616D595D38483e6AdC45C7E426f44bF230928",
+        "0x381e2495e683868F693AA5B1414F712f21d34b40",
+        "0x6e74053a3798e0fC9a9775F7995316b27f21c4D2"
+      ],
+      "proxyAdminOwnerThreshold": "3",
+      "proxyAdminOwnermembers": [
+        "0x13Fe84D36d7a507Bb4bdAC6dCaF13a10961fc470",
+        "0x17e06ce6914E3969f7BD37D8b2a563890cA1c96e",
+        "0x8d8290d49e88D16d81C6aDf6C8774eD88762274A",
+        "0xcbc616D595D38483e6AdC45C7E426f44bF230928",
+        "0x381e2495e683868F693AA5B1414F712f21d34b40",
+        "0x6e74053a3798e0fC9a9775F7995316b27f21c4D2"
+      ]
+    },
+    "dstChains": {
+      "ethereum": {
+        "peerAddressBytes32": "0x000000000000000000000000566a6442a5a6e9895b9dca97cc7879d632c6e4b0",
+        "peerAddress": "0x566a6442A5A6e9895B9dCA97cC7879D632c6e4B0"
+      },
+      "fraxtal": {
+        "peerAddressBytes32": "0x00000000000000000000000096a394058e2b84a89bac9667b19661ed003cf5d4",
+        "peerAddress": "0x96A394058E2b84A89bac9667B19661Ed003cF5D4"
+      },
+      "base": {
+        "peerAddressBytes32": "0x000000000000000000000000e5020a6d073a794b6e7f05678707de47986fb0b6",
+        "peerAddress": "0xe5020A6d073a794B6E7f05678707dE47986Fb0b6"
+      },
+      "blast": {
+        "peerAddressBytes32": "0x00000000000000000000000080eede496655fb9047dd39d9f418d5483ed600df",
+        "peerAddress": "0x80Eede496655FB9047dd39d9f418d5483ED600df"
+      },
+      "mode": {
+        "peerAddressBytes32": "0x00000000000000000000000080eede496655fb9047dd39d9f418d5483ed600df",
+        "peerAddress": "0x80Eede496655FB9047dd39d9f418d5483ED600df"
+      },
+      "xlayer": {
+        "peerAddressBytes32": "0x00000000000000000000000080eede496655fb9047dd39d9f418d5483ed600df",
+        "peerAddress": "0x80Eede496655FB9047dd39d9f418d5483ED600df"
+      },
+      "sonic": {
+        "peerAddressBytes32": "0x00000000000000000000000080eede496655fb9047dd39d9f418d5483ed600df",
+        "peerAddress": "0x80Eede496655FB9047dd39d9f418d5483ED600df"
+      },
+      "ink": {
+        "peerAddressBytes32": "0x00000000000000000000000080eede496655fb9047dd39d9f418d5483ed600df",
+        "peerAddress": "0x80Eede496655FB9047dd39d9f418d5483ED600df"
+      },
+      "arbitrum": {
+        "peerAddressBytes32": "0x00000000000000000000000080eede496655fb9047dd39d9f418d5483ed600df",
+        "peerAddress": "0x80Eede496655FB9047dd39d9f418d5483ED600df"
+      },
+      "optimism": {
+        "peerAddressBytes32": "0x00000000000000000000000080eede496655fb9047dd39d9f418d5483ed600df",
+        "peerAddress": "0x80Eede496655FB9047dd39d9f418d5483ED600df"
+      },
+      "polygon": {
+        "peerAddressBytes32": "0x00000000000000000000000080eede496655fb9047dd39d9f418d5483ed600df",
+        "peerAddress": "0x80Eede496655FB9047dd39d9f418d5483ED600df"
+      },
+      "avalanche": {
+        "peerAddressBytes32": "0x00000000000000000000000080eede496655fb9047dd39d9f418d5483ed600df",
+        "peerAddress": "0x80Eede496655FB9047dd39d9f418d5483ED600df"
+      },
+      "bnb": {
+        "peerAddressBytes32": "0x00000000000000000000000080eede496655fb9047dd39d9f418d5483ed600df",
+        "peerAddress": "0x80Eede496655FB9047dd39d9f418d5483ED600df"
+      },
+      "zkevm": {
+        "peerAddressBytes32": "0x00000000000000000000000080eede496655fb9047dd39d9f418d5483ed600df",
+        "peerAddress": "0x80Eede496655FB9047dd39d9f418d5483ED600df"
+      },
+      "solana": {
+        "peerAddressBytes32": "0x5e208a73d5bb1c78e9dbf53badd7299afd6bee9acacdcd4fd668833e53c538ad",
+        "peerAddress": "7LS6y37WXXCyBHkBU6zVpiqaqbkXLr4P85ZhQi3eonSp"
+      }
+    }
+  },
+  "xlayer": {
+    "params": {
+      "oftProxy": "0x80Eede496655FB9047dd39d9f418d5483ED600df",
+      "expectedEndpoint": "0x1a44076050125825900e736c501f859c50fE728c",
+      "actualEndpoint": "0x1a44076050125825900e736c501f859c50fE728c",
+      "owner": "0xe7Cc52f0C86f4FAB6630f1E26167B487fbF66a61",
+      "expectedImplementation": "0xcB73b257b4d3b7e984abC7f49eEe2980A22E0585",
+      "expectedProxyAdmin": "0x223a681fc5c5522c85C96157c0efA18cd6c5405c",
+      "delegate": "0xe7Cc52f0C86f4FAB6630f1E26167B487fbF66a61",
+      "ownerThreshold": "3",
+      "ownerMembers": [
+        "0x13Fe84D36d7a507Bb4bdAC6dCaF13a10961fc470",
+        "0x17e06ce6914E3969f7BD37D8b2a563890cA1c96e",
+        "0x8d8290d49e88D16d81C6aDf6C8774eD88762274A",
+        "0xcbc616D595D38483e6AdC45C7E426f44bF230928",
+        "0x381e2495e683868F693AA5B1414F712f21d34b40",
+        "0x6e74053a3798e0fC9a9775F7995316b27f21c4D2"
+      ],
+      "proxyAdminOwner": "0xe7Cc52f0C86f4FAB6630f1E26167B487fbF66a61",
+      "delegateThreshold": "3",
+      "delegateMembers": [
+        "0x13Fe84D36d7a507Bb4bdAC6dCaF13a10961fc470",
+        "0x17e06ce6914E3969f7BD37D8b2a563890cA1c96e",
+        "0x8d8290d49e88D16d81C6aDf6C8774eD88762274A",
+        "0xcbc616D595D38483e6AdC45C7E426f44bF230928",
+        "0x381e2495e683868F693AA5B1414F712f21d34b40",
+        "0x6e74053a3798e0fC9a9775F7995316b27f21c4D2"
+      ],
+      "proxyAdminOwnerThreshold": "3",
+      "proxyAdminOwnermembers": [
+        "0x13Fe84D36d7a507Bb4bdAC6dCaF13a10961fc470",
+        "0x17e06ce6914E3969f7BD37D8b2a563890cA1c96e",
+        "0x8d8290d49e88D16d81C6aDf6C8774eD88762274A",
+        "0xcbc616D595D38483e6AdC45C7E426f44bF230928",
+        "0x381e2495e683868F693AA5B1414F712f21d34b40",
+        "0x6e74053a3798e0fC9a9775F7995316b27f21c4D2"
+      ]
+    },
+    "dstChains": {
+      "ethereum": {
+        "peerAddressBytes32": "0x000000000000000000000000566a6442a5a6e9895b9dca97cc7879d632c6e4b0",
+        "peerAddress": "0x566a6442A5A6e9895B9dCA97cC7879D632c6e4B0"
+      },
+      "fraxtal": {
+        "peerAddressBytes32": "0x00000000000000000000000096a394058e2b84a89bac9667b19661ed003cf5d4",
+        "peerAddress": "0x96A394058E2b84A89bac9667B19661Ed003cF5D4"
+      },
+      "base": {
+        "peerAddressBytes32": "0x000000000000000000000000e5020a6d073a794b6e7f05678707de47986fb0b6",
+        "peerAddress": "0xe5020A6d073a794B6E7f05678707dE47986Fb0b6"
+      },
+      "blast": {
+        "peerAddressBytes32": "0x00000000000000000000000080eede496655fb9047dd39d9f418d5483ed600df",
+        "peerAddress": "0x80Eede496655FB9047dd39d9f418d5483ED600df"
+      },
+      "mode": {
+        "peerAddressBytes32": "0x00000000000000000000000080eede496655fb9047dd39d9f418d5483ed600df",
+        "peerAddress": "0x80Eede496655FB9047dd39d9f418d5483ED600df"
+      },
+      "sei": {
+        "peerAddressBytes32": "0x00000000000000000000000080eede496655fb9047dd39d9f418d5483ed600df",
+        "peerAddress": "0x80Eede496655FB9047dd39d9f418d5483ED600df"
+      },
+      "sonic": {
+        "peerAddressBytes32": "0x00000000000000000000000080eede496655fb9047dd39d9f418d5483ed600df",
+        "peerAddress": "0x80Eede496655FB9047dd39d9f418d5483ED600df"
+      },
+      "ink": {
+        "peerAddressBytes32": "0x00000000000000000000000080eede496655fb9047dd39d9f418d5483ed600df",
+        "peerAddress": "0x80Eede496655FB9047dd39d9f418d5483ED600df"
+      },
+      "arbitrum": {
+        "peerAddressBytes32": "0x00000000000000000000000080eede496655fb9047dd39d9f418d5483ed600df",
+        "peerAddress": "0x80Eede496655FB9047dd39d9f418d5483ED600df"
+      },
+      "optimism": {
+        "peerAddressBytes32": "0x00000000000000000000000080eede496655fb9047dd39d9f418d5483ed600df",
+        "peerAddress": "0x80Eede496655FB9047dd39d9f418d5483ED600df"
+      },
+      "polygon": {
+        "peerAddressBytes32": "0x00000000000000000000000080eede496655fb9047dd39d9f418d5483ed600df",
+        "peerAddress": "0x80Eede496655FB9047dd39d9f418d5483ED600df"
+      },
+      "avalanche": {
+        "peerAddressBytes32": "0x00000000000000000000000080eede496655fb9047dd39d9f418d5483ed600df",
+        "peerAddress": "0x80Eede496655FB9047dd39d9f418d5483ED600df"
+      },
+      "bnb": {
+        "peerAddressBytes32": "0x00000000000000000000000080eede496655fb9047dd39d9f418d5483ed600df",
+        "peerAddress": "0x80Eede496655FB9047dd39d9f418d5483ED600df"
+      },
+      "zkevm": {
+        "peerAddressBytes32": "0x00000000000000000000000080eede496655fb9047dd39d9f418d5483ed600df",
+        "peerAddress": "0x80Eede496655FB9047dd39d9f418d5483ED600df"
+      },
+      "solana": {
+        "peerAddressBytes32": "0x5e208a73d5bb1c78e9dbf53badd7299afd6bee9acacdcd4fd668833e53c538ad",
+        "peerAddress": "7LS6y37WXXCyBHkBU6zVpiqaqbkXLr4P85ZhQi3eonSp"
+      }
+    }
+  },
+  "sonic": {
+    "params": {
+      "oftProxy": "0x80Eede496655FB9047dd39d9f418d5483ED600df",
+      "expectedEndpoint": "0x6F475642a6e85809B1c36Fa62763669b1b48DD5B",
+      "actualEndpoint": "0x6F475642a6e85809B1c36Fa62763669b1b48DD5B",
+      "owner": "0x87c7A1ef67c67cd57CBF101522a0c3B19D2C3aAc",
+      "expectedImplementation": "0x6A678cEfcA10d5bBe4638D27C671CE7d56865037",
+      "expectedProxyAdmin": "0x223a681fc5c5522c85C96157c0efA18cd6c5405c",
+      "delegate": "0x87c7A1ef67c67cd57CBF101522a0c3B19D2C3aAc",
+      "ownerThreshold": "3",
+      "ownerMembers": [
+        "0x13Fe84D36d7a507Bb4bdAC6dCaF13a10961fc470",
+        "0xcbc616D595D38483e6AdC45C7E426f44bF230928",
+        "0x8d8290d49e88D16d81C6aDf6C8774eD88762274A",
+        "0x17e06ce6914E3969f7BD37D8b2a563890cA1c96e",
+        "0x381e2495e683868F693AA5B1414F712f21d34b40",
+        "0x6e74053a3798e0fC9a9775F7995316b27f21c4D2"
+      ],
+      "proxyAdminOwner": "0x87c7A1ef67c67cd57CBF101522a0c3B19D2C3aAc",
+      "delegateThreshold": "3",
+      "delegateMembers": [
+        "0x13Fe84D36d7a507Bb4bdAC6dCaF13a10961fc470",
+        "0xcbc616D595D38483e6AdC45C7E426f44bF230928",
+        "0x8d8290d49e88D16d81C6aDf6C8774eD88762274A",
+        "0x17e06ce6914E3969f7BD37D8b2a563890cA1c96e",
+        "0x381e2495e683868F693AA5B1414F712f21d34b40",
+        "0x6e74053a3798e0fC9a9775F7995316b27f21c4D2"
+      ],
+      "proxyAdminOwnerThreshold": "3",
+      "proxyAdminOwnermembers": [
+        "0x13Fe84D36d7a507Bb4bdAC6dCaF13a10961fc470",
+        "0xcbc616D595D38483e6AdC45C7E426f44bF230928",
+        "0x8d8290d49e88D16d81C6aDf6C8774eD88762274A",
+        "0x17e06ce6914E3969f7BD37D8b2a563890cA1c96e",
+        "0x381e2495e683868F693AA5B1414F712f21d34b40",
+        "0x6e74053a3798e0fC9a9775F7995316b27f21c4D2"
+      ]
+    },
+    "dstChains": {
+      "ethereum": {
+        "peerAddressBytes32": "0x000000000000000000000000566a6442a5a6e9895b9dca97cc7879d632c6e4b0",
+        "peerAddress": "0x566a6442A5A6e9895B9dCA97cC7879D632c6e4B0"
+      },
+      "fraxtal": {
+        "peerAddressBytes32": "0x00000000000000000000000096a394058e2b84a89bac9667b19661ed003cf5d4",
+        "peerAddress": "0x96A394058E2b84A89bac9667B19661Ed003cF5D4"
+      },
+      "base": {
+        "peerAddressBytes32": "0x000000000000000000000000e5020a6d073a794b6e7f05678707de47986fb0b6",
+        "peerAddress": "0xe5020A6d073a794B6E7f05678707dE47986Fb0b6"
+      },
+      "blast": {
+        "peerAddressBytes32": "0x00000000000000000000000080eede496655fb9047dd39d9f418d5483ed600df",
+        "peerAddress": "0x80Eede496655FB9047dd39d9f418d5483ED600df"
+      },
+      "mode": {
+        "peerAddressBytes32": "0x00000000000000000000000080eede496655fb9047dd39d9f418d5483ed600df",
+        "peerAddress": "0x80Eede496655FB9047dd39d9f418d5483ED600df"
+      },
+      "sei": {
+        "peerAddressBytes32": "0x00000000000000000000000080eede496655fb9047dd39d9f418d5483ed600df",
+        "peerAddress": "0x80Eede496655FB9047dd39d9f418d5483ED600df"
+      },
+      "xlayer": {
+        "peerAddressBytes32": "0x00000000000000000000000080eede496655fb9047dd39d9f418d5483ed600df",
+        "peerAddress": "0x80Eede496655FB9047dd39d9f418d5483ED600df"
+      },
+      "ink": {
+        "peerAddressBytes32": "0x00000000000000000000000080eede496655fb9047dd39d9f418d5483ed600df",
+        "peerAddress": "0x80Eede496655FB9047dd39d9f418d5483ED600df"
+      },
+      "arbitrum": {
+        "peerAddressBytes32": "0x00000000000000000000000080eede496655fb9047dd39d9f418d5483ed600df",
+        "peerAddress": "0x80Eede496655FB9047dd39d9f418d5483ED600df"
+      },
+      "optimism": {
+        "peerAddressBytes32": "0x00000000000000000000000080eede496655fb9047dd39d9f418d5483ed600df",
+        "peerAddress": "0x80Eede496655FB9047dd39d9f418d5483ED600df"
+      },
+      "polygon": {
+        "peerAddressBytes32": "0x00000000000000000000000080eede496655fb9047dd39d9f418d5483ed600df",
+        "peerAddress": "0x80Eede496655FB9047dd39d9f418d5483ED600df"
+      },
+      "avalanche": {
+        "peerAddressBytes32": "0x00000000000000000000000080eede496655fb9047dd39d9f418d5483ed600df",
+        "peerAddress": "0x80Eede496655FB9047dd39d9f418d5483ED600df"
+      },
+      "bnb": {
+        "peerAddressBytes32": "0x00000000000000000000000080eede496655fb9047dd39d9f418d5483ed600df",
+        "peerAddress": "0x80Eede496655FB9047dd39d9f418d5483ED600df"
+      },
+      "zkevm": {
+        "peerAddressBytes32": "0x00000000000000000000000080eede496655fb9047dd39d9f418d5483ed600df",
+        "peerAddress": "0x80Eede496655FB9047dd39d9f418d5483ED600df"
+      },
+      "solana": {
+        "peerAddressBytes32": "0x5e208a73d5bb1c78e9dbf53badd7299afd6bee9acacdcd4fd668833e53c538ad",
+        "peerAddress": "7LS6y37WXXCyBHkBU6zVpiqaqbkXLr4P85ZhQi3eonSp"
+      }
+    }
+  },
+  "ink": {
+    "params": {
+      "oftProxy": "0x80Eede496655FB9047dd39d9f418d5483ED600df",
+      "expectedEndpoint": "0xca29f3A6f966Cb2fc0dE625F8f325c0C46dbE958",
+      "actualEndpoint": "0xca29f3A6f966Cb2fc0dE625F8f325c0C46dbE958",
+      "owner": "0x91eBC17cD330DD694225133455583FBCA54b8eC8",
+      "expectedImplementation": "0x6A678cEfcA10d5bBe4638D27C671CE7d56865037",
+      "expectedProxyAdmin": "0x223a681fc5c5522c85C96157c0efA18cd6c5405c",
+      "delegate": "0x91eBC17cD330DD694225133455583FBCA54b8eC8",
+      "ownerThreshold": "3",
+      "ownerMembers": [
+        "0x6e74053a3798e0fC9a9775F7995316b27f21c4D2",
+        "0x17e06ce6914E3969f7BD37D8b2a563890cA1c96e",
+        "0x381e2495e683868F693AA5B1414F712f21d34b40",
+        "0x8d8290d49e88D16d81C6aDf6C8774eD88762274A",
+        "0xcbc616D595D38483e6AdC45C7E426f44bF230928",
+        "0x13Fe84D36d7a507Bb4bdAC6dCaF13a10961fc470"
+      ],
+      "proxyAdminOwner": "0x91eBC17cD330DD694225133455583FBCA54b8eC8",
+      "delegateThreshold": "3",
+      "delegateMembers": [
+        "0x6e74053a3798e0fC9a9775F7995316b27f21c4D2",
+        "0x17e06ce6914E3969f7BD37D8b2a563890cA1c96e",
+        "0x381e2495e683868F693AA5B1414F712f21d34b40",
+        "0x8d8290d49e88D16d81C6aDf6C8774eD88762274A",
+        "0xcbc616D595D38483e6AdC45C7E426f44bF230928",
+        "0x13Fe84D36d7a507Bb4bdAC6dCaF13a10961fc470"
+      ],
+      "proxyAdminOwnerThreshold": "3",
+      "proxyAdminOwnermembers": [
+        "0x6e74053a3798e0fC9a9775F7995316b27f21c4D2",
+        "0x17e06ce6914E3969f7BD37D8b2a563890cA1c96e",
+        "0x381e2495e683868F693AA5B1414F712f21d34b40",
+        "0x8d8290d49e88D16d81C6aDf6C8774eD88762274A",
+        "0xcbc616D595D38483e6AdC45C7E426f44bF230928",
+        "0x13Fe84D36d7a507Bb4bdAC6dCaF13a10961fc470"
+      ]
+    },
+    "dstChains": {
+      "ethereum": {
+        "peerAddressBytes32": "0x000000000000000000000000566a6442a5a6e9895b9dca97cc7879d632c6e4b0",
+        "peerAddress": "0x566a6442A5A6e9895B9dCA97cC7879D632c6e4B0"
+      },
+      "fraxtal": {
+        "peerAddressBytes32": "0x00000000000000000000000096a394058e2b84a89bac9667b19661ed003cf5d4",
+        "peerAddress": "0x96A394058E2b84A89bac9667B19661Ed003cF5D4"
+      },
+      "base": {
+        "peerAddressBytes32": "0x000000000000000000000000e5020a6d073a794b6e7f05678707de47986fb0b6",
+        "peerAddress": "0xe5020A6d073a794B6E7f05678707dE47986Fb0b6"
+      },
+      "blast": {
+        "peerAddressBytes32": "0x00000000000000000000000080eede496655fb9047dd39d9f418d5483ed600df",
+        "peerAddress": "0x80Eede496655FB9047dd39d9f418d5483ED600df"
+      },
+      "mode": {
+        "peerAddressBytes32": "0x00000000000000000000000080eede496655fb9047dd39d9f418d5483ed600df",
+        "peerAddress": "0x80Eede496655FB9047dd39d9f418d5483ED600df"
+      },
+      "sei": {
+        "peerAddressBytes32": "0x00000000000000000000000080eede496655fb9047dd39d9f418d5483ed600df",
+        "peerAddress": "0x80Eede496655FB9047dd39d9f418d5483ED600df"
+      },
+      "xlayer": {
+        "peerAddressBytes32": "0x00000000000000000000000080eede496655fb9047dd39d9f418d5483ed600df",
+        "peerAddress": "0x80Eede496655FB9047dd39d9f418d5483ED600df"
+      },
+      "sonic": {
+        "peerAddressBytes32": "0x00000000000000000000000080eede496655fb9047dd39d9f418d5483ed600df",
+        "peerAddress": "0x80Eede496655FB9047dd39d9f418d5483ED600df"
+      },
+      "arbitrum": {
+        "peerAddressBytes32": "0x00000000000000000000000080eede496655fb9047dd39d9f418d5483ed600df",
+        "peerAddress": "0x80Eede496655FB9047dd39d9f418d5483ED600df"
+      },
+      "optimism": {
+        "peerAddressBytes32": "0x00000000000000000000000080eede496655fb9047dd39d9f418d5483ed600df",
+        "peerAddress": "0x80Eede496655FB9047dd39d9f418d5483ED600df"
+      },
+      "polygon": {
+        "peerAddressBytes32": "0x00000000000000000000000080eede496655fb9047dd39d9f418d5483ed600df",
+        "peerAddress": "0x80Eede496655FB9047dd39d9f418d5483ED600df"
+      },
+      "avalanche": {
+        "peerAddressBytes32": "0x00000000000000000000000080eede496655fb9047dd39d9f418d5483ed600df",
+        "peerAddress": "0x80Eede496655FB9047dd39d9f418d5483ED600df"
+      },
+      "bnb": {
+        "peerAddressBytes32": "0x00000000000000000000000080eede496655fb9047dd39d9f418d5483ed600df",
+        "peerAddress": "0x80Eede496655FB9047dd39d9f418d5483ED600df"
+      },
+      "zkevm": {
+        "peerAddressBytes32": "0x00000000000000000000000080eede496655fb9047dd39d9f418d5483ed600df",
+        "peerAddress": "0x80Eede496655FB9047dd39d9f418d5483ED600df"
+      },
+      "solana": {
+        "peerAddressBytes32": "0x5e208a73d5bb1c78e9dbf53badd7299afd6bee9acacdcd4fd668833e53c538ad",
+        "peerAddress": "7LS6y37WXXCyBHkBU6zVpiqaqbkXLr4P85ZhQi3eonSp"
+      }
+    }
+  },
+  "arbitrum": {
+    "params": {
+      "oftProxy": "0x80Eede496655FB9047dd39d9f418d5483ED600df",
+      "expectedEndpoint": "0x1a44076050125825900e736c501f859c50fE728c",
+      "actualEndpoint": "0x1a44076050125825900e736c501f859c50fE728c",
+      "owner": "0x3da490b19F300E7cb2280426C8aD536dB2df445c",
+      "expectedImplementation": "0x6A678cEfcA10d5bBe4638D27C671CE7d56865037",
+      "expectedProxyAdmin": "0x223a681fc5c5522c85C96157c0efA18cd6c5405c",
+      "delegate": "0x3da490b19F300E7cb2280426C8aD536dB2df445c",
+      "ownerThreshold": "3",
+      "ownerMembers": [
+        "0x13Fe84D36d7a507Bb4bdAC6dCaF13a10961fc470",
+        "0xcbc616D595D38483e6AdC45C7E426f44bF230928",
+        "0x8d8290d49e88D16d81C6aDf6C8774eD88762274A",
+        "0x17e06ce6914E3969f7BD37D8b2a563890cA1c96e",
+        "0x381e2495e683868F693AA5B1414F712f21d34b40",
+        "0x6e74053a3798e0fC9a9775F7995316b27f21c4D2"
+      ],
+      "proxyAdminOwner": "0x3da490b19F300E7cb2280426C8aD536dB2df445c",
+      "delegateThreshold": "3",
+      "delegateMembers": [
+        "0x13Fe84D36d7a507Bb4bdAC6dCaF13a10961fc470",
+        "0xcbc616D595D38483e6AdC45C7E426f44bF230928",
+        "0x8d8290d49e88D16d81C6aDf6C8774eD88762274A",
+        "0x17e06ce6914E3969f7BD37D8b2a563890cA1c96e",
+        "0x381e2495e683868F693AA5B1414F712f21d34b40",
+        "0x6e74053a3798e0fC9a9775F7995316b27f21c4D2"
+      ],
+      "proxyAdminOwnerThreshold": "3",
+      "proxyAdminOwnermembers": [
+        "0x13Fe84D36d7a507Bb4bdAC6dCaF13a10961fc470",
+        "0xcbc616D595D38483e6AdC45C7E426f44bF230928",
+        "0x8d8290d49e88D16d81C6aDf6C8774eD88762274A",
+        "0x17e06ce6914E3969f7BD37D8b2a563890cA1c96e",
+        "0x381e2495e683868F693AA5B1414F712f21d34b40",
+        "0x6e74053a3798e0fC9a9775F7995316b27f21c4D2"
+      ]
+    },
+    "dstChains": {
+      "ethereum": {
+        "peerAddressBytes32": "0x000000000000000000000000566a6442a5a6e9895b9dca97cc7879d632c6e4b0",
+        "peerAddress": "0x566a6442A5A6e9895B9dCA97cC7879D632c6e4B0"
+      },
+      "fraxtal": {
+        "peerAddressBytes32": "0x00000000000000000000000096a394058e2b84a89bac9667b19661ed003cf5d4",
+        "peerAddress": "0x96A394058E2b84A89bac9667B19661Ed003cF5D4"
+      },
+      "base": {
+        "peerAddressBytes32": "0x000000000000000000000000e5020a6d073a794b6e7f05678707de47986fb0b6",
+        "peerAddress": "0xe5020A6d073a794B6E7f05678707dE47986Fb0b6"
+      },
+      "blast": {
+        "peerAddressBytes32": "0x00000000000000000000000080eede496655fb9047dd39d9f418d5483ed600df",
+        "peerAddress": "0x80Eede496655FB9047dd39d9f418d5483ED600df"
+      },
+      "mode": {
+        "peerAddressBytes32": "0x00000000000000000000000080eede496655fb9047dd39d9f418d5483ed600df",
+        "peerAddress": "0x80Eede496655FB9047dd39d9f418d5483ED600df"
+      },
+      "sei": {
+        "peerAddressBytes32": "0x00000000000000000000000080eede496655fb9047dd39d9f418d5483ed600df",
+        "peerAddress": "0x80Eede496655FB9047dd39d9f418d5483ED600df"
+      },
+      "xlayer": {
+        "peerAddressBytes32": "0x00000000000000000000000080eede496655fb9047dd39d9f418d5483ed600df",
+        "peerAddress": "0x80Eede496655FB9047dd39d9f418d5483ED600df"
+      },
+      "sonic": {
+        "peerAddressBytes32": "0x00000000000000000000000080eede496655fb9047dd39d9f418d5483ed600df",
+        "peerAddress": "0x80Eede496655FB9047dd39d9f418d5483ED600df"
+      },
+      "ink": {
+        "peerAddressBytes32": "0x00000000000000000000000080eede496655fb9047dd39d9f418d5483ed600df",
+        "peerAddress": "0x80Eede496655FB9047dd39d9f418d5483ED600df"
+      },
+      "optimism": {
+        "peerAddressBytes32": "0x00000000000000000000000080eede496655fb9047dd39d9f418d5483ed600df",
+        "peerAddress": "0x80Eede496655FB9047dd39d9f418d5483ED600df"
+      },
+      "polygon": {
+        "peerAddressBytes32": "0x00000000000000000000000080eede496655fb9047dd39d9f418d5483ed600df",
+        "peerAddress": "0x80Eede496655FB9047dd39d9f418d5483ED600df"
+      },
+      "avalanche": {
+        "peerAddressBytes32": "0x00000000000000000000000080eede496655fb9047dd39d9f418d5483ed600df",
+        "peerAddress": "0x80Eede496655FB9047dd39d9f418d5483ED600df"
+      },
+      "bnb": {
+        "peerAddressBytes32": "0x00000000000000000000000080eede496655fb9047dd39d9f418d5483ed600df",
+        "peerAddress": "0x80Eede496655FB9047dd39d9f418d5483ED600df"
+      },
+      "zkevm": {
+        "peerAddressBytes32": "0x00000000000000000000000080eede496655fb9047dd39d9f418d5483ed600df",
+        "peerAddress": "0x80Eede496655FB9047dd39d9f418d5483ED600df"
+      },
+      "solana": {
+        "peerAddressBytes32": "0x5e208a73d5bb1c78e9dbf53badd7299afd6bee9acacdcd4fd668833e53c538ad",
+        "peerAddress": "7LS6y37WXXCyBHkBU6zVpiqaqbkXLr4P85ZhQi3eonSp"
+      }
+    }
+  },
+  "optimism": {
+    "params": {
+      "oftProxy": "0x80Eede496655FB9047dd39d9f418d5483ED600df",
+      "expectedEndpoint": "0x1a44076050125825900e736c501f859c50fE728c",
+      "actualEndpoint": "0x1a44076050125825900e736c501f859c50fE728c",
+      "owner": "0x419e672d625f998dd07a7ecf2E06B896F8717cb2",
+      "expectedImplementation": "0x6A678cEfcA10d5bBe4638D27C671CE7d56865037",
+      "expectedProxyAdmin": "0x223a681fc5c5522c85C96157c0efA18cd6c5405c",
+      "delegate": "0x419e672d625f998dd07a7ecf2E06B896F8717cb2",
+      "ownerThreshold": "3",
+      "ownerMembers": [
+        "0x13Fe84D36d7a507Bb4bdAC6dCaF13a10961fc470",
+        "0xcbc616D595D38483e6AdC45C7E426f44bF230928",
+        "0x8d8290d49e88D16d81C6aDf6C8774eD88762274A",
+        "0x17e06ce6914E3969f7BD37D8b2a563890cA1c96e",
+        "0x381e2495e683868F693AA5B1414F712f21d34b40",
+        "0x6e74053a3798e0fC9a9775F7995316b27f21c4D2"
+      ],
+      "proxyAdminOwner": "0x419e672d625f998dd07a7ecf2E06B896F8717cb2",
+      "delegateThreshold": "3",
+      "delegateMembers": [
+        "0x13Fe84D36d7a507Bb4bdAC6dCaF13a10961fc470",
+        "0xcbc616D595D38483e6AdC45C7E426f44bF230928",
+        "0x8d8290d49e88D16d81C6aDf6C8774eD88762274A",
+        "0x17e06ce6914E3969f7BD37D8b2a563890cA1c96e",
+        "0x381e2495e683868F693AA5B1414F712f21d34b40",
+        "0x6e74053a3798e0fC9a9775F7995316b27f21c4D2"
+      ],
+      "proxyAdminOwnerThreshold": "3",
+      "proxyAdminOwnermembers": [
+        "0x13Fe84D36d7a507Bb4bdAC6dCaF13a10961fc470",
+        "0xcbc616D595D38483e6AdC45C7E426f44bF230928",
+        "0x8d8290d49e88D16d81C6aDf6C8774eD88762274A",
+        "0x17e06ce6914E3969f7BD37D8b2a563890cA1c96e",
+        "0x381e2495e683868F693AA5B1414F712f21d34b40",
+        "0x6e74053a3798e0fC9a9775F7995316b27f21c4D2"
+      ]
+    },
+    "dstChains": {
+      "ethereum": {
+        "peerAddressBytes32": "0x000000000000000000000000566a6442a5a6e9895b9dca97cc7879d632c6e4b0",
+        "peerAddress": "0x566a6442A5A6e9895B9dCA97cC7879D632c6e4B0"
+      },
+      "fraxtal": {
+        "peerAddressBytes32": "0x00000000000000000000000096a394058e2b84a89bac9667b19661ed003cf5d4",
+        "peerAddress": "0x96A394058E2b84A89bac9667B19661Ed003cF5D4"
+      },
+      "base": {
+        "peerAddressBytes32": "0x000000000000000000000000e5020a6d073a794b6e7f05678707de47986fb0b6",
+        "peerAddress": "0xe5020A6d073a794B6E7f05678707dE47986Fb0b6"
+      },
+      "blast": {
+        "peerAddressBytes32": "0x00000000000000000000000080eede496655fb9047dd39d9f418d5483ed600df",
+        "peerAddress": "0x80Eede496655FB9047dd39d9f418d5483ED600df"
+      },
+      "mode": {
+        "peerAddressBytes32": "0x00000000000000000000000080eede496655fb9047dd39d9f418d5483ed600df",
+        "peerAddress": "0x80Eede496655FB9047dd39d9f418d5483ED600df"
+      },
+      "sei": {
+        "peerAddressBytes32": "0x00000000000000000000000080eede496655fb9047dd39d9f418d5483ed600df",
+        "peerAddress": "0x80Eede496655FB9047dd39d9f418d5483ED600df"
+      },
+      "xlayer": {
+        "peerAddressBytes32": "0x00000000000000000000000080eede496655fb9047dd39d9f418d5483ed600df",
+        "peerAddress": "0x80Eede496655FB9047dd39d9f418d5483ED600df"
+      },
+      "sonic": {
+        "peerAddressBytes32": "0x00000000000000000000000080eede496655fb9047dd39d9f418d5483ed600df",
+        "peerAddress": "0x80Eede496655FB9047dd39d9f418d5483ED600df"
+      },
+      "ink": {
+        "peerAddressBytes32": "0x00000000000000000000000080eede496655fb9047dd39d9f418d5483ed600df",
+        "peerAddress": "0x80Eede496655FB9047dd39d9f418d5483ED600df"
+      },
+      "arbitrum": {
+        "peerAddressBytes32": "0x00000000000000000000000080eede496655fb9047dd39d9f418d5483ed600df",
+        "peerAddress": "0x80Eede496655FB9047dd39d9f418d5483ED600df"
+      },
+      "polygon": {
+        "peerAddressBytes32": "0x00000000000000000000000080eede496655fb9047dd39d9f418d5483ed600df",
+        "peerAddress": "0x80Eede496655FB9047dd39d9f418d5483ED600df"
+      },
+      "avalanche": {
+        "peerAddressBytes32": "0x00000000000000000000000080eede496655fb9047dd39d9f418d5483ed600df",
+        "peerAddress": "0x80Eede496655FB9047dd39d9f418d5483ED600df"
+      },
+      "bnb": {
+        "peerAddressBytes32": "0x00000000000000000000000080eede496655fb9047dd39d9f418d5483ed600df",
+        "peerAddress": "0x80Eede496655FB9047dd39d9f418d5483ED600df"
+      },
+      "zkevm": {
+        "peerAddressBytes32": "0x00000000000000000000000080eede496655fb9047dd39d9f418d5483ed600df",
+        "peerAddress": "0x80Eede496655FB9047dd39d9f418d5483ED600df"
+      },
+      "solana": {
+        "peerAddressBytes32": "0x5e208a73d5bb1c78e9dbf53badd7299afd6bee9acacdcd4fd668833e53c538ad",
+        "peerAddress": "7LS6y37WXXCyBHkBU6zVpiqaqbkXLr4P85ZhQi3eonSp"
+      }
+    }
+  },
+  "polygon": {
+    "params": {
+      "oftProxy": "0x80Eede496655FB9047dd39d9f418d5483ED600df",
+      "expectedEndpoint": "0x1a44076050125825900e736c501f859c50fE728c",
+      "actualEndpoint": "0x1a44076050125825900e736c501f859c50fE728c",
+      "owner": "0xDbf59edA454679bB157b3B048Ba54C4D762b559E",
+      "expectedImplementation": "0x6A678cEfcA10d5bBe4638D27C671CE7d56865037",
+      "expectedProxyAdmin": "0x223a681fc5c5522c85C96157c0efA18cd6c5405c",
+      "delegate": "0xDbf59edA454679bB157b3B048Ba54C4D762b559E",
+      "ownerThreshold": "3",
+      "ownerMembers": [
+        "0x13Fe84D36d7a507Bb4bdAC6dCaF13a10961fc470",
+        "0xcbc616D595D38483e6AdC45C7E426f44bF230928",
+        "0x8d8290d49e88D16d81C6aDf6C8774eD88762274A",
+        "0x17e06ce6914E3969f7BD37D8b2a563890cA1c96e",
+        "0x381e2495e683868F693AA5B1414F712f21d34b40",
+        "0x6e74053a3798e0fC9a9775F7995316b27f21c4D2"
+      ],
+      "proxyAdminOwner": "0xDbf59edA454679bB157b3B048Ba54C4D762b559E",
+      "delegateThreshold": "3",
+      "delegateMembers": [
+        "0x13Fe84D36d7a507Bb4bdAC6dCaF13a10961fc470",
+        "0xcbc616D595D38483e6AdC45C7E426f44bF230928",
+        "0x8d8290d49e88D16d81C6aDf6C8774eD88762274A",
+        "0x17e06ce6914E3969f7BD37D8b2a563890cA1c96e",
+        "0x381e2495e683868F693AA5B1414F712f21d34b40",
+        "0x6e74053a3798e0fC9a9775F7995316b27f21c4D2"
+      ],
+      "proxyAdminOwnerThreshold": "3",
+      "proxyAdminOwnermembers": [
+        "0x13Fe84D36d7a507Bb4bdAC6dCaF13a10961fc470",
+        "0xcbc616D595D38483e6AdC45C7E426f44bF230928",
+        "0x8d8290d49e88D16d81C6aDf6C8774eD88762274A",
+        "0x17e06ce6914E3969f7BD37D8b2a563890cA1c96e",
+        "0x381e2495e683868F693AA5B1414F712f21d34b40",
+        "0x6e74053a3798e0fC9a9775F7995316b27f21c4D2"
+      ]
+    },
+    "dstChains": {
+      "ethereum": {
+        "peerAddressBytes32": "0x000000000000000000000000566a6442a5a6e9895b9dca97cc7879d632c6e4b0",
+        "peerAddress": "0x566a6442A5A6e9895B9dCA97cC7879D632c6e4B0"
+      },
+      "fraxtal": {
+        "peerAddressBytes32": "0x00000000000000000000000096a394058e2b84a89bac9667b19661ed003cf5d4",
+        "peerAddress": "0x96A394058E2b84A89bac9667B19661Ed003cF5D4"
+      },
+      "base": {
+        "peerAddressBytes32": "0x000000000000000000000000e5020a6d073a794b6e7f05678707de47986fb0b6",
+        "peerAddress": "0xe5020A6d073a794B6E7f05678707dE47986Fb0b6"
+      },
+      "blast": {
+        "peerAddressBytes32": "0x00000000000000000000000080eede496655fb9047dd39d9f418d5483ed600df",
+        "peerAddress": "0x80Eede496655FB9047dd39d9f418d5483ED600df"
+      },
+      "mode": {
+        "peerAddressBytes32": "0x00000000000000000000000080eede496655fb9047dd39d9f418d5483ed600df",
+        "peerAddress": "0x80Eede496655FB9047dd39d9f418d5483ED600df"
+      },
+      "sei": {
+        "peerAddressBytes32": "0x00000000000000000000000080eede496655fb9047dd39d9f418d5483ed600df",
+        "peerAddress": "0x80Eede496655FB9047dd39d9f418d5483ED600df"
+      },
+      "xlayer": {
+        "peerAddressBytes32": "0x00000000000000000000000080eede496655fb9047dd39d9f418d5483ed600df",
+        "peerAddress": "0x80Eede496655FB9047dd39d9f418d5483ED600df"
+      },
+      "sonic": {
+        "peerAddressBytes32": "0x00000000000000000000000080eede496655fb9047dd39d9f418d5483ed600df",
+        "peerAddress": "0x80Eede496655FB9047dd39d9f418d5483ED600df"
+      },
+      "ink": {
+        "peerAddressBytes32": "0x00000000000000000000000080eede496655fb9047dd39d9f418d5483ed600df",
+        "peerAddress": "0x80Eede496655FB9047dd39d9f418d5483ED600df"
+      },
+      "arbitrum": {
+        "peerAddressBytes32": "0x00000000000000000000000080eede496655fb9047dd39d9f418d5483ed600df",
+        "peerAddress": "0x80Eede496655FB9047dd39d9f418d5483ED600df"
+      },
+      "optimism": {
+        "peerAddressBytes32": "0x00000000000000000000000080eede496655fb9047dd39d9f418d5483ed600df",
+        "peerAddress": "0x80Eede496655FB9047dd39d9f418d5483ED600df"
+      },
+      "avalanche": {
+        "peerAddressBytes32": "0x00000000000000000000000080eede496655fb9047dd39d9f418d5483ed600df",
+        "peerAddress": "0x80Eede496655FB9047dd39d9f418d5483ED600df"
+      },
+      "bnb": {
+        "peerAddressBytes32": "0x00000000000000000000000080eede496655fb9047dd39d9f418d5483ed600df",
+        "peerAddress": "0x80Eede496655FB9047dd39d9f418d5483ED600df"
+      },
+      "zkevm": {
+        "peerAddressBytes32": "0x00000000000000000000000080eede496655fb9047dd39d9f418d5483ed600df",
+        "peerAddress": "0x80Eede496655FB9047dd39d9f418d5483ED600df"
+      },
+      "solana": {
+        "peerAddressBytes32": "0x5e208a73d5bb1c78e9dbf53badd7299afd6bee9acacdcd4fd668833e53c538ad",
+        "peerAddress": "7LS6y37WXXCyBHkBU6zVpiqaqbkXLr4P85ZhQi3eonSp"
+      }
+    }
+  },
+  "avalanche": {
+    "params": {
+      "oftProxy": "0x80Eede496655FB9047dd39d9f418d5483ED600df",
+      "expectedEndpoint": "0x1a44076050125825900e736c501f859c50fE728c",
+      "actualEndpoint": "0x1a44076050125825900e736c501f859c50fE728c",
+      "owner": "0xBF1fF4D8B05F0871ca3f49e49fF1cA8AeeBD3b4b",
+      "expectedImplementation": "0x6A678cEfcA10d5bBe4638D27C671CE7d56865037",
+      "expectedProxyAdmin": "0x223a681fc5c5522c85C96157c0efA18cd6c5405c",
+      "delegate": "0xBF1fF4D8B05F0871ca3f49e49fF1cA8AeeBD3b4b",
+      "ownerThreshold": "3",
+      "ownerMembers": [
+        "0x13Fe84D36d7a507Bb4bdAC6dCaF13a10961fc470",
+        "0xcbc616D595D38483e6AdC45C7E426f44bF230928",
+        "0x8d8290d49e88D16d81C6aDf6C8774eD88762274A",
+        "0x17e06ce6914E3969f7BD37D8b2a563890cA1c96e",
+        "0x381e2495e683868F693AA5B1414F712f21d34b40",
+        "0x6e74053a3798e0fC9a9775F7995316b27f21c4D2"
+      ],
+      "proxyAdminOwner": "0xBF1fF4D8B05F0871ca3f49e49fF1cA8AeeBD3b4b",
+      "delegateThreshold": "3",
+      "delegateMembers": [
+        "0x13Fe84D36d7a507Bb4bdAC6dCaF13a10961fc470",
+        "0xcbc616D595D38483e6AdC45C7E426f44bF230928",
+        "0x8d8290d49e88D16d81C6aDf6C8774eD88762274A",
+        "0x17e06ce6914E3969f7BD37D8b2a563890cA1c96e",
+        "0x381e2495e683868F693AA5B1414F712f21d34b40",
+        "0x6e74053a3798e0fC9a9775F7995316b27f21c4D2"
+      ],
+      "proxyAdminOwnerThreshold": "3",
+      "proxyAdminOwnermembers": [
+        "0x13Fe84D36d7a507Bb4bdAC6dCaF13a10961fc470",
+        "0xcbc616D595D38483e6AdC45C7E426f44bF230928",
+        "0x8d8290d49e88D16d81C6aDf6C8774eD88762274A",
+        "0x17e06ce6914E3969f7BD37D8b2a563890cA1c96e",
+        "0x381e2495e683868F693AA5B1414F712f21d34b40",
+        "0x6e74053a3798e0fC9a9775F7995316b27f21c4D2"
+      ]
+    },
+    "dstChains": {
+      "ethereum": {
+        "peerAddressBytes32": "0x000000000000000000000000566a6442a5a6e9895b9dca97cc7879d632c6e4b0",
+        "peerAddress": "0x566a6442A5A6e9895B9dCA97cC7879D632c6e4B0"
+      },
+      "fraxtal": {
+        "peerAddressBytes32": "0x00000000000000000000000096a394058e2b84a89bac9667b19661ed003cf5d4",
+        "peerAddress": "0x96A394058E2b84A89bac9667B19661Ed003cF5D4"
+      },
+      "base": {
+        "peerAddressBytes32": "0x000000000000000000000000e5020a6d073a794b6e7f05678707de47986fb0b6",
+        "peerAddress": "0xe5020A6d073a794B6E7f05678707dE47986Fb0b6"
+      },
+      "blast": {
+        "peerAddressBytes32": "0x00000000000000000000000080eede496655fb9047dd39d9f418d5483ed600df",
+        "peerAddress": "0x80Eede496655FB9047dd39d9f418d5483ED600df"
+      },
+      "mode": {
+        "peerAddressBytes32": "0x00000000000000000000000080eede496655fb9047dd39d9f418d5483ed600df",
+        "peerAddress": "0x80Eede496655FB9047dd39d9f418d5483ED600df"
+      },
+      "sei": {
+        "peerAddressBytes32": "0x00000000000000000000000080eede496655fb9047dd39d9f418d5483ed600df",
+        "peerAddress": "0x80Eede496655FB9047dd39d9f418d5483ED600df"
+      },
+      "xlayer": {
+        "peerAddressBytes32": "0x00000000000000000000000080eede496655fb9047dd39d9f418d5483ed600df",
+        "peerAddress": "0x80Eede496655FB9047dd39d9f418d5483ED600df"
+      },
+      "sonic": {
+        "peerAddressBytes32": "0x00000000000000000000000080eede496655fb9047dd39d9f418d5483ed600df",
+        "peerAddress": "0x80Eede496655FB9047dd39d9f418d5483ED600df"
+      },
+      "ink": {
+        "peerAddressBytes32": "0x00000000000000000000000080eede496655fb9047dd39d9f418d5483ed600df",
+        "peerAddress": "0x80Eede496655FB9047dd39d9f418d5483ED600df"
+      },
+      "arbitrum": {
+        "peerAddressBytes32": "0x00000000000000000000000080eede496655fb9047dd39d9f418d5483ed600df",
+        "peerAddress": "0x80Eede496655FB9047dd39d9f418d5483ED600df"
+      },
+      "optimism": {
+        "peerAddressBytes32": "0x00000000000000000000000080eede496655fb9047dd39d9f418d5483ed600df",
+        "peerAddress": "0x80Eede496655FB9047dd39d9f418d5483ED600df"
+      },
+      "polygon": {
+        "peerAddressBytes32": "0x00000000000000000000000080eede496655fb9047dd39d9f418d5483ed600df",
+        "peerAddress": "0x80Eede496655FB9047dd39d9f418d5483ED600df"
+      },
+      "bnb": {
+        "peerAddressBytes32": "0x00000000000000000000000080eede496655fb9047dd39d9f418d5483ed600df",
+        "peerAddress": "0x80Eede496655FB9047dd39d9f418d5483ED600df"
+      },
+      "zkevm": {
+        "peerAddressBytes32": "0x00000000000000000000000080eede496655fb9047dd39d9f418d5483ed600df",
+        "peerAddress": "0x80Eede496655FB9047dd39d9f418d5483ED600df"
+      },
+      "solana": {
+        "peerAddressBytes32": "0x5e208a73d5bb1c78e9dbf53badd7299afd6bee9acacdcd4fd668833e53c538ad",
+        "peerAddress": "7LS6y37WXXCyBHkBU6zVpiqaqbkXLr4P85ZhQi3eonSp"
+      }
+    }
+  },
+  "bnb": {
+    "params": {
+      "oftProxy": "0x80Eede496655FB9047dd39d9f418d5483ED600df",
+      "expectedEndpoint": "0x1a44076050125825900e736c501f859c50fE728c",
+      "actualEndpoint": "0x1a44076050125825900e736c501f859c50fE728c",
+      "owner": "0xB1eff95B323D60cc04B1a44Ca1dBcbC935ae2C84",
+      "expectedImplementation": "0x6A678cEfcA10d5bBe4638D27C671CE7d56865037",
+      "expectedProxyAdmin": "0x223a681fc5c5522c85C96157c0efA18cd6c5405c",
+      "delegate": "0xB1eff95B323D60cc04B1a44Ca1dBcbC935ae2C84",
+      "ownerThreshold": "3",
+      "ownerMembers": [
+        "0x13Fe84D36d7a507Bb4bdAC6dCaF13a10961fc470",
+        "0xcbc616D595D38483e6AdC45C7E426f44bF230928",
+        "0x8d8290d49e88D16d81C6aDf6C8774eD88762274A",
+        "0x17e06ce6914E3969f7BD37D8b2a563890cA1c96e",
+        "0x381e2495e683868F693AA5B1414F712f21d34b40",
+        "0x6e74053a3798e0fC9a9775F7995316b27f21c4D2"
+      ],
+      "proxyAdminOwner": "0xB1eff95B323D60cc04B1a44Ca1dBcbC935ae2C84",
+      "delegateThreshold": "3",
+      "delegateMembers": [
+        "0x13Fe84D36d7a507Bb4bdAC6dCaF13a10961fc470",
+        "0xcbc616D595D38483e6AdC45C7E426f44bF230928",
+        "0x8d8290d49e88D16d81C6aDf6C8774eD88762274A",
+        "0x17e06ce6914E3969f7BD37D8b2a563890cA1c96e",
+        "0x381e2495e683868F693AA5B1414F712f21d34b40",
+        "0x6e74053a3798e0fC9a9775F7995316b27f21c4D2"
+      ],
+      "proxyAdminOwnerThreshold": "3",
+      "proxyAdminOwnermembers": [
+        "0x13Fe84D36d7a507Bb4bdAC6dCaF13a10961fc470",
+        "0xcbc616D595D38483e6AdC45C7E426f44bF230928",
+        "0x8d8290d49e88D16d81C6aDf6C8774eD88762274A",
+        "0x17e06ce6914E3969f7BD37D8b2a563890cA1c96e",
+        "0x381e2495e683868F693AA5B1414F712f21d34b40",
+        "0x6e74053a3798e0fC9a9775F7995316b27f21c4D2"
+      ]
+    },
+    "dstChains": {
+      "ethereum": {
+        "peerAddressBytes32": "0x000000000000000000000000566a6442a5a6e9895b9dca97cc7879d632c6e4b0",
+        "peerAddress": "0x566a6442A5A6e9895B9dCA97cC7879D632c6e4B0"
+      },
+      "fraxtal": {
+        "peerAddressBytes32": "0x00000000000000000000000096a394058e2b84a89bac9667b19661ed003cf5d4",
+        "peerAddress": "0x96A394058E2b84A89bac9667B19661Ed003cF5D4"
+      },
+      "base": {
+        "peerAddressBytes32": "0x000000000000000000000000e5020a6d073a794b6e7f05678707de47986fb0b6",
+        "peerAddress": "0xe5020A6d073a794B6E7f05678707dE47986Fb0b6"
+      },
+      "blast": {
+        "peerAddressBytes32": "0x00000000000000000000000080eede496655fb9047dd39d9f418d5483ed600df",
+        "peerAddress": "0x80Eede496655FB9047dd39d9f418d5483ED600df"
+      },
+      "mode": {
+        "peerAddressBytes32": "0x00000000000000000000000080eede496655fb9047dd39d9f418d5483ed600df",
+        "peerAddress": "0x80Eede496655FB9047dd39d9f418d5483ED600df"
+      },
+      "sei": {
+        "peerAddressBytes32": "0x00000000000000000000000080eede496655fb9047dd39d9f418d5483ed600df",
+        "peerAddress": "0x80Eede496655FB9047dd39d9f418d5483ED600df"
+      },
+      "xlayer": {
+        "peerAddressBytes32": "0x00000000000000000000000080eede496655fb9047dd39d9f418d5483ed600df",
+        "peerAddress": "0x80Eede496655FB9047dd39d9f418d5483ED600df"
+      },
+      "sonic": {
+        "peerAddressBytes32": "0x00000000000000000000000080eede496655fb9047dd39d9f418d5483ed600df",
+        "peerAddress": "0x80Eede496655FB9047dd39d9f418d5483ED600df"
+      },
+      "ink": {
+        "peerAddressBytes32": "0x00000000000000000000000080eede496655fb9047dd39d9f418d5483ed600df",
+        "peerAddress": "0x80Eede496655FB9047dd39d9f418d5483ED600df"
+      },
+      "arbitrum": {
+        "peerAddressBytes32": "0x00000000000000000000000080eede496655fb9047dd39d9f418d5483ed600df",
+        "peerAddress": "0x80Eede496655FB9047dd39d9f418d5483ED600df"
+      },
+      "optimism": {
+        "peerAddressBytes32": "0x00000000000000000000000080eede496655fb9047dd39d9f418d5483ed600df",
+        "peerAddress": "0x80Eede496655FB9047dd39d9f418d5483ED600df"
+      },
+      "polygon": {
+        "peerAddressBytes32": "0x00000000000000000000000080eede496655fb9047dd39d9f418d5483ed600df",
+        "peerAddress": "0x80Eede496655FB9047dd39d9f418d5483ED600df"
+      },
+      "avalanche": {
+        "peerAddressBytes32": "0x00000000000000000000000080eede496655fb9047dd39d9f418d5483ed600df",
+        "peerAddress": "0x80Eede496655FB9047dd39d9f418d5483ED600df"
+      },
+      "zkevm": {
+        "peerAddressBytes32": "0x00000000000000000000000080eede496655fb9047dd39d9f418d5483ed600df",
+        "peerAddress": "0x80Eede496655FB9047dd39d9f418d5483ED600df"
+      },
+      "solana": {
+        "peerAddressBytes32": "0x5e208a73d5bb1c78e9dbf53badd7299afd6bee9acacdcd4fd668833e53c538ad",
+        "peerAddress": "7LS6y37WXXCyBHkBU6zVpiqaqbkXLr4P85ZhQi3eonSp"
+      }
+    }
+  },
+  "zkevm": {
+    "params": {
+      "oftProxy": "0x80Eede496655FB9047dd39d9f418d5483ED600df",
+      "expectedEndpoint": "0x1a44076050125825900e736c501f859c50fE728c",
+      "actualEndpoint": "0x1a44076050125825900e736c501f859c50fE728c",
+      "owner": "0x57445fD8d544e5D313e4f715220103b091814df4",
+      "expectedImplementation": "0x6A678cEfcA10d5bBe4638D27C671CE7d56865037",
+      "expectedProxyAdmin": "0x223a681fc5c5522c85C96157c0efA18cd6c5405c",
+      "delegate": "0x57445fD8d544e5D313e4f715220103b091814df4",
+      "ownerThreshold": "3",
+      "ownerMembers": [
+        "0x13Fe84D36d7a507Bb4bdAC6dCaF13a10961fc470",
+        "0xcbc616D595D38483e6AdC45C7E426f44bF230928",
+        "0x8d8290d49e88D16d81C6aDf6C8774eD88762274A",
+        "0x17e06ce6914E3969f7BD37D8b2a563890cA1c96e",
+        "0x381e2495e683868F693AA5B1414F712f21d34b40",
+        "0x6e74053a3798e0fC9a9775F7995316b27f21c4D2"
+      ],
+      "proxyAdminOwner": "0x57445fD8d544e5D313e4f715220103b091814df4",
+      "delegateThreshold": "3",
+      "delegateMembers": [
+        "0x13Fe84D36d7a507Bb4bdAC6dCaF13a10961fc470",
+        "0xcbc616D595D38483e6AdC45C7E426f44bF230928",
+        "0x8d8290d49e88D16d81C6aDf6C8774eD88762274A",
+        "0x17e06ce6914E3969f7BD37D8b2a563890cA1c96e",
+        "0x381e2495e683868F693AA5B1414F712f21d34b40",
+        "0x6e74053a3798e0fC9a9775F7995316b27f21c4D2"
+      ],
+      "proxyAdminOwnerThreshold": "3",
+      "proxyAdminOwnermembers": [
+        "0x13Fe84D36d7a507Bb4bdAC6dCaF13a10961fc470",
+        "0xcbc616D595D38483e6AdC45C7E426f44bF230928",
+        "0x8d8290d49e88D16d81C6aDf6C8774eD88762274A",
+        "0x17e06ce6914E3969f7BD37D8b2a563890cA1c96e",
+        "0x381e2495e683868F693AA5B1414F712f21d34b40",
+        "0x6e74053a3798e0fC9a9775F7995316b27f21c4D2"
+      ]
+    },
+    "dstChains": {
+      "ethereum": {
+        "peerAddressBytes32": "0x000000000000000000000000566a6442a5a6e9895b9dca97cc7879d632c6e4b0",
+        "peerAddress": "0x566a6442A5A6e9895B9dCA97cC7879D632c6e4B0"
+      },
+      "fraxtal": {
+        "peerAddressBytes32": "0x00000000000000000000000096a394058e2b84a89bac9667b19661ed003cf5d4",
+        "peerAddress": "0x96A394058E2b84A89bac9667B19661Ed003cF5D4"
+      },
+      "base": {
+        "peerAddressBytes32": "0x000000000000000000000000e5020a6d073a794b6e7f05678707de47986fb0b6",
+        "peerAddress": "0xe5020A6d073a794B6E7f05678707dE47986Fb0b6"
+      },
+      "blast": {
+        "peerAddressBytes32": "0x00000000000000000000000080eede496655fb9047dd39d9f418d5483ed600df",
+        "peerAddress": "0x80Eede496655FB9047dd39d9f418d5483ED600df"
+      },
+      "mode": {
+        "peerAddressBytes32": "0x00000000000000000000000080eede496655fb9047dd39d9f418d5483ed600df",
+        "peerAddress": "0x80Eede496655FB9047dd39d9f418d5483ED600df"
+      },
+      "sei": {
+        "peerAddressBytes32": "0x00000000000000000000000080eede496655fb9047dd39d9f418d5483ed600df",
+        "peerAddress": "0x80Eede496655FB9047dd39d9f418d5483ED600df"
+      },
+      "xlayer": {
+        "peerAddressBytes32": "0x00000000000000000000000080eede496655fb9047dd39d9f418d5483ed600df",
+        "peerAddress": "0x80Eede496655FB9047dd39d9f418d5483ED600df"
+      },
+      "sonic": {
+        "peerAddressBytes32": "0x00000000000000000000000080eede496655fb9047dd39d9f418d5483ed600df",
+        "peerAddress": "0x80Eede496655FB9047dd39d9f418d5483ED600df"
+      },
+      "ink": {
+        "peerAddressBytes32": "0x00000000000000000000000080eede496655fb9047dd39d9f418d5483ed600df",
+        "peerAddress": "0x80Eede496655FB9047dd39d9f418d5483ED600df"
+      },
+      "arbitrum": {
+        "peerAddressBytes32": "0x00000000000000000000000080eede496655fb9047dd39d9f418d5483ed600df",
+        "peerAddress": "0x80Eede496655FB9047dd39d9f418d5483ED600df"
+      },
+      "optimism": {
+        "peerAddressBytes32": "0x00000000000000000000000080eede496655fb9047dd39d9f418d5483ed600df",
+        "peerAddress": "0x80Eede496655FB9047dd39d9f418d5483ED600df"
+      },
+      "polygon": {
+        "peerAddressBytes32": "0x00000000000000000000000080eede496655fb9047dd39d9f418d5483ed600df",
+        "peerAddress": "0x80Eede496655FB9047dd39d9f418d5483ED600df"
+      },
+      "avalanche": {
+        "peerAddressBytes32": "0x00000000000000000000000080eede496655fb9047dd39d9f418d5483ed600df",
+        "peerAddress": "0x80Eede496655FB9047dd39d9f418d5483ED600df"
+      },
+      "bnb": {
+        "peerAddressBytes32": "0x00000000000000000000000080eede496655fb9047dd39d9f418d5483ed600df",
+        "peerAddress": "0x80Eede496655FB9047dd39d9f418d5483ED600df"
+      },
+      "solana": {
+        "peerAddressBytes32": "0x5e208a73d5bb1c78e9dbf53badd7299afd6bee9acacdcd4fd668833e53c538ad",
+        "peerAddress": "7LS6y37WXXCyBHkBU6zVpiqaqbkXLr4P85ZhQi3eonSp"
+      }
+    }
+  },
+  "zksync": {
+    "params": {
+      "oftProxy": "0xEa77c590Bb36c43ef7139cE649cFBCFD6163170d",
+      "expectedEndpoint": "0xd07C30aF3Ff30D96BDc9c6044958230Eb797DDBF",
+      "actualEndpoint": "0xd07C30aF3Ff30D96BDc9c6044958230Eb797DDBF",
+      "owner": "0x66716ae60898dD4479B52aC4d92ef16C1821f420",
+      "expectedImplementation": "0xB5b711d873b0444Fc9284Db1684cd56aDb90D5e5",
+      "expectedProxyAdmin": "0xE59Dcae52a4ffA39Be99588486C84Bc2dC1bA52f",
+      "delegate": "0x66716ae60898dD4479B52aC4d92ef16C1821f420",
+      "ownerThreshold": "3",
+      "ownerMembers": [
+        "0x8d8290d49e88D16d81C6aDf6C8774eD88762274A",
+        "0x13Fe84D36d7a507Bb4bdAC6dCaF13a10961fc470",
+        "0xcbc616D595D38483e6AdC45C7E426f44bF230928",
+        "0x17e06ce6914E3969f7BD37D8b2a563890cA1c96e",
+        "0x381e2495e683868F693AA5B1414F712f21d34b40",
+        "0x6e74053a3798e0fC9a9775F7995316b27f21c4D2"
+      ],
+      "proxyAdminOwner": "0x66716ae60898dD4479B52aC4d92ef16C1821f420",
+      "delegateThreshold": "3",
+      "delegateMembers": [
+        "0x8d8290d49e88D16d81C6aDf6C8774eD88762274A",
+        "0x13Fe84D36d7a507Bb4bdAC6dCaF13a10961fc470",
+        "0xcbc616D595D38483e6AdC45C7E426f44bF230928",
+        "0x17e06ce6914E3969f7BD37D8b2a563890cA1c96e",
+        "0x381e2495e683868F693AA5B1414F712f21d34b40",
+        "0x6e74053a3798e0fC9a9775F7995316b27f21c4D2"
+      ],
+      "proxyAdminOwnerThreshold": "3",
+      "proxyAdminOwnermembers": [
+        "0x8d8290d49e88D16d81C6aDf6C8774eD88762274A",
+        "0x13Fe84D36d7a507Bb4bdAC6dCaF13a10961fc470",
+        "0xcbc616D595D38483e6AdC45C7E426f44bF230928",
+        "0x17e06ce6914E3969f7BD37D8b2a563890cA1c96e",
+        "0x381e2495e683868F693AA5B1414F712f21d34b40",
+        "0x6e74053a3798e0fC9a9775F7995316b27f21c4D2"
+      ]
+    },
+    "dstChains": {
+      "fraxtal": {
+        "peerAddressBytes32": "0x00000000000000000000000096a394058e2b84a89bac9667b19661ed003cf5d4",
+        "peerAddress": "0x96A394058E2b84A89bac9667B19661Ed003cF5D4"
+      }
+    }
+  },
+  "abstract": {
+    "params": {
+      "oftProxy": "0xEa77c590Bb36c43ef7139cE649cFBCFD6163170d",
+      "expectedEndpoint": "0x5c6cfF4b7C49805F8295Ff73C204ac83f3bC4AE7",
+      "actualEndpoint": "0x5c6cfF4b7C49805F8295Ff73C204ac83f3bC4AE7",
+      "owner": "0xcC20eAE3CdC554E96291708B362dF349CC443808",
+      "expectedImplementation": "0xB5b711d873b0444Fc9284Db1684cd56aDb90D5e5",
+      "expectedProxyAdmin": "0xE59Dcae52a4ffA39Be99588486C84Bc2dC1bA52f",
+      "delegate": "0xcC20eAE3CdC554E96291708B362dF349CC443808",
+      "ownerThreshold": "3",
+      "ownerMembers": [
+        "0x6e74053a3798e0fC9a9775F7995316b27f21c4D2",
+        "0x17e06ce6914E3969f7BD37D8b2a563890cA1c96e",
+        "0x381e2495e683868F693AA5B1414F712f21d34b40",
+        "0x8d8290d49e88D16d81C6aDf6C8774eD88762274A",
+        "0xcbc616D595D38483e6AdC45C7E426f44bF230928",
+        "0x13Fe84D36d7a507Bb4bdAC6dCaF13a10961fc470"
+      ],
+      "proxyAdminOwner": "0xcC20eAE3CdC554E96291708B362dF349CC443808",
+      "delegateThreshold": "3",
+      "delegateMembers": [
+        "0x6e74053a3798e0fC9a9775F7995316b27f21c4D2",
+        "0x17e06ce6914E3969f7BD37D8b2a563890cA1c96e",
+        "0x381e2495e683868F693AA5B1414F712f21d34b40",
+        "0x8d8290d49e88D16d81C6aDf6C8774eD88762274A",
+        "0xcbc616D595D38483e6AdC45C7E426f44bF230928",
+        "0x13Fe84D36d7a507Bb4bdAC6dCaF13a10961fc470"
+      ],
+      "proxyAdminOwnerThreshold": "3",
+      "proxyAdminOwnermembers": [
+        "0x6e74053a3798e0fC9a9775F7995316b27f21c4D2",
+        "0x17e06ce6914E3969f7BD37D8b2a563890cA1c96e",
+        "0x381e2495e683868F693AA5B1414F712f21d34b40",
+        "0x8d8290d49e88D16d81C6aDf6C8774eD88762274A",
+        "0xcbc616D595D38483e6AdC45C7E426f44bF230928",
+        "0x13Fe84D36d7a507Bb4bdAC6dCaF13a10961fc470"
+      ]
+    },
+    "dstChains": {
+      "fraxtal": {
+        "peerAddressBytes32": "0x00000000000000000000000096a394058e2b84a89bac9667b19661ed003cf5d4",
+        "peerAddress": "0x96A394058E2b84A89bac9667B19661Ed003cF5D4"
+      }
+    }
+  },
+  "berachain": {
+    "params": {
+      "oftProxy": "0x80Eede496655FB9047dd39d9f418d5483ED600df",
+      "expectedEndpoint": "0x6F475642a6e85809B1c36Fa62763669b1b48DD5B",
+      "actualEndpoint": "0x6F475642a6e85809B1c36Fa62763669b1b48DD5B",
+      "owner": "0x436b303dAf4b95e94ad86cA3821d5E50eB0De3aA",
+      "expectedImplementation": "0x6A678cEfcA10d5bBe4638D27C671CE7d56865037",
+      "expectedProxyAdmin": "0x223a681fc5c5522c85C96157c0efA18cd6c5405c",
+      "delegate": "0x436b303dAf4b95e94ad86cA3821d5E50eB0De3aA",
+      "ownerThreshold": "3",
+      "ownerMembers": [
+        "0x13Fe84D36d7a507Bb4bdAC6dCaF13a10961fc470",
+        "0x17e06ce6914E3969f7BD37D8b2a563890cA1c96e",
+        "0x8d8290d49e88D16d81C6aDf6C8774eD88762274A",
+        "0xcbc616D595D38483e6AdC45C7E426f44bF230928",
+        "0x381e2495e683868F693AA5B1414F712f21d34b40",
+        "0x6e74053a3798e0fC9a9775F7995316b27f21c4D2"
+      ],
+      "proxyAdminOwner": "0x436b303dAf4b95e94ad86cA3821d5E50eB0De3aA",
+      "delegateThreshold": "3",
+      "delegateMembers": [
+        "0x13Fe84D36d7a507Bb4bdAC6dCaF13a10961fc470",
+        "0x17e06ce6914E3969f7BD37D8b2a563890cA1c96e",
+        "0x8d8290d49e88D16d81C6aDf6C8774eD88762274A",
+        "0xcbc616D595D38483e6AdC45C7E426f44bF230928",
+        "0x381e2495e683868F693AA5B1414F712f21d34b40",
+        "0x6e74053a3798e0fC9a9775F7995316b27f21c4D2"
+      ],
+      "proxyAdminOwnerThreshold": "3",
+      "proxyAdminOwnermembers": [
+        "0x13Fe84D36d7a507Bb4bdAC6dCaF13a10961fc470",
+        "0x17e06ce6914E3969f7BD37D8b2a563890cA1c96e",
+        "0x8d8290d49e88D16d81C6aDf6C8774eD88762274A",
+        "0xcbc616D595D38483e6AdC45C7E426f44bF230928",
+        "0x381e2495e683868F693AA5B1414F712f21d34b40",
+        "0x6e74053a3798e0fC9a9775F7995316b27f21c4D2"
+      ]
+    },
+    "dstChains": {
+      "fraxtal": {
+        "peerAddressBytes32": "0x00000000000000000000000096a394058e2b84a89bac9667b19661ed003cf5d4",
+        "peerAddress": "0x96A394058E2b84A89bac9667B19661Ed003cF5D4"
+      }
+    }
+  },
+  "linea": {
+    "params": {
+      "oftProxy": "0xC7346783f5e645aa998B106Ef9E7f499528673D8",
+      "expectedEndpoint": "0x1a44076050125825900e736c501f859c50fE728c",
+      "actualEndpoint": "0x1a44076050125825900e736c501f859c50fE728c",
+      "owner": "0x0E5a5284820E350ffce7fe7ba3364FaC1C53eaFD",
+      "expectedImplementation": "0x1c1649A38f4A3c5A0c4a24070f688C525AB7D6E6",
+      "expectedProxyAdmin": "0x3cf371c128b092b085B7732069cEAF3Fd863F270",
+      "delegate": "0x0E5a5284820E350ffce7fe7ba3364FaC1C53eaFD",
+      "ownerThreshold": "3",
+      "ownerMembers": [
+        "0x6e74053a3798e0fC9a9775F7995316b27f21c4D2",
+        "0x17e06ce6914E3969f7BD37D8b2a563890cA1c96e",
+        "0x381e2495e683868F693AA5B1414F712f21d34b40",
+        "0x8d8290d49e88D16d81C6aDf6C8774eD88762274A",
+        "0xcbc616D595D38483e6AdC45C7E426f44bF230928",
+        "0x13Fe84D36d7a507Bb4bdAC6dCaF13a10961fc470"
+      ],
+      "proxyAdminOwner": "0x0E5a5284820E350ffce7fe7ba3364FaC1C53eaFD",
+      "delegateThreshold": "3",
+      "delegateMembers": [
+        "0x6e74053a3798e0fC9a9775F7995316b27f21c4D2",
+        "0x17e06ce6914E3969f7BD37D8b2a563890cA1c96e",
+        "0x381e2495e683868F693AA5B1414F712f21d34b40",
+        "0x8d8290d49e88D16d81C6aDf6C8774eD88762274A",
+        "0xcbc616D595D38483e6AdC45C7E426f44bF230928",
+        "0x13Fe84D36d7a507Bb4bdAC6dCaF13a10961fc470"
+      ],
+      "proxyAdminOwnerThreshold": "3",
+      "proxyAdminOwnermembers": [
+        "0x6e74053a3798e0fC9a9775F7995316b27f21c4D2",
+        "0x17e06ce6914E3969f7BD37D8b2a563890cA1c96e",
+        "0x381e2495e683868F693AA5B1414F712f21d34b40",
+        "0x8d8290d49e88D16d81C6aDf6C8774eD88762274A",
+        "0xcbc616D595D38483e6AdC45C7E426f44bF230928",
+        "0x13Fe84D36d7a507Bb4bdAC6dCaF13a10961fc470"
+      ]
+    },
+    "dstChains": {
+      "fraxtal": {
+        "peerAddressBytes32": "0x00000000000000000000000096a394058e2b84a89bac9667b19661ed003cf5d4",
+        "peerAddress": "0x96A394058E2b84A89bac9667B19661Ed003cF5D4"
+      }
+    }
+  },
+  "aurora": {
+    "params": {
+      "oftProxy": "0x80Eede496655FB9047dd39d9f418d5483ED600df",
+      "expectedEndpoint": "0x1a44076050125825900e736c501f859c50fE728c",
+      "actualEndpoint": "0x1a44076050125825900e736c501f859c50fE728c",
+      "owner": "0x73F365d34b81E731825a094c2E722A08574335cd",
+      "expectedImplementation": "0x6A678cEfcA10d5bBe4638D27C671CE7d56865037",
+      "expectedProxyAdmin": "0x223a681fc5c5522c85C96157c0efA18cd6c5405c",
+      "delegate": "0x73F365d34b81E731825a094c2E722A08574335cd",
+      "ownerThreshold": "3",
+      "ownerMembers": [
+        "0x8d8290d49e88D16d81C6aDf6C8774eD88762274A",
+        "0x13Fe84D36d7a507Bb4bdAC6dCaF13a10961fc470",
+        "0xcbc616D595D38483e6AdC45C7E426f44bF230928",
+        "0x17e06ce6914E3969f7BD37D8b2a563890cA1c96e",
+        "0x381e2495e683868F693AA5B1414F712f21d34b40",
+        "0x6e74053a3798e0fC9a9775F7995316b27f21c4D2"
+      ],
+      "proxyAdminOwner": "0x73F365d34b81E731825a094c2E722A08574335cd",
+      "delegateThreshold": "3",
+      "delegateMembers": [
+        "0x8d8290d49e88D16d81C6aDf6C8774eD88762274A",
+        "0x13Fe84D36d7a507Bb4bdAC6dCaF13a10961fc470",
+        "0xcbc616D595D38483e6AdC45C7E426f44bF230928",
+        "0x17e06ce6914E3969f7BD37D8b2a563890cA1c96e",
+        "0x381e2495e683868F693AA5B1414F712f21d34b40",
+        "0x6e74053a3798e0fC9a9775F7995316b27f21c4D2"
+      ],
+      "proxyAdminOwnerThreshold": "3",
+      "proxyAdminOwnermembers": [
+        "0x8d8290d49e88D16d81C6aDf6C8774eD88762274A",
+        "0x13Fe84D36d7a507Bb4bdAC6dCaF13a10961fc470",
+        "0xcbc616D595D38483e6AdC45C7E426f44bF230928",
+        "0x17e06ce6914E3969f7BD37D8b2a563890cA1c96e",
+        "0x381e2495e683868F693AA5B1414F712f21d34b40",
+        "0x6e74053a3798e0fC9a9775F7995316b27f21c4D2"
+      ]
+    },
+    "dstChains": {
+      "fraxtal": {
+        "peerAddressBytes32": "0x00000000000000000000000096a394058e2b84a89bac9667b19661ed003cf5d4",
+        "peerAddress": "0x96A394058E2b84A89bac9667B19661Ed003cF5D4"
+      }
+    }
+  },
+  "hyperliquid": {
+    "params": {
+      "oftProxy": "0x80Eede496655FB9047dd39d9f418d5483ED600df",
+      "expectedEndpoint": "0x3A73033C0b1407574C76BdBAc67f126f6b4a9AA9",
+      "actualEndpoint": "0x3A73033C0b1407574C76BdBAc67f126f6b4a9AA9",
+      "owner": "0x738ee62157f127C879Ff5c4B7102Eb0d166C7a6d",
+      "expectedImplementation": "0x6A678cEfcA10d5bBe4638D27C671CE7d56865037",
+      "expectedProxyAdmin": "0x223a681fc5c5522c85C96157c0efA18cd6c5405c",
+      "delegate": "0x738ee62157f127C879Ff5c4B7102Eb0d166C7a6d",
+      "ownerThreshold": "3",
+      "ownerMembers": [
+        "0x8d8290d49e88D16d81C6aDf6C8774eD88762274A",
+        "0xcbc616D595D38483e6AdC45C7E426f44bF230928",
+        "0x13Fe84D36d7a507Bb4bdAC6dCaF13a10961fc470",
+        "0x17e06ce6914E3969f7BD37D8b2a563890cA1c96e",
+        "0x381e2495e683868F693AA5B1414F712f21d34b40",
+        "0x6e74053a3798e0fC9a9775F7995316b27f21c4D2"
+      ],
+      "proxyAdminOwner": "0x738ee62157f127C879Ff5c4B7102Eb0d166C7a6d",
+      "delegateThreshold": "3",
+      "delegateMembers": [
+        "0x8d8290d49e88D16d81C6aDf6C8774eD88762274A",
+        "0xcbc616D595D38483e6AdC45C7E426f44bF230928",
+        "0x13Fe84D36d7a507Bb4bdAC6dCaF13a10961fc470",
+        "0x17e06ce6914E3969f7BD37D8b2a563890cA1c96e",
+        "0x381e2495e683868F693AA5B1414F712f21d34b40",
+        "0x6e74053a3798e0fC9a9775F7995316b27f21c4D2"
+      ],
+      "proxyAdminOwnerThreshold": "3",
+      "proxyAdminOwnermembers": [
+        "0x8d8290d49e88D16d81C6aDf6C8774eD88762274A",
+        "0xcbc616D595D38483e6AdC45C7E426f44bF230928",
+        "0x13Fe84D36d7a507Bb4bdAC6dCaF13a10961fc470",
+        "0x17e06ce6914E3969f7BD37D8b2a563890cA1c96e",
+        "0x381e2495e683868F693AA5B1414F712f21d34b40",
+        "0x6e74053a3798e0fC9a9775F7995316b27f21c4D2"
+      ]
+    },
+    "dstChains": {
+      "fraxtal": {
+        "peerAddressBytes32": "0x00000000000000000000000096a394058e2b84a89bac9667b19661ed003cf5d4",
+        "peerAddress": "0x96A394058E2b84A89bac9667B19661Ed003cF5D4"
+      }
+    }
+  },
+  "katana": {
+    "params": {
+      "oftProxy": "0x80Eede496655FB9047dd39d9f418d5483ED600df",
+      "expectedEndpoint": "0x6F475642a6e85809B1c36Fa62763669b1b48DD5B",
+      "actualEndpoint": "0x6F475642a6e85809B1c36Fa62763669b1b48DD5B",
+      "owner": "0x19A90b0476cdc8EC1239266663CA820175B9B527",
+      "expectedImplementation": "0x6A678cEfcA10d5bBe4638D27C671CE7d56865037",
+      "expectedProxyAdmin": "0x223a681fc5c5522c85C96157c0efA18cd6c5405c",
+      "delegate": "0x19A90b0476cdc8EC1239266663CA820175B9B527",
+      "ownerThreshold": "3",
+      "ownerMembers": [
+        "0x13Fe84D36d7a507Bb4bdAC6dCaF13a10961fc470",
+        "0xcbc616D595D38483e6AdC45C7E426f44bF230928",
+        "0x8d8290d49e88D16d81C6aDf6C8774eD88762274A",
+        "0x17e06ce6914E3969f7BD37D8b2a563890cA1c96e",
+        "0x381e2495e683868F693AA5B1414F712f21d34b40",
+        "0x6e74053a3798e0fC9a9775F7995316b27f21c4D2"
+      ],
+      "proxyAdminOwner": "0x19A90b0476cdc8EC1239266663CA820175B9B527",
+      "delegateThreshold": "3",
+      "delegateMembers": [
+        "0x13Fe84D36d7a507Bb4bdAC6dCaF13a10961fc470",
+        "0xcbc616D595D38483e6AdC45C7E426f44bF230928",
+        "0x8d8290d49e88D16d81C6aDf6C8774eD88762274A",
+        "0x17e06ce6914E3969f7BD37D8b2a563890cA1c96e",
+        "0x381e2495e683868F693AA5B1414F712f21d34b40",
+        "0x6e74053a3798e0fC9a9775F7995316b27f21c4D2"
+      ],
+      "proxyAdminOwnerThreshold": "3",
+      "proxyAdminOwnermembers": [
+        "0x13Fe84D36d7a507Bb4bdAC6dCaF13a10961fc470",
+        "0xcbc616D595D38483e6AdC45C7E426f44bF230928",
+        "0x8d8290d49e88D16d81C6aDf6C8774eD88762274A",
+        "0x17e06ce6914E3969f7BD37D8b2a563890cA1c96e",
+        "0x381e2495e683868F693AA5B1414F712f21d34b40",
+        "0x6e74053a3798e0fC9a9775F7995316b27f21c4D2"
+      ]
+    },
+    "dstChains": {
+      "fraxtal": {
+        "peerAddressBytes32": "0x00000000000000000000000096a394058e2b84a89bac9667b19661ed003cf5d4",
+        "peerAddress": "0x96A394058E2b84A89bac9667B19661Ed003cF5D4"
+      }
+    }
+  },
+  "plumephoenix": {
+    "params": {
+      "oftProxy": "0x80Eede496655FB9047dd39d9f418d5483ED600df",
+      "expectedEndpoint": "0xC1b15d3B262bEeC0e3565C11C9e0F6134BdaCB36",
+      "actualEndpoint": "0xC1b15d3B262bEeC0e3565C11C9e0F6134BdaCB36",
+      "owner": "0x77dDd3EC570EEAf2c513de3c833c5E82A721978B",
+      "expectedImplementation": "0x6A678cEfcA10d5bBe4638D27C671CE7d56865037",
+      "expectedProxyAdmin": "0x223a681fc5c5522c85C96157c0efA18cd6c5405c",
+      "delegate": "0x77dDd3EC570EEAf2c513de3c833c5E82A721978B",
+      "ownerThreshold": "3",
+      "ownerMembers": [
+        "0xcbc616D595D38483e6AdC45C7E426f44bF230928",
+        "0x13Fe84D36d7a507Bb4bdAC6dCaF13a10961fc470",
+        "0x17e06ce6914E3969f7BD37D8b2a563890cA1c96e",
+        "0x8d8290d49e88D16d81C6aDf6C8774eD88762274A",
+        "0x381e2495e683868F693AA5B1414F712f21d34b40",
+        "0x6e74053a3798e0fC9a9775F7995316b27f21c4D2"
+      ],
+      "proxyAdminOwner": "0x77dDd3EC570EEAf2c513de3c833c5E82A721978B",
+      "delegateThreshold": "3",
+      "delegateMembers": [
+        "0xcbc616D595D38483e6AdC45C7E426f44bF230928",
+        "0x13Fe84D36d7a507Bb4bdAC6dCaF13a10961fc470",
+        "0x17e06ce6914E3969f7BD37D8b2a563890cA1c96e",
+        "0x8d8290d49e88D16d81C6aDf6C8774eD88762274A",
+        "0x381e2495e683868F693AA5B1414F712f21d34b40",
+        "0x6e74053a3798e0fC9a9775F7995316b27f21c4D2"
+      ],
+      "proxyAdminOwnerThreshold": "3",
+      "proxyAdminOwnermembers": [
+        "0xcbc616D595D38483e6AdC45C7E426f44bF230928",
+        "0x13Fe84D36d7a507Bb4bdAC6dCaF13a10961fc470",
+        "0x17e06ce6914E3969f7BD37D8b2a563890cA1c96e",
+        "0x8d8290d49e88D16d81C6aDf6C8774eD88762274A",
+        "0x381e2495e683868F693AA5B1414F712f21d34b40",
+        "0x6e74053a3798e0fC9a9775F7995316b27f21c4D2"
+      ]
+    },
+    "dstChains": {
+      "fraxtal": {
+        "peerAddressBytes32": "0x00000000000000000000000096a394058e2b84a89bac9667b19661ed003cf5d4",
+        "peerAddress": "0x96A394058E2b84A89bac9667B19661Ed003cF5D4"
+      }
+    }
+  },
+  "scroll": {
+    "params": {
+      "oftProxy": "0x397F939C3b91A74C321ea7129396492bA9Cdce82",
+      "expectedEndpoint": "0x1a44076050125825900e736c501f859c50fE728c",
+      "actualEndpoint": "0x1a44076050125825900e736c501f859c50fE728c",
+      "owner": "0x73F365d34b81E731825a094c2E722A08574335cd",
+      "expectedImplementation": "0x80Eede496655FB9047dd39d9f418d5483ED600df",
+      "expectedProxyAdmin": "0x8f1B9c1fd67136D525E14D96Efb3887a33f16250",
+      "delegate": "0x73F365d34b81E731825a094c2E722A08574335cd",
+      "ownerThreshold": "3",
+      "ownerMembers": [
+        "0x8d8290d49e88D16d81C6aDf6C8774eD88762274A",
+        "0x13Fe84D36d7a507Bb4bdAC6dCaF13a10961fc470",
+        "0xcbc616D595D38483e6AdC45C7E426f44bF230928",
+        "0x17e06ce6914E3969f7BD37D8b2a563890cA1c96e",
+        "0x381e2495e683868F693AA5B1414F712f21d34b40",
+        "0x6e74053a3798e0fC9a9775F7995316b27f21c4D2"
+      ],
+      "proxyAdminOwner": "0x73F365d34b81E731825a094c2E722A08574335cd",
+      "delegateThreshold": "3",
+      "delegateMembers": [
+        "0x8d8290d49e88D16d81C6aDf6C8774eD88762274A",
+        "0x13Fe84D36d7a507Bb4bdAC6dCaF13a10961fc470",
+        "0xcbc616D595D38483e6AdC45C7E426f44bF230928",
+        "0x17e06ce6914E3969f7BD37D8b2a563890cA1c96e",
+        "0x381e2495e683868F693AA5B1414F712f21d34b40",
+        "0x6e74053a3798e0fC9a9775F7995316b27f21c4D2"
+      ],
+      "proxyAdminOwnerThreshold": "3",
+      "proxyAdminOwnermembers": [
+        "0x8d8290d49e88D16d81C6aDf6C8774eD88762274A",
+        "0x13Fe84D36d7a507Bb4bdAC6dCaF13a10961fc470",
+        "0xcbc616D595D38483e6AdC45C7E426f44bF230928",
+        "0x17e06ce6914E3969f7BD37D8b2a563890cA1c96e",
+        "0x381e2495e683868F693AA5B1414F712f21d34b40",
+        "0x6e74053a3798e0fC9a9775F7995316b27f21c4D2"
+      ]
+    },
+    "dstChains": {
+      "fraxtal": {
+        "peerAddressBytes32": "0x00000000000000000000000096a394058e2b84a89bac9667b19661ed003cf5d4",
+        "peerAddress": "0x96A394058E2b84A89bac9667B19661Ed003cF5D4"
+      }
+    }
+  },
+  "unichain": {
+    "params": {
+      "oftProxy": "0x80Eede496655FB9047dd39d9f418d5483ED600df",
+      "expectedEndpoint": "0x6F475642a6e85809B1c36Fa62763669b1b48DD5B",
+      "actualEndpoint": "0x6F475642a6e85809B1c36Fa62763669b1b48DD5B",
+      "owner": "0x6f8FDdfD4F6a1456BA5632C919bEF74b64DD032D",
+      "expectedImplementation": "0x6A678cEfcA10d5bBe4638D27C671CE7d56865037",
+      "expectedProxyAdmin": "0x223a681fc5c5522c85C96157c0efA18cd6c5405c",
+      "delegate": "0x6f8FDdfD4F6a1456BA5632C919bEF74b64DD032D",
+      "ownerThreshold": "3",
+      "ownerMembers": [
+        "0x13Fe84D36d7a507Bb4bdAC6dCaF13a10961fc470",
+        "0xcbc616D595D38483e6AdC45C7E426f44bF230928",
+        "0x8d8290d49e88D16d81C6aDf6C8774eD88762274A",
+        "0x17e06ce6914E3969f7BD37D8b2a563890cA1c96e",
+        "0x381e2495e683868F693AA5B1414F712f21d34b40",
+        "0x6e74053a3798e0fC9a9775F7995316b27f21c4D2"
+      ],
+      "proxyAdminOwner": "0x6f8FDdfD4F6a1456BA5632C919bEF74b64DD032D",
+      "delegateThreshold": "3",
+      "delegateMembers": [
+        "0x13Fe84D36d7a507Bb4bdAC6dCaF13a10961fc470",
+        "0xcbc616D595D38483e6AdC45C7E426f44bF230928",
+        "0x8d8290d49e88D16d81C6aDf6C8774eD88762274A",
+        "0x17e06ce6914E3969f7BD37D8b2a563890cA1c96e",
+        "0x381e2495e683868F693AA5B1414F712f21d34b40",
+        "0x6e74053a3798e0fC9a9775F7995316b27f21c4D2"
+      ],
+      "proxyAdminOwnerThreshold": "3",
+      "proxyAdminOwnermembers": [
+        "0x13Fe84D36d7a507Bb4bdAC6dCaF13a10961fc470",
+        "0xcbc616D595D38483e6AdC45C7E426f44bF230928",
+        "0x8d8290d49e88D16d81C6aDf6C8774eD88762274A",
+        "0x17e06ce6914E3969f7BD37D8b2a563890cA1c96e",
+        "0x381e2495e683868F693AA5B1414F712f21d34b40",
+        "0x6e74053a3798e0fC9a9775F7995316b27f21c4D2"
+      ]
+    },
+    "dstChains": {
+      "fraxtal": {
+        "peerAddressBytes32": "0x00000000000000000000000096a394058e2b84a89bac9667b19661ed003cf5d4",
+        "peerAddress": "0x96A394058E2b84A89bac9667B19661Ed003cF5D4"
+      }
+    }
+  },
+  "worldchain": {
+    "params": {
+      "oftProxy": "0x80Eede496655FB9047dd39d9f418d5483ED600df",
+      "expectedEndpoint": "0x6F475642a6e85809B1c36Fa62763669b1b48DD5B",
+      "actualEndpoint": "0x6F475642a6e85809B1c36Fa62763669b1b48DD5B",
+      "owner": "0xf57d47c3EA11c12253dBc0BeAf097d5c206e8773",
+      "expectedImplementation": "0x6A678cEfcA10d5bBe4638D27C671CE7d56865037",
+      "expectedProxyAdmin": "0x223a681fc5c5522c85C96157c0efA18cd6c5405c",
+      "delegate": "0xf57d47c3EA11c12253dBc0BeAf097d5c206e8773",
+      "ownerThreshold": "3",
+      "ownerMembers": [
+        "0x13Fe84D36d7a507Bb4bdAC6dCaF13a10961fc470",
+        "0xcbc616D595D38483e6AdC45C7E426f44bF230928",
+        "0x8d8290d49e88D16d81C6aDf6C8774eD88762274A",
+        "0x17e06ce6914E3969f7BD37D8b2a563890cA1c96e",
+        "0x381e2495e683868F693AA5B1414F712f21d34b40",
+        "0x6e74053a3798e0fC9a9775F7995316b27f21c4D2"
+      ],
+      "proxyAdminOwner": "0xf57d47c3EA11c12253dBc0BeAf097d5c206e8773",
+      "delegateThreshold": "3",
+      "delegateMembers": [
+        "0x13Fe84D36d7a507Bb4bdAC6dCaF13a10961fc470",
+        "0xcbc616D595D38483e6AdC45C7E426f44bF230928",
+        "0x8d8290d49e88D16d81C6aDf6C8774eD88762274A",
+        "0x17e06ce6914E3969f7BD37D8b2a563890cA1c96e",
+        "0x381e2495e683868F693AA5B1414F712f21d34b40",
+        "0x6e74053a3798e0fC9a9775F7995316b27f21c4D2"
+      ],
+      "proxyAdminOwnerThreshold": "3",
+      "proxyAdminOwnermembers": [
+        "0x13Fe84D36d7a507Bb4bdAC6dCaF13a10961fc470",
+        "0xcbc616D595D38483e6AdC45C7E426f44bF230928",
+        "0x8d8290d49e88D16d81C6aDf6C8774eD88762274A",
+        "0x17e06ce6914E3969f7BD37D8b2a563890cA1c96e",
+        "0x381e2495e683868F693AA5B1414F712f21d34b40",
+        "0x6e74053a3798e0fC9a9775F7995316b27f21c4D2"
+      ]
+    },
+    "dstChains": {
+      "fraxtal": {
+        "peerAddressBytes32": "0x00000000000000000000000096a394058e2b84a89bac9667b19661ed003cf5d4",
+        "peerAddress": "0x96A394058E2b84A89bac9667B19661Ed003cF5D4"
+      }
+    }
+  },
+  "plasma": {
+    "params": {
+      "oftProxy": "0x80Eede496655FB9047dd39d9f418d5483ED600df",
+      "expectedEndpoint": "0x6F475642a6e85809B1c36Fa62763669b1b48DD5B",
+      "actualEndpoint": "0x6F475642a6e85809B1c36Fa62763669b1b48DD5B",
+      "owner": "0x7d99C7737751b044DF4fA10aeEFA31532dd11DBE",
+      "expectedImplementation": "0x6A678cEfcA10d5bBe4638D27C671CE7d56865037",
+      "expectedProxyAdmin": "0x223a681fc5c5522c85C96157c0efA18cd6c5405c",
+      "delegate": "0x7d99C7737751b044DF4fA10aeEFA31532dd11DBE",
+      "ownerThreshold": "3",
+      "ownerMembers": [
+        "0x8d8290d49e88D16d81C6aDf6C8774eD88762274A",
+        "0x13Fe84D36d7a507Bb4bdAC6dCaF13a10961fc470",
+        "0xcbc616D595D38483e6AdC45C7E426f44bF230928",
+        "0x17e06ce6914E3969f7BD37D8b2a563890cA1c96e",
+        "0x381e2495e683868F693AA5B1414F712f21d34b40",
+        "0x6e74053a3798e0fC9a9775F7995316b27f21c4D2"
+      ],
+      "proxyAdminOwner": "0x7d99C7737751b044DF4fA10aeEFA31532dd11DBE",
+      "delegateThreshold": "3",
+      "delegateMembers": [
+        "0x8d8290d49e88D16d81C6aDf6C8774eD88762274A",
+        "0x13Fe84D36d7a507Bb4bdAC6dCaF13a10961fc470",
+        "0xcbc616D595D38483e6AdC45C7E426f44bF230928",
+        "0x17e06ce6914E3969f7BD37D8b2a563890cA1c96e",
+        "0x381e2495e683868F693AA5B1414F712f21d34b40",
+        "0x6e74053a3798e0fC9a9775F7995316b27f21c4D2"
+      ],
+      "proxyAdminOwnerThreshold": "3",
+      "proxyAdminOwnermembers": [
+        "0x8d8290d49e88D16d81C6aDf6C8774eD88762274A",
+        "0x13Fe84D36d7a507Bb4bdAC6dCaF13a10961fc470",
+        "0xcbc616D595D38483e6AdC45C7E426f44bF230928",
+        "0x17e06ce6914E3969f7BD37D8b2a563890cA1c96e",
+        "0x381e2495e683868F693AA5B1414F712f21d34b40",
+        "0x6e74053a3798e0fC9a9775F7995316b27f21c4D2"
+      ]
+    },
+    "dstChains": {
+      "fraxtal": {
+        "peerAddressBytes32": "0x00000000000000000000000096a394058e2b84a89bac9667b19661ed003cf5d4",
+        "peerAddress": "0x96A394058E2b84A89bac9667B19661Ed003cF5D4"
+      }
+    }
+  },
+  "solana": {
+    "params": {},
+    "dstChains": {}
+  },
+  "movement": {
+    "params": {},
+    "dstChains": {}
+  },
+  "aptos": {
+    "params": {},
+    "dstChains": {}
+  }
+}

@@ -1,4 +1,4 @@
-// import { bytesToHex, decodeAbiParameters, getAddress, Hex, hexToBytes, padHex, toHex } from 'viem'
+import { /*bytesToHex, decodeAbiParameters,*/ getAddress /*, Hex, hexToBytes, padHex, toHex*/ } from 'viem'
 // import { publicKey } from '@metaplex-foundation/umi'
 // import { oft302 } from '@layerzerolabs/oft-v2-solana-sdk'
 import { default as ENDPOINTV2_ABI } from '../abis/ENDPOINTV2_ABI.json'
@@ -6,15 +6,16 @@ import { default as OFT_MINTABLE_ADAPTER_ABI } from '../abis/OFT_MINTABLE_ADAPTE
 // import { default as RECEIVE_ULN302_ABI } from '../abis/RECEIVE_ULN302_ABI.json'
 // import { default as SEND_ULN302_ABI } from '../abis/SEND_ULN302_ABI.json'
 import { default as FRAX_PROXY_ADMIN_ABI } from '../abis/FRAX_PROXY_ADMIN_ABI.json'
-// import fs from 'fs'
+import fs from 'fs'
 import * as dotenv from 'dotenv'
 import { chains } from '../chains'
 import { /*assetListType,*/ OFTInfo } from '../types'
 import { aptosMovementOFTs, ofts, solanaOFTs } from '../oft'
+import bs58 from 'bs58'
 
 dotenv.config()
 
-// const bytes32Zero = '0x0000000000000000000000000000000000000000000000000000000000000000'
+const bytes32Zero = '0x0000000000000000000000000000000000000000000000000000000000000000'
 
 // function decodeLzReceiveOption(encodedOption: Hex) {
 //     const optionBytes = hexToBytes(encodedOption)
@@ -74,7 +75,8 @@ interface Params {
     expectedImplementation: string
     actualProxyAdmin: string
     expectedProxyAdmin: string
-    endpoint: string
+    expectedEndpoint: string
+    actualEndpoint: string
     delegate: string
     delegateThreshold: string
     delegateMembers: string[]
@@ -162,7 +164,8 @@ async function main() {
                 // get storage at : 0x360894a13ba1a3210667c828492db98dca3e2076cc3735a920a3ca505d382bbc
 
                 oftObj[oftName][srcChain].params.oftProxy = ofts[srcChain][oftName].address
-                oftObj[oftName][srcChain].params.endpoint = endpointAddress
+                oftObj[oftName][srcChain].params.expectedEndpoint = chains[srcChain].endpoint
+                oftObj[oftName][srcChain].params.actualEndpoint = endpointAddress
                 oftObj[oftName][srcChain].params.owner = ownerAddress
                 oftObj[oftName][srcChain].params.expectedImplementation = expectedImplementationAddress
                 oftObj[oftName][srcChain].params.expectedProxyAdmin = expectedProxyAdminAddress
@@ -206,14 +209,15 @@ async function main() {
 
             Object.keys(ofts[srcChain]).forEach((oftName, index) => {
                 oftObj[oftName][srcChain].params.oftProxy = ofts[srcChain][oftName].address
+                oftObj[oftName][srcChain].params.expectedEndpoint = chains[srcChain].endpoint
                 // 0 -> endpoint
-                oftObj[oftName][srcChain].params.endpoint = authParams[index * 4].result
+                oftObj[oftName][srcChain].params.actualEndpoint = authParams[index * 4].result
                 // 1 -> owner
-                oftObj[oftName][srcChain].params.owner = authParams[(index * 4) + 1].result
+                oftObj[oftName][srcChain].params.owner = authParams[index * 4 + 1].result
                 // 2 -> expectedImplementation
-                oftObj[oftName][srcChain].params.expectedImplementation = authParams[(index * 4) + 2].result
+                oftObj[oftName][srcChain].params.expectedImplementation = authParams[index * 4 + 2].result
                 // 3 -> expectedProxyAdmin
-                oftObj[oftName][srcChain].params.expectedProxyAdmin = authParams[(index * 4) + 3].result
+                oftObj[oftName][srcChain].params.expectedProxyAdmin = authParams[index * 4 + 3].result
             })
         }
     }
@@ -232,10 +236,10 @@ async function main() {
             } else if (srcChain === 'aptos' || srcChain === 'movement') {
             } else if (srcChain === 'plasma' || srcChain === 'katana') {
                 const delegateAddress = await chains[srcChain].client.readContract({
-                    address: oftObj[oftName][srcChain].params.endpoint,
+                    address: oftObj[oftName][srcChain].params.actualEndpoint,
                     abi: ENDPOINTV2_ABI,
                     functionName: 'delegates',
-                    args: [ofts[srcChain][oftName].address]
+                    args: [ofts[srcChain][oftName].address],
                 })
 
                 const ownerMsigThreshold = await chains[srcChain].client.readContract({
@@ -262,10 +266,10 @@ async function main() {
                 oftObj[oftName][srcChain].params.proxyAdminOwner = proxyAdminOwner
             } else {
                 contractcalls.push({
-                    address: oftObj[oftName][srcChain].params.endpoint,
+                    address: oftObj[oftName][srcChain].params.actualEndpoint,
                     abi: ENDPOINTV2_ABI,
                     functionName: 'delegates',
-                    args: [ofts[srcChain][oftName].address]
+                    args: [ofts[srcChain][oftName].address],
                 })
                 contractcalls.push({
                     address: oftObj[oftName][srcChain].params.owner,
@@ -301,11 +305,11 @@ async function main() {
                 // 0 -> delegate
                 oftObj[oftName][srcChain].params.delegate = authParams[index * 4].result
                 // 1 -> owner msig threshold
-                oftObj[oftName][srcChain].params.ownerThreshold = Number(authParams[(index * 4) + 1].result).toString()
+                oftObj[oftName][srcChain].params.ownerThreshold = Number(authParams[index * 4 + 1].result).toString()
                 // 2 -> owner msig members
-                oftObj[oftName][srcChain].params.ownerMembers = authParams[(index * 4) + 2].result
+                oftObj[oftName][srcChain].params.ownerMembers = authParams[index * 4 + 2].result
                 // 3 -> proxyAdmin owner
-                oftObj[oftName][srcChain].params.proxyAdminOwner = authParams[(index * 4) + 3].result
+                oftObj[oftName][srcChain].params.proxyAdminOwner = authParams[index * 4 + 3].result
             })
         }
     }
@@ -326,7 +330,7 @@ async function main() {
                 const delegateMsigThreshold = await chains[srcChain].client.readContract({
                     address: oftObj[oftName][srcChain].params.delegate,
                     abi: MSIG_ABI,
-                    functionName: 'getThreshold'
+                    functionName: 'getThreshold',
                 })
 
                 const delegateMsigMembers = await chains[srcChain].client.readContract({
@@ -338,7 +342,7 @@ async function main() {
                 const proxyAdminOwnerMsigThreshold = await chains[srcChain].client.readContract({
                     address: oftObj[oftName][srcChain].params.proxyAdminOwner,
                     abi: MSIG_ABI,
-                    functionName: 'getThreshold'
+                    functionName: 'getThreshold',
                 })
 
                 const proxyAdminOwnerMsigMembers = await chains[srcChain].client.readContract({
@@ -349,13 +353,14 @@ async function main() {
 
                 oftObj[oftName][srcChain].params.delegateThreshold = Number(delegateMsigThreshold).toString()
                 oftObj[oftName][srcChain].params.delegateMembers = delegateMsigMembers
-                oftObj[oftName][srcChain].params.proxyAdminOwnerThreshold = Number(proxyAdminOwnerMsigThreshold).toString()
+                oftObj[oftName][srcChain].params.proxyAdminOwnerThreshold =
+                    Number(proxyAdminOwnerMsigThreshold).toString()
                 oftObj[oftName][srcChain].params.proxyAdminOwnermembers = proxyAdminOwnerMsigMembers
             } else {
                 contractcalls.push({
                     address: oftObj[oftName][srcChain].params.delegate,
                     abi: MSIG_ABI,
-                    functionName: 'getThreshold'
+                    functionName: 'getThreshold',
                 })
                 contractcalls.push({
                     address: oftObj[oftName][srcChain].params.delegate,
@@ -365,7 +370,7 @@ async function main() {
                 contractcalls.push({
                     address: oftObj[oftName][srcChain].params.proxyAdminOwner,
                     abi: MSIG_ABI,
-                    functionName: 'getThreshold'
+                    functionName: 'getThreshold',
                 })
                 contractcalls.push({
                     address: oftObj[oftName][srcChain].params.proxyAdminOwner,
@@ -391,28 +396,208 @@ async function main() {
                 // 0 -> delegate Msig threshold
                 oftObj[oftName][srcChain].params.delegateThreshold = Number(authParams[index * 4].result).toString()
                 // 1 -> delegate msig members
-                oftObj[oftName][srcChain].params.delegateMembers = authParams[(index * 4) + 1].result
+                oftObj[oftName][srcChain].params.delegateMembers = authParams[index * 4 + 1].result
                 // 2 -> proxy admin owner msig threshold
-                oftObj[oftName][srcChain].params.proxyAdminOwnerThreshold = Number(authParams[(index * 4) + 2].result).toString()
+                oftObj[oftName][srcChain].params.proxyAdminOwnerThreshold = Number(
+                    authParams[index * 4 + 2].result
+                ).toString()
                 // 3 -> proxy Admin owner msig members
-                oftObj[oftName][srcChain].params.proxyAdminOwnermembers = authParams[(index * 4) + 3].result
+                oftObj[oftName][srcChain].params.proxyAdminOwnermembers = authParams[index * 4 + 3].result
             })
         }
     }
 
-    console.log(JSON.stringify(oftObj["sfrxUSD"],null,2))
-
     // 4. peers
+    for (const srcChain of Object.keys(chains)) {
+        let resSchema: { srcChain: string; dstChain: string; oftName: string }[] = []
+        for (const dstChain of Object.keys(chains)) {
+            if (srcChain === dstChain) continue
+            for (const oftName of Object.keys(
+                srcChain === 'solana'
+                    ? solanaOFTs
+                    : srcChain === 'movement' || srcChain === 'aptos'
+                        ? aptosMovementOFTs
+                        : ofts[srcChain]
+            )) {
+                if (oftObj[oftName][srcChain].dstChains == undefined) {
+                    oftObj[oftName][srcChain].dstChains = {} as DstChainConfig
+                }
+                if (srcChain === 'solana') {
+                } else if (srcChain === 'aptos' || srcChain === 'movement') {
+                } else if (srcChain === 'plasma' || srcChain === 'katana') {
+                    const peerBytes32 = await chains[srcChain].client.readContract({
+                        address: ofts[srcChain][oftName].address,
+                        abi: OFT_MINTABLE_ADAPTER_ABI,
+                        functionName: 'peers',
+                        args: [chains[dstChain].peerId],
+                    })
+                    if (peerBytes32 !== bytes32Zero) {
+                        if (oftObj[oftName][srcChain].dstChains[dstChain] == undefined) {
+                            oftObj[oftName][srcChain].dstChains[dstChain] = {} as OFTInfo
+                        }
+                        oftObj[oftName][srcChain].dstChains[dstChain].peerAddressBytes32 = peerBytes32
+                        oftObj[oftName][srcChain].dstChains[dstChain].peerAddress = getAddress(
+                            '0x' + peerBytes32.slice(-40)
+                        )
+                    }
+                } else {
+                    contractcalls.push({
+                        address: ofts[srcChain][oftName].address,
+                        abi: OFT_MINTABLE_ADAPTER_ABI,
+                        functionName: 'peers',
+                        args: [chains[dstChain].peerId],
+                    })
+                    resSchema.push({
+                        srcChain,
+                        dstChain,
+                        oftName,
+                    })
+                }
+            }
+        }
+        if (
+            srcChain !== 'movement' &&
+            srcChain !== 'aptos' &&
+            srcChain !== 'solana' &&
+            srcChain !== 'plasma' &&
+            srcChain !== 'katana'
+        ) {
+            const authParams = await chains[srcChain].client.multicall({
+                contracts: contractcalls,
+            })
+            contractcalls = []
 
-    // 5. enforced options
+            resSchema.forEach((ele, index) => {
+                if (authParams[index].result !== bytes32Zero) {
+                    if (oftObj[ele.oftName][srcChain].dstChains[ele.dstChain] == undefined) {
+                        oftObj[ele.oftName][srcChain].dstChains[ele.dstChain] = {} as OFTInfo
+                    }
+                    oftObj[ele.oftName][srcChain].dstChains[ele.dstChain].peerAddressBytes32 = authParams[index].result
+                    if (ele.dstChain === 'solana') {
+                        oftObj[ele.oftName][srcChain].dstChains[ele.dstChain].peerAddress = bs58.encode(
+                            Buffer.from(authParams[index].result.slice(-64), 'hex')
+                        )
+                    } else if (ele.dstChain === 'movement' || ele.dstChain === 'aptos') {
+                        oftObj[ele.oftName][srcChain].dstChains[ele.dstChain].peerAddress = authParams[index].result
+                    } else {
+                        oftObj[ele.oftName][srcChain].dstChains[ele.dstChain].peerAddress = getAddress(
+                            '0x' + authParams[index].result.slice(-40)
+                        )
+                    }
+                }
+            })
+            resSchema = []
+        }
+    }
 
-    // 6. combined options
+    // 5. send/rcv lib
+    for (const srcChain of Object.keys(chains)) {
+        let resSchema: { srcChain: string; dstChain: string; oftName: string }[] = []
+        for (const dstChain of Object.keys(chains)) {
+            if (srcChain === dstChain) continue
+            for (const oftName of Object.keys(
+                srcChain === 'solana'
+                    ? solanaOFTs
+                    : srcChain === 'movement' || srcChain === 'aptos'
+                        ? aptosMovementOFTs
+                        : ofts[srcChain]
+            )) {
+                if (oftObj[oftName][srcChain].dstChains == undefined) {
+                    oftObj[oftName][srcChain].dstChains = {} as DstChainConfig
+                }
+                if (srcChain === 'solana') {
+                } else if (srcChain === 'aptos' || srcChain === 'movement') {
+                } else if (srcChain === 'plasma' || srcChain === 'katana') {
+                    const defaultSendLib = await chains[srcChain].client.readContract({
+                        address: oftObj[oftName][srcChain].params.actualEndpoint,
+                        abi: ENDPOINTV2_ABI,
+                        functionName: 'defaultSendLibrary',
+                        args: [chains[dstChain].peerId],
+                    })
+                    const sendLib = await chains[srcChain].client.readContract({
+                        address: oftObj[oftName][srcChain].params.actualEndpoint,
+                        abi: ENDPOINTV2_ABI,
+                        functionName: 'getSendLibrary',
+                        args: [ofts[srcChain][oftName].address, chains[dstChain].peerId],
+                    })
+                    const defaultReceiveLib = await chains[srcChain].client.readContract({
+                        address: oftObj[oftName][srcChain].params.actualEndpoint,
+                        abi: ENDPOINTV2_ABI,
+                        functionName: 'defaultReceiveLibrary',
+                        args: [chains[dstChain].peerId],
+                    })
+                    const rcvLib = await chains[srcChain].client.readContract({
+                        address: oftObj[oftName][srcChain].params.actualEndpoint,
+                        abi: ENDPOINTV2_ABI,
+                        functionName: 'getReceiveLibrary',
+                        args: [ofts[srcChain][oftName].address, chains[dstChain].peerId],
+                    }) // receive two vals -> addr, bool
 
-    // 7. send/rcv lib
+                    
+                } else {
+                    contractcalls.push({
+                        address: ofts[srcChain][oftName].address,
+                        abi: OFT_MINTABLE_ADAPTER_ABI,
+                        functionName: 'peers',
+                        args: [chains[dstChain].peerId],
+                    })
+                    resSchema.push({
+                        srcChain,
+                        dstChain,
+                        oftName,
+                    })
+                }
+            }
+        }
+        if (
+            srcChain !== 'movement' &&
+            srcChain !== 'aptos' &&
+            srcChain !== 'solana' &&
+            srcChain !== 'plasma' &&
+            srcChain !== 'katana'
+        ) {
+            const authParams = await chains[srcChain].client.multicall({
+                contracts: contractcalls,
+            })
+            contractcalls = []
+
+            resSchema.forEach((ele, index) => {
+                if (authParams[index].result !== bytes32Zero) {
+                    if (oftObj[ele.oftName][srcChain].dstChains[ele.dstChain] == undefined) {
+                        oftObj[ele.oftName][srcChain].dstChains[ele.dstChain] = {} as OFTInfo
+                    }
+                    oftObj[ele.oftName][srcChain].dstChains[ele.dstChain].peerAddressBytes32 = authParams[index].result
+                    if (ele.dstChain === 'solana') {
+                        oftObj[ele.oftName][srcChain].dstChains[ele.dstChain].peerAddress = bs58.encode(
+                            Buffer.from(authParams[index].result.slice(-64), 'hex')
+                        )
+                    } else if (ele.dstChain === 'movement' || ele.dstChain === 'aptos') {
+                        oftObj[ele.oftName][srcChain].dstChains[ele.dstChain].peerAddress = authParams[index].result
+                    } else {
+                        oftObj[ele.oftName][srcChain].dstChains[ele.dstChain].peerAddress = getAddress(
+                            '0x' + authParams[index].result.slice(-40)
+                        )
+                    }
+                }
+            })
+            resSchema = []
+        }
+    }
+
+    // 6. enforced options
+
+    // 7. combined options
 
     // 8. sendUln302
 
     // 9. rcvUln 302
+
+    for (const oftName of Object.keys(oftObj)) {
+        fs.writeFileSync(
+            `./run-periodically/check-oft-config-csv/check-${oftName}-config-peer.json`,
+            JSON.stringify(oftObj[oftName], null, 2)
+        )
+    }
 
     // for (let chainArrIndex = 0; chainArrIndex < chainArr.length; chainArrIndex++) {
     //     const srcChain = chainArr[chainArrIndex]

@@ -208,23 +208,23 @@ Note: verified to zkevm.polygonscan.com which is now deprecated.
 
 #### Sei
 - WFRAX
-    - Proxy: [`0x64445f0aecc51e94ad52d8ac56b7190e764e561a`](https://seitrace.com/address/0x64445f0aecc51e94ad52d8ac56b7190e764e561a)
-    - Implementation: [`0xa140ac7d8eda834933bbb94a575ec7037386079d`](https://seitrace.com/address/0xa140ac7d8eda834933bbb94a575ec7037386079d)
+    - Proxy: [`0x64445f0aecc51e94ad52d8ac56b7190e764e561a`](https://seiscan.io/address/0x64445f0aecc51e94ad52d8ac56b7190e764e561a)
+    - Implementation: [`0xa140ac7d8eda834933bbb94a575ec7037386079d`](https://seiscan.io/address/0xa140ac7d8eda834933bbb94a575ec7037386079d)
 - sfrxUSD
-    - Proxy: [`0x5bff88ca1442c2496f7e475e9e7786383bc070c0`](https://seitrace.com/address/0x5bff88ca1442c2496f7e475e9e7786383bc070c0)
-    - Implementation: [`0xbc36cb5a521458c41a9ce6199bc9cc62e4069c7f`](https://seitrace.com/address/0xbc36cb5a521458c41a9ce6199bc9cc62e4069c7f)
+    - Proxy: [`0x5bff88ca1442c2496f7e475e9e7786383bc070c0`](https://seiscan.io/address/0x5bff88ca1442c2496f7e475e9e7786383bc070c0)
+    - Implementation: [`0xbc36cb5a521458c41a9ce6199bc9cc62e4069c7f`](https://seiscan.io/address/0xbc36cb5a521458c41a9ce6199bc9cc62e4069c7f)
 - sfrxETH
-    - Proxy: [`0x3ec3849c33291a9ef4c5db86de593eb4a37fde45`](https://seitrace.com/address/0x3ec3849c33291a9ef4c5db86de593eb4a37fde45)
-    - Implementation: [`0x3d9ec5191af8447bbcb61ff460944056be350013`](https://seitrace.com/address/0x3d9ec5191af8447bbcb61ff460944056be350013)
+    - Proxy: [`0x3ec3849c33291a9ef4c5db86de593eb4a37fde45`](https://seiscan.io/address/0x3ec3849c33291a9ef4c5db86de593eb4a37fde45)
+    - Implementation: [`0x3d9ec5191af8447bbcb61ff460944056be350013`](https://seiscan.io/address/0x3d9ec5191af8447bbcb61ff460944056be350013)
 - frxUSD
-    - Proxy: [`0x80eede496655fb9047dd39d9f418d5483ed600df`](https://seitrace.com/address/0x80eede496655fb9047dd39d9f418d5483ed600df)
-    - Implementation: [`0xb5e839659bb9070cce2bec3db8f038f0e7950cd5`](https://seitrace.com/address/0xb5e839659bb9070cce2bec3db8f038f0e7950cd5)
+    - Proxy: [`0x80eede496655fb9047dd39d9f418d5483ed600df`](https://seiscan.io/address/0x80eede496655fb9047dd39d9f418d5483ed600df)
+    - Implementation: [`0xb5e839659bb9070cce2bec3db8f038f0e7950cd5`](https://seiscan.io/address/0xb5e839659bb9070cce2bec3db8f038f0e7950cd5)
 - frxETH
-    - Proxy: [`0x43edd7f3831b08fe70b7555ddd373c8bf65a9050`](https://seitrace.com/address/0x43edd7f3831b08fe70b7555ddd373c8bf65a9050)
-    - Implementation: [`0x3d9ec5191af8447bbcb61ff460944056be350013`](https://seitrace.com/address/0x3d9ec5191af8447bbcb61ff460944056be350013)
+    - Proxy: [`0x43edd7f3831b08fe70b7555ddd373c8bf65a9050`](https://seiscan.io/address/0x43edd7f3831b08fe70b7555ddd373c8bf65a9050)
+    - Implementation: [`0x3d9ec5191af8447bbcb61ff460944056be350013`](https://seiscan.io/address/0x3d9ec5191af8447bbcb61ff460944056be350013)
 - FPI
-    - Proxy: [`0x90581eca9469d8d7f5d3b60f4715027adfcf7927`](https://seitrace.com/address/0x90581eca9469d8d7f5d3b60f4715027adfcf7927)
-    - Implementation: [`0x3d9ec5191af8447bbcb61ff460944056be350013`](https://seitrace.com/address/0x3d9ec5191af8447bbcb61ff460944056be350013)
+    - Proxy: [`0x90581eca9469d8d7f5d3b60f4715027adfcf7927`](https://seiscan.io/address/0x90581eca9469d8d7f5d3b60f4715027adfcf7927)
+    - Implementation: [`0x3d9ec5191af8447bbcb61ff460944056be350013`](https://seiscan.io/address/0x3d9ec5191af8447bbcb61ff460944056be350013)
 
 #### Abstract
 - WFRAX

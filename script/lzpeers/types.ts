@@ -61,6 +61,8 @@ export type ExecutorConfigType = {
 }
 
 export type OFTInfo = {
+    eid:string
+    isSupportedEid:string
     peerAddress: string;
     peerAddressBytes32: string;
     combinedOptionsSend: OFTEnforcedOptions
@@ -81,7 +83,6 @@ export type OFTInfo = {
     receiveLibrary: ReceiveLibraryType;
     sendLibrary: string;
     isDefaultSendLibrary: boolean;
-    isDefaultReceiveLibrary: boolean;
     receiveLibraryTimeOut: ReceiveLibraryTimeOutInfo;
     executorConfig: ExecutorConfigType;
     defaultExecutorConfig: ExecutorConfigType;
@@ -101,6 +102,7 @@ export interface TokenSupplyData {
 
 export interface Params {
     oftProxy: string
+    eid:string
     actualImplementation: string
     expectedImplementation: string
     actualProxyAdmin: string

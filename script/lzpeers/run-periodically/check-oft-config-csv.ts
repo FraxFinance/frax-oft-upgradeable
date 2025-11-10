@@ -9,7 +9,16 @@ import { default as FRAX_PROXY_ADMIN_ABI } from '../abis/FRAX_PROXY_ADMIN_ABI.js
 import fs from 'fs'
 import * as dotenv from 'dotenv'
 import { chains } from '../chains'
-import { /*assetListType,*/ OFTInfo } from '../types'
+import {
+    /*assetListType,*/ ChainConfig,
+    DstChainConfig,
+    OFTInfo,
+    Params,
+    ReceiveLibraryTimeOutInfo,
+    ReceiveLibraryType,
+    SrcChainConfig,
+    TokenConfig,
+} from '../types'
 import { aptosMovementOFTs, ofts, solanaOFTs } from '../oft'
 import bs58 from 'bs58'
 
@@ -69,43 +78,6 @@ const MSIG_ABI = [
     },
 ]
 
-interface Params {
-    oftProxy: string
-    actualImplementation: string
-    expectedImplementation: string
-    actualProxyAdmin: string
-    expectedProxyAdmin: string
-    expectedEndpoint: string
-    actualEndpoint: string
-    delegate: string
-    delegateThreshold: string
-    delegateMembers: string[]
-    owner: string
-    ownerThreshold: string
-    ownerMembers: string[]
-    proxyAdmin: string
-    proxyAdminOwner: string
-    proxyAdminOwnerThreshold: string
-    proxyAdminOwnermembers: string[]
-}
-
-interface DstChainConfig {
-    [dstChain: string]: OFTInfo
-}
-
-interface SrcChainConfig {
-    params: Params
-    dstChains: DstChainConfig
-}
-
-interface ChainConfig {
-    [srcChain: string]: SrcChainConfig
-}
-
-interface TokenConfig {
-    [token: string]: ChainConfig
-}
-
 async function main() {
     const oftObj: TokenConfig = {}
     // const chainArr = Object.keys(chains)
@@ -118,8 +90,8 @@ async function main() {
             srcChain === 'solana'
                 ? solanaOFTs
                 : srcChain === 'movement' || srcChain === 'aptos'
-                    ? aptosMovementOFTs
-                    : ofts[srcChain]
+                  ? aptosMovementOFTs
+                  : ofts[srcChain]
         )) {
             if (oftObj[oftName] === undefined) {
                 oftObj[oftName] = {} as ChainConfig
@@ -229,8 +201,8 @@ async function main() {
             srcChain === 'solana'
                 ? solanaOFTs
                 : srcChain === 'movement' || srcChain === 'aptos'
-                    ? aptosMovementOFTs
-                    : ofts[srcChain]
+                  ? aptosMovementOFTs
+                  : ofts[srcChain]
         )) {
             if (srcChain === 'solana') {
             } else if (srcChain === 'aptos' || srcChain === 'movement') {
@@ -321,8 +293,8 @@ async function main() {
             srcChain === 'solana'
                 ? solanaOFTs
                 : srcChain === 'movement' || srcChain === 'aptos'
-                    ? aptosMovementOFTs
-                    : ofts[srcChain]
+                  ? aptosMovementOFTs
+                  : ofts[srcChain]
         )) {
             if (srcChain === 'solana') {
             } else if (srcChain === 'aptos' || srcChain === 'movement') {
@@ -393,6 +365,7 @@ async function main() {
             contractcalls = []
 
             Object.keys(ofts[srcChain]).forEach((oftName, index) => {
+                oftObj[oftName][srcChain].params.eid = chains[srcChain].peerId.toString()
                 // 0 -> delegate Msig threshold
                 oftObj[oftName][srcChain].params.delegateThreshold = Number(authParams[index * 4].result).toString()
                 // 1 -> delegate msig members
@@ -409,18 +382,21 @@ async function main() {
 
     // 4. peers
     for (const srcChain of Object.keys(chains)) {
-        let resSchema: { srcChain: string; dstChain: string; oftName: string }[] = []
+        let resSchema: { srcChain: string; dstChain: string; oftName: string; dstPeerId: string }[] = []
         for (const dstChain of Object.keys(chains)) {
             if (srcChain === dstChain) continue
             for (const oftName of Object.keys(
                 srcChain === 'solana'
                     ? solanaOFTs
                     : srcChain === 'movement' || srcChain === 'aptos'
-                        ? aptosMovementOFTs
-                        : ofts[srcChain]
+                      ? aptosMovementOFTs
+                      : ofts[srcChain]
             )) {
                 if (oftObj[oftName][srcChain].dstChains == undefined) {
                     oftObj[oftName][srcChain].dstChains = {} as DstChainConfig
+                }
+                if (oftObj[oftName][srcChain].dstChains[dstChain] == undefined) {
+                    oftObj[oftName][srcChain].dstChains[dstChain] = {} as OFTInfo
                 }
                 if (srcChain === 'solana') {
                 } else if (srcChain === 'aptos' || srcChain === 'movement') {
@@ -431,10 +407,14 @@ async function main() {
                         functionName: 'peers',
                         args: [chains[dstChain].peerId],
                     })
+                    const isSupportedEid = await chains[srcChain].client.readContract({
+                        address: oftObj[oftName][srcChain].params.actualEndpoint,
+                        abi: ENDPOINTV2_ABI,
+                        functionName: 'isSupportedEid',
+                        args: [chains[dstChain].peerId],
+                    })
+                    oftObj[oftName][srcChain].dstChains[dstChain].isSupportedEid = isSupportedEid
                     if (peerBytes32 !== bytes32Zero) {
-                        if (oftObj[oftName][srcChain].dstChains[dstChain] == undefined) {
-                            oftObj[oftName][srcChain].dstChains[dstChain] = {} as OFTInfo
-                        }
                         oftObj[oftName][srcChain].dstChains[dstChain].peerAddressBytes32 = peerBytes32
                         oftObj[oftName][srcChain].dstChains[dstChain].peerAddress = getAddress(
                             '0x' + peerBytes32.slice(-40)
@@ -447,10 +427,17 @@ async function main() {
                         functionName: 'peers',
                         args: [chains[dstChain].peerId],
                     })
+                    contractcalls.push({
+                        address: oftObj[oftName][srcChain].params.actualEndpoint,
+                        abi: ENDPOINTV2_ABI,
+                        functionName: 'isSupportedEid',
+                        args: [chains[dstChain].peerId],
+                    })
                     resSchema.push({
                         srcChain,
                         dstChain,
                         oftName,
+                        dstPeerId: chains[dstChain].peerId.toString(),
                     })
                 }
             }
@@ -467,23 +454,23 @@ async function main() {
             })
             contractcalls = []
 
-            resSchema.forEach((ele, index) => {
+            resSchema.forEach(({ srcChain, dstChain, oftName, dstPeerId }, index) => {
+                oftObj[oftName][srcChain].dstChains[dstChain].eid = dstPeerId
                 if (authParams[index].result !== bytes32Zero) {
-                    if (oftObj[ele.oftName][srcChain].dstChains[ele.dstChain] == undefined) {
-                        oftObj[ele.oftName][srcChain].dstChains[ele.dstChain] = {} as OFTInfo
-                    }
-                    oftObj[ele.oftName][srcChain].dstChains[ele.dstChain].peerAddressBytes32 = authParams[index].result
-                    if (ele.dstChain === 'solana') {
-                        oftObj[ele.oftName][srcChain].dstChains[ele.dstChain].peerAddress = bs58.encode(
-                            Buffer.from(authParams[index].result.slice(-64), 'hex')
+                    oftObj[oftName][srcChain].dstChains[dstChain].peerAddressBytes32 = authParams[index * 2].result
+                    oftObj[oftName][srcChain].dstChains[dstChain].peerAddressBytes32 = authParams[index * 2].result
+                    if (dstChain === 'solana') {
+                        oftObj[oftName][srcChain].dstChains[dstChain].peerAddress = bs58.encode(
+                            Buffer.from(authParams[index * 2].result.slice(-64), 'hex')
                         )
-                    } else if (ele.dstChain === 'movement' || ele.dstChain === 'aptos') {
-                        oftObj[ele.oftName][srcChain].dstChains[ele.dstChain].peerAddress = authParams[index].result
+                    } else if (dstChain === 'movement' || dstChain === 'aptos') {
+                        oftObj[oftName][srcChain].dstChains[dstChain].peerAddress = authParams[index * 2].result
                     } else {
-                        oftObj[ele.oftName][srcChain].dstChains[ele.dstChain].peerAddress = getAddress(
-                            '0x' + authParams[index].result.slice(-40)
+                        oftObj[oftName][srcChain].dstChains[dstChain].peerAddress = getAddress(
+                            '0x' + authParams[index * 2].result.slice(-40)
                         )
                     }
+                    oftObj[oftName][srcChain].dstChains[dstChain].isSupportedEid = authParams[index * 2 + 1].result
                 }
             })
             resSchema = []
@@ -499,47 +486,136 @@ async function main() {
                 srcChain === 'solana'
                     ? solanaOFTs
                     : srcChain === 'movement' || srcChain === 'aptos'
-                        ? aptosMovementOFTs
-                        : ofts[srcChain]
+                      ? aptosMovementOFTs
+                      : ofts[srcChain]
             )) {
-                if (oftObj[oftName][srcChain].dstChains == undefined) {
-                    oftObj[oftName][srcChain].dstChains = {} as DstChainConfig
+                if (oftObj[oftName][srcChain].dstChains[dstChain].receiveLibrary == undefined) {
+                    oftObj[oftName][srcChain].dstChains[dstChain].receiveLibrary = {} as ReceiveLibraryType
+                }
+                if (oftObj[oftName][srcChain].dstChains[dstChain].receiveLibraryTimeOut == undefined) {
+                    oftObj[oftName][srcChain].dstChains[dstChain].receiveLibraryTimeOut =
+                        {} as ReceiveLibraryTimeOutInfo
+                }
+                if (oftObj[oftName][srcChain].dstChains[dstChain].defaultReceiveLibraryTimeOut == undefined) {
+                    oftObj[oftName][srcChain].dstChains[dstChain].defaultReceiveLibraryTimeOut =
+                        {} as ReceiveLibraryTimeOutInfo
                 }
                 if (srcChain === 'solana') {
                 } else if (srcChain === 'aptos' || srcChain === 'movement') {
                 } else if (srcChain === 'plasma' || srcChain === 'katana') {
-                    const defaultSendLib = await chains[srcChain].client.readContract({
+                    if (oftObj[oftName][srcChain].dstChains[dstChain].isSupportedEid) {
+                        const blockedLib = await chains[srcChain].client.readContract({
+                            address: oftObj[oftName][srcChain].params.actualEndpoint,
+                            abi: ENDPOINTV2_ABI,
+                            functionName: 'blockedLibrary',
+                        })
+                        const sendLib = await chains[srcChain].client.readContract({
+                            address: oftObj[oftName][srcChain].params.actualEndpoint,
+                            abi: ENDPOINTV2_ABI,
+                            functionName: 'getSendLibrary',
+                            args: [ofts[srcChain][oftName].address, chains[dstChain].peerId],
+                        })
+                        const rcvLib = await chains[srcChain].client.readContract({
+                            address: oftObj[oftName][srcChain].params.actualEndpoint,
+                            abi: ENDPOINTV2_ABI,
+                            functionName: 'getReceiveLibrary',
+                            args: [ofts[srcChain][oftName].address, chains[dstChain].peerId],
+                        }) // receive two vals -> addr, bool
+                        const receiveLibraryTimeout = await chains[srcChain].client.readContract({
+                            address: oftObj[oftName][srcChain].params.actualEndpoint,
+                            abi: ENDPOINTV2_ABI,
+                            functionName: 'receiveLibraryTimeout',
+                            args: [ofts[srcChain][oftName].address, chains[dstChain].peerId],
+                        }) // address lib, uint2256 expiry
+                        const defaultSendLib = await chains[srcChain].client.readContract({
+                            address: oftObj[oftName][srcChain].params.actualEndpoint,
+                            abi: ENDPOINTV2_ABI,
+                            functionName: 'defaultSendLibrary',
+                            args: [chains[dstChain].peerId],
+                        })
+                        const defaultReceiveLib = await chains[srcChain].client.readContract({
+                            address: oftObj[oftName][srcChain].params.actualEndpoint,
+                            abi: ENDPOINTV2_ABI,
+                            functionName: 'defaultReceiveLibrary',
+                            args: [chains[dstChain].peerId],
+                        })
+                        const defaultReceiveLibTimeout = await chains[srcChain].client.readContract({
+                            address: oftObj[oftName][srcChain].params.actualEndpoint,
+                            abi: ENDPOINTV2_ABI,
+                            functionName: 'defaultReceiveLibraryTimeout',
+                            args: [chains[dstChain].peerId],
+                        }) // address lib, uint2256 expiry
+                        const isDefaultSendLibrary = await chains[srcChain].client.readContract({
+                            address: oftObj[oftName][srcChain].params.actualEndpoint,
+                            abi: ENDPOINTV2_ABI,
+                            functionName: 'isDefaultSendLibrary',
+                            args: [ofts[srcChain][oftName].address, chains[dstChain].peerId],
+                        })
+                        oftObj[oftName][srcChain].dstChains[dstChain].blockedLib = blockedLib
+                        oftObj[oftName][srcChain].dstChains[dstChain].sendLibrary = sendLib
+                        oftObj[oftName][srcChain].dstChains[dstChain].receiveLibrary.receiveLibraryAddress = rcvLib[0]
+                        oftObj[oftName][srcChain].dstChains[dstChain].receiveLibrary.isDefault = rcvLib[1]
+                        oftObj[oftName][srcChain].dstChains[dstChain].receiveLibraryTimeOut.libAddress =
+                            receiveLibraryTimeout[0]
+                        oftObj[oftName][srcChain].dstChains[dstChain].receiveLibraryTimeOut.expiry = Number(
+                            receiveLibraryTimeout[1]
+                        ).toString()
+                        oftObj[oftName][srcChain].dstChains[dstChain].defaultSendLibrary = defaultSendLib
+                        oftObj[oftName][srcChain].dstChains[dstChain].defaultReceiveLibrary = defaultReceiveLib
+                        oftObj[oftName][srcChain].dstChains[dstChain].defaultReceiveLibraryTimeOut.libAddress =
+                            defaultReceiveLibTimeout[0]
+                        oftObj[oftName][srcChain].dstChains[dstChain].defaultReceiveLibraryTimeOut.expiry = Number(
+                            defaultReceiveLibTimeout[1]
+                        ).toString()
+                        oftObj[oftName][srcChain].dstChains[dstChain].isDefaultSendLibrary = isDefaultSendLibrary
+                    }
+                } else {
+                    contractcalls.push({
                         address: oftObj[oftName][srcChain].params.actualEndpoint,
                         abi: ENDPOINTV2_ABI,
-                        functionName: 'defaultSendLibrary',
-                        args: [chains[dstChain].peerId],
+                        functionName: 'blockedLibrary',
                     })
-                    const sendLib = await chains[srcChain].client.readContract({
+                    contractcalls.push({
                         address: oftObj[oftName][srcChain].params.actualEndpoint,
                         abi: ENDPOINTV2_ABI,
                         functionName: 'getSendLibrary',
                         args: [ofts[srcChain][oftName].address, chains[dstChain].peerId],
                     })
-                    const defaultReceiveLib = await chains[srcChain].client.readContract({
-                        address: oftObj[oftName][srcChain].params.actualEndpoint,
-                        abi: ENDPOINTV2_ABI,
-                        functionName: 'defaultReceiveLibrary',
-                        args: [chains[dstChain].peerId],
-                    })
-                    const rcvLib = await chains[srcChain].client.readContract({
+                    contractcalls.push({
                         address: oftObj[oftName][srcChain].params.actualEndpoint,
                         abi: ENDPOINTV2_ABI,
                         functionName: 'getReceiveLibrary',
                         args: [ofts[srcChain][oftName].address, chains[dstChain].peerId],
                     }) // receive two vals -> addr, bool
-
-                    
-                } else {
                     contractcalls.push({
-                        address: ofts[srcChain][oftName].address,
-                        abi: OFT_MINTABLE_ADAPTER_ABI,
-                        functionName: 'peers',
+                        address: oftObj[oftName][srcChain].params.actualEndpoint,
+                        abi: ENDPOINTV2_ABI,
+                        functionName: 'receiveLibraryTimeout',
+                        args: [ofts[srcChain][oftName].address, chains[dstChain].peerId],
+                    }) // address lib, uint2256 expiry
+                    contractcalls.push({
+                        address: oftObj[oftName][srcChain].params.actualEndpoint,
+                        abi: ENDPOINTV2_ABI,
+                        functionName: 'defaultSendLibrary',
                         args: [chains[dstChain].peerId],
+                    })
+                    contractcalls.push({
+                        address: oftObj[oftName][srcChain].params.actualEndpoint,
+                        abi: ENDPOINTV2_ABI,
+                        functionName: 'defaultReceiveLibrary',
+                        args: [chains[dstChain].peerId],
+                    })
+                    contractcalls.push({
+                        address: oftObj[oftName][srcChain].params.actualEndpoint,
+                        abi: ENDPOINTV2_ABI,
+                        functionName: 'defaultReceiveLibraryTimeout',
+                        args: [chains[dstChain].peerId],
+                    }) // address lib, uint2256 expiry
+                    contractcalls.push({
+                        address: oftObj[oftName][srcChain].params.actualEndpoint,
+                        abi: ENDPOINTV2_ABI,
+                        functionName: 'isDefaultSendLibrary',
+                        args: [ofts[srcChain][oftName].address, chains[dstChain].peerId],
                     })
                     resSchema.push({
                         srcChain,
@@ -560,24 +636,59 @@ async function main() {
                 contracts: contractcalls,
             })
             contractcalls = []
-
-            resSchema.forEach((ele, index) => {
-                if (authParams[index].result !== bytes32Zero) {
-                    if (oftObj[ele.oftName][srcChain].dstChains[ele.dstChain] == undefined) {
-                        oftObj[ele.oftName][srcChain].dstChains[ele.dstChain] = {} as OFTInfo
-                    }
-                    oftObj[ele.oftName][srcChain].dstChains[ele.dstChain].peerAddressBytes32 = authParams[index].result
-                    if (ele.dstChain === 'solana') {
-                        oftObj[ele.oftName][srcChain].dstChains[ele.dstChain].peerAddress = bs58.encode(
-                            Buffer.from(authParams[index].result.slice(-64), 'hex')
-                        )
-                    } else if (ele.dstChain === 'movement' || ele.dstChain === 'aptos') {
-                        oftObj[ele.oftName][srcChain].dstChains[ele.dstChain].peerAddress = authParams[index].result
-                    } else {
-                        oftObj[ele.oftName][srcChain].dstChains[ele.dstChain].peerAddress = getAddress(
-                            '0x' + authParams[index].result.slice(-40)
-                        )
-                    }
+            resSchema.forEach(({ srcChain, dstChain, oftName }, index) => {
+                if (authParams[index * 8].status === 'success') {
+                    oftObj[oftName][srcChain].dstChains[dstChain].blockedLib = authParams[index * 8].result
+                } else {
+                    console.log(`${oftName}:${srcChain}:${dstChain}:blockedLib`)
+                }
+                if (authParams[index * 8 + 1].status === 'success') {
+                    oftObj[oftName][srcChain].dstChains[dstChain].sendLibrary = authParams[index * 8 + 1].result
+                } else {
+                    console.log(`${oftName}:${srcChain}:${dstChain}:sendLibrary`)
+                }
+                if (authParams[index * 8 + 2].status === 'success') {
+                    oftObj[oftName][srcChain].dstChains[dstChain].receiveLibrary.receiveLibraryAddress =
+                        authParams[index * 8 + 2].result[0]
+                    oftObj[oftName][srcChain].dstChains[dstChain].receiveLibrary.isDefault =
+                        authParams[index * 8 + 2].result[1]
+                } else {
+                    console.log(`${oftName}:${srcChain}:${dstChain}:receiveLibrary`)
+                }
+                if (authParams[index * 8 + 3].status === 'success') {
+                    oftObj[oftName][srcChain].dstChains[dstChain].receiveLibraryTimeOut.libAddress =
+                        authParams[index * 8 + 3].result[0]
+                    oftObj[oftName][srcChain].dstChains[dstChain].receiveLibraryTimeOut.expiry = Number(
+                        authParams[index * 8 + 3].result[1]
+                    ).toString()
+                } else {
+                    console.log(`${oftName}:${srcChain}:${dstChain}:receiveLibraryTimeOut`)
+                }
+                if (authParams[index * 8 + 4].status === 'success') {
+                    oftObj[oftName][srcChain].dstChains[dstChain].defaultSendLibrary = authParams[index * 8 + 4].result
+                } else {
+                    console.log(`${oftName}:${srcChain}:${dstChain}:defaultSendLibrary`)
+                }
+                if (authParams[index * 8 + 5].status === 'success') {
+                    oftObj[oftName][srcChain].dstChains[dstChain].defaultReceiveLibrary =
+                        authParams[index * 8 + 5].result
+                } else {
+                    console.log(`${oftName}:${srcChain}:${dstChain}:defaultReceiveLibrary`)
+                }
+                if (authParams[index * 8 + 6].status === 'success') {
+                    oftObj[oftName][srcChain].dstChains[dstChain].defaultReceiveLibraryTimeOut.libAddress =
+                        authParams[index * 8 + 6].result[0]
+                    oftObj[oftName][srcChain].dstChains[dstChain].defaultReceiveLibraryTimeOut.expiry = Number(
+                        authParams[index * 8 + 6].result[1]
+                    ).toString()
+                } else {
+                    console.log(`${oftName}:${srcChain}:${dstChain}:defaultReceiveLibraryTimeOut`)
+                }
+                if (authParams[index * 8 + 7].status === 'success') {
+                    oftObj[oftName][srcChain].dstChains[dstChain].isDefaultSendLibrary =
+                        authParams[index * 8 + 7].result
+                } else {
+                    console.log(`${oftName}:${srcChain}:${dstChain}:isDefaultSendLibrary`)
                 }
             })
             resSchema = []
@@ -598,978 +709,6 @@ async function main() {
             JSON.stringify(oftObj[oftName], null, 2)
         )
     }
-
-    // for (let chainArrIndex = 0; chainArrIndex < chainArr.length; chainArrIndex++) {
-    //     const srcChain = chainArr[chainArrIndex]
-    //     if (chains[srcChain].oApps === undefined) {
-    //         continue
-    //     }
-
-    //     for (const oAppName of Object.keys(chains[srcChain].oApps as assetListType)) {
-    //         let contractCalls: any[] = []
-    //         const oApp = chains[srcChain].oApps?.[oAppName as keyof assetListType]
-    //         const oftContract = {
-    //             address: oApp,
-    //             abi: OFT_ADAPTER_ABI,
-    //         } as const
-
-    //         if (ofts[oAppName] === undefined) {
-    //             ofts[oAppName] = {} as Record<string, Record<string, OFTInfo>>
-    //         }
-    //         if (ofts[oAppName][srcChain] === undefined) {
-    //             ofts[oAppName][srcChain] = {} as Record<string, OFTInfo>
-    //         }
-
-    //         if (srcChain === 'solana') {
-    //             // add to ofts
-    //             for (const destChainName of Object.keys(chains)) {
-    //                 const peerInfo = await oft302.getPeerAddress(
-    //                     chains[srcChain].client.rpc,
-    //                     publicKey(solanaOFTs[oAppName].oftStore), //oftStore
-    //                     chains[destChainName].peerId,
-    //                     publicKey(solanaOFTs[oAppName].programId) //programId
-    //                 )
-
-    //                 if (peerInfo && peerInfo !== bytes32Zero) {
-    //                     ofts[oAppName][srcChain][destChainName] = {} as OFTInfo
-    //                     ofts[oAppName][srcChain][destChainName].peerAddressBytes32 = peerInfo
-    //                     ofts[oAppName][srcChain][destChainName].peerAddress = getAddress('0x' + peerInfo.slice(-40))
-    //                     if (chains[destChainName].oApps === undefined) {
-    //                         chains[destChainName].oApps = {} as assetListType
-    //                     }
-    //                     chains[destChainName].oApps[oAppName as keyof assetListType] =
-    //                         ofts[oAppName][srcChain][destChainName].peerAddress
-    //                 }
-    //             }
-    //         } else if (srcChain === 'ink') {
-    //             // add to ofts
-    //             for (const destChainName of Object.keys(chains)) {
-    //                 const peerInfo = await chains[srcChain].client.readContract({
-    //                     ...oftContract,
-    //                     functionName: 'peers',
-    //                     args: [chains[destChainName].peerId],
-    //                 })
-
-    //                 if (peerInfo && peerInfo !== bytes32Zero) {
-    //                     ofts[oAppName][srcChain][destChainName] = {} as OFTInfo
-    //                     ofts[oAppName][srcChain][destChainName].peerAddressBytes32 = peerInfo
-    //                     ofts[oAppName][srcChain][destChainName].peerAddress = getAddress('0x' + peerInfo.slice(-40))
-    //                     if (chains[destChainName].oApps === undefined) {
-    //                         chains[destChainName].oApps = {} as assetListType
-    //                     }
-    //                     chains[destChainName].oApps[oAppName as keyof assetListType] =
-    //                         ofts[oAppName][srcChain][destChainName].peerAddress
-    //                 }
-    //             }
-    //         } else {
-    //             // get peers
-    //             Object.keys(chains).forEach(async (destChainName) => {
-    //                 contractCalls.push({
-    //                     ...oftContract,
-    //                     functionName: 'peers',
-    //                     args: [chains[destChainName].peerId],
-    //                 })
-    //             })
-
-    //             const peers = await chains[srcChain].client.multicall({
-    //                 contracts: contractCalls,
-    //             })
-
-    //             // add to ofts
-    //             Object.keys(chains).forEach((destChainName, index) => {
-    //                 if (peers[index].result) {
-    //                     if (peers[index].result != bytes32Zero) {
-    //                         ofts[oAppName][srcChain][destChainName] = {} as OFTInfo
-    //                         ofts[oAppName][srcChain][destChainName].peerAddressBytes32 = peers[index].result
-    //                         ofts[oAppName][srcChain][destChainName].peerAddress = getAddress(
-    //                             '0x' + peers[index].result.slice(-40)
-    //                         )
-    //                         if (chains[destChainName].oApps === undefined) {
-    //                             chains[destChainName].oApps = {} as assetListType
-    //                         }
-    //                         chains[destChainName].oApps[oAppName as keyof assetListType] =
-    //                             ofts[oAppName][srcChain][destChainName].peerAddress
-    //                     }
-    //                 }
-    //             })
-    //         }
-
-    //         if (srcChain === 'solana') {
-    //             for (const destChainName of Object.keys(ofts[oAppName][srcChain])) {
-    //                 let oftres = await oft302.getEnforcedOptions(
-    //                     chains[srcChain].client.rpc,
-    //                     publicKey(solanaOFTs[oAppName].oftStore), //oftStore,
-    //                     chains[destChainName].peerId,
-    //                     publicKey(solanaOFTs[oAppName].programId) //programId
-    //                 )
-
-    //                 let opt
-    //                 if (oftres.send.length > 0) {
-    //                     opt = decodeLzReceiveOption(toHex(oftres.send))
-    //                     ofts[oAppName][srcChain][destChainName].combinedOptionsSend = {} as OFTEnforcedOptions
-    //                     ofts[oAppName][srcChain][destChainName].combinedOptionsSend.gas = opt.gas.toString()
-    //                     ofts[oAppName][srcChain][destChainName].combinedOptionsSend.value = opt.value.toString()
-    //                 }
-
-    //                 if (oftres.sendAndCall.length > 0) {
-    //                     opt = decodeLzReceiveOption(toHex(oftres.sendAndCall))
-    //                     ofts[oAppName][srcChain][destChainName].enforcedOptions = {} as OFTEnforcedOptions
-    //                     ofts[oAppName][srcChain][destChainName].enforcedOptions.gas = opt.gas.toString()
-    //                     ofts[oAppName][srcChain][destChainName].enforcedOptions.value = opt.value.toString()
-    //                 }
-    //             }
-    //         } else if (srcChain === 'ink') {
-    //             for (const destChainName of Object.keys(ofts[oAppName][srcChain])) {
-    //                 let oftres = await chains[srcChain].client.readContract({
-    //                     ...oftContract,
-    //                     functionName: 'combineOptions',
-    //                     args: [chains[destChainName].peerId, 1, '0x'],
-    //                 })
-    //                 let opt
-    //                 if (oftres !== '0x') {
-    //                     opt = decodeLzReceiveOption(oftres)
-    //                     ofts[oAppName][srcChain][destChainName].combinedOptionsSend = {} as OFTEnforcedOptions
-    //                     ofts[oAppName][srcChain][destChainName].combinedOptionsSend.gas = opt.gas.toString()
-    //                     ofts[oAppName][srcChain][destChainName].combinedOptionsSend.value = opt.value.toString()
-    //                 }
-
-    //                 // TODO
-    //                 // oftres = oftOptions[(index * 4) + 1]
-    //                 // opt = decodeLzReceiveOption(oftres.result)
-    //                 // ofts[destChainName].combinedOptionsSendAndCall = {} as OFTEnforceedOptions
-    //                 // ofts[destChainName].combinedOptionsSendAndCall.gas = opt.gas.toString()
-    //                 // ofts[destChainName].combinedOptionsSendAndCall.value = opt.value.toString()
-    //                 oftres = await chains[srcChain].client.readContract({
-    //                     ...oftContract,
-    //                     functionName: 'enforcedOptions',
-    //                     args: [chains[destChainName].peerId, 3],
-    //                 })
-    //                 if (oftres !== '0x') {
-    //                     opt = decodeLzReceiveOption(oftres)
-    //                     ofts[oAppName][srcChain][destChainName].enforcedOptions = {} as OFTEnforcedOptions
-    //                     ofts[oAppName][srcChain][destChainName].enforcedOptions.gas = opt.gas.toString()
-    //                     ofts[oAppName][srcChain][destChainName].enforcedOptions.value = opt.value.toString()
-    //                 }
-    //             }
-    //         } else {
-    //             contractCalls = []
-    //             Object.keys(ofts[oAppName][srcChain]).forEach(async (destChainName) => {
-    //                 // oft.combineOptions (_eid (uint32), _msgType (uint16), _extraOptions (bytes)) : bytes
-    //                 contractCalls.push({
-    //                     ...oftContract,
-    //                     functionName: 'combineOptions',
-    //                     args: [chains[destChainName].peerId, 1, '0x'],
-    //                 })
-    //                 contractCalls.push({
-    //                     ...oftContract,
-    //                     functionName: 'combineOptions',
-    //                     args: [chains[destChainName].peerId, 2, '0x'],
-    //                 })
-    //                 // oft.enforcedOptions (_eid (uint32), _msgType (uint16)) : bytes
-    //                 contractCalls.push({
-    //                     ...oftContract,
-    //                     functionName: 'enforcedOptions',
-    //                     args: [chains[destChainName].peerId, 3],
-    //                 })
-    //                 // oft.isPeer (_eid (uint32), _peer (bytes32)) : bool
-    //                 contractCalls.push({
-    //                     ...oftContract,
-    //                     functionName: 'isPeer',
-    //                     args: [
-    //                         chains[destChainName].peerId,
-    //                         ofts[oAppName][srcChain][destChainName].peerAddressBytes32,
-    //                     ],
-    //                 })
-    //             })
-
-    //             const oftOptions = await chains[srcChain].client.multicall({
-    //                 contracts: contractCalls,
-    //             })
-
-    //             // add to ofts
-    //             Object.keys(ofts[oAppName][srcChain]).forEach(async (destChainName, index) => {
-    //                 let oftres = oftOptions[index * 4]
-    //                 let opt
-    //                 if (oftres.result) {
-    //                     opt = decodeLzReceiveOption(oftres.result)
-    //                     ofts[oAppName][srcChain][destChainName].combinedOptionsSend = {} as OFTEnforcedOptions
-    //                     if (oftres.result !== '0x') {
-    //                         ofts[oAppName][srcChain][destChainName].combinedOptionsSend.gas = opt.gas.toString()
-    //                         ofts[oAppName][srcChain][destChainName].combinedOptionsSend.value = opt.value.toString()
-    //                     }
-    //                 }
-    //                 // TODO
-    //                 // oftres = oftOptions[(index * 4) + 1]
-    //                 // opt = decodeLzReceiveOption(oftres.result)
-    //                 // ofts[destChainName].combinedOptionsSendAndCall = {} as OFTEnforceedOptions
-    //                 // ofts[destChainName].combinedOptionsSendAndCall.gas = opt.gas.toString()
-    //                 // ofts[destChainName].combinedOptionsSendAndCall.value = opt.value.toString()
-    //                 oftres = oftOptions[index * 4 + 2]
-    //                 if (oftres.result) {
-    //                     ofts[oAppName][srcChain][destChainName].enforcedOptions = {} as OFTEnforcedOptions
-    //                     if (oftres.result !== '0x') {
-    //                         opt = decodeLzReceiveOption(oftres.result)
-    //                         ofts[oAppName][srcChain][destChainName].enforcedOptions.gas = opt.gas.toString()
-    //                         ofts[oAppName][srcChain][destChainName].enforcedOptions.value = opt.value.toString()
-    //                     }
-    //                 }
-    //             })
-    //         }
-
-    //         // OFT
-    //         // TODO oft.sharedDecimals : uint8
-    //         // TODO oft.token : address
-
-    //         // // endpoint.delegates (oapp (address)) : delegate address
-    //         // contractCalls.push({
-    //         //     ...endpointContract,
-    //         //     functionName: "delegates",
-    //         //     args: [USDT_lockbox],
-    //         // });
-
-    //         // endpoint
-    //         let endpointContract: any
-    //         if (srcChain !== 'solana') {
-    //             // oft.endpoint : address
-    //             const endpointAddress = await chains[srcChain].client.readContract({
-    //                 address: oApp,
-    //                 abi: OFT_ADAPTER_ABI,
-    //                 functionName: 'endpoint',
-    //             })
-    //             endpointContract = {
-    //                 address: endpointAddress,
-    //                 abi: ENDPOINTV2_ABI,
-    //             } as const
-    //             if (srcChain !== 'ink') {
-    //                 contractCalls = []
-    //                 Object.keys(ofts[oAppName][srcChain]).forEach(async (destChainName) => {
-    //                     // endpoint.defaultReceiveLibrary (srcEid (uint32)) : lib address
-    //                     contractCalls.push({
-    //                         ...endpointContract,
-    //                         functionName: 'defaultReceiveLibrary',
-    //                         args: [chains[destChainName].peerId],
-    //                     })
-    //                     // endpoint.defaultReceiveLibraryTimeout (srcEid (uint32)) : lib address, expiry uint256
-    //                     contractCalls.push({
-    //                         ...endpointContract,
-    //                         functionName: 'defaultReceiveLibraryTimeout',
-    //                         args: [chains[destChainName].peerId],
-    //                     })
-    //                     // endpoint.defaultSendLibrary (dstEid (uint32)) : lib address
-    //                     contractCalls.push({
-    //                         ...endpointContract,
-    //                         functionName: 'defaultSendLibrary',
-    //                         args: [chains[destChainName].peerId],
-    //                     })
-    //                 })
-
-    //                 const endpointInfo = await chains[srcChain].client.multicall({
-    //                     contracts: contractCalls,
-    //                 })
-
-    //                 // add to ofts
-    //                 Object.keys(ofts[oAppName][srcChain]).forEach(async (destChainName, index) => {
-    //                     let oftres = endpointInfo[index * 3]
-    //                     ofts[oAppName][srcChain][destChainName].defaultReceiveLibrary = oftres.result
-    //                     oftres = endpointInfo[index * 3 + 1]
-    //                     ofts[oAppName][srcChain][destChainName].defaultReceiveLibraryTimeOut =
-    //                         {} as ReceiveLibraryTimeOutInfo
-    //                     ofts[oAppName][srcChain][destChainName].defaultReceiveLibraryTimeOut.libAddress =
-    //                         oftres.result[0]
-    //                     ofts[oAppName][srcChain][destChainName].defaultReceiveLibraryTimeOut.expiry =
-    //                         oftres.result[1].toString()
-    //                     oftres = endpointInfo[index * 3 + 2]
-    //                     ofts[oAppName][srcChain][destChainName].defaultSendLibrary = oftres.result
-    //                 })
-    //             } else {
-    //                 // add to ofts
-    //                 for (const destChainName of Object.keys(ofts[oAppName][srcChain])) {
-    //                     let oftres = await chains[srcChain].client.readContract({
-    //                         ...endpointContract,
-    //                         functionName: 'defaultReceiveLibrary',
-    //                         args: [chains[destChainName].peerId],
-    //                     })
-    //                     ofts[oAppName][srcChain][destChainName].defaultReceiveLibrary = oftres
-    //                     oftres = await chains[srcChain].client.readContract({
-    //                         ...endpointContract,
-    //                         functionName: 'defaultReceiveLibraryTimeout',
-    //                         args: [chains[destChainName].peerId],
-    //                     })
-    //                     ofts[oAppName][srcChain][destChainName].defaultReceiveLibraryTimeOut =
-    //                         {} as ReceiveLibraryTimeOutInfo
-    //                     ofts[oAppName][srcChain][destChainName].defaultReceiveLibraryTimeOut.libAddress = oftres[0]
-    //                     ofts[oAppName][srcChain][destChainName].defaultReceiveLibraryTimeOut.expiry =
-    //                         oftres[1].toString()
-    //                     oftres = await chains[srcChain].client.readContract({
-    //                         ...endpointContract,
-    //                         functionName: 'defaultSendLibrary',
-    //                         args: [chains[destChainName].peerId],
-    //                     })
-    //                     ofts[oAppName][srcChain][destChainName].defaultSendLibrary = oftres
-    //                 }
-    //             }
-    //         } else if (srcChain === 'solana') {
-    //             // add to ofts
-    //             // for (const destChainName of Object.keys(ofts[oAppName][srcChain])) {
-    //             // let oftres = await oft302.li.getEndpointConfig(
-    //             //     chains[srcChain].client.rpc,
-    //             //     publicKey(solanaOFTs[oAppName].oftStore), //oftStore
-    //             // chains[destChainName].peerId,
-    //             // publicKey(solanaOFTs[oAppName].programId), //programId
-    //             // )
-    //             // let oftres = await chains[srcChain].client.readContract({
-    //             //     ...endpointContract,
-    //             //     functionName: "defaultReceiveLibrary",
-    //             //     args: [chains[destChainName].peerId],
-    //             // })
-    //             // ofts[oAppName][srcChain][destChainName].defaultReceiveLibrary = oftres
-    //             // oftres = await chains[srcChain].client.readContract({
-    //             //     ...endpointContract,
-    //             //     functionName: "defaultReceiveLibraryTimeout",
-    //             //     args: [chains[destChainName].peerId],
-    //             // })
-    //             // ofts[oAppName][srcChain][destChainName].defaultReceiveLibraryTimeOut = {} as ReceiveLibraryTimeOutInfo
-    //             // ofts[oAppName][srcChain][destChainName].defaultReceiveLibraryTimeOut.libAddress = oftres[0]
-    //             // ofts[oAppName][srcChain][destChainName].defaultReceiveLibraryTimeOut.expiry = oftres[1].toString()
-    //             // oftres = await chains[srcChain].client.readContract({
-    //             //     ...endpointContract,
-    //             //     functionName: "defaultSendLibrary",
-    //             //     args: [chains[destChainName].peerId],
-    //             // })
-    //             // ofts[oAppName][srcChain][destChainName].defaultSendLibrary = oftres
-    //             // }
-    //         }
-
-    //         // TODO endpoint.eid : 30101 uint32
-    //         // TODO endpoint.getRegisteredLibraries : address[]
-
-    //         if (srcChain !== 'ink') {
-    //             contractCalls = []
-    //             Object.keys(ofts[oAppName][srcChain]).forEach(async (destChainName) => {
-    //                 // endpoint.getReceiveLibrary (_receiver (address), _srcEid (uint32)) : lib address, isDefault bool
-    //                 contractCalls.push({
-    //                     ...endpointContract,
-    //                     functionName: 'getReceiveLibrary',
-    //                     args: [oApp, chains[destChainName].peerId],
-    //                 })
-    //                 // endpoint.getSendLibrary (_sender (address),_dstEid (uint32)) : lib address
-    //                 contractCalls.push({
-    //                     ...endpointContract,
-    //                     functionName: 'getSendLibrary',
-    //                     args: [oApp, chains[destChainName].peerId],
-    //                 })
-    //                 // endpoint.isDefaultSendLibrary (_sender (address),_dstEid (uint32)) : bool
-    //                 contractCalls.push({
-    //                     ...endpointContract,
-    //                     functionName: 'isDefaultSendLibrary',
-    //                     args: [oApp, chains[destChainName].peerId],
-    //                 })
-    //                 // endpoint.receiveLibraryTimeout (receiver (address), srcEid (uint32)) : lib address, expiry uint256
-    //                 contractCalls.push({
-    //                     ...endpointContract,
-    //                     functionName: 'receiveLibraryTimeout',
-    //                     args: [oApp, chains[destChainName].peerId],
-    //                 })
-    //             })
-
-    //             // TODO endpoint.getSendContext : eid uint32, sender address
-
-    //             const endpointInfo2 = await chains[srcChain].client.multicall({
-    //                 contracts: contractCalls,
-    //             })
-
-    //             // add to ofts
-    //             Object.keys(ofts[oAppName][srcChain]).forEach(async (destChainName, index) => {
-    //                 ofts[oAppName][srcChain][destChainName].receiveLibrary = {} as ReceiveLibraryType
-    //                 ofts[oAppName][srcChain][destChainName].receiveLibraryTimeOut = {} as ReceiveLibraryTimeOutInfo
-    //                 // let oftres = endpointInfo2[index * 6]
-    //                 // let decoded = decodeUlnConfig(oftres.result)
-    //                 // ofts[oAppName][srcChain][destChainName].config.receive.confirmations = Number(decoded.confirmations)
-    //                 // ofts[oAppName][srcChain][destChainName].config.receive.requiredDVNCount = decoded.requiredDVNCount
-    //                 // ofts[oAppName][srcChain][destChainName].config.receive.optionalDVNCount = decoded.optionalDVNCount
-    //                 // ofts[oAppName][srcChain][destChainName].config.receive.optionalDVNThreshold = decoded.optionalDVNThreshold
-    //                 // oftres = endpointInfo2[(index * 6) + 1]
-    //                 // decoded = decodeUlnConfig(oftres.result)
-    //                 // ofts[oAppName][srcChain][destChainName].config.send.confirmations = Number(decoded.confirmations)
-    //                 // ofts[oAppName][srcChain][destChainName].config.send.requiredDVNCount = decoded.requiredDVNCount
-    //                 // ofts[oAppName][srcChain][destChainName].config.send.optionalDVNCount = decoded.optionalDVNCount
-    //                 // ofts[oAppName][srcChain][destChainName].config.send.optionalDVNThreshold = decoded.optionalDVNThreshold
-    //                 let oftres = endpointInfo2[index * 4]
-    //                 ofts[oAppName][srcChain][destChainName].receiveLibrary.receiveLibraryAddress = oftres.result[0]
-    //                 ofts[oAppName][srcChain][destChainName].receiveLibrary.isDefault = oftres.result[1]
-    //                 oftres = endpointInfo2[index * 4 + 1]
-    //                 ofts[oAppName][srcChain][destChainName].sendLibrary = oftres.result
-    //                 oftres = endpointInfo2[index * 4 + 2]
-    //                 ofts[oAppName][srcChain][destChainName].isDefaultSendLibrary = oftres.result
-    //                 oftres = endpointInfo2[index * 4 + 3]
-    //                 ofts[oAppName][srcChain][destChainName].receiveLibraryTimeOut.libAddress = oftres.result[0]
-    //                 ofts[oAppName][srcChain][destChainName].receiveLibraryTimeOut.expiry = oftres.result[1].toString()
-    //             })
-    //         } else {
-    //             // add to ofts
-    //             for (const destChainName of Object.keys(ofts[oAppName][srcChain])) {
-    //                 // endpoint.getReceiveLibrary (_receiver (address), _srcEid (uint32)) : lib address, isDefault bool
-    //                 contractCalls.push()
-    //                 // endpoint.getSendLibrary (_sender (address),_dstEid (uint32)) : lib address
-    //                 contractCalls.push()
-    //                 // endpoint.isDefaultSendLibrary (_sender (address),_dstEid (uint32)) : bool
-    //                 contractCalls.push()
-    //                 // endpoint.receiveLibraryTimeout (receiver (address), srcEid (uint32)) : lib address, expiry uint256
-    //                 contractCalls.push()
-    //                 ofts[oAppName][srcChain][destChainName].receiveLibrary = {} as ReceiveLibraryType
-    //                 ofts[oAppName][srcChain][destChainName].receiveLibraryTimeOut = {} as ReceiveLibraryTimeOutInfo
-
-    //                 let oftres = await chains[srcChain].client.readContract({
-    //                     ...endpointContract,
-    //                     functionName: 'getReceiveLibrary',
-    //                     args: [oApp, chains[destChainName].peerId],
-    //                 })
-    //                 ofts[oAppName][srcChain][destChainName].receiveLibrary.receiveLibraryAddress = oftres[0]
-    //                 ofts[oAppName][srcChain][destChainName].receiveLibrary.isDefault = oftres[1]
-    //                 oftres = await chains[srcChain].client.readContract({
-    //                     ...endpointContract,
-    //                     functionName: 'getSendLibrary',
-    //                     args: [oApp, chains[destChainName].peerId],
-    //                 })
-    //                 ofts[oAppName][srcChain][destChainName].sendLibrary = oftres
-    //                 oftres = await chains[srcChain].client.readContract({
-    //                     ...endpointContract,
-    //                     functionName: 'isDefaultSendLibrary',
-    //                     args: [oApp, chains[destChainName].peerId],
-    //                 })
-    //                 ofts[oAppName][srcChain][destChainName].isDefaultSendLibrary = oftres
-    //                 oftres = await chains[srcChain].client.readContract({
-    //                     ...endpointContract,
-    //                     functionName: 'receiveLibraryTimeout',
-    //                     args: [oApp, chains[destChainName].peerId],
-    //                 })
-    //                 ofts[oAppName][srcChain][destChainName].receiveLibraryTimeOut.libAddress = oftres[0]
-    //                 ofts[oAppName][srcChain][destChainName].receiveLibraryTimeOut.expiry = oftres[1].toString()
-    //             }
-    //         }
-
-    //         // ReceiveUln302
-    //         if (srcChain !== 'ink') {
-    //             contractCalls = []
-    //             Object.keys(ofts[oAppName][srcChain]).forEach(async (destChainName) => {
-    //                 // receiveUln302.getAppUlnConfig (_oapp (address), _remoteEid (uint32)) : tuple
-    //                 contractCalls.push({
-    //                     address: ofts[oAppName][srcChain][destChainName].defaultReceiveLibrary,
-    //                     abi: RECEIVE_ULN302_ABI,
-    //                     functionName: 'getAppUlnConfig',
-    //                     args: [oApp, chains[destChainName].peerId],
-    //                 })
-    //                 contractCalls.push({
-    //                     address: ofts[oAppName][srcChain][destChainName].receiveLibrary.receiveLibraryAddress,
-    //                     abi: RECEIVE_ULN302_ABI,
-    //                     functionName: 'getAppUlnConfig',
-    //                     args: [oApp, chains[destChainName].peerId],
-    //                 })
-    //                 // receiveUln302.getUlnConfig (_oapp (address), _remoteEid (uint32)) : rtnConfig tuple
-    //                 contractCalls.push({
-    //                     address: ofts[oAppName][srcChain][destChainName].defaultReceiveLibrary,
-    //                     abi: RECEIVE_ULN302_ABI,
-    //                     functionName: 'getUlnConfig',
-    //                     args: [oApp, chains[destChainName].peerId],
-    //                 })
-    //                 contractCalls.push({
-    //                     address: ofts[oAppName][srcChain][destChainName].receiveLibrary.receiveLibraryAddress,
-    //                     abi: RECEIVE_ULN302_ABI,
-    //                     functionName: 'getUlnConfig',
-    //                     args: [oApp, chains[destChainName].peerId],
-    //                 })
-    //                 // receiveUln302.isSupportedEid (_eid (uint32)) : bool
-    //                 contractCalls.push({
-    //                     address: ofts[oAppName][srcChain][destChainName].defaultReceiveLibrary,
-    //                     abi: RECEIVE_ULN302_ABI,
-    //                     functionName: 'isSupportedEid',
-    //                     args: [chains[destChainName].peerId],
-    //                 })
-    //                 contractCalls.push({
-    //                     address: ofts[oAppName][srcChain][destChainName].receiveLibrary.receiveLibraryAddress,
-    //                     abi: RECEIVE_ULN302_ABI,
-    //                     functionName: 'isSupportedEid',
-    //                     args: [chains[destChainName].peerId],
-    //                 })
-    //             })
-
-    //             const receiveULN302Info = await chains[srcChain].client.multicall({
-    //                 contracts: contractCalls,
-    //             })
-
-    //             // add to ofts
-    //             Object.keys(ofts[oAppName][srcChain]).forEach(async (destChainName, index) => {
-    //                 ofts[oAppName][srcChain][destChainName].appUlnDefaultConfig = {} as EndpointConfig
-    //                 ofts[oAppName][srcChain][destChainName].appUlnDefaultConfig.receive = {} as UlnConfig
-    //                 ofts[oAppName][srcChain][destChainName].appUlnConfig = {} as EndpointConfig
-    //                 ofts[oAppName][srcChain][destChainName].appUlnConfig.receive = {} as UlnConfig
-
-    //                 ofts[oAppName][srcChain][destChainName].ulnDefaultConfig = {} as EndpointConfig
-    //                 ofts[oAppName][srcChain][destChainName].ulnDefaultConfig.receive = {} as UlnConfig
-    //                 ofts[oAppName][srcChain][destChainName].ulnConfig = {} as EndpointConfig
-    //                 ofts[oAppName][srcChain][destChainName].ulnConfig.receive = {} as UlnConfig
-
-    //                 let oftres = receiveULN302Info[index * 6]
-    //                 ofts[oAppName][srcChain][destChainName].appUlnDefaultConfig.receive.confirmations = Number(
-    //                     oftres.result.confirmations
-    //                 )
-    //                 ofts[oAppName][srcChain][destChainName].appUlnDefaultConfig.receive.requiredDVNCount =
-    //                     oftres.result.requiredDVNCount
-    //                 ofts[oAppName][srcChain][destChainName].appUlnDefaultConfig.receive.optionalDVNCount =
-    //                     oftres.result.optionalDVNCount
-    //                 ofts[oAppName][srcChain][destChainName].appUlnDefaultConfig.receive.optionalDVNThreshold =
-    //                     oftres.result.optionalDVNThreshold
-    //                 ofts[oAppName][srcChain][destChainName].appUlnDefaultConfig.receive.requiredDVNs = [
-    //                     ...oftres.result.requiredDVNs,
-    //                 ]
-    //                 ofts[oAppName][srcChain][destChainName].appUlnDefaultConfig.receive.optionalDVNs = [
-    //                     ...oftres.result.optionalDVNs,
-    //                 ]
-    //                 oftres = receiveULN302Info[index * 6 + 1]
-    //                 ofts[oAppName][srcChain][destChainName].appUlnConfig.receive.confirmations = Number(
-    //                     oftres.result.confirmations
-    //                 )
-    //                 ofts[oAppName][srcChain][destChainName].appUlnConfig.receive.requiredDVNCount =
-    //                     oftres.result.requiredDVNCount
-    //                 ofts[oAppName][srcChain][destChainName].appUlnConfig.receive.optionalDVNCount =
-    //                     oftres.result.optionalDVNCount
-    //                 ofts[oAppName][srcChain][destChainName].appUlnConfig.receive.optionalDVNThreshold =
-    //                     oftres.result.optionalDVNThreshold
-    //                 ofts[oAppName][srcChain][destChainName].appUlnConfig.receive.requiredDVNs = [
-    //                     ...oftres.result.requiredDVNs,
-    //                 ]
-    //                 ofts[oAppName][srcChain][destChainName].appUlnConfig.receive.optionalDVNs = [
-    //                     ...oftres.result.optionalDVNs,
-    //                 ]
-    //                 oftres = receiveULN302Info[index * 6 + 2]
-    //                 ofts[oAppName][srcChain][destChainName].ulnConfig.receive.confirmations = Number(
-    //                     oftres.result.confirmations
-    //                 )
-    //                 ofts[oAppName][srcChain][destChainName].ulnConfig.receive.requiredDVNCount =
-    //                     oftres.result.requiredDVNCount
-    //                 ofts[oAppName][srcChain][destChainName].ulnConfig.receive.optionalDVNCount =
-    //                     oftres.result.optionalDVNCount
-    //                 ofts[oAppName][srcChain][destChainName].ulnConfig.receive.optionalDVNThreshold =
-    //                     oftres.result.optionalDVNThreshold
-    //                 ofts[oAppName][srcChain][destChainName].ulnConfig.receive.requiredDVNs = [
-    //                     ...oftres.result.requiredDVNs,
-    //                 ]
-    //                 ofts[oAppName][srcChain][destChainName].ulnConfig.receive.optionalDVNs = [
-    //                     ...oftres.result.optionalDVNs,
-    //                 ]
-    //                 oftres = receiveULN302Info[index * 6 + 3]
-    //                 ofts[oAppName][srcChain][destChainName].ulnDefaultConfig.receive.confirmations = Number(
-    //                     oftres.result.confirmations
-    //                 )
-    //                 ofts[oAppName][srcChain][destChainName].ulnDefaultConfig.receive.requiredDVNCount =
-    //                     oftres.result.requiredDVNCount
-    //                 ofts[oAppName][srcChain][destChainName].ulnDefaultConfig.receive.optionalDVNCount =
-    //                     oftres.result.optionalDVNCount
-    //                 ofts[oAppName][srcChain][destChainName].ulnDefaultConfig.receive.optionalDVNThreshold =
-    //                     oftres.result.optionalDVNThreshold
-    //                 ofts[oAppName][srcChain][destChainName].ulnDefaultConfig.receive.requiredDVNs = [
-    //                     ...oftres.result.requiredDVNs,
-    //                 ]
-    //                 ofts[oAppName][srcChain][destChainName].ulnDefaultConfig.receive.optionalDVNs = [
-    //                     ...oftres.result.optionalDVNs,
-    //                 ]
-    //                 oftres = receiveULN302Info[index * 6 + 4]
-    //                 ofts[oAppName][srcChain][destChainName].defaultReceiveLibSupportEid = oftres.result
-    //                 oftres = receiveULN302Info[index * 6 + 5]
-    //                 ofts[oAppName][srcChain][destChainName].receiveLibSupportEid = oftres.result
-    //             })
-    //         } else {
-    //             for (const destChainName of Object.keys(ofts[oAppName][srcChain])) {
-    //                 ofts[oAppName][srcChain][destChainName].appUlnDefaultConfig = {} as EndpointConfig
-    //                 ofts[oAppName][srcChain][destChainName].appUlnDefaultConfig.receive = {} as UlnConfig
-    //                 ofts[oAppName][srcChain][destChainName].appUlnConfig = {} as EndpointConfig
-    //                 ofts[oAppName][srcChain][destChainName].appUlnConfig.receive = {} as UlnConfig
-
-    //                 ofts[oAppName][srcChain][destChainName].ulnDefaultConfig = {} as EndpointConfig
-    //                 ofts[oAppName][srcChain][destChainName].ulnDefaultConfig.receive = {} as UlnConfig
-    //                 ofts[oAppName][srcChain][destChainName].ulnConfig = {} as EndpointConfig
-    //                 ofts[oAppName][srcChain][destChainName].ulnConfig.receive = {} as UlnConfig
-
-    //                 let oftres = await chains[srcChain].client.readContract({
-    //                     address: ofts[oAppName][srcChain][destChainName].defaultReceiveLibrary,
-    //                     abi: RECEIVE_ULN302_ABI,
-    //                     functionName: 'getAppUlnConfig',
-    //                     args: [oApp, chains[destChainName].peerId],
-    //                 })
-    //                 ofts[oAppName][srcChain][destChainName].appUlnDefaultConfig.receive.confirmations = Number(
-    //                     oftres.confirmations
-    //                 )
-    //                 ofts[oAppName][srcChain][destChainName].appUlnDefaultConfig.receive.requiredDVNCount =
-    //                     oftres.requiredDVNCount
-    //                 ofts[oAppName][srcChain][destChainName].appUlnDefaultConfig.receive.optionalDVNCount =
-    //                     oftres.optionalDVNCount
-    //                 ofts[oAppName][srcChain][destChainName].appUlnDefaultConfig.receive.optionalDVNThreshold =
-    //                     oftres.optionalDVNThreshold
-    //                 ofts[oAppName][srcChain][destChainName].appUlnDefaultConfig.receive.requiredDVNs = [
-    //                     ...oftres.requiredDVNs,
-    //                 ]
-    //                 ofts[oAppName][srcChain][destChainName].appUlnDefaultConfig.receive.optionalDVNs = [
-    //                     ...oftres.optionalDVNs,
-    //                 ]
-
-    //                 oftres = await chains[srcChain].client.readContract({
-    //                     address: ofts[oAppName][srcChain][destChainName].receiveLibrary.receiveLibraryAddress,
-    //                     abi: RECEIVE_ULN302_ABI,
-    //                     functionName: 'getAppUlnConfig',
-    //                     args: [oApp, chains[destChainName].peerId],
-    //                 })
-    //                 ofts[oAppName][srcChain][destChainName].appUlnConfig.receive.confirmations = Number(
-    //                     oftres.confirmations
-    //                 )
-    //                 ofts[oAppName][srcChain][destChainName].appUlnConfig.receive.requiredDVNCount =
-    //                     oftres.requiredDVNCount
-    //                 ofts[oAppName][srcChain][destChainName].appUlnConfig.receive.optionalDVNCount =
-    //                     oftres.optionalDVNCount
-    //                 ofts[oAppName][srcChain][destChainName].appUlnConfig.receive.optionalDVNThreshold =
-    //                     oftres.optionalDVNThreshold
-    //                 ofts[oAppName][srcChain][destChainName].appUlnConfig.receive.requiredDVNs = [...oftres.requiredDVNs]
-    //                 ofts[oAppName][srcChain][destChainName].appUlnConfig.receive.optionalDVNs = [...oftres.optionalDVNs]
-
-    //                 oftres = await chains[srcChain].client.readContract({
-    //                     address: ofts[oAppName][srcChain][destChainName].defaultReceiveLibrary,
-    //                     abi: RECEIVE_ULN302_ABI,
-    //                     functionName: 'getUlnConfig',
-    //                     args: [oApp, chains[destChainName].peerId],
-    //                 })
-    //                 ofts[oAppName][srcChain][destChainName].ulnConfig.receive.confirmations = Number(
-    //                     oftres.confirmations
-    //                 )
-    //                 ofts[oAppName][srcChain][destChainName].ulnConfig.receive.requiredDVNCount = oftres.requiredDVNCount
-    //                 ofts[oAppName][srcChain][destChainName].ulnConfig.receive.optionalDVNCount = oftres.optionalDVNCount
-    //                 ofts[oAppName][srcChain][destChainName].ulnConfig.receive.optionalDVNThreshold =
-    //                     oftres.optionalDVNThreshold
-    //                 ofts[oAppName][srcChain][destChainName].ulnConfig.receive.requiredDVNs = [...oftres.requiredDVNs]
-    //                 ofts[oAppName][srcChain][destChainName].ulnConfig.receive.optionalDVNs = [...oftres.optionalDVNs]
-
-    //                 oftres = await chains[srcChain].client.readContract({
-    //                     address: ofts[oAppName][srcChain][destChainName].receiveLibrary.receiveLibraryAddress,
-    //                     abi: RECEIVE_ULN302_ABI,
-    //                     functionName: 'getUlnConfig',
-    //                     args: [oApp, chains[destChainName].peerId],
-    //                 })
-    //                 ofts[oAppName][srcChain][destChainName].ulnDefaultConfig.receive.confirmations = Number(
-    //                     oftres.confirmations
-    //                 )
-    //                 ofts[oAppName][srcChain][destChainName].ulnDefaultConfig.receive.requiredDVNCount =
-    //                     oftres.requiredDVNCount
-    //                 ofts[oAppName][srcChain][destChainName].ulnDefaultConfig.receive.optionalDVNCount =
-    //                     oftres.optionalDVNCount
-    //                 ofts[oAppName][srcChain][destChainName].ulnDefaultConfig.receive.optionalDVNThreshold =
-    //                     oftres.optionalDVNThreshold
-    //                 ofts[oAppName][srcChain][destChainName].ulnDefaultConfig.receive.requiredDVNs = [
-    //                     ...oftres.requiredDVNs,
-    //                 ]
-    //                 ofts[oAppName][srcChain][destChainName].ulnDefaultConfig.receive.optionalDVNs = [
-    //                     ...oftres.optionalDVNs,
-    //                 ]
-
-    //                 oftres = await chains[srcChain].client.readContract({
-    //                     address: ofts[oAppName][srcChain][destChainName].defaultReceiveLibrary,
-    //                     abi: RECEIVE_ULN302_ABI,
-    //                     functionName: 'isSupportedEid',
-    //                     args: [chains[destChainName].peerId],
-    //                 })
-    //                 ofts[oAppName][srcChain][destChainName].defaultReceiveLibSupportEid = oftres
-
-    //                 oftres = await chains[srcChain].client.readContract({
-    //                     address: ofts[oAppName][srcChain][destChainName].receiveLibrary.receiveLibraryAddress,
-    //                     abi: RECEIVE_ULN302_ABI,
-    //                     functionName: 'isSupportedEid',
-    //                     args: [chains[destChainName].peerId],
-    //                 })
-    //                 ofts[oAppName][srcChain][destChainName].receiveLibSupportEid = oftres
-    //             }
-    //         }
-
-    //         // SendUln302
-    //         if (srcChain !== 'ink') {
-    //             contractCalls = []
-    //             Object.keys(ofts[oAppName][srcChain]).forEach(async (destChainName) => {
-    //                 // senduln302.getAppUlnConfig (_oapp (address), _remoteEid (uint32)) : tuple
-    //                 contractCalls.push({
-    //                     address: ofts[oAppName][srcChain][destChainName].defaultSendLibrary,
-    //                     abi: SEND_ULN302_ABI,
-    //                     functionName: 'getAppUlnConfig',
-    //                     args: [oApp, chains[destChainName].peerId],
-    //                 })
-    //                 contractCalls.push({
-    //                     address: ofts[oAppName][srcChain][destChainName].sendLibrary,
-    //                     abi: SEND_ULN302_ABI,
-    //                     functionName: 'getAppUlnConfig',
-    //                     args: [oApp, chains[destChainName].peerId],
-    //                 })
-    //                 // senduln302.getExecutorConfig (_oapp (address) , _remoteEid (uint32)) :  rtnConfig tuple
-    //                 contractCalls.push({
-    //                     address: ofts[oAppName][srcChain][destChainName].defaultSendLibrary,
-    //                     abi: SEND_ULN302_ABI,
-    //                     functionName: 'getExecutorConfig',
-    //                     args: [oApp, chains[destChainName].peerId],
-    //                 })
-    //                 contractCalls.push({
-    //                     address: ofts[oAppName][srcChain][destChainName].sendLibrary,
-    //                     abi: SEND_ULN302_ABI,
-    //                     functionName: 'getExecutorConfig',
-    //                     args: [oApp, chains[destChainName].peerId],
-    //                 })
-    //                 // senduln302.getUlnConfig (_oapp (address), _remoteEid (uint32)) : rtnConfig tuple
-    //                 contractCalls.push({
-    //                     address: ofts[oAppName][srcChain][destChainName].defaultSendLibrary,
-    //                     abi: SEND_ULN302_ABI,
-    //                     functionName: 'getUlnConfig',
-    //                     args: [oApp, chains[destChainName].peerId],
-    //                 })
-    //                 contractCalls.push({
-    //                     address: ofts[oAppName][srcChain][destChainName].sendLibrary,
-    //                     abi: SEND_ULN302_ABI,
-    //                     functionName: 'getUlnConfig',
-    //                     args: [oApp, chains[destChainName].peerId],
-    //                 })
-    //                 // senduln302.isSupportedEid (_eid (uint32)) : bool
-    //                 contractCalls.push({
-    //                     address: ofts[oAppName][srcChain][destChainName].defaultSendLibrary,
-    //                     abi: SEND_ULN302_ABI,
-    //                     functionName: 'isSupportedEid',
-    //                     args: [chains[destChainName].peerId],
-    //                 })
-    //                 contractCalls.push({
-    //                     address: ofts[oAppName][srcChain][destChainName].sendLibrary,
-    //                     abi: SEND_ULN302_ABI,
-    //                     functionName: 'isSupportedEid',
-    //                     args: [chains[destChainName].peerId],
-    //                 })
-    //             })
-
-    //             const sendULN302Info = await chains[srcChain].client.multicall({
-    //                 contracts: contractCalls,
-    //             })
-
-    //             // add to ofts
-    //             Object.keys(ofts[oAppName][srcChain]).forEach(async (destChainName, index) => {
-    //                 ofts[oAppName][srcChain][destChainName].appUlnDefaultConfig.send = {} as UlnConfig
-    //                 ofts[oAppName][srcChain][destChainName].appUlnConfig.send = {} as UlnConfig
-
-    //                 ofts[oAppName][srcChain][destChainName].defaultExecutorConfig = {} as ExecutorConfigType
-    //                 ofts[oAppName][srcChain][destChainName].executorConfig = {} as ExecutorConfigType
-
-    //                 ofts[oAppName][srcChain][destChainName].ulnDefaultConfig.send = {} as UlnConfig
-    //                 ofts[oAppName][srcChain][destChainName].ulnConfig.send = {} as UlnConfig
-
-    //                 let oftres = sendULN302Info[index * 8]
-    //                 ofts[oAppName][srcChain][destChainName].appUlnDefaultConfig.send.confirmations = Number(
-    //                     oftres.result.confirmations
-    //                 )
-    //                 ofts[oAppName][srcChain][destChainName].appUlnDefaultConfig.send.requiredDVNCount =
-    //                     oftres.result.requiredDVNCount
-    //                 ofts[oAppName][srcChain][destChainName].appUlnDefaultConfig.send.optionalDVNCount =
-    //                     oftres.result.optionalDVNCount
-    //                 ofts[oAppName][srcChain][destChainName].appUlnDefaultConfig.send.optionalDVNThreshold =
-    //                     oftres.result.optionalDVNThreshold
-    //                 ofts[oAppName][srcChain][destChainName].appUlnDefaultConfig.send.requiredDVNs = [
-    //                     ...oftres.result.requiredDVNs,
-    //                 ]
-    //                 ofts[oAppName][srcChain][destChainName].appUlnDefaultConfig.send.optionalDVNs = [
-    //                     ...oftres.result.optionalDVNs,
-    //                 ]
-
-    //                 oftres = sendULN302Info[index * 8 + 1]
-    //                 ofts[oAppName][srcChain][destChainName].appUlnConfig.send.confirmations = Number(
-    //                     oftres.result.confirmations
-    //                 )
-    //                 ofts[oAppName][srcChain][destChainName].appUlnConfig.send.requiredDVNCount =
-    //                     oftres.result.requiredDVNCount
-    //                 ofts[oAppName][srcChain][destChainName].appUlnConfig.send.optionalDVNCount =
-    //                     oftres.result.optionalDVNCount
-    //                 ofts[oAppName][srcChain][destChainName].appUlnConfig.send.optionalDVNThreshold =
-    //                     oftres.result.optionalDVNThreshold
-    //                 ofts[oAppName][srcChain][destChainName].appUlnConfig.send.requiredDVNs = [
-    //                     ...oftres.result.requiredDVNs,
-    //                 ]
-    //                 ofts[oAppName][srcChain][destChainName].appUlnConfig.send.optionalDVNs = [
-    //                     ...oftres.result.optionalDVNs,
-    //                 ]
-
-    //                 oftres = sendULN302Info[index * 8 + 2]
-    //                 ofts[oAppName][srcChain][destChainName].defaultExecutorConfig.maxMessageSize =
-    //                     oftres.result.maxMessageSize
-    //                 ofts[oAppName][srcChain][destChainName].defaultExecutorConfig.executorAddress =
-    //                     oftres.result.executor
-
-    //                 oftres = sendULN302Info[index * 8 + 3]
-    //                 ofts[oAppName][srcChain][destChainName].executorConfig.maxMessageSize = oftres.result.maxMessageSize
-    //                 ofts[oAppName][srcChain][destChainName].executorConfig.executorAddress = oftres.result.executor
-
-    //                 oftres = sendULN302Info[index * 8 + 4]
-    //                 ofts[oAppName][srcChain][destChainName].ulnDefaultConfig.send.confirmations = Number(
-    //                     oftres.result.confirmations
-    //                 )
-    //                 ofts[oAppName][srcChain][destChainName].ulnDefaultConfig.send.requiredDVNCount =
-    //                     oftres.result.requiredDVNCount
-    //                 ofts[oAppName][srcChain][destChainName].ulnDefaultConfig.send.optionalDVNCount =
-    //                     oftres.result.optionalDVNCount
-    //                 ofts[oAppName][srcChain][destChainName].ulnDefaultConfig.send.optionalDVNThreshold =
-    //                     oftres.result.optionalDVNThreshold
-    //                 ofts[oAppName][srcChain][destChainName].ulnDefaultConfig.send.requiredDVNs = [
-    //                     ...oftres.result.requiredDVNs,
-    //                 ]
-    //                 ofts[oAppName][srcChain][destChainName].ulnDefaultConfig.send.optionalDVNs = [
-    //                     ...oftres.result.optionalDVNs,
-    //                 ]
-
-    //                 oftres = sendULN302Info[index * 8 + 5]
-    //                 ofts[oAppName][srcChain][destChainName].ulnConfig.send.confirmations = Number(
-    //                     oftres.result.confirmations
-    //                 )
-    //                 ofts[oAppName][srcChain][destChainName].ulnConfig.send.requiredDVNCount =
-    //                     oftres.result.requiredDVNCount
-    //                 ofts[oAppName][srcChain][destChainName].ulnConfig.send.optionalDVNCount =
-    //                     oftres.result.optionalDVNCount
-    //                 ofts[oAppName][srcChain][destChainName].ulnConfig.send.optionalDVNThreshold =
-    //                     oftres.result.optionalDVNThreshold
-    //                 ofts[oAppName][srcChain][destChainName].ulnConfig.send.requiredDVNs = [
-    //                     ...oftres.result.requiredDVNs,
-    //                 ]
-    //                 ofts[oAppName][srcChain][destChainName].ulnConfig.send.optionalDVNs = [
-    //                     ...oftres.result.optionalDVNs,
-    //                 ]
-
-    //                 oftres = sendULN302Info[index * 8 + 6]
-    //                 ofts[oAppName][srcChain][destChainName].defaultSendLibSupportEid = oftres.result
-
-    //                 oftres = sendULN302Info[index * 8 + 7]
-    //                 ofts[oAppName][srcChain][destChainName].sendLibSupportEid = oftres.result
-    //             })
-    //         } else {
-    //             // add to ofts
-    //             for (const destChainName of Object.keys(ofts[oAppName][srcChain])) {
-    //                 ofts[oAppName][srcChain][destChainName].appUlnDefaultConfig.send = {} as UlnConfig
-    //                 ofts[oAppName][srcChain][destChainName].appUlnConfig.send = {} as UlnConfig
-
-    //                 ofts[oAppName][srcChain][destChainName].defaultExecutorConfig = {} as ExecutorConfigType
-    //                 ofts[oAppName][srcChain][destChainName].executorConfig = {} as ExecutorConfigType
-
-    //                 ofts[oAppName][srcChain][destChainName].ulnDefaultConfig.send = {} as UlnConfig
-    //                 ofts[oAppName][srcChain][destChainName].ulnConfig.send = {} as UlnConfig
-
-    //                 let oftres = await chains[srcChain].client.readContract({
-    //                     address: ofts[oAppName][srcChain][destChainName].defaultSendLibrary,
-    //                     abi: SEND_ULN302_ABI,
-    //                     functionName: 'getAppUlnConfig',
-    //                     args: [oApp, chains[destChainName].peerId],
-    //                 })
-    //                 ofts[oAppName][srcChain][destChainName].appUlnDefaultConfig.send.confirmations = Number(
-    //                     oftres.confirmations
-    //                 )
-    //                 ofts[oAppName][srcChain][destChainName].appUlnDefaultConfig.send.requiredDVNCount =
-    //                     oftres.requiredDVNCount
-    //                 ofts[oAppName][srcChain][destChainName].appUlnDefaultConfig.send.optionalDVNCount =
-    //                     oftres.optionalDVNCount
-    //                 ofts[oAppName][srcChain][destChainName].appUlnDefaultConfig.send.optionalDVNThreshold =
-    //                     oftres.optionalDVNThreshold
-    //                 ofts[oAppName][srcChain][destChainName].appUlnDefaultConfig.send.requiredDVNs = [
-    //                     ...oftres.requiredDVNs,
-    //                 ]
-    //                 ofts[oAppName][srcChain][destChainName].appUlnDefaultConfig.send.optionalDVNs = [
-    //                     ...oftres.optionalDVNs,
-    //                 ]
-
-    //                 oftres = await chains[srcChain].client.readContract({
-    //                     address: ofts[oAppName][srcChain][destChainName].sendLibrary,
-    //                     abi: SEND_ULN302_ABI,
-    //                     functionName: 'getAppUlnConfig',
-    //                     args: [oApp, chains[destChainName].peerId],
-    //                 })
-    //                 ofts[oAppName][srcChain][destChainName].appUlnConfig.send.confirmations = Number(
-    //                     oftres.confirmations
-    //                 )
-    //                 ofts[oAppName][srcChain][destChainName].appUlnConfig.send.requiredDVNCount = oftres.requiredDVNCount
-    //                 ofts[oAppName][srcChain][destChainName].appUlnConfig.send.optionalDVNCount = oftres.optionalDVNCount
-    //                 ofts[oAppName][srcChain][destChainName].appUlnConfig.send.optionalDVNThreshold =
-    //                     oftres.optionalDVNThreshold
-    //                 ofts[oAppName][srcChain][destChainName].appUlnConfig.send.requiredDVNs = [...oftres.requiredDVNs]
-    //                 ofts[oAppName][srcChain][destChainName].appUlnConfig.send.optionalDVNs = [...oftres.optionalDVNs]
-
-    //                 oftres = await chains[srcChain].client.readContract({
-    //                     address: ofts[oAppName][srcChain][destChainName].defaultSendLibrary,
-    //                     abi: SEND_ULN302_ABI,
-    //                     functionName: 'getExecutorConfig',
-    //                     args: [oApp, chains[destChainName].peerId],
-    //                 })
-    //                 ofts[oAppName][srcChain][destChainName].defaultExecutorConfig.maxMessageSize = oftres.maxMessageSize
-    //                 ofts[oAppName][srcChain][destChainName].defaultExecutorConfig.executorAddress = oftres.executor
-
-    //                 oftres = await chains[srcChain].client.readContract({
-    //                     address: ofts[oAppName][srcChain][destChainName].sendLibrary,
-    //                     abi: SEND_ULN302_ABI,
-    //                     functionName: 'getExecutorConfig',
-    //                     args: [oApp, chains[destChainName].peerId],
-    //                 })
-    //                 ofts[oAppName][srcChain][destChainName].executorConfig.maxMessageSize = oftres.maxMessageSize
-    //                 ofts[oAppName][srcChain][destChainName].executorConfig.executorAddress = oftres.executor
-
-    //                 oftres = await chains[srcChain].client.readContract({
-    //                     address: ofts[oAppName][srcChain][destChainName].defaultSendLibrary,
-    //                     abi: SEND_ULN302_ABI,
-    //                     functionName: 'getUlnConfig',
-    //                     args: [oApp, chains[destChainName].peerId],
-    //                 })
-    //                 ofts[oAppName][srcChain][destChainName].ulnDefaultConfig.send.confirmations = Number(
-    //                     oftres.confirmations
-    //                 )
-    //                 ofts[oAppName][srcChain][destChainName].ulnDefaultConfig.send.requiredDVNCount =
-    //                     oftres.requiredDVNCount
-    //                 ofts[oAppName][srcChain][destChainName].ulnDefaultConfig.send.optionalDVNCount =
-    //                     oftres.optionalDVNCount
-    //                 ofts[oAppName][srcChain][destChainName].ulnDefaultConfig.send.optionalDVNThreshold =
-    //                     oftres.optionalDVNThreshold
-    //                 ofts[oAppName][srcChain][destChainName].ulnDefaultConfig.send.requiredDVNs = [
-    //                     ...oftres.requiredDVNs,
-    //                 ]
-    //                 ofts[oAppName][srcChain][destChainName].ulnDefaultConfig.send.optionalDVNs = [
-    //                     ...oftres.optionalDVNs,
-    //                 ]
-
-    //                 oftres = await chains[srcChain].client.readContract({
-    //                     address: ofts[oAppName][srcChain][destChainName].sendLibrary,
-    //                     abi: SEND_ULN302_ABI,
-    //                     functionName: 'getUlnConfig',
-    //                     args: [oApp, chains[destChainName].peerId],
-    //                 })
-    //                 ofts[oAppName][srcChain][destChainName].ulnConfig.send.confirmations = Number(oftres.confirmations)
-    //                 ofts[oAppName][srcChain][destChainName].ulnConfig.send.requiredDVNCount = oftres.requiredDVNCount
-    //                 ofts[oAppName][srcChain][destChainName].ulnConfig.send.optionalDVNCount = oftres.optionalDVNCount
-    //                 ofts[oAppName][srcChain][destChainName].ulnConfig.send.optionalDVNThreshold =
-    //                     oftres.optionalDVNThreshold
-    //                 ofts[oAppName][srcChain][destChainName].ulnConfig.send.requiredDVNs = [...oftres.requiredDVNs]
-    //                 ofts[oAppName][srcChain][destChainName].ulnConfig.send.optionalDVNs = [...oftres.optionalDVNs]
-
-    //                 oftres = await chains[srcChain].client.readContract({
-    //                     address: ofts[oAppName][srcChain][destChainName].defaultSendLibrary,
-    //                     abi: SEND_ULN302_ABI,
-    //                     functionName: 'isSupportedEid',
-    //                     args: [chains[destChainName].peerId],
-    //                 })
-    //                 ofts[oAppName][srcChain][destChainName].defaultSendLibSupportEid = oftres.result
-
-    //                 oftres = await chains[srcChain].client.readContract({
-    //                     address: ofts[oAppName][srcChain][destChainName].sendLibrary,
-    //                     abi: SEND_ULN302_ABI,
-    //                     functionName: 'isSupportedEid',
-    //                     args: [chains[destChainName].peerId],
-    //                 })
-    //                 ofts[oAppName][srcChain][destChainName].sendLibSupportEid = oftres.result
-    //             }
-    //         }
-    //     }
-    // }
-    // // Assuming `ofts` is already defined
-    // fs.writeFileSync('config-all.json', JSON.stringify(ofts, null, 2), 'utf-8')
-
-    // console.log('Data written to output.json')
 }
 
 main()

@@ -24,7 +24,7 @@ import {
 import { createUmi } from "@metaplex-foundation/umi-bundle-defaults";
 import { publicKey } from "@metaplex-foundation/umi";
 import { oft302 } from "@layerzerolabs/oft-v2-solana-sdk";
-import { default as ENDPOINT_ABI } from "./abis/ENDPOINT_ABI.json"
+import { default as ENDPOINTV2_ABI } from "./abis/ENDPOINTV2_ABI.json"
 import { default as OFT_ADAPTER_ABI } from "./abis/OFT_ADAPTER_ABI.json"
 import { default as RECEIVE_ULN302_ABI } from "./abis/RECEIVE_ULN302_ABI.json"
 import { default as SEND_ULN302_ABI } from "./abis/SEND_ULN302_ABI.json"
@@ -674,7 +674,7 @@ async function main() {
                 });
                 endpointContract = {
                     address: endpointAddress,
-                    abi: ENDPOINT_ABI,
+                    abi: ENDPOINTV2_ABI,
                 } as const;
                 if (srcChain !== "ink") {
                     contractCalls = [];

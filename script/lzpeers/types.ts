@@ -31,8 +31,8 @@ export type ChainInfo = {
 };
 
 export type OFTEnforcedOptions = {
-    gas: string;
-    value: string;
+    gas: number;
+    value: number;
 }
 
 export type ReceiveLibraryTimeOutInfo = {
@@ -61,21 +61,20 @@ export type ExecutorConfigType = {
 }
 
 export type OFTInfo = {
-    eid:string
-    isSupportedEid:string
+    eid: string
+    isSupportedEid: string
     peerAddress: string;
     peerAddressBytes32: string;
-    combinedOptionsSend: OFTEnforcedOptions
-    combinedOptionsSendAndCall: OFTEnforcedOptions
-    enforcedOptions: OFTEnforcedOptions
+    enforcedOptionsSend: OFTEnforcedOptions
+    enforcedOptionsSendAndCall: OFTEnforcedOptions
     blockedLib: string;
     defaultReceiveLibrary: string;
     defaultReceiveLibraryTimeOut: ReceiveLibraryTimeOutInfo;
     defaultSendLibrary: string;
     appUlnConfig: EndpointConfig;
-    appUlnDefaultConfig: EndpointConfig;
-    ulnConfig: EndpointConfig;
-    ulnDefaultConfig: EndpointConfig;
+    defaultUlnConfig: EndpointConfig;
+    appUlnConfigDefaultLib: EndpointConfig;
+    defaultUlnConfigDefaultLib: EndpointConfig;
     receiveLibSupportEid: boolean;
     defaultReceiveLibSupportEid: boolean;
     sendLibSupportEid: boolean;
@@ -86,6 +85,8 @@ export type OFTInfo = {
     receiveLibraryTimeOut: ReceiveLibraryTimeOutInfo;
     executorConfig: ExecutorConfigType;
     defaultExecutorConfig: ExecutorConfigType;
+    executorConfigDefaultLib: ExecutorConfigType;
+    defaultExecutorConfigDefaultLib: ExecutorConfigType;
 }
 
 export interface TokenSupplyData {
@@ -102,7 +103,7 @@ export interface TokenSupplyData {
 
 export interface Params {
     oftProxy: string
-    eid:string
+    eid: string
     actualImplementation: string
     expectedImplementation: string
     actualProxyAdmin: string

@@ -10,7 +10,7 @@ import fs from 'fs'
 import * as dotenv from 'dotenv'
 import { chains } from '../chains'
 import {
-    /*assetListType,*/ ChainConfig,
+    ChainConfig,
     DstChainConfig,
     EndpointConfig,
     ExecutorConfigType,
@@ -25,31 +25,49 @@ import {
 } from '../types'
 import { aptosMovementOFTs, ofts, solanaOFTs } from '../oft'
 import bs58 from 'bs58'
+import { Options } from '@layerzerolabs/lz-v2-utilities'
 
 dotenv.config()
 
 const bytes32Zero = '0x0000000000000000000000000000000000000000000000000000000000000000'
 
-function decodeLzReceiveOption(encodedOption: Hex): { gas: number; value: number } {
-    const optionBytes = hexToBytes(encodedOption)
-    const length = optionBytes.length
+// function decodeLzReceiveOption(encodedOption: Hex): { gas: number; value: number } {
+//     const optionBytes = hexToBytes(encodedOption)
+//     const length = optionBytes.length
 
-    if (length < 16) throw new Error(`Invalid data length: ${length} bytes`)
+//     if (length < 16) throw new Error(`Invalid data length: ${length} bytes`)
 
-    const extractedData = optionBytes.slice(-16) // Always extract last 16 bytes
-    const isValuePresent = length >= 32
+//     const extractedData = optionBytes.slice(-16) // Always extract last 16 bytes
+//     const isValuePresent = length >= 32
 
-    if (!isValuePresent) {
-        const [gas] = decodeAbiParameters([{ type: 'uint128' }], padHex(bytesToHex(extractedData), { size: 32 }))
-        return { gas: Number(gas), value: Number(0n) } // If value is absent, return 0n
-    } else {
-        const extractedData32 = optionBytes.slice(-32) // Extract last 32 bytes
-        console.log(bytesToHex(extractedData32))
-        const [gas, value] = decodeAbiParameters(
-            [{ type: 'uint128' }, { type: 'uint128' }],
-            bytesToHex(extractedData32)
-        )
-        return { gas: Number(gas), value: Number(value) }
+//     if (!isValuePresent) {
+//         const [gas] = decodeAbiParameters([{ type: 'uint128' }], padHex(bytesToHex(extractedData), { size: 32 }))
+//         return { gas: Number(gas), value: Number(0n) } // If value is absent, return 0n
+//     } else {
+//         const extractedData32 = optionBytes.slice(-32) // Extract last 32 bytes
+//         console.log(bytesToHex(extractedData32))
+//         const [gas, value] = decodeAbiParameters(
+//             [{ type: 'uint128' }, { type: 'uint128' }],
+//             bytesToHex(extractedData32)
+//         )
+//         return { gas: Number(gas), value: Number(value) }
+//     }
+// }
+
+export function decodeLzReceiveOption(hex: string): { gas: number; value: number } {
+    try {
+        // Handle empty/undefined values first
+        if (!hex || hex === '0x') throw new Error('No Options Set')
+        const options = Options.fromOptions(hex)
+        const lzReceiveOpt = options.decodeExecutorLzReceiveOption()
+        if (!lzReceiveOpt) throw new Error('No executor options')
+
+        return {
+            gas: Number(lzReceiveOpt.gas),
+            value: Number(lzReceiveOpt.value),
+        }
+    } catch (e) {
+        throw new Error(`Invalid options (${hex.slice(0, 12)}...)`)
     }
 }
 
@@ -113,8 +131,8 @@ async function main() {
             srcChain === 'solana'
                 ? solanaOFTs
                 : srcChain === 'movement' || srcChain === 'aptos'
-                    ? aptosMovementOFTs
-                    : ofts[srcChain]
+                  ? aptosMovementOFTs
+                  : ofts[srcChain]
         )) {
             if (oftObj[oftName] === undefined) {
                 oftObj[oftName] = {} as ChainConfig
@@ -261,8 +279,8 @@ async function main() {
             srcChain === 'solana'
                 ? solanaOFTs
                 : srcChain === 'movement' || srcChain === 'aptos'
-                    ? aptosMovementOFTs
-                    : ofts[srcChain]
+                  ? aptosMovementOFTs
+                  : ofts[srcChain]
         )) {
             if (srcChain === 'solana') {
             } else if (srcChain === 'aptos' || srcChain === 'movement') {
@@ -394,8 +412,8 @@ async function main() {
             srcChain === 'solana'
                 ? solanaOFTs
                 : srcChain === 'movement' || srcChain === 'aptos'
-                    ? aptosMovementOFTs
-                    : ofts[srcChain]
+                  ? aptosMovementOFTs
+                  : ofts[srcChain]
         )) {
             if (srcChain === 'solana') {
             } else if (srcChain === 'aptos' || srcChain === 'movement') {
@@ -533,8 +551,8 @@ async function main() {
                 srcChain === 'solana'
                     ? solanaOFTs
                     : srcChain === 'movement' || srcChain === 'aptos'
-                        ? aptosMovementOFTs
-                        : ofts[srcChain]
+                      ? aptosMovementOFTs
+                      : ofts[srcChain]
             )) {
                 if (oftObj[oftName][srcChain].dstChains == undefined) {
                     oftObj[oftName][srcChain].dstChains = {} as DstChainConfig
@@ -559,12 +577,12 @@ async function main() {
                             )
                         }
                     } catch (e) {
-                        console.log("===============================")
-                        console.error(e)
+                        console.log('===============================')
+                        console.log(e)
                         console.log(
                             `${oftName}:${srcChain}:${dstChain}:oft(${ofts[srcChain][oftName].address}).peers(${chains[dstChain].peerId})`
                         )
-                        console.log("===============================")
+                        console.log('===============================')
                     }
                     try {
                         const isSupportedEid = await chains[srcChain].client.readContract({
@@ -575,12 +593,12 @@ async function main() {
                         })
                         oftObj[oftName][srcChain].dstChains[dstChain].isSupportedEid = isSupportedEid
                     } catch (e) {
-                        console.log("===============================")
-                        console.error(e)
+                        console.log('===============================')
+                        console.log(e)
                         console.log(
                             `${oftName}:${srcChain}:${dstChain}:endpoint(${oftObj[oftName][srcChain].params.actualEndpoint}).isSupportedEid(${chains[dstChain].peerId})`
                         )
-                        console.log("===============================")
+                        console.log('===============================')
                     }
                 } else {
                     contractcalls.push({
@@ -634,22 +652,22 @@ async function main() {
                         }
                     }
                 } else {
-                    console.log("===============================")
+                    console.log('===============================')
                     console.log(authParams[index * 2])
                     console.log(
                         `${oftName}:${srcChain}:${dstChain}:oft(${ofts[srcChain][oftName].address}).peers(${chains[dstChain].peerId})`
                     )
-                    console.log("===============================")
+                    console.log('===============================')
                 }
                 if (authParams[index * 2 + 1].status === 'success') {
                     oftObj[oftName][srcChain].dstChains[dstChain].isSupportedEid = authParams[index * 2 + 1].result
                 } else {
-                    console.log("===============================")
+                    console.log('===============================')
                     console.log(authParams[index * 2 + 1])
                     console.log(
                         `${oftName}:${srcChain}:${dstChain}:oft(${ofts[srcChain][oftName].address}).isSupportedEid(${chains[dstChain].peerId})`
                     )
-                    console.log("===============================")
+                    console.log('===============================')
                 }
             })
             resSchema = []
@@ -665,8 +683,8 @@ async function main() {
                 srcChain === 'solana'
                     ? solanaOFTs
                     : srcChain === 'movement' || srcChain === 'aptos'
-                        ? aptosMovementOFTs
-                        : ofts[srcChain]
+                      ? aptosMovementOFTs
+                      : ofts[srcChain]
             )) {
                 if (oftObj[oftName][srcChain].dstChains[dstChain].receiveLibrary == undefined) {
                     oftObj[oftName][srcChain].dstChains[dstChain].receiveLibrary = {} as ReceiveLibraryType
@@ -690,12 +708,12 @@ async function main() {
                         })
                         oftObj[oftName][srcChain].dstChains[dstChain].blockedLib = blockedLib
                     } catch (e) {
-                        console.log("===============================")
-                        console.error(e)
+                        console.log('===============================')
+                        console.log(e)
                         console.log(
                             `${oftName}:${srcChain}:${dstChain}:endpoint(${oftObj[oftName][srcChain].params.actualEndpoint}).blockedLibrary()`
                         )
-                        console.log("===============================")
+                        console.log('===============================')
                     }
                     try {
                         const sendLib = await chains[srcChain].client.readContract({
@@ -706,12 +724,12 @@ async function main() {
                         })
                         oftObj[oftName][srcChain].dstChains[dstChain].sendLibrary = sendLib
                     } catch (e) {
-                        console.log("===============================")
-                        console.error(e)
+                        console.log('===============================')
+                        console.log(e)
                         console.log(
                             `${oftName}:${srcChain}:${dstChain}:endpoint(${oftObj[oftName][srcChain].params.actualEndpoint}).getSendLibrary(${ofts[srcChain][oftName].address},${chains[dstChain].peerId})`
                         )
-                        console.log("===============================")
+                        console.log('===============================')
                     }
                     try {
                         const rcvLib = await chains[srcChain].client.readContract({
@@ -723,12 +741,12 @@ async function main() {
                         oftObj[oftName][srcChain].dstChains[dstChain].receiveLibrary.receiveLibraryAddress = rcvLib[0]
                         oftObj[oftName][srcChain].dstChains[dstChain].receiveLibrary.isDefault = rcvLib[1]
                     } catch (e) {
-                        console.log("===============================")
-                        console.error(e)
+                        console.log('===============================')
+                        console.log(e)
                         console.log(
                             `${oftName}:${srcChain}:${dstChain}:endpoint(${oftObj[oftName][srcChain].params.actualEndpoint}).getReceiveLibrary(${ofts[srcChain][oftName].address},${chains[dstChain].peerId})`
                         )
-                        console.log("===============================")
+                        console.log('===============================')
                     }
                     try {
                         const receiveLibraryTimeout = await chains[srcChain].client.readContract({
@@ -743,12 +761,12 @@ async function main() {
                             receiveLibraryTimeout[1]
                         ).toString()
                     } catch (e) {
-                        console.log("===============================")
-                        console.error(e)
+                        console.log('===============================')
+                        console.log(e)
                         console.log(
                             `${oftName}:${srcChain}:${dstChain}:endpoint(${oftObj[oftName][srcChain].params.actualEndpoint}).receiveLibraryTimeout(${ofts[srcChain][oftName].address},${chains[dstChain].peerId})`
                         )
-                        console.log("===============================")
+                        console.log('===============================')
                     }
                     try {
                         const defaultSendLib = await chains[srcChain].client.readContract({
@@ -759,12 +777,12 @@ async function main() {
                         })
                         oftObj[oftName][srcChain].dstChains[dstChain].defaultSendLibrary = defaultSendLib
                     } catch (e) {
-                        console.log("===============================")
-                        console.error(e)
+                        console.log('===============================')
+                        console.log(e)
                         console.log(
                             `${oftName}:${srcChain}:${dstChain}:endpoint(${oftObj[oftName][srcChain].params.actualEndpoint}).defaultSendLibrary(${chains[dstChain].peerId})`
                         )
-                        console.log("===============================")
+                        console.log('===============================')
                     }
                     try {
                         const defaultReceiveLib = await chains[srcChain].client.readContract({
@@ -775,12 +793,12 @@ async function main() {
                         })
                         oftObj[oftName][srcChain].dstChains[dstChain].defaultReceiveLibrary = defaultReceiveLib
                     } catch (e) {
-                        console.log("===============================")
-                        console.error(e)
+                        console.log('===============================')
+                        console.log(e)
                         console.log(
                             `${oftName}:${srcChain}:${dstChain}:endpoint(${oftObj[oftName][srcChain].params.actualEndpoint}).defaultReceiveLibrary(${chains[dstChain].peerId})`
                         )
-                        console.log("===============================")
+                        console.log('===============================')
                     }
                     try {
                         const defaultReceiveLibTimeout = await chains[srcChain].client.readContract({
@@ -795,12 +813,12 @@ async function main() {
                             defaultReceiveLibTimeout[1]
                         ).toString()
                     } catch (e) {
-                        console.log("===============================")
-                        console.error(e)
+                        console.log('===============================')
+                        console.log(e)
                         console.log(
                             `${oftName}:${srcChain}:${dstChain}:endpoint(${oftObj[oftName][srcChain].params.actualEndpoint}).defaultReceiveLibraryTimeout(${chains[dstChain].peerId})`
                         )
-                        console.log("===============================")
+                        console.log('===============================')
                     }
                     try {
                         const isDefaultSendLibrary = await chains[srcChain].client.readContract({
@@ -811,12 +829,12 @@ async function main() {
                         })
                         oftObj[oftName][srcChain].dstChains[dstChain].isDefaultSendLibrary = isDefaultSendLibrary
                     } catch (e) {
-                        console.log("===============================")
-                        console.error(e)
+                        console.log('===============================')
+                        console.log(e)
                         console.log(
                             `${oftName}:${srcChain}:${dstChain}:endpoint(${oftObj[oftName][srcChain].params.actualEndpoint}).isDefaultSendLibrary(${ofts[srcChain][oftName].address},${chains[dstChain].peerId})`
                         )
-                        console.log("===============================")
+                        console.log('===============================')
                     }
                 } else {
                     contractcalls.push({
@@ -889,22 +907,22 @@ async function main() {
                 if (authParams[index * 8].status === 'success') {
                     oftObj[oftName][srcChain].dstChains[dstChain].blockedLib = authParams[index * 8].result
                 } else {
-                    console.log("===============================")
+                    console.log('===============================')
                     console.log(authParams[index * 8])
                     console.log(
                         `${oftName}:${srcChain}:${dstChain}:endpoint(${oftObj[oftName][srcChain].params.actualEndpoint}).blockedLibrary()`
                     )
-                    console.log("===============================")
+                    console.log('===============================')
                 }
                 if (authParams[index * 8 + 1].status === 'success') {
                     oftObj[oftName][srcChain].dstChains[dstChain].sendLibrary = authParams[index * 8 + 1].result
                 } else {
-                    console.log("===============================")
+                    console.log('===============================')
                     console.log(authParams[index * 8 + 1])
                     console.log(
                         `${oftName}:${srcChain}:${dstChain}:endpoint(${oftObj[oftName][srcChain].params.actualEndpoint}).getSendLibrary(${ofts[srcChain][oftName].address},${chains[dstChain].peerId})`
                     )
-                    console.log("===============================")
+                    console.log('===============================')
                 }
                 if (authParams[index * 8 + 2].status === 'success') {
                     oftObj[oftName][srcChain].dstChains[dstChain].receiveLibrary.receiveLibraryAddress =
@@ -912,12 +930,12 @@ async function main() {
                     oftObj[oftName][srcChain].dstChains[dstChain].receiveLibrary.isDefault =
                         authParams[index * 8 + 2].result[1]
                 } else {
-                    console.log("===============================")
+                    console.log('===============================')
                     console.log(authParams[index * 8 + 2])
                     console.log(
                         `${oftName}:${srcChain}:${dstChain}:endpoint(${oftObj[oftName][srcChain].params.actualEndpoint}).getReceiveLibrary(${ofts[srcChain][oftName].address},${chains[dstChain].peerId})`
                     )
-                    console.log("===============================")
+                    console.log('===============================')
                 }
                 if (authParams[index * 8 + 3].status === 'success') {
                     oftObj[oftName][srcChain].dstChains[dstChain].receiveLibraryTimeOut.libAddress =
@@ -926,33 +944,33 @@ async function main() {
                         authParams[index * 8 + 3].result[1]
                     ).toString()
                 } else {
-                    console.log("===============================")
+                    console.log('===============================')
                     console.log(authParams[index * 8 + 3])
                     console.log(
                         `${oftName}:${srcChain}:${dstChain}:endpoint(${oftObj[oftName][srcChain].params.actualEndpoint}).receiveLibraryTimeout(${ofts[srcChain][oftName].address},${chains[dstChain].peerId})`
                     )
-                    console.log("===============================")
+                    console.log('===============================')
                 }
                 if (authParams[index * 8 + 4].status === 'success') {
                     oftObj[oftName][srcChain].dstChains[dstChain].defaultSendLibrary = authParams[index * 8 + 4].result
                 } else {
-                    console.log("===============================")
+                    console.log('===============================')
                     console.log(authParams[index * 8 + 4])
                     console.log(
                         `${oftName}:${srcChain}:${dstChain}:endpoint(${oftObj[oftName][srcChain].params.actualEndpoint}).defaultSendLibrary(${chains[dstChain].peerId})`
                     )
-                    console.log("===============================")
+                    console.log('===============================')
                 }
                 if (authParams[index * 8 + 5].status === 'success') {
                     oftObj[oftName][srcChain].dstChains[dstChain].defaultReceiveLibrary =
                         authParams[index * 8 + 5].result
                 } else {
-                    console.log("===============================")
+                    console.log('===============================')
                     console.log(authParams[index * 8 + 5])
                     console.log(
                         `${oftName}:${srcChain}:${dstChain}:endpoint(${oftObj[oftName][srcChain].params.actualEndpoint}).defaultReceiveLibrary(${chains[dstChain].peerId})`
                     )
-                    console.log("===============================")
+                    console.log('===============================')
                 }
                 if (authParams[index * 8 + 6].status === 'success') {
                     oftObj[oftName][srcChain].dstChains[dstChain].defaultReceiveLibraryTimeOut.libAddress =
@@ -961,23 +979,23 @@ async function main() {
                         authParams[index * 8 + 6].result[1]
                     ).toString()
                 } else {
-                    console.log("===============================")
+                    console.log('===============================')
                     console.log(authParams[index * 8 + 6])
                     console.log(
                         `${oftName}:${srcChain}:${dstChain}:endpoint(${oftObj[oftName][srcChain].params.actualEndpoint}).defaultReceiveLibraryTimeout(${chains[dstChain].peerId})`
                     )
-                    console.log("===============================")
+                    console.log('===============================')
                 }
                 if (authParams[index * 8 + 7].status === 'success') {
                     oftObj[oftName][srcChain].dstChains[dstChain].isDefaultSendLibrary =
                         authParams[index * 8 + 7].result
                 } else {
-                    console.log("===============================")
+                    console.log('===============================')
                     console.log(authParams[index * 8 + 7])
                     console.log(
                         `${oftName}:${srcChain}:${dstChain}:endpoint(${oftObj[oftName][srcChain].params.actualEndpoint}).isDefaultSendLibrary(${ofts[srcChain][oftName].address},${chains[dstChain].peerId})`
                     )
-                    console.log("===============================")
+                    console.log('===============================')
                 }
             })
             resSchema = []
@@ -993,8 +1011,8 @@ async function main() {
                 srcChain === 'solana'
                     ? solanaOFTs
                     : srcChain === 'movement' || srcChain === 'aptos'
-                        ? aptosMovementOFTs
-                        : ofts[srcChain]
+                      ? aptosMovementOFTs
+                      : ofts[srcChain]
             )) {
                 if (oftObj[oftName][srcChain].dstChains[dstChain].enforcedOptionsSend == undefined) {
                     oftObj[oftName][srcChain].dstChains[dstChain].enforcedOptionsSend = {} as OFTEnforcedOptions
@@ -1100,7 +1118,7 @@ async function main() {
                             deepCopy(sendDefaultExecutorConfig)
                     } catch (e) {
                         console.log(
-                            `${oftName}:${srcChain}:${dstChain}:oft(${oftObj[oftName][srcChain].dstChains[dstChain].sendLibrary}).executorConfigs(${zeroAddress}, ${oftObj[oftName][srcChain].dstChains[dstChain].eid})`
+                            `${oftName}:${srcChain}:${dstChain}:sendLibrary(${oftObj[oftName][srcChain].dstChains[dstChain].sendLibrary}).executorConfigs(${zeroAddress}, ${oftObj[oftName][srcChain].dstChains[dstChain].eid})`
                         )
                     }
 
@@ -1115,7 +1133,7 @@ async function main() {
                         oftObj[oftName][srcChain].dstChains[dstChain].executorConfig = deepCopy(sendAppExecutorConfig)
                     } catch (e) {
                         console.log(
-                            `${oftName}:${srcChain}:${dstChain}:oft(${oftObj[oftName][srcChain].dstChains[dstChain].sendLibrary}).executorConfigs(${ofts[srcChain][oftName].address}, ${oftObj[oftName][srcChain].dstChains[dstChain].eid})`
+                            `${oftName}:${srcChain}:${dstChain}:sendLibrary(${oftObj[oftName][srcChain].dstChains[dstChain].sendLibrary}).executorConfigs(${ofts[srcChain][oftName].address}, ${oftObj[oftName][srcChain].dstChains[dstChain].eid})`
                         )
                     }
 
@@ -1132,7 +1150,7 @@ async function main() {
                         )
                     } catch (e) {
                         console.log(
-                            `${oftName}:${srcChain}:${dstChain}:oft(${oftObj[oftName][srcChain].dstChains[dstChain].defaultSendLibrary}).executorConfigs(${zeroAddress}, ${oftObj[oftName][srcChain].dstChains[dstChain].eid})`
+                            `${oftName}:${srcChain}:${dstChain}:defaultSendLibrary(${oftObj[oftName][srcChain].dstChains[dstChain].defaultSendLibrary}).executorConfigs(${zeroAddress}, ${oftObj[oftName][srcChain].dstChains[dstChain].eid})`
                         )
                     }
 
@@ -1148,7 +1166,7 @@ async function main() {
                             deepCopy(sendAppExecutorConfigDefault)
                     } catch (e) {
                         console.log(
-                            `${oftName}:${srcChain}:${dstChain}:oft(${oftObj[oftName][srcChain].dstChains[dstChain].defaultSendLibrary}).executorConfigs(${ofts[srcChain][oftName].address}, ${oftObj[oftName][srcChain].dstChains[dstChain].eid})`
+                            `${oftName}:${srcChain}:${dstChain}:defaultSendLibrary(${oftObj[oftName][srcChain].dstChains[dstChain].defaultSendLibrary}).executorConfigs(${ofts[srcChain][oftName].address}, ${oftObj[oftName][srcChain].dstChains[dstChain].eid})`
                         )
                     }
 
@@ -1164,7 +1182,7 @@ async function main() {
                             deepCopy(sendDefaultUlnConfig) // sendDefaultUlnConfig
                     } catch (e) {
                         console.log(
-                            `${oftName}:${srcChain}:${dstChain}:oft(${oftObj[oftName][srcChain].dstChains[dstChain].sendLibrary}).getAppUlnConfig(${zeroAddress}, ${oftObj[oftName][srcChain].dstChains[dstChain].eid})`
+                            `${oftName}:${srcChain}:${dstChain}:sendLibrary(${oftObj[oftName][srcChain].dstChains[dstChain].sendLibrary}).getAppUlnConfig(${zeroAddress}, ${oftObj[oftName][srcChain].dstChains[dstChain].eid})`
                         )
                     }
 
@@ -1179,7 +1197,7 @@ async function main() {
                         oftObj[oftName][srcChain].dstChains[dstChain].appUlnConfig.send = deepCopy(sendAppUlnConfig) // sendAppUlnConfig
                     } catch (e) {
                         console.log(
-                            `${oftName}:${srcChain}:${dstChain}:oft(${oftObj[oftName][srcChain].dstChains[dstChain].sendLibrary}).getAppUlnConfig(${ofts[srcChain][oftName].address}, ${oftObj[oftName][srcChain].dstChains[dstChain].eid})`
+                            `${oftName}:${srcChain}:${dstChain}:sendLibrary(${oftObj[oftName][srcChain].dstChains[dstChain].sendLibrary}).getAppUlnConfig(${ofts[srcChain][oftName].address}, ${oftObj[oftName][srcChain].dstChains[dstChain].eid})`
                         )
                     }
 
@@ -1195,7 +1213,7 @@ async function main() {
                             deepCopy(sendDefaultUlnConfigDefault) // sendDefaultUlnConfigDefault
                     } catch (e) {
                         console.log(
-                            `${oftName}:${srcChain}:${dstChain}:oft(${oftObj[oftName][srcChain].dstChains[dstChain].defaultSendLibrary}).getAppUlnConfig(${zeroAddress}, ${oftObj[oftName][srcChain].dstChains[dstChain].eid})`
+                            `${oftName}:${srcChain}:${dstChain}:defaultSendLibrary(${oftObj[oftName][srcChain].dstChains[dstChain].defaultSendLibrary}).getAppUlnConfig(${zeroAddress}, ${oftObj[oftName][srcChain].dstChains[dstChain].eid})`
                         )
                     }
 
@@ -1211,7 +1229,7 @@ async function main() {
                             deepCopy(sendAppUlnConfigDefault) // sendAppUlnConfigDefault
                     } catch (e) {
                         console.log(
-                            `${oftName}:${srcChain}:${dstChain}:oft(${oftObj[oftName][srcChain].dstChains[dstChain].defaultSendLibrary}).getAppUlnConfig(${ofts[srcChain][oftName].address}, ${oftObj[oftName][srcChain].dstChains[dstChain].eid})`
+                            `${oftName}:${srcChain}:${dstChain}:defaultSendLibrary(${oftObj[oftName][srcChain].dstChains[dstChain].defaultSendLibrary}).getAppUlnConfig(${ofts[srcChain][oftName].address}, ${oftObj[oftName][srcChain].dstChains[dstChain].eid})`
                         )
                     }
 
@@ -1227,7 +1245,7 @@ async function main() {
                             deepCopy(receiveDefaultUlnConfig) // receiveDefaultUlnConfig
                     } catch (e) {
                         console.log(
-                            `${oftName}:${srcChain}:${dstChain}:oft(${oftObj[oftName][srcChain].dstChains[dstChain].receiveLibrary.receiveLibraryAddress}).getAppUlnConfig(${zeroAddress}, ${oftObj[oftName][srcChain].dstChains[dstChain].eid})`
+                            `${oftName}:${srcChain}:${dstChain}:receiveLibrary(${oftObj[oftName][srcChain].dstChains[dstChain].receiveLibrary.receiveLibraryAddress}).getAppUlnConfig(${zeroAddress}, ${oftObj[oftName][srcChain].dstChains[dstChain].eid})`
                         )
                     }
 
@@ -1243,7 +1261,7 @@ async function main() {
                             deepCopy(receiveApptUlnConfig) // receiveApptUlnConfig
                     } catch (e) {
                         console.log(
-                            `${oftName}:${srcChain}:${dstChain}:oft(${oftObj[oftName][srcChain].dstChains[dstChain].receiveLibrary.receiveLibraryAddress}).getAppUlnConfig(${ofts[srcChain][oftName].address}, ${oftObj[oftName][srcChain].dstChains[dstChain].eid})`
+                            `${oftName}:${srcChain}:${dstChain}:receiveLibrary(${oftObj[oftName][srcChain].dstChains[dstChain].receiveLibrary.receiveLibraryAddress}).getAppUlnConfig(${ofts[srcChain][oftName].address}, ${oftObj[oftName][srcChain].dstChains[dstChain].eid})`
                         )
                     }
 
@@ -1259,7 +1277,7 @@ async function main() {
                             deepCopy(receiveDefaultUlnConfigDefault) // receiveDefaultUlnConfigDefault
                     } catch (e) {
                         console.log(
-                            `${oftName}:${srcChain}:${dstChain}:oft(${oftObj[oftName][srcChain].dstChains[dstChain].defaultReceiveLibrary}).getAppUlnConfig(${zeroAddress}, ${oftObj[oftName][srcChain].dstChains[dstChain].eid})`
+                            `${oftName}:${srcChain}:${dstChain}:defaultReceiveLibrary(${oftObj[oftName][srcChain].dstChains[dstChain].defaultReceiveLibrary}).getAppUlnConfig(${zeroAddress}, ${oftObj[oftName][srcChain].dstChains[dstChain].eid})`
                         )
                     }
 
@@ -1275,7 +1293,7 @@ async function main() {
                             deepCopy(receiveAppUlnConfigDefault) // receiveAppUlnConfigDefault
                     } catch (e) {
                         console.log(
-                            `${oftName}:${srcChain}:${dstChain}:oft(${oftObj[oftName][srcChain].dstChains[dstChain].defaultReceiveLibrary}).getAppUlnConfig(${ofts[srcChain][oftName].address}, ${oftObj[oftName][srcChain].dstChains[dstChain].eid})`
+                            `${oftName}:${srcChain}:${dstChain}:defaultReceiveLibrary(${oftObj[oftName][srcChain].dstChains[dstChain].defaultReceiveLibrary}).getAppUlnConfig(${ofts[srcChain][oftName].address}, ${oftObj[oftName][srcChain].dstChains[dstChain].eid})`
                         )
                     }
                 } else {
@@ -1385,9 +1403,19 @@ async function main() {
             resSchema.forEach(({ srcChain, dstChain, oftName }, index) => {
                 if (authParams[index * 14].status === 'success') {
                     if (authParams[index * 14].result !== '0x') {
-                        oftObj[oftName][srcChain].dstChains[dstChain].enforcedOptionsSend = deepCopy(
-                            decodeLzReceiveOption(authParams[index * 14].result)
-                        )
+                        try {
+                            oftObj[oftName][srcChain].dstChains[dstChain].enforcedOptionsSend = deepCopy(
+                                decodeLzReceiveOption(authParams[index * 14].result)
+                            )
+                        } catch (e) {
+                            console.log('===============================')
+                            console.log(e)
+                            console.log(authParams[index * 14])
+                            console.log(
+                                `${oftName}:${srcChain}:${dstChain}:oft(${ofts[srcChain][oftName].address}).enforcedOptions(${chains[dstChain].peerId},1)`
+                            )
+                            console.log('===============================')
+                        }
                     }
                 } else {
                     console.log(
@@ -1396,9 +1424,19 @@ async function main() {
                 }
                 if (authParams[index * 14 + 1].status === 'success') {
                     if (authParams[index * 14 + 1].result !== '0x') {
-                        oftObj[oftName][srcChain].dstChains[dstChain].enforcedOptionsSendAndCall = deepCopy(
-                            decodeLzReceiveOption(authParams[index * 14 + 1].result)
-                        )
+                        try {
+                            oftObj[oftName][srcChain].dstChains[dstChain].enforcedOptionsSendAndCall = deepCopy(
+                                decodeLzReceiveOption(authParams[index * 14 + 1].result)
+                            )
+                        } catch (e) {
+                            console.log('===============================')
+                            console.log(e)
+                            console.log(authParams[index * 14])
+                            console.log(
+                                `${oftName}:${srcChain}:${dstChain}:oft(${ofts[srcChain][oftName].address}).enforcedOptions(${chains[dstChain].peerId},1)`
+                            )
+                            console.log('===============================')
+                        }
                     }
                 } else {
                     console.log(
@@ -1412,7 +1450,7 @@ async function main() {
                     )
                 } else {
                     console.log(
-                        `${oftName}:${srcChain}:${dstChain}:oft(${oftObj[oftName][srcChain].dstChains[dstChain].sendLibrary}).executorConfigs(${zeroAddress}, ${oftObj[oftName][srcChain].dstChains[dstChain].eid})`
+                        `${oftName}:${srcChain}:${dstChain}:sendLibrary(${oftObj[oftName][srcChain].dstChains[dstChain].sendLibrary}).executorConfigs(${zeroAddress}, ${oftObj[oftName][srcChain].dstChains[dstChain].eid})`
                     )
                 }
 
@@ -1422,7 +1460,7 @@ async function main() {
                     )
                 } else {
                     console.log(
-                        `${oftName}:${srcChain}:${dstChain}:oft(${oftObj[oftName][srcChain].dstChains[dstChain].sendLibrary}).executorConfigs(${ofts[srcChain][oftName].address}, ${oftObj[oftName][srcChain].dstChains[dstChain].eid})`
+                        `${oftName}:${srcChain}:${dstChain}:sendLibrary(${oftObj[oftName][srcChain].dstChains[dstChain].sendLibrary}).executorConfigs(${ofts[srcChain][oftName].address}, ${oftObj[oftName][srcChain].dstChains[dstChain].eid})`
                     )
                 }
                 if (authParams[index * 14 + 4].status === 'success') {
@@ -1431,7 +1469,7 @@ async function main() {
                     )
                 } else {
                     console.log(
-                        `${oftName}:${srcChain}:${dstChain}:oft(${oftObj[oftName][srcChain].dstChains[dstChain].defaultSendLibrary}).executorConfigs(${zeroAddress}, ${oftObj[oftName][srcChain].dstChains[dstChain].eid})`
+                        `${oftName}:${srcChain}:${dstChain}:defaultSendLibrary(${oftObj[oftName][srcChain].dstChains[dstChain].defaultSendLibrary}).executorConfigs(${zeroAddress}, ${oftObj[oftName][srcChain].dstChains[dstChain].eid})`
                     )
                 }
                 if (authParams[index * 14 + 5].status === 'success') {
@@ -1440,7 +1478,7 @@ async function main() {
                     )
                 } else {
                     console.log(
-                        `${oftName}:${srcChain}:${dstChain}:oft(${oftObj[oftName][srcChain].dstChains[dstChain].defaultSendLibrary}).executorConfigs(${ofts[srcChain][oftName].address}, ${oftObj[oftName][srcChain].dstChains[dstChain].eid})`
+                        `${oftName}:${srcChain}:${dstChain}:defaultSendLibrary(${oftObj[oftName][srcChain].dstChains[dstChain].defaultSendLibrary}).executorConfigs(${ofts[srcChain][oftName].address}, ${oftObj[oftName][srcChain].dstChains[dstChain].eid})`
                     )
                 }
                 if (authParams[index * 14 + 6].status === 'success') {
@@ -1449,7 +1487,7 @@ async function main() {
                     ) // sendDefaultUlnConfig
                 } else {
                     console.log(
-                        `${oftName}:${srcChain}:${dstChain}:oft(${oftObj[oftName][srcChain].dstChains[dstChain].sendLibrary}).getAppUlnConfig(${zeroAddress}, ${oftObj[oftName][srcChain].dstChains[dstChain].eid})`
+                        `${oftName}:${srcChain}:${dstChain}:sendLibrary(${oftObj[oftName][srcChain].dstChains[dstChain].sendLibrary}).getAppUlnConfig(${zeroAddress}, ${oftObj[oftName][srcChain].dstChains[dstChain].eid})`
                     )
                 }
 
@@ -1459,7 +1497,7 @@ async function main() {
                     ) // sendAppUlnConfig
                 } else {
                     console.log(
-                        `${oftName}:${srcChain}:${dstChain}:oft(${oftObj[oftName][srcChain].dstChains[dstChain].sendLibrary}).getAppUlnConfig(${ofts[srcChain][oftName].address}, ${oftObj[oftName][srcChain].dstChains[dstChain].eid})`
+                        `${oftName}:${srcChain}:${dstChain}:sendLibrary(${oftObj[oftName][srcChain].dstChains[dstChain].sendLibrary}).getAppUlnConfig(${ofts[srcChain][oftName].address}, ${oftObj[oftName][srcChain].dstChains[dstChain].eid})`
                     )
                 }
 
@@ -1469,7 +1507,7 @@ async function main() {
                     ) // sendDefaultUlnConfigDefault
                 } else {
                     console.log(
-                        `${oftName}:${srcChain}:${dstChain}:oft(${oftObj[oftName][srcChain].dstChains[dstChain].defaultSendLibrary}).getAppUlnConfig(${zeroAddress}, ${oftObj[oftName][srcChain].dstChains[dstChain].eid})`
+                        `${oftName}:${srcChain}:${dstChain}:defaultSendLibrary(${oftObj[oftName][srcChain].dstChains[dstChain].defaultSendLibrary}).getAppUlnConfig(${zeroAddress}, ${oftObj[oftName][srcChain].dstChains[dstChain].eid})`
                     )
                 }
 
@@ -1479,7 +1517,7 @@ async function main() {
                     ) // sendAppUlnConfigDefault
                 } else {
                     console.log(
-                        `${oftName}:${srcChain}:${dstChain}:oft(${oftObj[oftName][srcChain].dstChains[dstChain].defaultSendLibrary}).getAppUlnConfig(${ofts[srcChain][oftName].address}, ${oftObj[oftName][srcChain].dstChains[dstChain].eid})`
+                        `${oftName}:${srcChain}:${dstChain}:defaultSendLibrary(${oftObj[oftName][srcChain].dstChains[dstChain].defaultSendLibrary}).getAppUlnConfig(${ofts[srcChain][oftName].address}, ${oftObj[oftName][srcChain].dstChains[dstChain].eid})`
                     )
                 }
 
@@ -1489,7 +1527,7 @@ async function main() {
                     ) // receiveDefaultUlnConfig
                 } else {
                     console.log(
-                        `${oftName}:${srcChain}:${dstChain}:oft(${oftObj[oftName][srcChain].dstChains[dstChain].receiveLibrary.receiveLibraryAddress}).getAppUlnConfig(${zeroAddress}, ${oftObj[oftName][srcChain].dstChains[dstChain].eid})`
+                        `${oftName}:${srcChain}:${dstChain}:receiveLibrary(${oftObj[oftName][srcChain].dstChains[dstChain].receiveLibrary.receiveLibraryAddress}).getAppUlnConfig(${zeroAddress}, ${oftObj[oftName][srcChain].dstChains[dstChain].eid})`
                     )
                 }
 
@@ -1499,7 +1537,7 @@ async function main() {
                     ) // receiveApptUlnConfig
                 } else {
                     console.log(
-                        `${oftName}:${srcChain}:${dstChain}:oft(${oftObj[oftName][srcChain].dstChains[dstChain].receiveLibrary.receiveLibraryAddress}).getAppUlnConfig(${ofts[srcChain][oftName].address}, ${oftObj[oftName][srcChain].dstChains[dstChain].eid})`
+                        `${oftName}:${srcChain}:${dstChain}:receiveLibrary(${oftObj[oftName][srcChain].dstChains[dstChain].receiveLibrary.receiveLibraryAddress}).getAppUlnConfig(${ofts[srcChain][oftName].address}, ${oftObj[oftName][srcChain].dstChains[dstChain].eid})`
                     )
                 }
 
@@ -1509,7 +1547,7 @@ async function main() {
                     ) // receiveDefaultUlnConfigDefault
                 } else {
                     console.log(
-                        `${oftName}:${srcChain}:${dstChain}:oft(${oftObj[oftName][srcChain].dstChains[dstChain].defaultReceiveLibrary}).getAppUlnConfig(${zeroAddress}, ${oftObj[oftName][srcChain].dstChains[dstChain].eid})`
+                        `${oftName}:${srcChain}:${dstChain}:defaultReceiveLibrary(${oftObj[oftName][srcChain].dstChains[dstChain].defaultReceiveLibrary}).getAppUlnConfig(${zeroAddress}, ${oftObj[oftName][srcChain].dstChains[dstChain].eid})`
                     )
                 }
 
@@ -1519,7 +1557,7 @@ async function main() {
                     ) // receiveAppUlnConfigDefault
                 } else {
                     console.log(
-                        `${oftName}:${srcChain}:${dstChain}:oft(${oftObj[oftName][srcChain].dstChains[dstChain].defaultReceiveLibrary}).getAppUlnConfig(${ofts[srcChain][oftName].address}, ${oftObj[oftName][srcChain].dstChains[dstChain].eid})`
+                        `${oftName}:${srcChain}:${dstChain}:defaultReceiveLibrary(${oftObj[oftName][srcChain].dstChains[dstChain].defaultReceiveLibrary}).getAppUlnConfig(${ofts[srcChain][oftName].address}, ${oftObj[oftName][srcChain].dstChains[dstChain].eid})`
                     )
                 }
             })

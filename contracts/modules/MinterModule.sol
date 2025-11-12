@@ -98,22 +98,22 @@ abstract contract MinterModule {
     // Views
     //==============================================================================
 
-    function minters(address _address) public view returns(bool) {
+    function minters(address _address) external view returns(bool) {
         MinterModuleStorage storage $ = _getMinterModuleStorage();
         return $.minters[_address];
     }
 
-    function minters_array(uint256 _idx) public view returns(address) {
+    function minters_array(uint256 _idx) external view returns(address) {
         MinterModuleStorage storage $ = _getMinterModuleStorage();
         return $.minters_array[_idx];
     }
 
-    function totalMinted() public view returns(uint256) {
+    function totalMinted() external view returns(uint256) {
         MinterModuleStorage storage $ = _getMinterModuleStorage();
         return $.totalMinted;
     }
 
-    function totalBurned() public view returns(uint256) {
+    function totalBurned() external view returns(uint256) {
         MinterModuleStorage storage $ = _getMinterModuleStorage();
         return $.totalBurned;
     }

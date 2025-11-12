@@ -134,7 +134,12 @@ export const chains: Record<string, ChainInfo> = {
     sei: {
         client: createPublicClient({
             chain: sei,
-            transport: http(process.env.SEI_RPC_URL),
+            transport: fallback([
+                http(process.env.SEI_RPC_URL_1),
+                http(process.env.SEI_RPC_URL_2),
+                http(process.env.SEI_RPC_URL_3),
+                http(process.env.SEI_RPC_URL_4),
+            ]),
         }),
         peerId: 30280,
         endpoint: '0x1a44076050125825900e736c501f859c50fE728c',
@@ -148,10 +153,7 @@ export const chains: Record<string, ChainInfo> = {
     xlayer: {
         client: createPublicClient({
             chain: xLayer,
-            transport: fallback([
-                http('https://xlayerrpc.okx.com'),
-                http(process.env.XLAYER_RPC_URL)
-            ])
+            transport: fallback([http('https://xlayerrpc.okx.com'), http(process.env.XLAYER_RPC_URL)]),
         }),
         peerId: 30274,
         endpoint: '0x1a44076050125825900e736c501f859c50fE728c',
@@ -165,7 +167,12 @@ export const chains: Record<string, ChainInfo> = {
     sonic: {
         client: createPublicClient({
             chain: sonic,
-            transport: http(process.env.SONIC_RPC_URL),
+            transport: fallback([
+                http(process.env.SONIC_RPC_URL_1),
+                http(process.env.SONIC_RPC_URL_2),
+                http(process.env.SONIC_RPC_URL_3),
+                http(process.env.SONIC_RPC_URL_4),
+            ]),
         }),
         peerId: 30332,
         endpoint: '0x6F475642a6e85809B1c36Fa62763669b1b48DD5B',
@@ -179,7 +186,11 @@ export const chains: Record<string, ChainInfo> = {
     ink: {
         client: createPublicClient({
             chain: ink,
-            transport: http(process.env.INK_RPC_URL),
+            transport: fallback([http(process.env.INK_RPC_URL_1),
+            http(process.env.INK_RPC_URL_2),
+            http(process.env.INK_RPC_URL_3),
+            http(process.env.INK_RPC_URL_4)
+            ]),
         }),
         peerId: 30339,
         endpoint: '0xca29f3A6f966Cb2fc0dE625F8f325c0C46dbE958',
@@ -193,7 +204,12 @@ export const chains: Record<string, ChainInfo> = {
     arbitrum: {
         client: createPublicClient({
             chain: arbitrum,
-            transport: http(process.env.ARBITRUM_RPC_URL),
+            transport: fallback([
+                http(process.env.ARBITRUM_RPC_URL_1),
+                http(process.env.ARBITRUM_RPC_URL_2),
+                http(process.env.ARBITRUM_RPC_URL_3),
+                http(process.env.ARBITRUM_RPC_URL_4)
+            ])
         }),
         peerId: 30110,
         endpoint: '0x1a44076050125825900e736c501f859c50fE728c',
@@ -207,7 +223,12 @@ export const chains: Record<string, ChainInfo> = {
     optimism: {
         client: createPublicClient({
             chain: optimism,
-            transport: http(process.env.OPTIMISM_RPC_URL),
+            transport: fallback([
+                http(process.env.OPTIMISM_RPC_URL_1),
+                http(process.env.OPTIMISM_RPC_URL_2),
+                http(process.env.OPTIMISM_RPC_URL_3),
+                http(process.env.OPTIMISM_RPC_URL_4),
+            ]),
         }),
         peerId: 30111,
         endpoint: '0x1a44076050125825900e736c501f859c50fE728c',
@@ -221,7 +242,12 @@ export const chains: Record<string, ChainInfo> = {
     polygon: {
         client: createPublicClient({
             chain: polygon,
-            transport: http(process.env.POLYGON_RPC_URL),
+            transport: fallback([
+                http(process.env.POLYGON_RPC_URL_1),
+                http(process.env.POLYGON_RPC_URL_2),
+                http(process.env.POLYGON_RPC_URL_3),
+                http(process.env.POLYGON_RPC_URL_4)
+            ]),
         }),
         peerId: 30109,
         endpoint: '0x1a44076050125825900e736c501f859c50fE728c',
@@ -366,7 +392,10 @@ export const chains: Record<string, ChainInfo> = {
     katana: {
         client: createPublicClient({
             chain: katana,
-            transport: http(),
+            transport: fallback([
+                http(process.env.KATANA_RPC_URL_1),
+                http(process.env.KATANA_RPC_URL_2)
+            ]),
         }),
         peerId: 30375,
         endpoint: '0x6F475642a6e85809B1c36Fa62763669b1b48DD5B',
@@ -436,7 +465,11 @@ export const chains: Record<string, ChainInfo> = {
     plasma: {
         client: createPublicClient({
             chain: plasma,
-            transport: http(),
+            transport: fallback([
+                http(process.env.PLASMA_RPC_URL_1),
+                http(process.env.PLASMA_RPC_URL_2),
+                http(process.env.PLASMA_RPC_URL_3)
+            ]),
         }),
         peerId: 30383,
         endpoint: '0x6F475642a6e85809B1c36Fa62763669b1b48DD5B',

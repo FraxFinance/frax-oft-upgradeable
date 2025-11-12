@@ -255,6 +255,103 @@ function generateUlnAndDvnComparisonCSV(config: ChainConfig): string {
     return rows.map((r) => r.join(',')).join('\n')
 }
 
+export function generateEnforcedOptionsCSV(config: ChainConfig): string {
+    const chains = Object.keys(config)
+    const rows: string[][] = []
+
+    rows.push([
+        'srcChain',
+        'dstChain',
+        'enforcedOptionsSend.gas',
+        'enforcedOptionsSend.value',
+        '',
+        'enforcedOptionsSendAndCall.gas',
+        'enforcedOptionsSendAndCall.value',
+    ])
+
+    for (const srcChain of chains) {
+        for (const dstChain of chains) {
+            if (
+                srcChain === 'aptos' ||
+                srcChain === 'solana' ||
+                srcChain === 'movement' ||
+                dstChain === 'aptos' ||
+                dstChain === 'solana' ||
+                dstChain === 'movement'
+            ) {
+                continue
+            }
+            if (srcChain === dstChain) continue
+            if (!isWiredX(config, srcChain, dstChain)) continue
+
+            const src = config[srcChain]
+            const dstCfg = src.dstChains[dstChain]
+
+            const eos = dstCfg.enforcedOptionsSend ?? {}
+            const eosac = dstCfg.enforcedOptionsSendAndCall ?? {}
+
+            const asStr = (v?: string | number) => (v !== undefined ? String(v) : '-')
+
+            rows.push([srcChain, dstChain, asStr(eos.gas), asStr(eos.value), '', asStr(eosac.gas), asStr(eosac.value)])
+        }
+    }
+
+    return rows.map((r) => r.join(',')).join('\n')
+}
+
+export function generateExecutorConfigCSV(config: ChainConfig): string {
+    const chains = Object.keys(config)
+    const rows: string[][] = []
+
+    // Header
+    rows.push([
+        'srcChain',
+        'dstChain',
+        'defaultExecutorConfig.maxMessageSize',
+        'defaultExecutorConfig.executorAddress',
+        '',
+        'executorConfig.maxMessageSize',
+        'executorConfig.executorAddress',
+    ])
+
+    const asStr = (v?: string | number) => (v !== undefined ? String(v) : '-')
+
+    for (const srcChain of chains) {
+        for (const dstChain of chains) {
+            if (
+                srcChain === 'aptos' ||
+                srcChain === 'solana' ||
+                srcChain === 'movement' ||
+                dstChain === 'aptos' ||
+                dstChain === 'solana' ||
+                dstChain === 'movement'
+            ) {
+                continue
+            }
+            if (srcChain === dstChain) continue
+            if (!isWiredX(config, srcChain, dstChain)) continue
+
+            const dstCfg = config[srcChain]?.dstChains?.[dstChain]
+            if (!dstCfg) continue
+
+            const def = dstCfg.defaultExecutorConfig ?? {}
+            const app = dstCfg.executorConfig ?? {}
+
+            rows.push([
+                srcChain,
+                dstChain,
+                asStr(def.maxMessageSize),
+                asStr(def.executorAddress),
+                '',
+                asStr(app.maxMessageSize),
+                asStr(app.executorAddress),
+            ])
+        }
+    }
+
+    return rows.map((r) => r.join(',')).join('\n')
+}
+
 function deepCopy<T>(obj: T): T {
     if (obj === null || typeof obj !== 'object') {
         if (typeof obj === 'bigint') {
@@ -315,8 +412,8 @@ async function main() {
             srcChain === 'solana'
                 ? solanaOFTs
                 : srcChain === 'movement' || srcChain === 'aptos'
-                    ? aptosMovementOFTs
-                    : ofts[srcChain]
+                  ? aptosMovementOFTs
+                  : ofts[srcChain]
         )) {
             if (oftObj[oftName] === undefined) {
                 oftObj[oftName] = {} as ChainConfig
@@ -463,8 +560,8 @@ async function main() {
             srcChain === 'solana'
                 ? solanaOFTs
                 : srcChain === 'movement' || srcChain === 'aptos'
-                    ? aptosMovementOFTs
-                    : ofts[srcChain]
+                  ? aptosMovementOFTs
+                  : ofts[srcChain]
         )) {
             if (srcChain === 'solana') {
             } else if (srcChain === 'aptos' || srcChain === 'movement') {
@@ -596,8 +693,8 @@ async function main() {
             srcChain === 'solana'
                 ? solanaOFTs
                 : srcChain === 'movement' || srcChain === 'aptos'
-                    ? aptosMovementOFTs
-                    : ofts[srcChain]
+                  ? aptosMovementOFTs
+                  : ofts[srcChain]
         )) {
             if (srcChain === 'solana') {
             } else if (srcChain === 'aptos' || srcChain === 'movement') {
@@ -735,8 +832,8 @@ async function main() {
                 srcChain === 'solana'
                     ? solanaOFTs
                     : srcChain === 'movement' || srcChain === 'aptos'
-                        ? aptosMovementOFTs
-                        : ofts[srcChain]
+                      ? aptosMovementOFTs
+                      : ofts[srcChain]
             )) {
                 if (oftObj[oftName][srcChain].dstChains == undefined) {
                     oftObj[oftName][srcChain].dstChains = {} as DstChainConfig
@@ -867,8 +964,8 @@ async function main() {
                 srcChain === 'solana'
                     ? solanaOFTs
                     : srcChain === 'movement' || srcChain === 'aptos'
-                        ? aptosMovementOFTs
-                        : ofts[srcChain]
+                      ? aptosMovementOFTs
+                      : ofts[srcChain]
             )) {
                 if (oftObj[oftName][srcChain].dstChains[dstChain].receiveLibrary == undefined) {
                     oftObj[oftName][srcChain].dstChains[dstChain].receiveLibrary = {} as ReceiveLibraryType
@@ -1195,8 +1292,8 @@ async function main() {
                 srcChain === 'solana'
                     ? solanaOFTs
                     : srcChain === 'movement' || srcChain === 'aptos'
-                        ? aptosMovementOFTs
-                        : ofts[srcChain]
+                      ? aptosMovementOFTs
+                      : ofts[srcChain]
             )) {
                 if (oftObj[oftName][srcChain].dstChains[dstChain].enforcedOptionsSend == undefined) {
                     oftObj[oftName][srcChain].dstChains[dstChain].enforcedOptionsSend = {} as OFTEnforcedOptions
@@ -1298,8 +1395,10 @@ async function main() {
                             functionName: 'executorConfigs',
                             args: [zeroAddress, oftObj[oftName][srcChain].dstChains[dstChain].eid],
                         })
-                        oftObj[oftName][srcChain].dstChains[dstChain].defaultExecutorConfig =
-                            deepCopy(sendDefaultExecutorConfig)
+                        oftObj[oftName][srcChain].dstChains[dstChain].defaultExecutorConfig.maxMessageSize =
+                            sendDefaultExecutorConfig.result[0]
+                        oftObj[oftName][srcChain].dstChains[dstChain].defaultExecutorConfig.executorAddress =
+                            sendDefaultExecutorConfig.result[1]
                     } catch (e) {
                         console.log(
                             `${oftName}:${srcChain}:${dstChain}:sendLibrary(${oftObj[oftName][srcChain].dstChains[dstChain].sendLibrary}).executorConfigs(${zeroAddress}, ${oftObj[oftName][srcChain].dstChains[dstChain].eid})`
@@ -1314,7 +1413,10 @@ async function main() {
                             functionName: 'executorConfigs',
                             args: [ofts[srcChain][oftName].address, oftObj[oftName][srcChain].dstChains[dstChain].eid],
                         })
-                        oftObj[oftName][srcChain].dstChains[dstChain].executorConfig = deepCopy(sendAppExecutorConfig)
+                        oftObj[oftName][srcChain].dstChains[dstChain].executorConfig.maxMessageSize =
+                            sendAppExecutorConfig.result[0]
+                        oftObj[oftName][srcChain].dstChains[dstChain].executorConfig.executorAddress =
+                            sendAppExecutorConfig.result[1]
                     } catch (e) {
                         console.log(
                             `${oftName}:${srcChain}:${dstChain}:sendLibrary(${oftObj[oftName][srcChain].dstChains[dstChain].sendLibrary}).executorConfigs(${ofts[srcChain][oftName].address}, ${oftObj[oftName][srcChain].dstChains[dstChain].eid})`
@@ -1329,9 +1431,10 @@ async function main() {
                             functionName: 'executorConfigs',
                             args: [zeroAddress, oftObj[oftName][srcChain].dstChains[dstChain].eid],
                         })
-                        oftObj[oftName][srcChain].dstChains[dstChain].defaultExecutorConfigDefaultLib = deepCopy(
-                            sendDefaultExecutorConfigDefault
-                        )
+                        oftObj[oftName][srcChain].dstChains[dstChain].defaultExecutorConfigDefaultLib.maxMessageSize =
+                            sendDefaultExecutorConfigDefault.result[0]
+                        oftObj[oftName][srcChain].dstChains[dstChain].defaultExecutorConfigDefaultLib.executorAddress =
+                            sendDefaultExecutorConfigDefault.result[1]
                     } catch (e) {
                         console.log(
                             `${oftName}:${srcChain}:${dstChain}:defaultSendLibrary(${oftObj[oftName][srcChain].dstChains[dstChain].defaultSendLibrary}).executorConfigs(${zeroAddress}, ${oftObj[oftName][srcChain].dstChains[dstChain].eid})`
@@ -1346,8 +1449,10 @@ async function main() {
                             functionName: 'executorConfigs',
                             args: [ofts[srcChain][oftName].address, oftObj[oftName][srcChain].dstChains[dstChain].eid],
                         })
-                        oftObj[oftName][srcChain].dstChains[dstChain].executorConfigDefaultLib =
-                            deepCopy(sendAppExecutorConfigDefault)
+                        oftObj[oftName][srcChain].dstChains[dstChain].executorConfigDefaultLib.maxMessageSize =
+                            sendAppExecutorConfigDefault.result[0]
+                        oftObj[oftName][srcChain].dstChains[dstChain].executorConfigDefaultLib.executorAddress =
+                            sendAppExecutorConfigDefault.result[1]
                     } catch (e) {
                         console.log(
                             `${oftName}:${srcChain}:${dstChain}:defaultSendLibrary(${oftObj[oftName][srcChain].dstChains[dstChain].defaultSendLibrary}).executorConfigs(${ofts[srcChain][oftName].address}, ${oftObj[oftName][srcChain].dstChains[dstChain].eid})`
@@ -1629,9 +1734,10 @@ async function main() {
                 }
 
                 if (authParams[index * 14 + 2].status === 'success') {
-                    oftObj[oftName][srcChain].dstChains[dstChain].defaultExecutorConfig = deepCopy(
-                        authParams[index * 14 + 2].result
-                    )
+                    oftObj[oftName][srcChain].dstChains[dstChain].defaultExecutorConfig.maxMessageSize =
+                        authParams[index * 14 + 2].result[0]
+                    oftObj[oftName][srcChain].dstChains[dstChain].defaultExecutorConfig.executorAddress =
+                        authParams[index * 14 + 2].result[1]
                 } else {
                     console.log(
                         `${oftName}:${srcChain}:${dstChain}:sendLibrary(${oftObj[oftName][srcChain].dstChains[dstChain].sendLibrary}).executorConfigs(${zeroAddress}, ${oftObj[oftName][srcChain].dstChains[dstChain].eid})`
@@ -1639,27 +1745,30 @@ async function main() {
                 }
 
                 if (authParams[index * 14 + 3].status === 'success') {
-                    oftObj[oftName][srcChain].dstChains[dstChain].executorConfig = deepCopy(
-                        authParams[index * 14 + 3].result
-                    )
+                    oftObj[oftName][srcChain].dstChains[dstChain].executorConfig.maxMessageSize =
+                        authParams[index * 14 + 3].result[0]
+                    oftObj[oftName][srcChain].dstChains[dstChain].executorConfig.executorAddress =
+                        authParams[index * 14 + 3].result[1]
                 } else {
                     console.log(
                         `${oftName}:${srcChain}:${dstChain}:sendLibrary(${oftObj[oftName][srcChain].dstChains[dstChain].sendLibrary}).executorConfigs(${ofts[srcChain][oftName].address}, ${oftObj[oftName][srcChain].dstChains[dstChain].eid})`
                     )
                 }
                 if (authParams[index * 14 + 4].status === 'success') {
-                    oftObj[oftName][srcChain].dstChains[dstChain].defaultExecutorConfigDefaultLib = deepCopy(
-                        authParams[index * 14 + 4].result
-                    )
+                    oftObj[oftName][srcChain].dstChains[dstChain].defaultExecutorConfigDefaultLib.maxMessageSize =
+                        authParams[index * 14 + 4].result[0]
+                    oftObj[oftName][srcChain].dstChains[dstChain].defaultExecutorConfigDefaultLib.executorAddress =
+                        authParams[index * 14 + 4].result[1]
                 } else {
                     console.log(
                         `${oftName}:${srcChain}:${dstChain}:defaultSendLibrary(${oftObj[oftName][srcChain].dstChains[dstChain].defaultSendLibrary}).executorConfigs(${zeroAddress}, ${oftObj[oftName][srcChain].dstChains[dstChain].eid})`
                     )
                 }
                 if (authParams[index * 14 + 5].status === 'success') {
-                    oftObj[oftName][srcChain].dstChains[dstChain].executorConfigDefaultLib = deepCopy(
-                        authParams[index * 14 + 5].result
-                    )
+                    oftObj[oftName][srcChain].dstChains[dstChain].executorConfigDefaultLib.maxMessageSize =
+                        authParams[index * 14 + 5].result[0]
+                    oftObj[oftName][srcChain].dstChains[dstChain].executorConfigDefaultLib.executorAddress =
+                        authParams[index * 14 + 5].result[1]
                 } else {
                     console.log(
                         `${oftName}:${srcChain}:${dstChain}:defaultSendLibrary(${oftObj[oftName][srcChain].dstChains[dstChain].defaultSendLibrary}).executorConfigs(${ofts[srcChain][oftName].address}, ${oftObj[oftName][srcChain].dstChains[dstChain].eid})`
@@ -1769,8 +1878,22 @@ async function main() {
             generateUlnAndDvnComparisonCSV(oftObj[oftName])
         )
     }
+
     // enforcedOptions
+    for (const oftName of Object.keys(oftObj)) {
+        fs.writeFileSync(
+            `./run-periodically/check-oft-config-csv/check-enforcedOptions-${oftName}-peer.csv`,
+            generateEnforcedOptionsCSV(oftObj[oftName])
+        )
+    }
+
     // executorConfig
+    for (const oftName of Object.keys(oftObj)) {
+        fs.writeFileSync(
+            `./run-periodically/check-oft-config-csv/check-executorConfig-${oftName}-peer.csv`,
+            generateExecutorConfigCSV(oftObj[oftName])
+        )
+    }
 }
 
 main()

@@ -1,4 +1,4 @@
-import { bytesToHex, decodeAbiParameters, getAddress, Hex, hexToBytes, padHex /*, toHex*/, zeroAddress } from 'viem'
+import { getAddress, zeroAddress } from 'viem'
 // import { publicKey } from '@metaplex-foundation/umi'
 // import { oft302 } from '@layerzerolabs/oft-v2-solana-sdk'
 import { default as ENDPOINTV2_ABI } from '../abis/ENDPOINTV2_ABI.json'
@@ -31,29 +31,6 @@ dotenv.config()
 
 const bytes32Zero = '0x0000000000000000000000000000000000000000000000000000000000000000'
 
-// function decodeLzReceiveOption(encodedOption: Hex): { gas: number; value: number } {
-//     const optionBytes = hexToBytes(encodedOption)
-//     const length = optionBytes.length
-
-//     if (length < 16) throw new Error(`Invalid data length: ${length} bytes`)
-
-//     const extractedData = optionBytes.slice(-16) // Always extract last 16 bytes
-//     const isValuePresent = length >= 32
-
-//     if (!isValuePresent) {
-//         const [gas] = decodeAbiParameters([{ type: 'uint128' }], padHex(bytesToHex(extractedData), { size: 32 }))
-//         return { gas: Number(gas), value: Number(0n) } // If value is absent, return 0n
-//     } else {
-//         const extractedData32 = optionBytes.slice(-32) // Extract last 32 bytes
-//         console.log(bytesToHex(extractedData32))
-//         const [gas, value] = decodeAbiParameters(
-//             [{ type: 'uint128' }, { type: 'uint128' }],
-//             bytesToHex(extractedData32)
-//         )
-//         return { gas: Number(gas), value: Number(value) }
-//     }
-// }
-
 export function decodeLzReceiveOption(hex: string): { gas: number; value: number } {
     try {
         // Handle empty/undefined values first
@@ -69,6 +46,85 @@ export function decodeLzReceiveOption(hex: string): { gas: number; value: number
     } catch (e) {
         throw new Error(`Invalid options (${hex.slice(0, 12)}...)`)
     }
+}
+
+function generateWiringMatrix(oftConnectionObj: ChainConfig): string {
+    const chains = Object.keys(oftConnectionObj)
+    const matrix: string[][] = []
+
+    // Header row
+    matrix.push(['', ...chains])
+
+    for (const srcChain of chains) {
+        const row: string[] = [srcChain]
+
+        for (const dstChain of chains) {
+            if (
+                srcChain === 'aptos' ||
+                srcChain === 'solana' ||
+                srcChain === 'movement' ||
+                dstChain === 'aptos' ||
+                dstChain === 'solana' ||
+                dstChain === 'movement'
+            ) {
+                continue
+            }
+            if (srcChain === dstChain) {
+                row.push('-')
+                continue
+            }
+
+            const src = oftConnectionObj[srcChain]
+            const dst = oftConnectionObj[dstChain]
+
+            const srcDstConfig = src.dstChains?.[dstChain]
+            const dstSrcConfig = dst.dstChains?.[srcChain]
+
+            if (!srcDstConfig || !dstSrcConfig) {
+                row.push('-')
+                continue
+            }
+
+            const srcOft = getAddress(src.params.oftProxy)
+            const dstOft = getAddress(dst.params.oftProxy)
+            const srcOftOnDst = getAddress(dstSrcConfig.peerAddress || zeroAddress)
+            const dstOftOnSrc = getAddress(srcDstConfig.peerAddress || zeroAddress)
+
+            const srcSendLib = getAddress(srcDstConfig.sendLibrary || zeroAddress)
+            const srcBlockedLib = getAddress(srcDstConfig.blockedLib || zeroAddress)
+            const dstSendLib = getAddress(dstSrcConfig.sendLibrary || zeroAddress)
+            const dstBlockedLib = getAddress(dstSrcConfig.blockedLib || zeroAddress)
+
+            let status = '?'
+
+            if (srcOft !== srcOftOnDst && dstOft !== dstOftOnSrc) {
+                status = '-'
+            } else if (srcOft === srcOftOnDst && dstOft === dstOftOnSrc) {
+                if (srcSendLib !== srcBlockedLib && dstSendLib !== dstBlockedLib) {
+                    status = 'X'
+                } else if (srcSendLib === srcBlockedLib) {
+                    status = 'B-'
+                } else if (dstSendLib === dstBlockedLib) {
+                    status = '-B'
+                } else {
+                    status = '?'
+                }
+            } else if (srcOft === srcOftOnDst) {
+                status = 'W-'
+            } else if (dstOft === dstOftOnSrc) {
+                status = '-W'
+            } else {
+                status = '?'
+            }
+
+            row.push(status)
+        }
+
+        matrix.push(row)
+    }
+
+    // Convert to CSV string
+    return matrix.map((row) => row.join(',')).join('\n')
 }
 
 function deepCopy<T>(obj: T): T {
@@ -131,8 +187,8 @@ async function main() {
             srcChain === 'solana'
                 ? solanaOFTs
                 : srcChain === 'movement' || srcChain === 'aptos'
-                  ? aptosMovementOFTs
-                  : ofts[srcChain]
+                    ? aptosMovementOFTs
+                    : ofts[srcChain]
         )) {
             if (oftObj[oftName] === undefined) {
                 oftObj[oftName] = {} as ChainConfig
@@ -279,8 +335,8 @@ async function main() {
             srcChain === 'solana'
                 ? solanaOFTs
                 : srcChain === 'movement' || srcChain === 'aptos'
-                  ? aptosMovementOFTs
-                  : ofts[srcChain]
+                    ? aptosMovementOFTs
+                    : ofts[srcChain]
         )) {
             if (srcChain === 'solana') {
             } else if (srcChain === 'aptos' || srcChain === 'movement') {
@@ -412,8 +468,8 @@ async function main() {
             srcChain === 'solana'
                 ? solanaOFTs
                 : srcChain === 'movement' || srcChain === 'aptos'
-                  ? aptosMovementOFTs
-                  : ofts[srcChain]
+                    ? aptosMovementOFTs
+                    : ofts[srcChain]
         )) {
             if (srcChain === 'solana') {
             } else if (srcChain === 'aptos' || srcChain === 'movement') {
@@ -551,8 +607,8 @@ async function main() {
                 srcChain === 'solana'
                     ? solanaOFTs
                     : srcChain === 'movement' || srcChain === 'aptos'
-                      ? aptosMovementOFTs
-                      : ofts[srcChain]
+                        ? aptosMovementOFTs
+                        : ofts[srcChain]
             )) {
                 if (oftObj[oftName][srcChain].dstChains == undefined) {
                     oftObj[oftName][srcChain].dstChains = {} as DstChainConfig
@@ -683,8 +739,8 @@ async function main() {
                 srcChain === 'solana'
                     ? solanaOFTs
                     : srcChain === 'movement' || srcChain === 'aptos'
-                      ? aptosMovementOFTs
-                      : ofts[srcChain]
+                        ? aptosMovementOFTs
+                        : ofts[srcChain]
             )) {
                 if (oftObj[oftName][srcChain].dstChains[dstChain].receiveLibrary == undefined) {
                     oftObj[oftName][srcChain].dstChains[dstChain].receiveLibrary = {} as ReceiveLibraryType
@@ -1011,8 +1067,8 @@ async function main() {
                 srcChain === 'solana'
                     ? solanaOFTs
                     : srcChain === 'movement' || srcChain === 'aptos'
-                      ? aptosMovementOFTs
-                      : ofts[srcChain]
+                        ? aptosMovementOFTs
+                        : ofts[srcChain]
             )) {
                 if (oftObj[oftName][srcChain].dstChains[dstChain].enforcedOptionsSend == undefined) {
                     oftObj[oftName][srcChain].dstChains[dstChain].enforcedOptionsSend = {} as OFTEnforcedOptions
@@ -1570,6 +1626,17 @@ async function main() {
             JSON.stringify(oftObj[oftName], null, 2)
         )
     }
+
+    // wire config
+    for (const oftName of Object.keys(oftObj)) {
+        fs.writeFileSync(
+            `./run-periodically/check-oft-config-csv/check-wire-${oftName}-peer.csv`,
+            generateWiringMatrix(oftObj[oftName])
+        )
+    }
+    // confirmations
+    // enforcedOptions
+    // executorConfig
 }
 
 main()

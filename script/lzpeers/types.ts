@@ -116,7 +116,6 @@ export interface Params {
     owner: string
     ownerThreshold: string
     ownerMembers: string[]
-    proxyAdmin: string
     proxyAdminOwner: string
     proxyAdminOwnerThreshold: string
     proxyAdminOwnermembers: string[]

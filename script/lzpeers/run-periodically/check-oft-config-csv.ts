@@ -127,6 +127,134 @@ function generateWiringMatrix(oftConnectionObj: ChainConfig): string {
     return matrix.map((row) => row.join(',')).join('\n')
 }
 
+function isWiredX(config: ChainConfig, srcChain: string, dstChain: string): boolean {
+    const src = config[srcChain]
+    const dst = config[dstChain]
+    if (!src || !dst) return false
+
+    const srcDst = src.dstChains?.[dstChain]
+    const dstSrc = dst.dstChains?.[srcChain]
+    if (!srcDst || !dstSrc) return false
+
+    const srcOft = src.params.oftProxy
+    const dstOft = dst.params.oftProxy
+    const srcOftOnDst = getAddress(dstSrc.peerAddress || zeroAddress)
+    const dstOftOnSrc = getAddress(srcDst.peerAddress || zeroAddress)
+
+    const srcSendLib = getAddress(srcDst.sendLibrary || zeroAddress)
+    const srcBlockedLib = getAddress(srcDst.blockedLib || zeroAddress)
+    const dstSendLib = getAddress(dstSrc.sendLibrary || zeroAddress)
+    const dstBlockedLib = getAddress(dstSrc.blockedLib || zeroAddress)
+
+    return (
+        srcOft === srcOftOnDst && dstOft === dstOftOnSrc && srcSendLib !== srcBlockedLib && dstSendLib !== dstBlockedLib
+    )
+}
+
+function generateUlnAndDvnComparisonCSV(config: ChainConfig): string {
+    const chains = Object.keys(config)
+    const rows: string[][] = []
+
+    rows.push([
+        'srcChain',
+        'dstChain',
+
+        'receive.confirmations (default)',
+        'receive.confirmations (app)',
+        'receive.requiredDVNCount (default)',
+        'receive.requiredDVNCount (app)',
+        'receive.optionalDVNCount (default)',
+        'receive.optionalDVNCount (app)',
+        'receive.optionalDVNThreshold (default)',
+        'receive.optionalDVNThreshold (app)',
+        'receive.requiredDVNs (default)',
+        'receive.requiredDVNs (app)',
+        'receive.optionalDVNs (default)',
+        'receive.optionalDVNs (app)',
+
+        '',
+
+        'send.confirmations (default)',
+        'send.confirmations (app)',
+        'send.requiredDVNCount (default)',
+        'send.requiredDVNCount (app)',
+        'send.optionalDVNCount (default)',
+        'send.optionalDVNCount (app)',
+        'send.optionalDVNThreshold (default)',
+        'send.optionalDVNThreshold (app)',
+        'send.requiredDVNs (default)',
+        'send.requiredDVNs (app)',
+        'send.optionalDVNs (default)',
+        'send.optionalDVNs (app)',
+    ])
+
+    const safeJoin = (arr?: string[]) => (arr?.length ? arr.join(';') : '-')
+
+    for (const srcChain of chains) {
+        for (const dstChain of chains) {
+            if (
+                srcChain === 'aptos' ||
+                srcChain === 'solana' ||
+                srcChain === 'movement' ||
+                dstChain === 'aptos' ||
+                dstChain === 'solana' ||
+                dstChain === 'movement'
+            ) {
+                continue
+            }
+            if (srcChain === dstChain) continue
+            if (!isWiredX(config, srcChain, dstChain)) continue // only wired pairs
+
+            const src = config[srcChain]
+            const dstCfg = src.dstChains[dstChain]
+            const app = dstCfg.appUlnConfig
+            const def = dstCfg.defaultUlnConfig
+
+            const rApp = app?.receive || {}
+            const rDef = def?.receive || {}
+            const sApp = app?.send || {}
+            const sDef = def?.send || {}
+
+            rows.push([
+                srcChain,
+                dstChain,
+
+                // Receive
+                rDef.confirmations?.toString() ?? '-',
+                rApp.confirmations?.toString() ?? '-',
+                rDef.requiredDVNCount?.toString() ?? '-',
+                rApp.requiredDVNCount?.toString() ?? '-',
+                rDef.optionalDVNCount?.toString() ?? '-',
+                rApp.optionalDVNCount?.toString() ?? '-',
+                rDef.optionalDVNThreshold?.toString() ?? '-',
+                rApp.optionalDVNThreshold?.toString() ?? '-',
+                safeJoin(rDef.requiredDVNs),
+                safeJoin(rApp.requiredDVNs),
+                safeJoin(rDef.optionalDVNs),
+                safeJoin(rApp.optionalDVNs),
+
+                '',
+
+                // Send
+                sDef.confirmations?.toString() ?? '-',
+                sApp.confirmations?.toString() ?? '-',
+                sDef.requiredDVNCount?.toString() ?? '-',
+                sApp.requiredDVNCount?.toString() ?? '-',
+                sDef.optionalDVNCount?.toString() ?? '-',
+                sApp.optionalDVNCount?.toString() ?? '-',
+                sDef.optionalDVNThreshold?.toString() ?? '-',
+                sApp.optionalDVNThreshold?.toString() ?? '-',
+                safeJoin(sDef.requiredDVNs),
+                safeJoin(sApp.requiredDVNs),
+                safeJoin(sDef.optionalDVNs),
+                safeJoin(sApp.optionalDVNs),
+            ])
+        }
+    }
+
+    return rows.map((r) => r.join(',')).join('\n')
+}
+
 function deepCopy<T>(obj: T): T {
     if (obj === null || typeof obj !== 'object') {
         if (typeof obj === 'bigint') {
@@ -1634,7 +1762,13 @@ async function main() {
             generateWiringMatrix(oftObj[oftName])
         )
     }
-    // confirmations
+    // dvn
+    for (const oftName of Object.keys(oftObj)) {
+        fs.writeFileSync(
+            `./run-periodically/check-oft-config-csv/check-dvn-${oftName}-peer.csv`,
+            generateUlnAndDvnComparisonCSV(oftObj[oftName])
+        )
+    }
     // enforcedOptions
     // executorConfig
 }

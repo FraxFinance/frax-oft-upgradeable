@@ -1,6 +1,6 @@
 ,ethereum,fraxtal,base,blast,mode,sei,xlayer,sonic,ink,arbitrum,optimism,polygon,avalanche,bnb,zkevm,zksync,abstract,berachain,linea,aurora,hyperliquid,katana,plumephoenix,scroll,unichain,worldchain,plasma,solana,movement,aptos
 ethereum,-,X,-B,X,-B,-B,-B,-B,-B,-B,-B,-B,-B,-B,-B,-,-,-,-,-,-,-,-,-,-,-,-
-fraxtal,X,-,X,X,X,X,X,X,X,X,X,X,X,X,X,X,X,X,X,X,X,X,X,X,X,X,X
+fraxtal,X,-,X,X,X,X,X,X,X,X,X,X,X,X,-B,X,X,X,X,X,X,X,X,X,X,X,X
 base,B-,X,-,B-,B-,B-,B-,B-,B-,B-,B-,B-,B-,B-,B-,-,-,-,-,-,-,-,-,-,-,-,-
 blast,X,X,-B,-,-B,-B,-B,-B,-B,-B,-B,-B,-B,-B,-B,-,-,-,-,-,-,-,-,-,-,-,-
 mode,B-,X,B-,B-,-,B-,B-,B-,B-,B-,B-,B-,B-,B-,B-,-,-,-,-,-,-,-,-,-,-,-,-
@@ -13,7 +13,7 @@ optimism,B-,X,B-,B-,B-,B-,B-,B-,B-,B-,-,B-,B-,B-,B-,-,-,-,-,-,-,-,-,-,-,-,-
 polygon,B-,X,B-,B-,B-,B-,B-,B-,B-,B-,B-,-,B-,B-,B-,-,-,-,-,-,-,-,-,-,-,-,-
 avalanche,B-,X,B-,B-,B-,B-,B-,B-,B-,B-,B-,B-,-,B-,B-,-,-,-,-,-,-,-,-,-,-,-,-
 bnb,B-,X,B-,B-,B-,B-,B-,B-,B-,B-,B-,B-,B-,-,B-,-,-,-,-,-,-,-,-,-,-,-,-
-zkevm,B-,X,B-,B-,B-,B-,B-,B-,B-,B-,B-,B-,B-,B-,-,-,-,-,-,-,-,-,-,-,-,-,-
+zkevm,B-,B-,B-,B-,B-,B-,B-,B-,B-,B-,B-,B-,B-,B-,-,-,-,-,-,-,-,-,-,-,-,-,-
 zksync,-,X,-,-,-,-,-,-,-,-,-,-,-,-,-,-,-,-,-,-,-,-,-,-,-,-,-
 abstract,-,X,-,-,-,-,-,-,-,-,-,-,-,-,-,-,-,-,-,-,-,-,-,-,-,-,-
 berachain,-,X,-,-,-,-,-,-,-,-,-,-,-,-,-,-,-,-,-,-,-,-,-,-,-,-,-

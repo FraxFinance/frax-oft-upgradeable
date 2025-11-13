@@ -1,6 +1,8 @@
 import { getAddress, zeroAddress } from 'viem'
 // import { publicKey } from '@metaplex-foundation/umi'
 // import { oft302 } from '@layerzerolabs/oft-v2-solana-sdk'
+import { fetchMetadataFromSeeds } from '@metaplex-foundation/mpl-token-metadata'
+import { publicKey } from '@metaplex-foundation/umi'
 import { default as ENDPOINTV2_ABI } from '../abis/ENDPOINTV2_ABI.json'
 import { default as OFT_MINTABLE_ADAPTER_ABI } from '../abis/OFT_MINTABLE_ADAPTER_ABI.json'
 import { default as RECEIVE_ULN302_ABI } from '../abis/RECEIVE_ULN302_ABI.json'
@@ -425,6 +427,13 @@ async function main() {
                 oftObj[oftName][srcChain].params = {} as Params
             }
             if (srcChain === 'solana') {
+                oftObj[oftName][srcChain].params.oftProxy = solanaOFTs[oftName].mint
+                oftObj[oftName][srcChain].params.expectedEndpoint = chains[srcChain].endpoint
+                // TODO : actual endpoint
+                const initialMetadata = await fetchMetadataFromSeeds(chains[srcChain].client, {
+                    mint: publicKey(solanaOFTs[oftName].mint),
+                })
+                oftObj[oftName][srcChain].params.owner = initialMetadata.updateAuthority
             } else if (srcChain === 'aptos' || srcChain === 'movement') {
             } else if (srcChain === 'plasma' || srcChain === 'katana') {
                 oftObj[oftName][srcChain].params.oftProxy = ofts[srcChain][oftName].address

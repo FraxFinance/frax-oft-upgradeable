@@ -96,29 +96,49 @@ This repository contains all of the contracts and deployment code used to manage
      - `WFRAX`: `0x879ba0efe1ab0119fefa745a21585fa205b07907`
      - `FPI`: `0x93cDc5d29293Cb6983f059Fec6e4FFEb656b6a62`
 
-### Lockbox design
-Frax operates a dual-lockbox design where users can exit their OFT token into the native Frax-asset token on both Ethereum and Fraxtal.  Utilizing a dual-lockbox design is a novel solution to bridging as liquidity is  unlocked from more than one location.  More about this solution is be explained in the [docs](https://docs.frax.com/protocol/crosschain/overview).
+### Contract design
+Overall, there are three types of LayerZero contracts that provide liquidity for users upon bridging:
+1. OFT
+  - Operates as an ERC20
+  - When tokens are sent to the chain, the OFT is minted
+  - When tokens are sent from the chain, the OFT is burned
+2. Adapter (aka lockbox)
+  - Holds a running balance of a Frax-protocol token
+  - When tokens are sent to the chain, the Adapter sends the Frax token from its' balance to the recipient
+  - When tokens are sent from the chain, the sender sends the Frax token to the Adapter
+3. Mintable Adapter (aka mint/burn lockbox)
+  - Holds no balance of Frax-protocol token
+  - When tokens are sent to the chain, the Mintable Adapter mints the Frax token to the recipient
+  - When tokens are sent from the chain, the Mintable Adapter burns the Frax token
 
-*NOTE*: The exception is WFRAX, which only contains a lockbox on Fraxtal.  Bridging to Ethereum via LZ receives the WFRAX OFT instead of locked liquidity.
+With the exception of Ethereum and Fraxtal, Frax tokens are represented as an OFT.  For Ethereum and Fraxtal, Frax tokens are utilized in the following:
 
-#### Fraxtal Lockboxes
-- `frxUSD`: `0x96A394058E2b84A89bac9667B19661Ed003cF5D4`
-- `sfrxUSD`: `0x88Aa7854D3b2dAA5e37E7Ce73A1F39669623a361`
-- `frxETH`: `0x9aBFE1F8a999B0011ecD6116649AEe8D575F5604`
-- `sfrxETH`: `0x999dfAbe3b1cc2EF66eB032Eea42FeA329bBa168`
-- `WFRAX`: `0xd86fBBd0c8715d2C1f40e451e5C3514e65E7576A`
-- `FPI`: `0x75c38D46001b0F8108c4136216bd2694982C20FC`
+#### frxUSD
+- Fraxtal (Mintable Adapter): `0x96A394058E2b84A89bac9667B19661Ed003cF5D4`
+- Ethereum (Mintable Adapter): `0x566a6442A5A6e9895B9dCA97cC7879D632c6e4B0`
 
-#### Ethereum Lockboxes
-There are two sets of Ethereum lockboxes: (1) the upgradeable lockboxes used in current deployments and (2) legacy immutable lockboxes used to unlock immutable OFT liquidity.
-You can expect to use (1) unless you are holding OFTs on Base, Blast, or Metis prior to February 2025.  Legacy liquidity can be unlocked through Stargate UI.
-1. Upgradeable (current) Lockboxes
-  - `frxUSD`: `0x566a6442A5A6e9895B9dCA97cC7879D632c6e4B0`
-  - `sfrxUSD`: `0x7311CEA93ccf5f4F7b789eE31eBA5D9B9290E126`
-  - `frxETH` : `0x1c1649A38f4A3c5A0c4a24070f688C525AB7D6E6`
-  - `sfrxETH`: `0xbBc424e58ED38dd911309611ae2d7A23014Bd960`
-  - `FPI`: `0x9033BAD7aA130a2466060A2dA71fAe2219781B4b`
-2. Immutable (legacy) Lockboxes
+#### sfrxUSD
+- Fraxtal (Mintable Adapter): `0x88Aa7854D3b2dAA5e37E7Ce73A1F39669623a361`
+- Ethereum (Mintable Adapter): `0x7311CEA93ccf5f4F7b789eE31eBA5D9B9290E126`
+
+#### frxETH
+- Fraxtal (Mintable Adapter): `0x9aBFE1F8a999B0011ecD6116649AEe8D575F5604`
+- Ethereum (Adapter): `0x1c1649A38f4A3c5A0c4a24070f688C525AB7D6E6`
+
+#### sfrxETH
+- Fraxtal (Mintable Adapter): `0x999dfAbe3b1cc2EF66eB032Eea42FeA329bBa168`
+- Ethereum (Adapter): `0xbBc424e58ED38dd911309611ae2d7A23014Bd960`
+
+#### WFRAX
+- Fraxtal (Adapter): `0xd86fBBd0c8715d2C1f40e451e5C3514e65E7576A`
+- Ethereum (OFT): `0x04ACaF8D2865c0714F79da09645C13FD2888977f`
+
+#### FPI
+- Fraxtal (Mintable Adapter): `0x75c38D46001b0F8108c4136216bd2694982C20FC`
+- Ethereum (Mintable Adapter): `0x9033BAD7aA130a2466060A2dA71fAe2219781B4b`
+
+### Legacy lockboxes
+Prior to Upgradeable lockboxes, Frax operated immutable lockboxes on Ethereum.  Liquidity can be unlocked via the Stargate UI:
   - `LFRAX`: `0x909DBdE1eBE906Af95660033e478D59EFe831fED`
   - `sFRAX`: `0xe4796cCB6bB5DE2290C417Ac337F2b66CA2E770E`
   - `frxETH` : `0xF010a7c8877043681D59AD125EbF575633505942`

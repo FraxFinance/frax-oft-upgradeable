@@ -54,6 +54,7 @@ import { FraxOFTWalletUpgradeable } from "contracts/FraxOFTWalletUpgradeable.sol
 // scroll : forge script ./scripts/ops/FraxDVNTest/mainnet/1b_DeployMockFrax.s.sol --rpc-url https://rpc.scroll.io --etherscan-api-key $SCROLLSCAN_API_KEY --verifier etherscan --verify --broadcast
 // aurora : forge script ./scripts/ops/FraxDVNTest/mainnet/1b_DeployMockFrax.s.sol --rpc-url https://mainnet.aurora.dev --legacy --verifier-url $AURORA_BLOCKSCOUT_API_URL --verifier blockscout --verify --broadcast
 // hyperliquid : forge script ./scripts/ops/FraxDVNTest/mainnet/1b_DeployMockFrax.s.sol --rpc-url https://rpc.hyperliquid.xyz/evm --broadcast --verify --verifier-url $HYPEREVMSCAN_API_URL --etherscan-api-key $HYPEREVMSCAN_API_KEY --verifier etherscan
+// plasma : forge script ./scripts/ops/FraxDVNTest/mainnet/1b_DeployMockFrax.s.sol --rpc-url https://rpc.plasma.to  --broadcast --verify --verifier-url https://api.routescan.io/v2/network/mainnet/evm/9745/etherscan --etherscan-api-key "verifyContract"
 
 contract DeployMockFrax is DeployFraxOFTProtocol {
     address[] public proxyOftWallets;
@@ -87,8 +88,13 @@ contract DeployMockFrax is DeployFraxOFTProtocol {
             }
             if (broadcastConfig.eid == 30367) {
                 // L0 team has not setup defaultSendLibrary and defaultReceiveLibrary on hyperliquid for
-                // Botanix (botanixlabs)
+                // Botanix (30376)
                 if (eid == 30376) continue;
+            }
+            if (broadcastConfig.eid == 30383) {
+                // L0 team has not setup defaultSendLibrary and defaultReceiveLibrary on plasma for
+                // movement(30325), aptos(30108)
+                if (eid == 30325 || eid == 30108) continue;
             }
             require(
                 IMessageLibManager(broadcastConfig.endpoint).isSupportedEid(uint32(allConfigs[e].eid)),

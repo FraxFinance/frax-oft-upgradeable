@@ -15,8 +15,8 @@ contract UpgradeAdapter is DeployFraxOFTProtocol {
 
     address comptroller = 0xC4EB45d80DC1F079045E75D5d55de8eD1c1090E6;
 
-    address frxEthMintableLockboxImp;
-    address sfrxEthMintableLockboxImp;
+    address frxEthMintableLockboxImp; // deployed to 0xb2BDE1FEe3b5d4A21506dC69E98CDAaD8e3E2064
+    address sfrxEthMintableLockboxImp; // deployed to 0xf6782eE3Cfd467EB2fd68FC69aB0ab16a0F3359A
 
     uint256 msigSubmissionCount;
 
@@ -40,7 +40,7 @@ contract UpgradeAdapter is DeployFraxOFTProtocol {
         root = string.concat(root, "/scripts/ops/V110/fraxtal/txs/UpgradeAdapter");
 
         if (msigSubmissionCount == 1) {
-            return string.concat(root, "-frxETH-upgrade.json");
+            return string.concat(root, "-frxETH.json");
         } else {
             return string.concat(root, "-frxETH-addMinter.json");
         }
@@ -49,7 +49,7 @@ contract UpgradeAdapter is DeployFraxOFTProtocol {
     function run() public override {
         deployMintableLockboxes();
         upgradeExistingLockboxes();
-        addMinterRoles();
+        // addMinterRoles();
     }
 
     function addMinterRoles() public prankAndWriteTxs(comptroller) {

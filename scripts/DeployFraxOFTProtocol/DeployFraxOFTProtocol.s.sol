@@ -289,6 +289,7 @@ contract DeployFraxOFTProtocol is SetDVNs, BaseL0Script {
     }
 
     function setPriviledgedRoles() public virtual {
+        if (broadcastConfig.delegate == address(0)) revert("Delegate cannot be zero address");
         /// @dev transfer ownership of OFT
         for (uint256 o=0; o<proxyOfts.length; o++) {
             address proxyOft = proxyOfts[o];

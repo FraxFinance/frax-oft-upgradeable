@@ -8,14 +8,15 @@ import { EIP3009Module } from "contracts/modules/EIP3009Module.sol";
 import { PermitModule } from "contracts/modules/PermitModule.sol";
 import { SendParam } from "@fraxfinance/layerzero-v2-upgradeable/oapp/contracts/oft/interfaces/IOFT.sol";
 import { ERC20Upgradeable } from "@openzeppelin/contracts-upgradeable/token/ERC20/ERC20Upgradeable.sol";
+import { MinterModule } from "contracts/modules/MinterModule.sol";
 
-contract FrxUSDOFTUpgradeable is OFTUpgradeable, EIP3009Module, PermitModule, FreezeThawModule, PauseModule {
+contract FrxUSDOFTUpgradeable is OFTUpgradeable, EIP3009Module, PermitModule, FreezeThawModule, PauseModule, MinterModule {
     constructor(address _lzEndpoint) OFTUpgradeable(_lzEndpoint) {
         _disableInitializers();
     }
 
     function version() public pure returns (string memory) {
-        return "1.1.0";
+        return "1.2.0";
     }
     
     /// @dev overrides state where previous OFT versions were named the legacy "FRAX"
@@ -124,6 +125,35 @@ contract FrxUSDOFTUpgradeable is OFTUpgradeable, EIP3009Module, PermitModule, Fr
         _unpause();
     }
 
+    /// @notice Used by minters to mint new tokens
+    /// @param m_address Address of the account to mint to
+    /// @param m_amount Amount of tokens to mint
+    /// @dev Added in v1.2.0
+    function minter_mint(address m_address, uint256 m_amount) external onlyMinters {
+        _minter_mint(m_address, m_amount);
+    }
+
+    /// @notice Used by minters to burn tokens
+    /// @param b_address Address of the account to burn from
+    /// @param b_amount Amount of tokens to burn
+    function minter_burn_from(address b_address, uint256 b_amount) external onlyMinters {
+        _minter_burn_from(b_address, b_amount);
+    }
+
+    /// @notice Adds a minter
+    /// @param minter_address Address of minter to add
+    /// @dev Added in v1.2.0
+    function addMinter(address minter_address) external onlyOwner {
+        _addMinter(minter_address);
+    }
+
+    /// @notice Removes a non-bridge minter
+    /// @param minter_address Address of minter to remove
+    /// @dev Added in v1.2.0
+    function removeMinter(address minter_address) external onlyOwner {
+        _removeMinter(minter_address);
+    }
+
     function _beforeTokenTransfer(
         address from,
         address to,
@@ -176,6 +206,19 @@ contract FrxUSDOFTUpgradeable is OFTUpgradeable, EIP3009Module, PermitModule, Fr
     /// @dev supports EIP2612
     function _approve(address owner, address spender, uint256 amount) internal override(PermitModule, ERC20Upgradeable) {
         return ERC20Upgradeable._approve(owner, spender, amount);
+    }
+
+    /// @dev supports minter module 
+    function _mint(address account, uint256 value) internal override(MinterModule, ERC20Upgradeable){
+        ERC20Upgradeable._mint(account, value);
+    }
+
+    function _spendAllowance(address owner, address spender, uint256 amount) internal override(MinterModule, ERC20Upgradeable) {
+        ERC20Upgradeable._spendAllowance(owner, spender, amount);
+    }
+
+    function _burn(address account, uint256 amount) internal override(MinterModule, ERC20Upgradeable) {
+        ERC20Upgradeable._burn(account, amount);
     }
     
     /* ========== ERRORS ========== */

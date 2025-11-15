@@ -383,4 +383,93 @@ contract FrxUSDOFTUpgradeableTest is FraxTest {
         vm.expectRevert();
         oft.burnMany(accounts, amounts);
     }
+
+
+    function test_onlyOwner_addMinter() external {
+        vm.expectRevert(bytes("Ownable: caller is not the owner"));
+        oft.addMinter(al);
+    }
+
+    function test_onlyOwner_removeMinter() external {
+        vm.expectRevert(bytes("Ownable: caller is not the owner"));
+        oft.removeMinter(al);
+    }
+
+    function test_canAddMinter() public {
+        vm.prank(oft.owner());
+        oft.addMinter(al);
+
+        assertEq({
+            a: oft.minters(al),
+            b: true
+        });
+        address _m = oft.minters_array(0);
+        assertEq({
+            a: _m,
+            b: al
+        });
+    }
+
+    function test_minterCanMint() public {
+        test_canAddMinter();
+
+        uint tsBefore = oft.totalSupply();
+        uint balUserBefore = oft.balanceOf(address(bob));
+        vm.prank(al);
+        oft.minter_mint(address(bob), 100e18);
+        uint tsAfter = oft.totalSupply();
+        uint balUserAfter = oft.balanceOf(address(bob));
+
+        assertEq({
+            a: tsAfter - tsBefore,
+            b: 100e18
+        });
+        assertEq({
+            a: balUserAfter - balUserBefore,
+            b: 100e18
+        });
+        assertEq({
+            a: oft.totalMinted(),
+            b: 100e18
+        });
+    }
+
+    function test_onlyMinterCanMint() external {
+        vm.expectRevert(bytes4(keccak256("OnlyMinter()")));
+        vm.prank(al);
+        oft.minter_mint(address(0x39383928), 100e18);
+    }
+
+    function test_onlyMinterCanBurn() external {
+        vm.expectRevert(bytes4(keccak256("OnlyMinter()")));
+        vm.prank(al);
+        oft.minter_burn_from(address(0x39383928), 100e18);
+    }
+
+    function test_minterCanBurn() external {
+        test_minterCanMint();
+        vm.prank(bob);
+        oft.approve(al, 100e18);
+
+
+        uint tsBefore = oft.totalSupply();
+        uint balBobBefore = oft.balanceOf(bob);
+        vm.prank(al);
+        oft.minter_burn_from(bob, 100e18);
+        uint tsAfter = oft.totalSupply();
+        uint balBobAfter = oft.balanceOf(bob);
+
+        assertEq({
+            a: tsBefore - tsAfter,
+            b: 100e18
+        });
+        assertEq({
+            a:  balBobBefore - balBobAfter,
+            b: 100e18
+        });
+        assertEq({
+            a: oft.totalBurned(),
+            b: 100e18
+        });
+    }
 }

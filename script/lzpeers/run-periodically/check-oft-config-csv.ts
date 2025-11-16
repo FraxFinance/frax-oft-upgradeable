@@ -435,7 +435,7 @@ async function main() {
                 })
                 oftObj[oftName][srcChain].params.owner = initialMetadata.updateAuthority
             } else if (srcChain === 'aptos' || srcChain === 'movement') {
-            } else if (srcChain === 'plasma' || srcChain === 'katana') {
+            } else if (srcChain === 'plasma' || srcChain === 'katana' || srcChain === 'stable') {
                 oftObj[oftName][srcChain].params.oftProxy = ofts[srcChain][oftName].address
                 oftObj[oftName][srcChain].params.expectedEndpoint = chains[srcChain].endpoint
                 try {
@@ -520,7 +520,8 @@ async function main() {
             srcChain !== 'aptos' &&
             srcChain !== 'solana' &&
             srcChain !== 'plasma' &&
-            srcChain !== 'katana'
+            srcChain !== 'katana' &&
+            srcChain !== 'stable'
         ) {
             const authParams = await chains[srcChain].client.multicall({
                 contracts: contractcalls,
@@ -574,7 +575,7 @@ async function main() {
         )) {
             if (srcChain === 'solana') {
             } else if (srcChain === 'aptos' || srcChain === 'movement') {
-            } else if (srcChain === 'plasma' || srcChain === 'katana') {
+            } else if (srcChain === 'plasma' || srcChain === 'katana' || srcChain === 'stable') {
                 try {
                     const delegateAddress = await chains[srcChain].client.readContract({
                         address: oftObj[oftName][srcChain].params.actualEndpoint,
@@ -653,7 +654,8 @@ async function main() {
             srcChain !== 'aptos' &&
             srcChain !== 'solana' &&
             srcChain !== 'plasma' &&
-            srcChain !== 'katana'
+            srcChain !== 'katana' &&
+            srcChain !== 'stable'
         ) {
             const authParams = await chains[srcChain].client.multicall({
                 contracts: contractcalls,
@@ -707,7 +709,7 @@ async function main() {
         )) {
             if (srcChain === 'solana') {
             } else if (srcChain === 'aptos' || srcChain === 'movement') {
-            } else if (srcChain === 'plasma' || srcChain === 'katana') {
+            } else if (srcChain === 'plasma' || srcChain === 'katana' || srcChain === 'stable') {
                 try {
                     const delegateMsigThreshold = await chains[srcChain].client.readContract({
                         address: oftObj[oftName][srcChain].params.delegate,
@@ -787,7 +789,8 @@ async function main() {
             srcChain !== 'aptos' &&
             srcChain !== 'solana' &&
             srcChain !== 'plasma' &&
-            srcChain !== 'katana'
+            srcChain !== 'katana' &&
+            srcChain !== 'stable'
         ) {
             const authParams = await chains[srcChain].client.multicall({
                 contracts: contractcalls,
@@ -852,7 +855,7 @@ async function main() {
                 }
                 if (srcChain === 'solana') {
                 } else if (srcChain === 'aptos' || srcChain === 'movement') {
-                } else if (srcChain === 'plasma' || srcChain === 'katana') {
+                } else if (srcChain === 'plasma' || srcChain === 'katana' || srcChain === 'stable') {
                     try {
                         const peerBytes32 = await chains[srcChain].client.readContract({
                             address: ofts[srcChain][oftName].address,
@@ -917,7 +920,8 @@ async function main() {
             srcChain !== 'aptos' &&
             srcChain !== 'solana' &&
             srcChain !== 'plasma' &&
-            srcChain !== 'katana'
+            srcChain !== 'katana' &&
+            srcChain !== 'stable'
         ) {
             const authParams = await chains[srcChain].client.multicall({
                 contracts: contractcalls,
@@ -989,7 +993,7 @@ async function main() {
                 }
                 if (srcChain === 'solana') {
                 } else if (srcChain === 'aptos' || srcChain === 'movement') {
-                } else if (srcChain === 'plasma' || srcChain === 'katana') {
+                } else if (srcChain === 'plasma' || srcChain === 'katana' || srcChain === 'stable') {
                     try {
                         const blockedLib = await chains[srcChain].client.readContract({
                             address: oftObj[oftName][srcChain].params.actualEndpoint,
@@ -1187,7 +1191,8 @@ async function main() {
             srcChain !== 'aptos' &&
             srcChain !== 'solana' &&
             srcChain !== 'plasma' &&
-            srcChain !== 'katana'
+            srcChain !== 'katana' &&
+            srcChain !== 'stable'
         ) {
             const authParams = await chains[srcChain].client.multicall({
                 contracts: contractcalls,
@@ -1361,7 +1366,7 @@ async function main() {
                 }
                 if (srcChain === 'solana') {
                 } else if (srcChain === 'aptos' || srcChain === 'movement') {
-                } else if (srcChain === 'plasma' || srcChain === 'katana') {
+                } else if (srcChain === 'plasma' || srcChain === 'katana' || srcChain === 'stable') {
                     // enforcedOptions msgType 1
                     try {
                         const enforcedOptionsSend = await chains[oftName].client.readContract({
@@ -1692,7 +1697,8 @@ async function main() {
             srcChain !== 'aptos' &&
             srcChain !== 'solana' &&
             srcChain !== 'plasma' &&
-            srcChain !== 'katana'
+            srcChain !== 'katana' &&
+            srcChain !== 'stable'
         ) {
             const authParams = await chains[srcChain].client.multicall({
                 contracts: contractcalls,

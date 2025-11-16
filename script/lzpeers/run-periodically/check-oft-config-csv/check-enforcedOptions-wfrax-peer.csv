@@ -27,8 +27,8 @@ fraxtal,worldchain,200000,0,,250000,0
 fraxtal,plasma,200000,0,,250000,0
 base,fraxtal,200000,0,,250000,0
 blast,fraxtal,200000,0,,250000,0
-mode,fraxtal,200000,0,,250000,0
-sei,fraxtal,-,-,,-,-
+mode,fraxtal,-,-,,-,-
+sei,fraxtal,200000,0,,250000,0
 xlayer,fraxtal,200000,0,,250000,0
 sonic,fraxtal,200000,0,,250000,0
 ink,fraxtal,200000,0,,250000,0

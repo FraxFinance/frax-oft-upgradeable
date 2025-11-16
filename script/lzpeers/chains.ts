@@ -480,6 +480,22 @@ export const chains: Record<string, ChainInfo> = {
         mintRedeemHop: '0xb85A8FDa7F5e52E32fa5582847CFfFee9456a5Dc',
         fraxProxyAdmin: '0x223a681fc5c5522c85c96157c0efa18cd6c5405c',
     },
+    stable: {
+        client: createPublicClient({
+            chain: plasma,
+            transport: fallback([
+                http(process.env.STABLE_RPC_URL_1),
+            ]),
+        }),
+        peerId: 30396,
+        endpoint: '0x6F475642a6e85809B1c36Fa62763669b1b48DD5B',
+        receiveLib302: '0x15e51701F245F6D5bd0FEE87bCAf55B0841451B3',
+        sendLib302: '0x37aaaf95887624a363effB7762D489E3C05c2a02',
+        blockSendLib: '0xc1ce56b2099ca68720592583c7984cab4b6d7e7a',
+        hop: '0x8EbB34b1880B2EA5e458082590B3A2c9Ea7C41A2',
+        mintRedeemHop: '0xb85A8FDa7F5e52E32fa5582847CFfFee9456a5Dc',
+        fraxProxyAdmin: '0x223a681fc5c5522c85c96157c0efa18cd6c5405c',
+    },
     solana: {
         // client: new Connection("https://api.mainnet-beta.solana.com"),
         client: createUmi('https://api.mainnet-beta.solana.com'),

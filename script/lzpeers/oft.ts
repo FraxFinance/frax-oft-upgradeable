@@ -291,5 +291,6 @@ export const ofts: Record<string, Record<string, OFTMetadata>> = {
     scroll: scrollOFTs,
     unichain: determinsticOFTs,
     worldchain: determinsticOFTs,
-    plasma: determinsticOFTs
+    plasma: determinsticOFTs,
+    stable: determinsticOFTs
 }

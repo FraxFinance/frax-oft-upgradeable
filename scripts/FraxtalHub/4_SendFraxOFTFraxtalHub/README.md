@@ -13,3 +13,8 @@
 
 * fraxtal : https://layerzeroscan.com/tx/0x99164b5b512a59dd29ec0667f4e7a77e4b334e458a6f5150de09f456e522f27d
 * hyperliquid : https://layerzeroscan.com/tx/0x13fdb355a0faf9e73dc92cdcf745b9f3fe2373a9dd62ec6f4249b81d01888ae7
+
+### Stable
+
+* fraxtal : https://layerzeroscan.com/tx/0x7b95452da7dd7606dc3b2a4c5695790e9df85ece45e01cfb979c6ac1fce9f5c5
+* stable : 

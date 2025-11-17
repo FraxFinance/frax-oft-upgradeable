@@ -3,7 +3,7 @@ pragma solidity ^0.8.19;
 
 import "./SendFraxOFTFraxtalHub.sol";
 
-// forge script scripts/FraxtalHub/4_SendFraxOFTFraxtalHub/SendFraxOFTStableToFraxtal.s.sol --rpc-url https://rpc.stable.xyz--broadcast
+// forge script scripts/FraxtalHub/4_SendFraxOFTFraxtalHub/SendFraxOFTStableToFraxtal.s.sol --rpc-url https://rpc.stable.xyz --with-gas-price 0gwei --block-base-fee-per-gas=0 --gas-price=0 --priority-gas-price=0 --broadcast
 
 contract SendFraxOFTStableToFraxtal is SendFraxOFTFraxtalHub {
     constructor() {

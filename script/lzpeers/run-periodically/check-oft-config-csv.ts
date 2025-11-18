@@ -1,8 +1,7 @@
 import { getAddress, zeroAddress } from 'viem'
-// import { publicKey } from '@metaplex-foundation/umi'
-// import { oft302 } from '@layerzerolabs/oft-v2-solana-sdk'
 import { fetchMetadataFromSeeds } from '@metaplex-foundation/mpl-token-metadata'
 import { publicKey } from '@metaplex-foundation/umi'
+import { oft302 } from '@layerzerolabs/oft-v2-solana-sdk'
 import { default as ENDPOINTV2_ABI } from '../abis/ENDPOINTV2_ABI.json'
 import { default as OFT_MINTABLE_ADAPTER_ABI } from '../abis/OFT_MINTABLE_ADAPTER_ABI.json'
 import { default as RECEIVE_ULN302_ABI } from '../abis/RECEIVE_ULN302_ABI.json'
@@ -61,16 +60,16 @@ function generateWiringMatrix(oftConnectionObj: ChainConfig): string {
         const row: string[] = [srcChain]
 
         for (const dstChain of chains) {
-            if (
-                srcChain === 'aptos' ||
-                srcChain === 'solana' ||
-                srcChain === 'movement' ||
-                dstChain === 'aptos' ||
-                dstChain === 'solana' ||
-                dstChain === 'movement'
-            ) {
-                continue
-            }
+            // if (
+            //     srcChain === 'aptos' ||
+            //     srcChain === 'solana' ||
+            //     srcChain === 'movement' ||
+            //     dstChain === 'aptos' ||
+            //     dstChain === 'solana' ||
+            //     dstChain === 'movement'
+            // ) {
+            //     continue
+            // }
             if (srcChain === dstChain) {
                 row.push('-')
                 continue
@@ -87,15 +86,39 @@ function generateWiringMatrix(oftConnectionObj: ChainConfig): string {
                 continue
             }
 
-            const srcOft = getAddress(src.params.oftProxy)
-            const dstOft = getAddress(dst.params.oftProxy)
-            const srcOftOnDst = getAddress(dstSrcConfig.peerAddress || zeroAddress)
-            const dstOftOnSrc = getAddress(srcDstConfig.peerAddress || zeroAddress)
+            const srcOft =
+                srcChain === 'solana' || srcChain === 'movement' || srcChain === 'aptos'
+                    ? src.params.oftProxy
+                    : getAddress(src.params.oftProxy)
+            const dstOft =
+                dstChain === 'solana' || dstChain === 'movement' || dstChain === 'aptos'
+                    ? dst.params.oftProxy
+                    : getAddress(dst.params.oftProxy)
+            const srcOftOnDst =
+                srcChain === 'solana' || srcChain === 'aptos' || srcChain === 'movement'
+                    ? dstSrcConfig.peerAddress || zeroAddress
+                    : getAddress(dstSrcConfig.peerAddress || zeroAddress)
+            const dstOftOnSrc =
+                dstChain === 'solana' || dstChain === 'aptos' || dstChain === 'movement'
+                    ? srcDstConfig.peerAddress || zeroAddress
+                    : getAddress(srcDstConfig.peerAddress || zeroAddress)
 
-            const srcSendLib = getAddress(srcDstConfig.sendLibrary || zeroAddress)
-            const srcBlockedLib = getAddress(srcDstConfig.blockedLib || zeroAddress)
-            const dstSendLib = getAddress(dstSrcConfig.sendLibrary || zeroAddress)
-            const dstBlockedLib = getAddress(dstSrcConfig.blockedLib || zeroAddress)
+            const srcSendLib =
+                srcChain === 'solana' || srcChain === 'aptos' || srcChain === 'movement'
+                    ? srcDstConfig.sendLibrary || zeroAddress
+                    : getAddress(srcDstConfig.sendLibrary || zeroAddress)
+            const srcBlockedLib =
+                srcChain === 'solana' || srcChain === 'aptos' || srcChain === 'movement'
+                    ? srcDstConfig.blockedLib || zeroAddress
+                    : getAddress(srcDstConfig.blockedLib || zeroAddress)
+            const dstSendLib =
+                srcChain === 'solana' || srcChain === 'aptos' || srcChain === 'movement'
+                    ? dstSrcConfig.sendLibrary || zeroAddress
+                    : getAddress(dstSrcConfig.sendLibrary || zeroAddress)
+            const dstBlockedLib =
+                dstChain === 'solana' || dstChain === 'movement' || dstChain === 'aptos'
+                    ? dstSrcConfig.blockedLib || zeroAddress
+                    : getAddress(dstSrcConfig.blockedLib || zeroAddress)
 
             let status = '?'
 
@@ -140,13 +163,25 @@ function isWiredX(config: ChainConfig, srcChain: string, dstChain: string): bool
 
     const srcOft = src.params.oftProxy
     const dstOft = dst.params.oftProxy
-    const srcOftOnDst = getAddress(dstSrc.peerAddress || zeroAddress)
-    const dstOftOnSrc = getAddress(srcDst.peerAddress || zeroAddress)
+    const srcOftOnDst =
+        srcChain === 'solana' || srcChain === 'aptos' || srcChain === 'movement'
+            ? dstSrc.peerAddress || zeroAddress
+            : getAddress(dstSrc.peerAddress || zeroAddress)
+    const dstOftOnSrc =
+        dstChain === 'solana' || dstChain === 'aptos' || dstChain === 'movement'
+            ? srcDst.peerAddress || zeroAddress
+            : getAddress(srcDst.peerAddress || zeroAddress)
 
     const srcSendLib = getAddress(srcDst.sendLibrary || zeroAddress)
-    const srcBlockedLib = getAddress(srcDst.blockedLib || zeroAddress)
+    const srcBlockedLib =
+        srcChain === 'solana' || srcChain === 'aptos' || srcChain === 'movement'
+            ? srcDst.blockedLib || zeroAddress
+            : getAddress(srcDst.blockedLib || zeroAddress)
     const dstSendLib = getAddress(dstSrc.sendLibrary || zeroAddress)
-    const dstBlockedLib = getAddress(dstSrc.blockedLib || zeroAddress)
+    const dstBlockedLib =
+        dstChain === 'solana' || dstChain === 'aptos' || dstChain === 'movement'
+            ? dstSrc.blockedLib || zeroAddress
+            : getAddress(dstSrc.blockedLib || zeroAddress)
 
     return (
         srcOft === srcOftOnDst && dstOft === dstOftOnSrc && srcSendLib !== srcBlockedLib && dstSendLib !== dstBlockedLib
@@ -194,16 +229,16 @@ function generateUlnAndDvnComparisonCSV(config: ChainConfig): string {
 
     for (const srcChain of chains) {
         for (const dstChain of chains) {
-            if (
-                srcChain === 'aptos' ||
-                srcChain === 'solana' ||
-                srcChain === 'movement' ||
-                dstChain === 'aptos' ||
-                dstChain === 'solana' ||
-                dstChain === 'movement'
-            ) {
-                continue
-            }
+            // if (
+            //     srcChain === 'aptos' ||
+            //     srcChain === 'solana' ||
+            //     srcChain === 'movement' ||
+            //     dstChain === 'aptos' ||
+            //     dstChain === 'solana' ||
+            //     dstChain === 'movement'
+            // ) {
+            //     continue
+            // }
             if (srcChain === dstChain) continue
             if (!isWiredX(config, srcChain, dstChain)) continue // only wired pairs
 
@@ -273,16 +308,16 @@ export function generateEnforcedOptionsCSV(config: ChainConfig): string {
 
     for (const srcChain of chains) {
         for (const dstChain of chains) {
-            if (
-                srcChain === 'aptos' ||
-                srcChain === 'solana' ||
-                srcChain === 'movement' ||
-                dstChain === 'aptos' ||
-                dstChain === 'solana' ||
-                dstChain === 'movement'
-            ) {
-                continue
-            }
+            // if (
+            //     srcChain === 'aptos' ||
+            //     srcChain === 'solana' ||
+            //     srcChain === 'movement' ||
+            //     dstChain === 'aptos' ||
+            //     dstChain === 'solana' ||
+            //     dstChain === 'movement'
+            // ) {
+            //     continue
+            // }
             if (srcChain === dstChain) continue
             if (!isWiredX(config, srcChain, dstChain)) continue
 
@@ -320,16 +355,16 @@ export function generateExecutorConfigCSV(config: ChainConfig): string {
 
     for (const srcChain of chains) {
         for (const dstChain of chains) {
-            if (
-                srcChain === 'aptos' ||
-                srcChain === 'solana' ||
-                srcChain === 'movement' ||
-                dstChain === 'aptos' ||
-                dstChain === 'solana' ||
-                dstChain === 'movement'
-            ) {
-                continue
-            }
+            // if (
+            //     srcChain === 'aptos' ||
+            //     srcChain === 'solana' ||
+            //     srcChain === 'movement' ||
+            //     dstChain === 'aptos' ||
+            //     dstChain === 'solana' ||
+            //     dstChain === 'movement'
+            // ) {
+            //     continue
+            // }
             if (srcChain === dstChain) continue
             if (!isWiredX(config, srcChain, dstChain)) continue
 
@@ -427,14 +462,26 @@ async function main() {
                 oftObj[oftName][srcChain].params = {} as Params
             }
             if (srcChain === 'solana') {
-                oftObj[oftName][srcChain].params.oftProxy = solanaOFTs[oftName].mint
+                oftObj[oftName][srcChain].params.oftProxy = solanaOFTs[oftName].oftStore
                 oftObj[oftName][srcChain].params.expectedEndpoint = chains[srcChain].endpoint
-                // TODO : actual endpoint
+                // TODO : solana actual endpoint
                 const initialMetadata = await fetchMetadataFromSeeds(chains[srcChain].client, {
                     mint: publicKey(solanaOFTs[oftName].mint),
                 })
+                // TODO : solana expected implementation address
                 oftObj[oftName][srcChain].params.owner = initialMetadata.updateAuthority
+                oftObj[oftName][srcChain].params.proxyAdminOwner = initialMetadata.updateAuthority
             } else if (srcChain === 'aptos' || srcChain === 'movement') {
+                oftObj[oftName][srcChain].params.oftProxy = aptosMovementOFTs[oftName].oft
+                oftObj[oftName][srcChain].params.expectedEndpoint = chains[srcChain].endpoint
+                // TODO : aptos/movement actual endpoint
+                const admin = await chains[srcChain].client.view({
+                    payload: {
+                        function: `${aptosMovementOFTs[oftName].oft}::oapp_core::get_admin`,
+                    },
+                })
+                oftObj[oftName][srcChain].params.owner = admin[0]
+                oftObj[oftName][srcChain].params.proxyAdminOwner = admin[0]
             } else if (srcChain === 'plasma' || srcChain === 'katana' || srcChain === 'stable') {
                 oftObj[oftName][srcChain].params.oftProxy = ofts[srcChain][oftName].address
                 oftObj[oftName][srcChain].params.expectedEndpoint = chains[srcChain].endpoint
@@ -574,7 +621,30 @@ async function main() {
                   : ofts[srcChain]
         )) {
             if (srcChain === 'solana') {
+                try {
+                    const delegate = await oft302.getDelegate(
+                        chains[srcChain].client.rpc,
+                        publicKey(solanaOFTs[oftName].oftStore)
+                    )
+                    oftObj[oftName][srcChain].params.delegate = delegate
+                } catch (e) {
+                    console.log(
+                        `${oftName}:${srcChain}:endpoint(${oftObj[oftName][srcChain].params.expectedEndpoint}).delegates(${solanaOFTs[oftName].oftStore})`
+                    )
+                }
+                // TODO solana ownerMsigThreshold
+                // TODO solana owner msig members
+                // TODO solana proxy admin owner
             } else if (srcChain === 'aptos' || srcChain === 'movement') {
+                const delegate = await chains[srcChain].client.view({
+                    payload: {
+                        function: `${aptosMovementOFTs[oftName].oft}::oapp_core::get_delegate`,
+                    },
+                })
+                oftObj[oftName][srcChain].params.delegate = delegate[0]
+                // TODO aptos/movement ownerMsigThreshold
+                // TODO aptos/movement owner msig members
+                // TODO aptos/movement proxy admin owner
             } else if (srcChain === 'plasma' || srcChain === 'katana' || srcChain === 'stable') {
                 try {
                     const delegateAddress = await chains[srcChain].client.readContract({
@@ -708,7 +778,15 @@ async function main() {
                   : ofts[srcChain]
         )) {
             if (srcChain === 'solana') {
+                // TODO solana delegate msig threshold
+                // TODO solana delegate msig members
+                // TODO solana proxy admin owner msig threshold
+                // TODO solana proxy admin owner msig members
             } else if (srcChain === 'aptos' || srcChain === 'movement') {
+                // TODO aptos/movement delegate msig threshold
+                // TODO aptos/movement delegate msig members
+                // TODO aptos/movement proxy admin owner msig threshold
+                // TODO aptos/movement proxy admin owner msig members
             } else if (srcChain === 'plasma' || srcChain === 'katana' || srcChain === 'stable') {
                 try {
                     const delegateMsigThreshold = await chains[srcChain].client.readContract({
@@ -854,7 +932,51 @@ async function main() {
                     oftObj[oftName][srcChain].dstChains[dstChain] = {} as OFTInfo
                 }
                 if (srcChain === 'solana') {
+                    try {
+                        const peerBytes32 = await oft302.getPeerAddress(
+                            chains[srcChain].client.rpc,
+                            publicKey(solanaOFTs[oftName].oftStore), //oftStore
+                            chains[dstChain].peerId,
+                            publicKey(solanaOFTs[oftName].programId) //programId
+                        )
+                        if (peerBytes32 !== bytes32Zero) {
+                            oftObj[oftName][srcChain].dstChains[dstChain].peerAddressBytes32 = peerBytes32
+                            oftObj[oftName][srcChain].dstChains[dstChain].peerAddress = getAddress(
+                                '0x' + peerBytes32.slice(-40)
+                            )
+                        }
+                    } catch (e) {
+                        console.log('===============================')
+                        console.log(e)
+                        console.log(
+                            `${oftName}:${srcChain}:${dstChain}:oft(${solanaOFTs[oftName].oftStore}).peers(${chains[dstChain].peerId})`
+                        )
+                        console.log('===============================')
+                    }
+                    // TODO solana isSupportedEid
                 } else if (srcChain === 'aptos' || srcChain === 'movement') {
+                    try {
+                        const peerBytes32 = await chains[srcChain].client.view({
+                            payload: {
+                                function: `${aptosMovementOFTs[oftName].oft}::oapp_core::get_peer`,
+                                functionArguments: [chains[dstChain].peerId],
+                            },
+                        })
+                        if (peerBytes32[0] !== bytes32Zero) {
+                            oftObj[oftName][srcChain].dstChains[dstChain].peerAddressBytes32 = peerBytes32[0]
+                            oftObj[oftName][srcChain].dstChains[dstChain].peerAddress = getAddress(
+                                '0x' + peerBytes32[0].slice(-40)
+                            )
+                        }
+                    } catch (e) {
+                        console.log('===============================')
+                        console.log(e)
+                        console.log(
+                            `${oftName}:${srcChain}:${dstChain}:oft(${aptosMovementOFTs[oftName].oft}).peers(${chains[dstChain].peerId})`
+                        )
+                        console.log('===============================')
+                    }
+                    // TODO aptos/movement isSupportedEid
                 } else if (srcChain === 'plasma' || srcChain === 'katana' || srcChain === 'stable') {
                     try {
                         const peerBytes32 = await chains[srcChain].client.readContract({
@@ -992,7 +1114,29 @@ async function main() {
                         {} as ReceiveLibraryTimeOutInfo
                 }
                 if (srcChain === 'solana') {
+                    // TODO solana blocked lib
+                    oftObj[oftName][srcChain].dstChains[dstChain].blockedLib = chains[srcChain].blockSendLib
+                    // TODO solana send lib
+                    oftObj[oftName][srcChain].dstChains[dstChain].blockedLib = chains[srcChain].sendLib302
+                    // TODO solana rcvLib
+                    oftObj[oftName][srcChain].dstChains[dstChain].blockedLib = chains[srcChain].receiveLib302
+                    // TODO solana receiveLibraryTimeout
+                    // TODO solana defaultSendLib
+                    // TODO solana defaultReceiveLib
+                    // TODO solana defaultReceiveLibTimeout
+                    // TODO solana isDefaultSendLibrary
                 } else if (srcChain === 'aptos' || srcChain === 'movement') {
+                    // TODO aptos/movement blocked lib
+                    oftObj[oftName][srcChain].dstChains[dstChain].blockedLib = chains[srcChain].blockSendLib
+                    // TODO aptos/movement send lib
+                    oftObj[oftName][srcChain].dstChains[dstChain].blockedLib = chains[srcChain].sendLib302
+                    // TODO aptos/movement rcvLib
+                    oftObj[oftName][srcChain].dstChains[dstChain].blockedLib = chains[srcChain].receiveLib302
+                    // TODO aptos/movement receiveLibraryTimeout
+                    // TODO aptos/movement defaultSendLib
+                    // TODO aptos/movement defaultReceiveLib
+                    // TODO aptos/movement defaultReceiveLibTimeout
+                    // TODO aptos/movement isDefaultSendLibrary
                 } else if (srcChain === 'plasma' || srcChain === 'katana' || srcChain === 'stable') {
                     try {
                         const blockedLib = await chains[srcChain].client.readContract({
@@ -1365,7 +1509,74 @@ async function main() {
                     oftObj[oftName][srcChain].dstChains[dstChain].appUlnConfigDefaultLib.send = {} as UlnConfig
                 }
                 if (srcChain === 'solana') {
+                    try {
+                        const enforcedOptions = await oft302.getEnforcedOptions(
+                            chains[srcChain].client.rpc,
+                            publicKey(solanaOFTs[oftName].oftStore),
+                            chains[dstChain].peerId,
+                            publicKey(solanaOFTs[oftName].programId)
+                        )
+                        oftObj[oftName][srcChain].dstChains[dstChain].enforcedOptionsSend = deepCopy(
+                            decodeLzReceiveOption(`0x${Buffer.from(enforcedOptions.send).toString('hex')}`)
+                        )
+                        oftObj[oftName][srcChain].dstChains[dstChain].enforcedOptionsSendAndCall = deepCopy(
+                            decodeLzReceiveOption(`0x${Buffer.from(enforcedOptions.sendAndCall).toString('hex')}`)
+                        )
+                    } catch (e) {
+                        console.log(
+                            `${oftName}:${srcChain}:${dstChain}:oft(${solanaOFTs[oftName].oftStore}).enforcedOptions(${chains[dstChain].peerId})`
+                        )
+                    }
+                    // TODO solana send default executor config
+                    // TODO solana send app executor config
+                    // TODO solana send default executor config default
+                    // TODO solana send app executor config default
+                    // TODO solana send default uln config
+                    // TODO solana send app uln config
+                    // TODO solana send default uln config default
+                    // TODO solana send app uln config default
+                    // TODO solana receive default executor config
+                    // TODO solana receive app executor config
+                    // TODO solana receive default executor config default
+                    // TODO solana receive app executor config default
                 } else if (srcChain === 'aptos' || srcChain === 'movement') {
+                    try {
+                        const enforcedOptionsSend = await chains[srcChain].client.view({
+                            payload: {
+                                function: `${aptosMovementOFTs[oftName].oft}::oapp_core::get_enforced_options`,
+                                functionArguments: [chains[dstChain].peerId, 1],
+                            },
+                        })
+                        const enforcedOptionsSendAndCall = await chains[srcChain].client.view({
+                            payload: {
+                                function: `${aptosMovementOFTs[oftName].oft}::oapp_core::get_enforced_options`,
+                                functionArguments: [chains[dstChain].peerId, 2],
+                            },
+                        })
+                        oftObj[oftName][srcChain].dstChains[dstChain].enforcedOptionsSend = deepCopy(
+                            decodeLzReceiveOption(enforcedOptionsSend)
+                        )
+                        oftObj[oftName][srcChain].dstChains[dstChain].enforcedOptionsSendAndCall = deepCopy(
+                            decodeLzReceiveOption(enforcedOptionsSendAndCall)
+                        )
+                    } catch (e) {
+                        console.log(
+                            `${oftName}:${srcChain}:${dstChain}:oft(${aptosMovementOFTs[oftName].oft}).enforcedOptions(${chains[dstChain].peerId},1)`
+                        )
+                    }
+                    // TODO aptos/movement enforced options send and call
+                    // TODO aptos/movement send default executor config
+                    // TODO aptos/movement send app executor config
+                    // TODO aptos/movement send default executor config default
+                    // TODO aptos/movement send app executor config default
+                    // TODO aptos/movement send default uln config
+                    // TODO aptos/movement send app uln config
+                    // TODO aptos/movement send default uln config default
+                    // TODO aptos/movement send app uln config default
+                    // TODO aptos/movement receive default executor config
+                    // TODO aptos/movement receive app executor config
+                    // TODO aptos/movement receive default executor config default
+                    // TODO aptos/movement receive app executor config default
                 } else if (srcChain === 'plasma' || srcChain === 'katana' || srcChain === 'stable') {
                     // enforcedOptions msgType 1
                     try {

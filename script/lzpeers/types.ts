@@ -6,6 +6,9 @@ export interface UlnConfig {
     optionalDVNThreshold: number;
     requiredDVNs: string[];
     optionalDVNs: string[];
+    useDefaultForConfirmations: boolean
+    useDefaultForOptionalDVNs: boolean
+    useDefaultForRequiredDVNs: boolean
 }
 
 export type assetListType = {
@@ -136,4 +139,27 @@ export interface ChainConfig {
 
 export interface TokenConfig {
     [token: string]: ChainConfig
+}
+
+export interface AptosExecutor {
+    executor_address: string;
+    max_message_size: number; 
+}
+
+export interface AptosExecutorConfig {
+    vec: AptosExecutor[];  // vec is an array of Executor objects
+}
+
+export interface AptosAppConfigEntry {
+    confirmations: string;
+    optional_dvn_threshold: number;
+    optional_dvns: string[];
+    required_dvns: string[];
+    use_default_for_confirmations: boolean;
+    use_default_for_optional_dvns: boolean;
+    use_default_for_required_dvns: boolean;
+}
+
+export interface AptosAppConfig {
+    vec: AptosAppConfigEntry[];
 }

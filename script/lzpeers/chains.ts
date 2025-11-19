@@ -186,10 +186,11 @@ export const chains: Record<string, ChainInfo> = {
     ink: {
         client: createPublicClient({
             chain: ink,
-            transport: fallback([http(process.env.INK_RPC_URL_1),
-            http(process.env.INK_RPC_URL_2),
-            http(process.env.INK_RPC_URL_3),
-            http(process.env.INK_RPC_URL_4)
+            transport: fallback([
+                http(process.env.INK_RPC_URL_1),
+                http(process.env.INK_RPC_URL_2),
+                http(process.env.INK_RPC_URL_3),
+                http(process.env.INK_RPC_URL_4),
             ]),
         }),
         peerId: 30339,
@@ -208,8 +209,8 @@ export const chains: Record<string, ChainInfo> = {
                 http(process.env.ARBITRUM_RPC_URL_1),
                 http(process.env.ARBITRUM_RPC_URL_2),
                 http(process.env.ARBITRUM_RPC_URL_3),
-                http(process.env.ARBITRUM_RPC_URL_4)
-            ])
+                http(process.env.ARBITRUM_RPC_URL_4),
+            ]),
         }),
         peerId: 30110,
         endpoint: '0x1a44076050125825900e736c501f859c50fE728c',
@@ -246,7 +247,7 @@ export const chains: Record<string, ChainInfo> = {
                 http(process.env.POLYGON_RPC_URL_1),
                 http(process.env.POLYGON_RPC_URL_2),
                 http(process.env.POLYGON_RPC_URL_3),
-                http(process.env.POLYGON_RPC_URL_4)
+                http(process.env.POLYGON_RPC_URL_4),
             ]),
         }),
         peerId: 30109,
@@ -392,10 +393,7 @@ export const chains: Record<string, ChainInfo> = {
     katana: {
         client: createPublicClient({
             chain: katana,
-            transport: fallback([
-                http(process.env.KATANA_RPC_URL_1),
-                http(process.env.KATANA_RPC_URL_2)
-            ]),
+            transport: fallback([http(process.env.KATANA_RPC_URL_1), http(process.env.KATANA_RPC_URL_2)]),
         }),
         peerId: 30375,
         endpoint: '0x6F475642a6e85809B1c36Fa62763669b1b48DD5B',
@@ -468,7 +466,7 @@ export const chains: Record<string, ChainInfo> = {
             transport: fallback([
                 http(process.env.PLASMA_RPC_URL_1),
                 http(process.env.PLASMA_RPC_URL_2),
-                http(process.env.PLASMA_RPC_URL_3)
+                http(process.env.PLASMA_RPC_URL_3),
             ]),
         }),
         peerId: 30383,
@@ -483,9 +481,7 @@ export const chains: Record<string, ChainInfo> = {
     stable: {
         client: createPublicClient({
             chain: plasma,
-            transport: fallback([
-                http(process.env.STABLE_RPC_URL_1),
-            ]),
+            transport: fallback([http(process.env.STABLE_RPC_URL_1)]),
         }),
         peerId: 30396,
         endpoint: '0x6F475642a6e85809B1c36Fa62763669b1b48DD5B',
@@ -498,7 +494,7 @@ export const chains: Record<string, ChainInfo> = {
     },
     solana: {
         // client: new Connection("https://api.mainnet-beta.solana.com"),
-        client: createUmi('https://api.mainnet-beta.solana.com'),
+        client: createUmi(process.env.SOLANA_RPC_URL as string),
         peerId: 30168,
         endpoint: '76y77prsiCMvXMjuoZ5VRrhG5qYBrUMYTE5WgHqgjEn6',
         receiveLib302: '7a4WjyR8VZ7yZz5XJAKm39BUGn5iT9CKcv2pmG9tdXVH',
@@ -510,7 +506,9 @@ export const chains: Record<string, ChainInfo> = {
         client: new Aptos(
             new AptosConfig({
                 network: Network.CUSTOM,
-                fullnode: 'https://full.mainnet.movementinfra.xyz/v1',
+                // fullnode: 'https://full.mainnet.movementinfra.xyz/v1',
+                // fullnode:'https://rpc.sentio.xyz/movement/v1'
+                fullnode: 'https://rpc.ankr.com/http/movement_mainnet/v1',
             })
         ),
         peerId: 30325,

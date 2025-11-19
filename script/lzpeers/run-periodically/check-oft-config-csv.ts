@@ -11,6 +11,8 @@ import fs from 'fs'
 import * as dotenv from 'dotenv'
 import { chains } from '../chains'
 import {
+    AptosAppConfig,
+    AptosExecutorConfig,
     ChainConfig,
     DstChainConfig,
     EndpointConfig,
@@ -60,16 +62,6 @@ function generateWiringMatrix(oftConnectionObj: ChainConfig): string {
         const row: string[] = [srcChain]
 
         for (const dstChain of chains) {
-            // if (
-            //     srcChain === 'aptos' ||
-            //     srcChain === 'solana' ||
-            //     srcChain === 'movement' ||
-            //     dstChain === 'aptos' ||
-            //     dstChain === 'solana' ||
-            //     dstChain === 'movement'
-            // ) {
-            //     continue
-            // }
             if (srcChain === dstChain) {
                 row.push('-')
                 continue
@@ -229,16 +221,6 @@ function generateUlnAndDvnComparisonCSV(config: ChainConfig): string {
 
     for (const srcChain of chains) {
         for (const dstChain of chains) {
-            // if (
-            //     srcChain === 'aptos' ||
-            //     srcChain === 'solana' ||
-            //     srcChain === 'movement' ||
-            //     dstChain === 'aptos' ||
-            //     dstChain === 'solana' ||
-            //     dstChain === 'movement'
-            // ) {
-            //     continue
-            // }
             if (srcChain === dstChain) continue
             if (!isWiredX(config, srcChain, dstChain)) continue // only wired pairs
 
@@ -308,16 +290,6 @@ export function generateEnforcedOptionsCSV(config: ChainConfig): string {
 
     for (const srcChain of chains) {
         for (const dstChain of chains) {
-            // if (
-            //     srcChain === 'aptos' ||
-            //     srcChain === 'solana' ||
-            //     srcChain === 'movement' ||
-            //     dstChain === 'aptos' ||
-            //     dstChain === 'solana' ||
-            //     dstChain === 'movement'
-            // ) {
-            //     continue
-            // }
             if (srcChain === dstChain) continue
             if (!isWiredX(config, srcChain, dstChain)) continue
 
@@ -355,16 +327,6 @@ export function generateExecutorConfigCSV(config: ChainConfig): string {
 
     for (const srcChain of chains) {
         for (const dstChain of chains) {
-            // if (
-            //     srcChain === 'aptos' ||
-            //     srcChain === 'solana' ||
-            //     srcChain === 'movement' ||
-            //     dstChain === 'aptos' ||
-            //     dstChain === 'solana' ||
-            //     dstChain === 'movement'
-            // ) {
-            //     continue
-            // }
             if (srcChain === dstChain) continue
             if (!isWiredX(config, srcChain, dstChain)) continue
 
@@ -449,8 +411,8 @@ async function main() {
             srcChain === 'solana'
                 ? solanaOFTs
                 : srcChain === 'movement' || srcChain === 'aptos'
-                  ? aptosMovementOFTs
-                  : ofts[srcChain]
+                    ? aptosMovementOFTs
+                    : ofts[srcChain]
         )) {
             if (oftObj[oftName] === undefined) {
                 oftObj[oftName] = {} as ChainConfig
@@ -617,8 +579,8 @@ async function main() {
             srcChain === 'solana'
                 ? solanaOFTs
                 : srcChain === 'movement' || srcChain === 'aptos'
-                  ? aptosMovementOFTs
-                  : ofts[srcChain]
+                    ? aptosMovementOFTs
+                    : ofts[srcChain]
         )) {
             if (srcChain === 'solana') {
                 try {
@@ -774,8 +736,8 @@ async function main() {
             srcChain === 'solana'
                 ? solanaOFTs
                 : srcChain === 'movement' || srcChain === 'aptos'
-                  ? aptosMovementOFTs
-                  : ofts[srcChain]
+                    ? aptosMovementOFTs
+                    : ofts[srcChain]
         )) {
             if (srcChain === 'solana') {
                 // TODO solana delegate msig threshold
@@ -922,8 +884,8 @@ async function main() {
                 srcChain === 'solana'
                     ? solanaOFTs
                     : srcChain === 'movement' || srcChain === 'aptos'
-                      ? aptosMovementOFTs
-                      : ofts[srcChain]
+                        ? aptosMovementOFTs
+                        : ofts[srcChain]
             )) {
                 if (oftObj[oftName][srcChain].dstChains == undefined) {
                     oftObj[oftName][srcChain].dstChains = {} as DstChainConfig
@@ -931,6 +893,7 @@ async function main() {
                 if (oftObj[oftName][srcChain].dstChains[dstChain] == undefined) {
                     oftObj[oftName][srcChain].dstChains[dstChain] = {} as OFTInfo
                 }
+                oftObj[oftName][srcChain].dstChains[dstChain].eid = chains[dstChain].peerId.toString()
                 if (srcChain === 'solana') {
                     try {
                         const peerBytes32 = await oft302.getPeerAddress(
@@ -1050,8 +1013,7 @@ async function main() {
             })
             contractcalls = []
 
-            resSchema.forEach(({ srcChain, dstChain, oftName, dstPeerId }, index) => {
-                oftObj[oftName][srcChain].dstChains[dstChain].eid = dstPeerId
+            resSchema.forEach(({ srcChain, dstChain, oftName }, index) => {
                 if (authParams[index * 2].status === 'success') {
                     if (authParams[index * 2].result !== bytes32Zero) {
                         oftObj[oftName][srcChain].dstChains[dstChain].peerAddressBytes32 = authParams[index * 2].result
@@ -1099,8 +1061,8 @@ async function main() {
                 srcChain === 'solana'
                     ? solanaOFTs
                     : srcChain === 'movement' || srcChain === 'aptos'
-                      ? aptosMovementOFTs
-                      : ofts[srcChain]
+                        ? aptosMovementOFTs
+                        : ofts[srcChain]
             )) {
                 if (oftObj[oftName][srcChain].dstChains[dstChain].receiveLibrary == undefined) {
                     oftObj[oftName][srcChain].dstChains[dstChain].receiveLibrary = {} as ReceiveLibraryType
@@ -1450,8 +1412,8 @@ async function main() {
                 srcChain === 'solana'
                     ? solanaOFTs
                     : srcChain === 'movement' || srcChain === 'aptos'
-                      ? aptosMovementOFTs
-                      : ofts[srcChain]
+                        ? aptosMovementOFTs
+                        : ofts[srcChain]
             )) {
                 if (oftObj[oftName][srcChain].dstChains[dstChain].enforcedOptionsSend == undefined) {
                     oftObj[oftName][srcChain].dstChains[dstChain].enforcedOptionsSend = {} as OFTEnforcedOptions
@@ -1527,18 +1489,58 @@ async function main() {
                             `${oftName}:${srcChain}:${dstChain}:oft(${solanaOFTs[oftName].oftStore}).enforcedOptions(${chains[dstChain].peerId})`
                         )
                     }
+                    try {
+                        const endpointConfig = await oft302.getEndpointConfig(
+                            chains[srcChain].client.rpc,
+                            publicKey(solanaOFTs[oftName].oftStore),
+                            chains[dstChain].peerId
+                        )
+                        // console.log('endpoint ', endpointConfig.sendLibraryConfig.header.owner)
+
+                        oftObj[oftName][srcChain].dstChains[dstChain].appUlnConfig.send.confirmations =
+                            Number(endpointConfig.sendLibraryConfig.ulnSendConfig.uln.confirmations)
+                        oftObj[oftName][srcChain].dstChains[dstChain].appUlnConfig.send.requiredDVNCount =
+                            Number(endpointConfig.sendLibraryConfig.ulnSendConfig.uln.requiredDvnCount)
+                        oftObj[oftName][srcChain].dstChains[dstChain].appUlnConfig.send.optionalDVNCount =
+                            Number(endpointConfig.sendLibraryConfig.ulnSendConfig.uln.optionalDvnCount)
+                        oftObj[oftName][srcChain].dstChains[dstChain].appUlnConfig.send.optionalDVNThreshold =
+                            Number(endpointConfig.sendLibraryConfig.ulnSendConfig.uln.optionalDvnThreshold)
+                        oftObj[oftName][srcChain].dstChains[dstChain].appUlnConfig.send.requiredDVNs =
+                            endpointConfig.sendLibraryConfig.ulnSendConfig.uln.requiredDvns
+                        oftObj[oftName][srcChain].dstChains[dstChain].appUlnConfig.send.optionalDVNs =
+                            endpointConfig.sendLibraryConfig.ulnSendConfig.uln.optionalDvns
+
+                        oftObj[oftName][srcChain].dstChains[dstChain].appUlnConfig.receive.confirmations =
+                            Number(endpointConfig.receiveLibraryConfig.ulnReceiveConfig.uln.confirmations)
+                        oftObj[oftName][srcChain].dstChains[dstChain].appUlnConfig.receive.requiredDVNCount =
+                            Number(endpointConfig.receiveLibraryConfig.ulnReceiveConfig.uln.requiredDvnCount)
+                        oftObj[oftName][srcChain].dstChains[dstChain].appUlnConfig.receive.optionalDVNCount =
+                            Number(endpointConfig.receiveLibraryConfig.ulnReceiveConfig.uln.optionalDvnCount)
+                        oftObj[oftName][srcChain].dstChains[dstChain].appUlnConfig.receive.optionalDVNThreshold =
+                            endpointConfig.receiveLibraryConfig.ulnReceiveConfig.uln.optionalDvnThreshold
+                        oftObj[oftName][srcChain].dstChains[dstChain].appUlnConfig.receive.requiredDVNs =
+                            endpointConfig.receiveLibraryConfig.ulnReceiveConfig.uln.requiredDvns
+                        oftObj[oftName][srcChain].dstChains[dstChain].appUlnConfig.receive.optionalDVNs =
+                            endpointConfig.receiveLibraryConfig.ulnReceiveConfig.uln.optionalDvns
+
+                        oftObj[oftName][srcChain].dstChains[dstChain].executorConfig.maxMessageSize =
+                            Number(endpointConfig.sendLibraryConfig.ulnSendConfig.executor.maxMessageSize)
+                        oftObj[oftName][srcChain].dstChains[dstChain].executorConfig.executorAddress =
+                            endpointConfig.sendLibraryConfig.ulnSendConfig.executor.executor
+                    } catch (e) {
+                        console.log(
+                            `${oftName}:${srcChain}:${dstChain}:oft(${solanaOFTs[oftName].oftStore}).getEndpointConfig(${solanaOFTs[oftName].oftStore},${chains[dstChain].peerId})`
+                        )
+                    }
                     // TODO solana send default executor config
-                    // TODO solana send app executor config
                     // TODO solana send default executor config default
                     // TODO solana send app executor config default
                     // TODO solana send default uln config
-                    // TODO solana send app uln config
                     // TODO solana send default uln config default
                     // TODO solana send app uln config default
-                    // TODO solana receive default executor config
-                    // TODO solana receive app executor config
-                    // TODO solana receive default executor config default
-                    // TODO solana receive app executor config default
+                    // TODO solana receive default uln config
+                    // TODO solana receive default uln config default
+                    // TODO solana receive app uln config default
                 } else if (srcChain === 'aptos' || srcChain === 'movement') {
                     try {
                         const enforcedOptionsSend = await chains[srcChain].client.view({
@@ -1554,33 +1556,205 @@ async function main() {
                             },
                         })
                         oftObj[oftName][srcChain].dstChains[dstChain].enforcedOptionsSend = deepCopy(
-                            decodeLzReceiveOption(enforcedOptionsSend)
+                            decodeLzReceiveOption(enforcedOptionsSend[0])
                         )
                         oftObj[oftName][srcChain].dstChains[dstChain].enforcedOptionsSendAndCall = deepCopy(
-                            decodeLzReceiveOption(enforcedOptionsSendAndCall)
+                            decodeLzReceiveOption(enforcedOptionsSendAndCall[0])
                         )
                     } catch (e) {
+                        console.log('===============================')
+                        console.log(e)
                         console.log(
-                            `${oftName}:${srcChain}:${dstChain}:oft(${aptosMovementOFTs[oftName].oft}).enforcedOptions(${chains[dstChain].peerId},1)`
+                            `${oftName}:${srcChain}:${dstChain}:oft(${aptosMovementOFTs[oftName].oft}).enforcedOptions(${chains[dstChain].peerId})`
                         )
+                        console.log('===============================')
                     }
-                    // TODO aptos/movement enforced options send and call
-                    // TODO aptos/movement send default executor config
-                    // TODO aptos/movement send app executor config
+                    try {
+                        const appExecutorConfig = await chains[srcChain].client.view({
+                            payload: {
+                                function: `${chains[srcChain].sendLib302}::msglib::get_app_executor_config`,
+                                functionArguments: [aptosMovementOFTs[oftName].oft, chains[dstChain].peerId],
+                            },
+                        })
+                        oftObj[oftName][srcChain].dstChains[dstChain].executorConfig.executorAddress = (
+                            appExecutorConfig[0] as AptosExecutorConfig
+                        ).vec[0].executor_address
+                        oftObj[oftName][srcChain].dstChains[dstChain].executorConfig.maxMessageSize = (
+                            appExecutorConfig[0] as AptosExecutorConfig
+                        ).vec[0].max_message_size
+                    } catch (e) {
+                        console.log('===============================')
+                        console.log(e)
+                        console.log(
+                            `${oftName}:${srcChain}:${dstChain}:oft(${aptosMovementOFTs[oftName].oft}).executorConfig(${aptosMovementOFTs[oftName].oft},${chains[dstChain].peerId})`
+                        )
+                        console.log('===============================')
+                    }
+                    try {
+                        const defaultExecutorConfig = await chains[srcChain].client.view({
+                            payload: {
+                                function: `${chains[srcChain].sendLib302}::msglib::get_default_executor_config`,
+                                functionArguments: [chains[dstChain].peerId],
+                            },
+                        })
+                        oftObj[oftName][srcChain].dstChains[dstChain].defaultExecutorConfig.executorAddress = (
+                            defaultExecutorConfig[0] as AptosExecutorConfig
+                        ).vec[0].executor_address
+                        oftObj[oftName][srcChain].dstChains[dstChain].defaultExecutorConfig.maxMessageSize = (
+                            defaultExecutorConfig[0] as AptosExecutorConfig
+                        ).vec[0].max_message_size
+                    } catch (e) {
+                        console.log('===============================')
+                        console.log(e)
+                        console.log(
+                            `${oftName}:${srcChain}:${dstChain}:oft(${aptosMovementOFTs[oftName].oft}).executorConfig(${chains[dstChain].peerId})`
+                        )
+                        console.log('===============================')
+                    }
                     // TODO aptos/movement send default executor config default
                     // TODO aptos/movement send app executor config default
-                    // TODO aptos/movement send default uln config
-                    // TODO aptos/movement send app uln config
+                    try {
+                        const defaultUlnSendConfig = await chains[srcChain].client.view({
+                            payload: {
+                                function: `${chains[srcChain].sendLib302}::msglib::get_default_uln_send_config`,
+                                functionArguments: [chains[dstChain].peerId],
+                            },
+                        })
+                        oftObj[oftName][srcChain].dstChains[dstChain].defaultUlnConfig.send.confirmations = Number(
+                            (defaultUlnSendConfig[0] as AptosAppConfig).vec[0].confirmations
+                        )
+                        oftObj[oftName][srcChain].dstChains[dstChain].defaultUlnConfig.send.optionalDVNThreshold =
+                            Number((defaultUlnSendConfig[0] as AptosAppConfig).vec[0].optional_dvn_threshold)
+                        oftObj[oftName][srcChain].dstChains[dstChain].defaultUlnConfig.send.optionalDVNs = (
+                            defaultUlnSendConfig[0] as AptosAppConfig
+                        ).vec[0].optional_dvns
+                        oftObj[oftName][srcChain].dstChains[dstChain].defaultUlnConfig.send.requiredDVNs = (
+                            defaultUlnSendConfig[0] as AptosAppConfig
+                        ).vec[0].required_dvns
+                        oftObj[oftName][srcChain].dstChains[dstChain].defaultUlnConfig.send.useDefaultForConfirmations =
+                            (defaultUlnSendConfig[0] as AptosAppConfig).vec[0].use_default_for_confirmations
+                        oftObj[oftName][srcChain].dstChains[dstChain].defaultUlnConfig.send.useDefaultForOptionalDVNs =
+                            (defaultUlnSendConfig[0] as AptosAppConfig).vec[0].use_default_for_optional_dvns
+                        oftObj[oftName][srcChain].dstChains[dstChain].defaultUlnConfig.send.useDefaultForRequiredDVNs =
+                            (defaultUlnSendConfig[0] as AptosAppConfig).vec[0].use_default_for_required_dvns
+                    } catch (e) {
+                        console.log(
+                            `${oftName}:${srcChain}:${dstChain}:oft(${aptosMovementOFTs[oftName].oft}).get_default_uln_send_config(${chains[dstChain].peerId})`
+                        )
+                    }
+
+                    try {
+                        const appSendConfig = await chains[srcChain].client.view({
+                            payload: {
+                                function: `${chains[srcChain].sendLib302}::msglib::get_app_send_config`,
+                                functionArguments: [aptosMovementOFTs[oftName].oft, chains[dstChain].peerId],
+                            },
+                        })
+                        oftObj[oftName][srcChain].dstChains[dstChain].appUlnConfig.send.confirmations = Number(
+                            (appSendConfig[0] as AptosAppConfig).vec[0].confirmations
+                        )
+                        oftObj[oftName][srcChain].dstChains[dstChain].appUlnConfig.send.optionalDVNThreshold = Number(
+                            (appSendConfig[0] as AptosAppConfig).vec[0].optional_dvn_threshold
+                        )
+                        oftObj[oftName][srcChain].dstChains[dstChain].appUlnConfig.send.optionalDVNs = (
+                            appSendConfig[0] as AptosAppConfig
+                        ).vec[0].optional_dvns
+                        oftObj[oftName][srcChain].dstChains[dstChain].appUlnConfig.send.requiredDVNs = (
+                            appSendConfig[0] as AptosAppConfig
+                        ).vec[0].required_dvns
+                        oftObj[oftName][srcChain].dstChains[dstChain].appUlnConfig.send.useDefaultForConfirmations = (
+                            appSendConfig[0] as AptosAppConfig
+                        ).vec[0].use_default_for_confirmations
+                        oftObj[oftName][srcChain].dstChains[dstChain].appUlnConfig.send.useDefaultForOptionalDVNs = (
+                            appSendConfig[0] as AptosAppConfig
+                        ).vec[0].use_default_for_optional_dvns
+                        oftObj[oftName][srcChain].dstChains[dstChain].appUlnConfig.send.useDefaultForRequiredDVNs = (
+                            appSendConfig[0] as AptosAppConfig
+                        ).vec[0].use_default_for_required_dvns
+                    } catch (e) {
+                        console.log(
+                            `${oftName}:${srcChain}:${dstChain}:oft(${aptosMovementOFTs[oftName].oft}).get_app_send_config(${aptosMovementOFTs[oftName].oft},${chains[dstChain].peerId})`
+                        )
+                    }
                     // TODO aptos/movement send default uln config default
                     // TODO aptos/movement send app uln config default
-                    // TODO aptos/movement receive default executor config
-                    // TODO aptos/movement receive app executor config
-                    // TODO aptos/movement receive default executor config default
-                    // TODO aptos/movement receive app executor config default
+                    try {
+                        const defaultUlnReceiveConfig = await chains[srcChain].client.view({
+                            payload: {
+                                function: `${chains[srcChain].sendLib302}::msglib::get_default_uln_receive_config`,
+                                functionArguments: [chains[dstChain].peerId],
+                            },
+                        })
+                        oftObj[oftName][srcChain].dstChains[dstChain].defaultUlnConfig.receive.confirmations = Number(
+                            (defaultUlnReceiveConfig[0] as AptosAppConfig).vec[0].confirmations
+                        )
+                        oftObj[oftName][srcChain].dstChains[dstChain].defaultUlnConfig.receive.optionalDVNThreshold =
+                            Number((defaultUlnReceiveConfig[0] as AptosAppConfig).vec[0].optional_dvn_threshold)
+                        oftObj[oftName][srcChain].dstChains[dstChain].defaultUlnConfig.receive.optionalDVNs = (
+                            defaultUlnReceiveConfig[0] as AptosAppConfig
+                        ).vec[0].optional_dvns
+                        oftObj[oftName][srcChain].dstChains[dstChain].defaultUlnConfig.receive.requiredDVNs = (
+                            defaultUlnReceiveConfig[0] as AptosAppConfig
+                        ).vec[0].required_dvns
+                        oftObj[oftName][srcChain].dstChains[
+                            dstChain
+                        ].defaultUlnConfig.receive.useDefaultForConfirmations = (
+                            defaultUlnReceiveConfig[0] as AptosAppConfig
+                        ).vec[0].use_default_for_confirmations
+                        oftObj[oftName][srcChain].dstChains[
+                            dstChain
+                        ].defaultUlnConfig.receive.useDefaultForOptionalDVNs = (
+                            defaultUlnReceiveConfig[0] as AptosAppConfig
+                        ).vec[0].use_default_for_optional_dvns
+                        oftObj[oftName][srcChain].dstChains[
+                            dstChain
+                        ].defaultUlnConfig.receive.useDefaultForRequiredDVNs = (
+                            defaultUlnReceiveConfig[0] as AptosAppConfig
+                        ).vec[0].use_default_for_required_dvns
+                    } catch (e) {
+                        console.log(
+                            `${oftName}:${srcChain}:${dstChain}:oft(${aptosMovementOFTs[oftName].oft}).get_default_uln_receive_config(${chains[dstChain].peerId})`
+                        )
+                    }
+                    try {
+                        const appReceiveConfig = await chains[srcChain].client.view({
+                            payload: {
+                                function: `${chains[srcChain].sendLib302}::msglib::get_app_receive_config`,
+                                functionArguments: [aptosMovementOFTs[oftName].oft, chains[dstChain].peerId],
+                            },
+                        })
+
+                        oftObj[oftName][srcChain].dstChains[dstChain].appUlnConfig.receive.confirmations = Number(
+                            (appReceiveConfig[0] as AptosAppConfig).vec[0].confirmations
+                        )
+                        oftObj[oftName][srcChain].dstChains[dstChain].appUlnConfig.receive.optionalDVNThreshold =
+                            Number((appReceiveConfig[0] as AptosAppConfig).vec[0].optional_dvn_threshold)
+                        oftObj[oftName][srcChain].dstChains[dstChain].appUlnConfig.receive.optionalDVNs = (
+                            appReceiveConfig[0] as AptosAppConfig
+                        ).vec[0].optional_dvns
+                        oftObj[oftName][srcChain].dstChains[dstChain].appUlnConfig.receive.requiredDVNs = (
+                            appReceiveConfig[0] as AptosAppConfig
+                        ).vec[0].required_dvns
+                        oftObj[oftName][srcChain].dstChains[dstChain].appUlnConfig.receive.useDefaultForConfirmations =
+                            (appReceiveConfig[0] as AptosAppConfig).vec[0].use_default_for_confirmations
+                        oftObj[oftName][srcChain].dstChains[dstChain].appUlnConfig.receive.useDefaultForOptionalDVNs = (
+                            appReceiveConfig[0] as AptosAppConfig
+                        ).vec[0].use_default_for_optional_dvns
+                        oftObj[oftName][srcChain].dstChains[dstChain].appUlnConfig.receive.useDefaultForRequiredDVNs = (
+                            appReceiveConfig[0] as AptosAppConfig
+                        ).vec[0].use_default_for_required_dvns
+                    } catch (e) {
+                        console.log(
+                            `${oftName}:${srcChain}:${dstChain}:oft(${aptosMovementOFTs[oftName].oft}).get_app_receive_config(${aptosMovementOFTs[oftName].oft},${chains[dstChain].peerId})`
+                        )
+                    }
+
+                    // TODO aptos/movement receive default uln config default
+                    // TODO aptos/movement receive app uln config default
                 } else if (srcChain === 'plasma' || srcChain === 'katana' || srcChain === 'stable') {
                     // enforcedOptions msgType 1
                     try {
-                        const enforcedOptionsSend = await chains[oftName].client.readContract({
+                        const enforcedOptionsSend = await chains[srcChain].client.readContract({
                             address: ofts[srcChain][oftName].address,
                             abi: ofts[srcChain][oftName].abi,
                             functionName: 'enforcedOptions',
@@ -1590,14 +1764,17 @@ async function main() {
                             decodeLzReceiveOption(enforcedOptionsSend)
                         )
                     } catch (e) {
+                        console.log('===============================')
+                        console.log(e)
                         console.log(
                             `${oftName}:${srcChain}:${dstChain}:oft(${ofts[srcChain][oftName].address}).enforcedOptions(${chains[dstChain].peerId},1)`
                         )
+                        console.log('===============================')
                     }
 
                     // enforcedOptions msgType 2
                     try {
-                        const enforcedOptionsSendAndCall = await chains[oftName].client.readContract({
+                        const enforcedOptionsSendAndCall = await chains[srcChain].client.readContract({
                             address: ofts[srcChain][oftName].address,
                             abi: ofts[srcChain][oftName].abi,
                             functionName: 'enforcedOptions',
@@ -1614,52 +1791,52 @@ async function main() {
 
                     // send default executor config : sendUln302.executorConfigs(address(0),_remoteEid)
                     try {
-                        const sendDefaultExecutorConfig = await chains[oftName].client.readContract({
+                        const sendDefaultExecutorConfig = await chains[srcChain].client.readContract({
                             address: oftObj[oftName][srcChain].dstChains[dstChain].sendLibrary,
                             abi: SEND_ULN302_ABI,
                             functionName: 'executorConfigs',
                             args: [zeroAddress, oftObj[oftName][srcChain].dstChains[dstChain].eid],
                         })
-                        oftObj[oftName][srcChain].dstChains[dstChain].defaultExecutorConfig.maxMessageSize =
-                            sendDefaultExecutorConfig.result[0]
-                        oftObj[oftName][srcChain].dstChains[dstChain].defaultExecutorConfig.executorAddress =
-                            sendDefaultExecutorConfig.result[1]
+                        oftObj[oftName][srcChain].dstChains[dstChain].defaultExecutorConfig.maxMessageSize = sendDefaultExecutorConfig[0]
+                        oftObj[oftName][srcChain].dstChains[dstChain].defaultExecutorConfig.executorAddress = sendDefaultExecutorConfig[1]
                     } catch (e) {
+                        console.log('===============================')
+                        console.log(e)
                         console.log(
                             `${oftName}:${srcChain}:${dstChain}:sendLibrary(${oftObj[oftName][srcChain].dstChains[dstChain].sendLibrary}).executorConfigs(${zeroAddress}, ${oftObj[oftName][srcChain].dstChains[dstChain].eid})`
                         )
+                        console.log('===============================')
                     }
 
                     // send app executor config : sendUln302.executorConfigs(oft,_remoteEid)
                     try {
-                        const sendAppExecutorConfig = await chains[oftName].client.readContract({
+                        const sendAppExecutorConfig = await chains[srcChain].client.readContract({
                             address: oftObj[oftName][srcChain].dstChains[dstChain].sendLibrary,
                             abi: SEND_ULN302_ABI,
                             functionName: 'executorConfigs',
                             args: [ofts[srcChain][oftName].address, oftObj[oftName][srcChain].dstChains[dstChain].eid],
                         })
-                        oftObj[oftName][srcChain].dstChains[dstChain].executorConfig.maxMessageSize =
-                            sendAppExecutorConfig.result[0]
-                        oftObj[oftName][srcChain].dstChains[dstChain].executorConfig.executorAddress =
-                            sendAppExecutorConfig.result[1]
+                        oftObj[oftName][srcChain].dstChains[dstChain].executorConfig.maxMessageSize = sendAppExecutorConfig[0]
+                        oftObj[oftName][srcChain].dstChains[dstChain].executorConfig.executorAddress = sendAppExecutorConfig[1]
                     } catch (e) {
+                        console.log('===============================')
+                        console.log(e)
                         console.log(
                             `${oftName}:${srcChain}:${dstChain}:sendLibrary(${oftObj[oftName][srcChain].dstChains[dstChain].sendLibrary}).executorConfigs(${ofts[srcChain][oftName].address}, ${oftObj[oftName][srcChain].dstChains[dstChain].eid})`
                         )
+                        console.log('===============================')
                     }
 
                     // default send default executor config : sendUln302.executorConfigs(address(0),_remoteEid)
                     try {
-                        const sendDefaultExecutorConfigDefault = await chains[oftName].client.readContract({
+                        const sendDefaultExecutorConfigDefault = await chains[srcChain].client.readContract({
                             address: oftObj[oftName][srcChain].dstChains[dstChain].defaultSendLibrary,
                             abi: SEND_ULN302_ABI,
                             functionName: 'executorConfigs',
                             args: [zeroAddress, oftObj[oftName][srcChain].dstChains[dstChain].eid],
                         })
-                        oftObj[oftName][srcChain].dstChains[dstChain].defaultExecutorConfigDefaultLib.maxMessageSize =
-                            sendDefaultExecutorConfigDefault.result[0]
-                        oftObj[oftName][srcChain].dstChains[dstChain].defaultExecutorConfigDefaultLib.executorAddress =
-                            sendDefaultExecutorConfigDefault.result[1]
+                        oftObj[oftName][srcChain].dstChains[dstChain].defaultExecutorConfigDefaultLib.maxMessageSize = sendDefaultExecutorConfigDefault[0]
+                        oftObj[oftName][srcChain].dstChains[dstChain].defaultExecutorConfigDefaultLib.executorAddress = sendDefaultExecutorConfigDefault[1]
                     } catch (e) {
                         console.log(
                             `${oftName}:${srcChain}:${dstChain}:defaultSendLibrary(${oftObj[oftName][srcChain].dstChains[dstChain].defaultSendLibrary}).executorConfigs(${zeroAddress}, ${oftObj[oftName][srcChain].dstChains[dstChain].eid})`
@@ -1668,25 +1845,26 @@ async function main() {
 
                     // default send app executor config : sendUln302.executorConfigs(oft,_remoteEid)
                     try {
-                        const sendAppExecutorConfigDefault = await chains[oftName].client.readContract({
+                        const sendAppExecutorConfigDefault = await chains[srcChain].client.readContract({
                             address: oftObj[oftName][srcChain].dstChains[dstChain].defaultSendLibrary,
                             abi: SEND_ULN302_ABI,
                             functionName: 'executorConfigs',
                             args: [ofts[srcChain][oftName].address, oftObj[oftName][srcChain].dstChains[dstChain].eid],
                         })
-                        oftObj[oftName][srcChain].dstChains[dstChain].executorConfigDefaultLib.maxMessageSize =
-                            sendAppExecutorConfigDefault.result[0]
-                        oftObj[oftName][srcChain].dstChains[dstChain].executorConfigDefaultLib.executorAddress =
-                            sendAppExecutorConfigDefault.result[1]
+                        oftObj[oftName][srcChain].dstChains[dstChain].executorConfigDefaultLib.maxMessageSize = sendAppExecutorConfigDefault[0]
+                        oftObj[oftName][srcChain].dstChains[dstChain].executorConfigDefaultLib.executorAddress = sendAppExecutorConfigDefault[1]
                     } catch (e) {
+                        console.log('===============================')
+                        console.log(e)
                         console.log(
                             `${oftName}:${srcChain}:${dstChain}:defaultSendLibrary(${oftObj[oftName][srcChain].dstChains[dstChain].defaultSendLibrary}).executorConfigs(${ofts[srcChain][oftName].address}, ${oftObj[oftName][srcChain].dstChains[dstChain].eid})`
                         )
+                        console.log('===============================')
                     }
 
                     // send default uln config : sendUln302.getAppUlnConfig(address(0),_remoteEid)
                     try {
-                        const sendDefaultUlnConfig = await chains[oftName].client.readContract({
+                        const sendDefaultUlnConfig = await chains[srcChain].client.readContract({
                             address: oftObj[oftName][srcChain].dstChains[dstChain].sendLibrary,
                             abi: SEND_ULN302_ABI,
                             functionName: 'getAppUlnConfig',
@@ -1695,14 +1873,17 @@ async function main() {
                         oftObj[oftName][srcChain].dstChains[dstChain].defaultUlnConfig.send =
                             deepCopy(sendDefaultUlnConfig) // sendDefaultUlnConfig
                     } catch (e) {
+                        console.log('===============================')
+                        console.log(e)
                         console.log(
                             `${oftName}:${srcChain}:${dstChain}:sendLibrary(${oftObj[oftName][srcChain].dstChains[dstChain].sendLibrary}).getAppUlnConfig(${zeroAddress}, ${oftObj[oftName][srcChain].dstChains[dstChain].eid})`
                         )
+                        console.log('===============================')
                     }
 
                     // send app uln config : sendUln302.getAppUlnConfig(oft,_remoteEid)
                     try {
-                        const sendAppUlnConfig = await chains[oftName].client.readContract({
+                        const sendAppUlnConfig = await chains[srcChain].client.readContract({
                             address: oftObj[oftName][srcChain].dstChains[dstChain].sendLibrary,
                             abi: SEND_ULN302_ABI,
                             functionName: 'getAppUlnConfig',
@@ -1710,14 +1891,17 @@ async function main() {
                         })
                         oftObj[oftName][srcChain].dstChains[dstChain].appUlnConfig.send = deepCopy(sendAppUlnConfig) // sendAppUlnConfig
                     } catch (e) {
+                        console.log('===============================')
+                        console.log(e)
                         console.log(
                             `${oftName}:${srcChain}:${dstChain}:sendLibrary(${oftObj[oftName][srcChain].dstChains[dstChain].sendLibrary}).getAppUlnConfig(${ofts[srcChain][oftName].address}, ${oftObj[oftName][srcChain].dstChains[dstChain].eid})`
                         )
+                        console.log('===============================')
                     }
 
                     // send default uln config : sendUln302.getAppUlnConfig(address(0),_remoteEid)
                     try {
-                        const sendDefaultUlnConfigDefault = await chains[oftName].client.readContract({
+                        const sendDefaultUlnConfigDefault = await chains[srcChain].client.readContract({
                             address: oftObj[oftName][srcChain].dstChains[dstChain].defaultSendLibrary,
                             abi: SEND_ULN302_ABI,
                             functionName: 'getAppUlnConfig',
@@ -1726,14 +1910,17 @@ async function main() {
                         oftObj[oftName][srcChain].dstChains[dstChain].defaultUlnConfigDefaultLib.send =
                             deepCopy(sendDefaultUlnConfigDefault) // sendDefaultUlnConfigDefault
                     } catch (e) {
+                        console.log('===============================')
+                        console.log(e)
                         console.log(
                             `${oftName}:${srcChain}:${dstChain}:defaultSendLibrary(${oftObj[oftName][srcChain].dstChains[dstChain].defaultSendLibrary}).getAppUlnConfig(${zeroAddress}, ${oftObj[oftName][srcChain].dstChains[dstChain].eid})`
                         )
+                        console.log('===============================')
                     }
 
                     // send app uln config : sendUln302.getAppUlnConfig(oft,_remoteEid)
                     try {
-                        const sendAppUlnConfigDefault = await chains[oftName].client.readContract({
+                        const sendAppUlnConfigDefault = await chains[srcChain].client.readContract({
                             address: oftObj[oftName][srcChain].dstChains[dstChain].defaultSendLibrary,
                             abi: SEND_ULN302_ABI,
                             functionName: 'getAppUlnConfig',
@@ -1742,14 +1929,17 @@ async function main() {
                         oftObj[oftName][srcChain].dstChains[dstChain].appUlnConfigDefaultLib.send =
                             deepCopy(sendAppUlnConfigDefault) // sendAppUlnConfigDefault
                     } catch (e) {
+                        console.log('===============================')
+                        console.log(e)
                         console.log(
                             `${oftName}:${srcChain}:${dstChain}:defaultSendLibrary(${oftObj[oftName][srcChain].dstChains[dstChain].defaultSendLibrary}).getAppUlnConfig(${ofts[srcChain][oftName].address}, ${oftObj[oftName][srcChain].dstChains[dstChain].eid})`
                         )
+                        console.log('===============================')
                     }
 
                     // receive default uln config : sendUln302.getAppUlnConfig(address(0),_remoteEid)
                     try {
-                        const receiveDefaultUlnConfig = await chains[oftName].client.readContract({
+                        const receiveDefaultUlnConfig = await chains[srcChain].client.readContract({
                             address: oftObj[oftName][srcChain].dstChains[dstChain].receiveLibrary.receiveLibraryAddress,
                             abi: RECEIVE_ULN302_ABI,
                             functionName: 'getAppUlnConfig',
@@ -1758,14 +1948,17 @@ async function main() {
                         oftObj[oftName][srcChain].dstChains[dstChain].defaultUlnConfig.receive =
                             deepCopy(receiveDefaultUlnConfig) // receiveDefaultUlnConfig
                     } catch (e) {
+                        console.log('===============================')
+                        console.log(e)
                         console.log(
                             `${oftName}:${srcChain}:${dstChain}:receiveLibrary(${oftObj[oftName][srcChain].dstChains[dstChain].receiveLibrary.receiveLibraryAddress}).getAppUlnConfig(${zeroAddress}, ${oftObj[oftName][srcChain].dstChains[dstChain].eid})`
                         )
+                        console.log('===============================')
                     }
 
                     // receive app uln config : sendUln302.getAppUlnConfig(oft,_remoteEid)
                     try {
-                        const receiveApptUlnConfig = await chains[oftName].client.readContract({
+                        const receiveApptUlnConfig = await chains[srcChain].client.readContract({
                             address: oftObj[oftName][srcChain].dstChains[dstChain].receiveLibrary.receiveLibraryAddress,
                             abi: RECEIVE_ULN302_ABI,
                             functionName: 'getAppUlnConfig',
@@ -1774,14 +1967,17 @@ async function main() {
                         oftObj[oftName][srcChain].dstChains[dstChain].appUlnConfig.receive =
                             deepCopy(receiveApptUlnConfig) // receiveApptUlnConfig
                     } catch (e) {
+                        console.log('===============================')
+                        console.log(e)
                         console.log(
                             `${oftName}:${srcChain}:${dstChain}:receiveLibrary(${oftObj[oftName][srcChain].dstChains[dstChain].receiveLibrary.receiveLibraryAddress}).getAppUlnConfig(${ofts[srcChain][oftName].address}, ${oftObj[oftName][srcChain].dstChains[dstChain].eid})`
                         )
+                        console.log('===============================')
                     }
 
                     // receive default uln config : sendUln302.getAppUlnConfig(address(0),_remoteEid)
                     try {
-                        const receiveDefaultUlnConfigDefault = await chains[oftName].client.readContract({
+                        const receiveDefaultUlnConfigDefault = await chains[srcChain].client.readContract({
                             address: oftObj[oftName][srcChain].dstChains[dstChain].defaultReceiveLibrary,
                             abi: RECEIVE_ULN302_ABI,
                             functionName: 'getAppUlnConfig',
@@ -1790,14 +1986,17 @@ async function main() {
                         oftObj[oftName][srcChain].dstChains[dstChain].defaultUlnConfigDefaultLib.receive =
                             deepCopy(receiveDefaultUlnConfigDefault) // receiveDefaultUlnConfigDefault
                     } catch (e) {
+                        console.log('===============================')
+                        console.log(e)
                         console.log(
                             `${oftName}:${srcChain}:${dstChain}:defaultReceiveLibrary(${oftObj[oftName][srcChain].dstChains[dstChain].defaultReceiveLibrary}).getAppUlnConfig(${zeroAddress}, ${oftObj[oftName][srcChain].dstChains[dstChain].eid})`
                         )
+                        console.log('===============================')
                     }
 
                     // receive app uln config : sendUln302.getAppUlnConfig(oft,_remoteEid)
                     try {
-                        const receiveAppUlnConfigDefault = await chains[oftName].client.readContract({
+                        const receiveAppUlnConfigDefault = await chains[srcChain].client.readContract({
                             address: oftObj[oftName][srcChain].dstChains[dstChain].defaultReceiveLibrary,
                             abi: RECEIVE_ULN302_ABI,
                             functionName: 'getAppUlnConfig',
@@ -1806,9 +2005,12 @@ async function main() {
                         oftObj[oftName][srcChain].dstChains[dstChain].appUlnConfigDefaultLib.receive =
                             deepCopy(receiveAppUlnConfigDefault) // receiveAppUlnConfigDefault
                     } catch (e) {
+                        console.log('===============================')
+                        console.log(e)
                         console.log(
                             `${oftName}:${srcChain}:${dstChain}:defaultReceiveLibrary(${oftObj[oftName][srcChain].dstChains[dstChain].defaultReceiveLibrary}).getAppUlnConfig(${ofts[srcChain][oftName].address}, ${oftObj[oftName][srcChain].dstChains[dstChain].eid})`
                         )
+                        console.log('===============================')
                     }
                 } else {
                     contractcalls.push({

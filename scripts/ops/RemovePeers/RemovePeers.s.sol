@@ -33,7 +33,6 @@ contract RemovePeers is DeployFraxOFTProtocol {
             // skip deprecated/undeployed chains
             if (
                 proxyConfigs[c].chainid == 3637 || // botanix
-                proxyConfigs[c].chainid == 1101 || // polygon zkevm
                 proxyConfigs[c].chainid == 81457 // blast
             ) continue;
             removeAllPeers(proxyConfigs[c]);

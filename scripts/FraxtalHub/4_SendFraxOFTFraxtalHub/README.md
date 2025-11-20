@@ -17,4 +17,4 @@
 ### Stable
 
 * fraxtal : https://layerzeroscan.com/tx/0x7b95452da7dd7606dc3b2a4c5695790e9df85ece45e01cfb979c6ac1fce9f5c5
-* stable : 
+* stable : https://layerzeroscan.com/tx/0x8ffd313858f743072eb786ed5167d31ba772e2229bf7c3a2176bfaddf09e1a66

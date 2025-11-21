@@ -1,14 +1,17 @@
+import fs from 'fs'
 import { chains } from '../chains'
 import REMOTE_HOP_ABI from '../abis/REMOTE_HOP_ABI.json'
+import { arrayify } from '@ethersproject/bytes'
+import { Hex, sliceHex } from 'viem'
 
 interface HopConfig {
     chain: string
     blockNumber: string
-    hop:string
+    hop: string
     fraxtalHop: string
     numDVNs: string
     hopFee: string
-    executorOptions: string
+    solanaExecutorOptions: string
     executor: string
     dvn: string
     treasury: string
@@ -56,7 +59,8 @@ async function main() {
             chainName !== 'solana' &&
             chainName !== 'aptos' &&
             chainName !== 'movement' &&
-            chainName !== 'xlayer'
+            chainName !== 'xlayer' &&
+            chainName !== "zkevm"
         ) {
             const blockNumber = await chains[chainName].client.getBlockNumber()
 
@@ -147,11 +151,11 @@ async function main() {
             hopConfigs.push({
                 chain: chainName,
                 blockNumber: blockNumber.toString(),
-                hop:chains[chainName].hop || '',
+                hop: chains[chainName].hop || '',
                 fraxtalHop: fraxtalHop,
                 numDVNs: numDVNS.toString(),
                 hopFee: hopFee.toString(),
-                executorOptions: executorOptions,
+                solanaExecutorOptions: executorOptions,
                 executor: executor,
                 dvn: dvn,
                 treasury: treasury,
@@ -169,10 +173,46 @@ async function main() {
         hopConfigs.push(...hopConfigResult)
     }
 
-    console.log("Chain,Blocknumber,RemoteHop,FraxtalHop,NumOfDVNs,SolanaExecutorOptions,Executor,Dvn,Treasury,Version,Owner,Threshold,Signers")
+    let rows: string[][] = []
+    rows.push([
+        'Chain,Blocknumber,RemoteHop,FraxtalHop,NumOfDVNs,SolanaExecutorOptions(gas),SolanaExecutorOptions(value),Executor,Dvn,Treasury,Version,Owner,Threshold,Signers',
+    ])
     hopConfigs.forEach((hopConfig) => {
-        console.log(`${hopConfig.chain},${hopConfig.blockNumber},${hopConfig.hop},${hopConfig.fraxtalHop},${hopConfig.numDVNs},${hopConfig.executorOptions},${hopConfig.executor},${hopConfig.dvn},${hopConfig.treasury},${hopConfig.version},${hopConfig.owner},${hopConfig.threshold},${hopConfig.signers}`)
+        let gas = '-'
+        let value = '-'
+
+        if (hopConfig.solanaExecutorOptions !== '0x') {
+            const readU128 = (start: number): bigint => {
+                const slice = bytes.slice(start, start + 16)
+                return BigInt('0x' + Buffer.from(slice).toString('hex'))
+            }
+            const bytes = arrayify(sliceHex(hopConfig.solanaExecutorOptions as Hex, 4))
+            gas = readU128(0).toString()
+            value = bytes.length === 32 ? readU128(16).toString() : '0'
+        }
+
+        rows.push([
+            hopConfig.chain,
+            hopConfig.blockNumber,
+            hopConfig.hop,
+            hopConfig.fraxtalHop,
+            hopConfig.numDVNs,
+            gas,
+            value,
+            hopConfig.executor,
+            hopConfig.dvn,
+            hopConfig.treasury,
+            hopConfig.version,
+            hopConfig.owner,
+            hopConfig.threshold,
+            hopConfig.signers.join(';'),
+        ])
     })
+
+    fs.writeFileSync(
+        `./run-periodically/remotehop-config-csv/remotehop-config.csv`,
+        rows.map((r) => r.join(',')).join('\n')
+    )
 }
 
 main().catch(console.error)

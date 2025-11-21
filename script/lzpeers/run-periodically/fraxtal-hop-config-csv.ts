@@ -1,3 +1,4 @@
+import fs from 'fs'
 import { chains } from '../chains'
 import FRAXTAL_HOP_ABI from '../abis/FRAXTAL_HOP.json'
 
@@ -38,47 +39,49 @@ const MSIG_ABI = [
 ]
 
 async function main() {
-
     // get fraxtal hop config
-    const blockNumber = await chains["fraxtal"].client.getBlockNumber()
-    const endpoint = await chains["fraxtal"].client.readContract({
-        address: chains["fraxtal"].hop,
+    const blockNumber = await chains['fraxtal'].client.getBlockNumber()
+    const endpoint = await chains['fraxtal'].client.readContract({
+        address: chains['fraxtal'].hop,
         abi: FRAXTAL_HOP_ABI,
         functionName: 'ENDPOINT',
         blockNumber,
     })
-    const owner = await chains["fraxtal"].client.readContract({
-        address: chains["fraxtal"].hop,
+    const owner = await chains['fraxtal'].client.readContract({
+        address: chains['fraxtal'].hop,
         abi: FRAXTAL_HOP_ABI,
         functionName: 'owner',
         blockNumber,
     })
-    const signers = await chains["fraxtal"].client.readContract({
+    const signers = await chains['fraxtal'].client.readContract({
         address: owner,
         abi: MSIG_ABI,
         functionName: 'getOwners',
         blockNumber,
     })
 
-    const threshold = await chains["fraxtal"].client.readContract({
+    const threshold = await chains['fraxtal'].client.readContract({
         address: owner,
         abi: MSIG_ABI,
         functionName: 'getThreshold',
         blockNumber,
     })
-    console.log("blockNumber,endpoint,owner,threshold,signers");
-    console.log(`${blockNumber},${endpoint},${owner},${threshold},${signers}`)
+    let rows: string[][] = []
+    rows.push(['blockNumber,endpoint,owner,threshold,signers'])
+    rows.push([blockNumber, endpoint, owner, threshold, signers.join(';')])
+    fs.writeFileSync(
+        `./run-periodically/fraxtal-hop-config-csv/fraxtal-hop.csv`,
+        rows.map((r) => r.join(',')).join('\n')
+    )
     const hopConfigs: HopConfig[] = []
     const chainProcessingPromises = Object.keys(chains).map(async (chainName) => {
         const chainResults: HopConfig[] = []
-        if (
-            chainName !== 'fraxtal'
-        ) {
-            const remoteHop = await chains["fraxtal"].client.readContract({
-                address: chains["fraxtal"].hop,
+        if (chainName !== 'fraxtal') {
+            const remoteHop = await chains['fraxtal'].client.readContract({
+                address: chains['fraxtal'].hop,
                 abi: FRAXTAL_HOP_ABI,
                 functionName: 'remoteHop',
-                args:[chains[chainName].peerId],
+                args: [chains[chainName].peerId],
                 blockNumber,
             })
 
@@ -86,7 +89,7 @@ async function main() {
                 chain: chainName,
                 blockNumber: blockNumber.toString(),
                 remoteHop: remoteHop,
-                peerId: chains[chainName].peerId.toString()
+                peerId: chains[chainName].peerId.toString(),
             })
         }
         return chainResults
@@ -97,10 +100,15 @@ async function main() {
         hopConfigs.push(...hopConfigResult)
     }
 
-    console.log("Chain,Blocknumber,RemoteHop,PeerId")
+    rows = []
+    rows.push(['Chain,BlockNumber,RemoteHop,PeerId'])
     hopConfigs.forEach((hopConfig) => {
-        console.log(`${hopConfig.chain},${hopConfig.blockNumber},${hopConfig.remoteHop},${hopConfig.peerId}`)
+        rows.push([hopConfig.chain, hopConfig.blockNumber, hopConfig.remoteHop, hopConfig.peerId])
     })
+    fs.writeFileSync(
+        `./run-periodically/fraxtal-hop-config-csv/fraxtal-hop-config.csv`,
+        rows.map((r) => r.join(',')).join('\n')
+    )
 }
 
 main().catch(console.error)

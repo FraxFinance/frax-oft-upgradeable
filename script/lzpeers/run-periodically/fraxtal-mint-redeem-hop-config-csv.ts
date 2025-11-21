@@ -1,3 +1,4 @@
+import fs from 'fs'
 import { chains } from '../chains'
 import FRAXTAL_MINT_REDEEM_HOP from '../abis/FRAXTAL_MINT_REDEEM_HOP.json'
 
@@ -38,62 +39,74 @@ const MSIG_ABI = [
 ]
 
 async function main() {
-
     // get fraxtal hop config
-    const blockNumber = await chains["fraxtal"].client.getBlockNumber()
-    const fraxtalERC4626MintRedeemer = await chains["fraxtal"].client.readContract({
-        address: chains["fraxtal"].mintRedeemHop,
+    const blockNumber = await chains['fraxtal'].client.getBlockNumber()
+    const fraxtalERC4626MintRedeemer = await chains['fraxtal'].client.readContract({
+        address: chains['fraxtal'].mintRedeemHop,
         abi: FRAXTAL_MINT_REDEEM_HOP,
         functionName: 'fraxtalERC4626MintRedeemer',
         blockNumber,
     })
-    const endpoint = await chains["fraxtal"].client.readContract({
-        address: chains["fraxtal"].mintRedeemHop,
+    const endpoint = await chains['fraxtal'].client.readContract({
+        address: chains['fraxtal'].mintRedeemHop,
         abi: FRAXTAL_MINT_REDEEM_HOP,
         functionName: 'ENDPOINT',
         blockNumber,
     })
-    const frxUsdLockbox = await chains["fraxtal"].client.readContract({
-        address: chains["fraxtal"].mintRedeemHop,
+    const frxUsdLockbox = await chains['fraxtal'].client.readContract({
+        address: chains['fraxtal'].mintRedeemHop,
         abi: FRAXTAL_MINT_REDEEM_HOP,
         functionName: 'frxUsdLockbox',
         blockNumber,
     })
-    const sfrxUsdLockbox = await chains["fraxtal"].client.readContract({
-        address: chains["fraxtal"].mintRedeemHop,
+    const sfrxUsdLockbox = await chains['fraxtal'].client.readContract({
+        address: chains['fraxtal'].mintRedeemHop,
         abi: FRAXTAL_MINT_REDEEM_HOP,
         functionName: 'sfrxUsdLockbox',
         blockNumber,
     })
-    const owner = await chains["fraxtal"].client.readContract({
-        address: chains["fraxtal"].mintRedeemHop,
+    const owner = await chains['fraxtal'].client.readContract({
+        address: chains['fraxtal'].mintRedeemHop,
         abi: FRAXTAL_MINT_REDEEM_HOP,
         functionName: 'owner',
         blockNumber,
     })
-    const signers = await chains["fraxtal"].client.readContract({
+    const signers = await chains['fraxtal'].client.readContract({
         address: owner,
         abi: MSIG_ABI,
         functionName: 'getOwners',
         blockNumber,
     })
 
-    const threshold = await chains["fraxtal"].client.readContract({
+    const threshold = await chains['fraxtal'].client.readContract({
         address: owner,
         abi: MSIG_ABI,
         functionName: 'getThreshold',
         blockNumber,
     })
-    console.log("blockNumber,fraxtalERC4626MintRedeemer,endpoint,frxUsdLockbox,sfrxUsdLockbox,owner,threshold,signers,");
-    console.log(`${blockNumber},${fraxtalERC4626MintRedeemer},${endpoint},${frxUsdLockbox},${sfrxUsdLockbox},${owner},${threshold},${signers},`)
+    let rows: string[][] = []
+    rows.push(['blockNumber,fraxtalERC4626MintRedeemer,endpoint,frxUsdLockbox,sfrxUsdLockbox,owner,threshold,signers'])
+    rows.push([
+        blockNumber,
+        fraxtalERC4626MintRedeemer,
+        endpoint,
+        frxUsdLockbox,
+        sfrxUsdLockbox,
+        owner,
+        threshold,
+        signers.join(';'),
+    ])
+
+    fs.writeFileSync(
+        `./run-periodically/fraxtal-mint-redeem-hop-config-csv/fraxtal-mint-redeem-hop.csv`,
+        rows.map((r) => r.join(',')).join('\n')
+    )
     const hopConfigs: HopConfig[] = []
     const chainProcessingPromises = Object.keys(chains).map(async (chainName) => {
         const chainResults: HopConfig[] = []
-        if (
-            chainName !== 'fraxtal'
-        ) {
-            const remoteHop = await chains["fraxtal"].client.readContract({
-                address: chains["fraxtal"].mintRedeemHop,
+        if (chainName !== 'fraxtal') {
+            const remoteHop = await chains['fraxtal'].client.readContract({
+                address: chains['fraxtal'].mintRedeemHop,
                 abi: FRAXTAL_MINT_REDEEM_HOP,
                 functionName: 'remoteHop',
                 args: [chains[chainName].peerId],
@@ -104,7 +117,7 @@ async function main() {
                 chain: chainName,
                 blockNumber: blockNumber.toString(),
                 remoteHop: remoteHop,
-                peerId: chains[chainName].peerId.toString()
+                peerId: chains[chainName].peerId.toString(),
             })
         }
         return chainResults
@@ -115,10 +128,16 @@ async function main() {
         hopConfigs.push(...hopConfigResult)
     }
 
-    console.log("Chain,Blocknumber,RemoteHop,PeerId")
+    rows = []
+    rows.push(['Chain,Blocknumber,RemoteHop,PeerId'])
     hopConfigs.forEach((hopConfig) => {
-        console.log(`${hopConfig.chain},${hopConfig.blockNumber},${hopConfig.remoteHop},${hopConfig.peerId}`)
+        rows.push([hopConfig.chain, hopConfig.blockNumber, hopConfig.remoteHop, hopConfig.peerId])
     })
+
+    fs.writeFileSync(
+        `./run-periodically/fraxtal-mint-redeem-hop-config-csv/fraxtal-mint-redeem-hop-config.csv`,
+        rows.map((r) => r.join(',')).join('\n')
+    )
 }
 
 main().catch(console.error)

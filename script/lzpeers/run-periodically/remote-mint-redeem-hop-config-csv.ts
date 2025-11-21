@@ -1,10 +1,11 @@
+import fs from 'fs'
 import { chains } from '../chains'
 import REMOTE_MINT_REDEEM_HOP_ABI from '../abis/REMOTE_MINT_REDEEM_HOP.json'
 
 interface HopConfig {
     chain: string
     blockNumber: string
-    remoteMintRedeemHop:string
+    remoteMintRedeemHop: string
     fraxtalHop: string
     numDVNs: string
     hopFee: string
@@ -82,7 +83,6 @@ async function main() {
                 blockNumber,
             })
 
-
             let executor = ''
             try {
                 executor = await chains[chainName].client.readContract({
@@ -149,7 +149,7 @@ async function main() {
                 console.log(`getOwners : ${chainName}: ${chains[chainName].mintRedeemHop} : ${owner}`)
             }
 
-            let threshold = '';
+            let threshold = ''
             try {
                 threshold = await chains[chainName].client.readContract({
                     address: owner,
@@ -164,7 +164,7 @@ async function main() {
             hopConfigs.push({
                 chain: chainName,
                 blockNumber: blockNumber.toString(),
-                remoteMintRedeemHop:chains[chainName].mintRedeemHop || '',
+                remoteMintRedeemHop: chains[chainName].mintRedeemHop || '',
                 fraxtalHop: fraxtalHop,
                 numDVNs: numDVNS.toString(),
                 hopFee: hopFee.toString(),
@@ -187,10 +187,33 @@ async function main() {
         hopConfigs.push(...hopConfigResult)
     }
 
-    console.log("Chain,Blocknumber,RemoteMintRedeemHop,FraxtalHop,NumOfDVNs,Executor,Dvn,Treasury,Eid,frxUsdOFT,sfrxUsdOft,Owner,Threshold,Signers")
+    let rows: string[][] = []
+    rows.push([
+        'Chain,Blocknumber,RemoteMintRedeemHop,FraxtalHop,NumOfDVNs,Executor,Dvn,Treasury,Eid,frxUsdOFT,sfrxUsdOft,Owner,Threshold,Signers',
+    ])
     hopConfigs.forEach((hopConfig) => {
-        console.log(`${hopConfig.chain},${hopConfig.blockNumber},${hopConfig.remoteMintRedeemHop},${hopConfig.fraxtalHop},${hopConfig.numDVNs},${hopConfig.executor},${hopConfig.dvn},${hopConfig.treasury},${hopConfig.eid},${hopConfig.frxUsdOft},${hopConfig.sfrxUsdOft},${hopConfig.owner},${hopConfig.threshold},${hopConfig.signers}`)
+        rows.push([
+            hopConfig.chain,
+            hopConfig.blockNumber,
+            hopConfig.remoteMintRedeemHop,
+            hopConfig.fraxtalHop,
+            hopConfig.numDVNs,
+            hopConfig.executor,
+            hopConfig.dvn,
+            hopConfig.treasury,
+            hopConfig.eid,
+            hopConfig.frxUsdOft,
+            hopConfig.sfrxUsdOft,
+            hopConfig.owner,
+            hopConfig.threshold,
+            hopConfig.signers.join(';'),
+        ])
     })
+
+    fs.writeFileSync(
+        `./run-periodically/remote-mint-redeem-hop-config-csv/remote-mint-redeem-hop-config.csv`,
+        rows.map((r) => r.join(',')).join('\n')
+    )
 }
 
 main().catch(console.error)

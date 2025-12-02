@@ -301,10 +301,14 @@
         ],
         "quorum": 2
     },
-    "monad":{
-        "uris":[
-            
+    "stable": {
+        "uris": [
+            "https://stable-mainnet-rpc.ops.frax.com"
         ],
-        "quorum":2
+        "quorum": 2
+    },
+    "monad": {
+        "uris": [],
+        "quorum": 2
     }
 }

@@ -176,10 +176,7 @@ contract DeployFraxOFTProtocol is SetDVNs, BaseL0Script {
         });
 
         // Deploy frxUSD
-        (,frxUsdOft) = deployFraxOFTUpgradeableAndProxy({
-            _name: "Frax USD",
-            _symbol: "frxUSD"
-        });
+        (,frxUsdOft) = deployFrxUsdOFTUpgradeableAndProxy();
 
         // Deploy frxETH
         (,frxEthOft) = deployFraxOFTUpgradeableAndProxy({
@@ -249,8 +246,50 @@ contract DeployFraxOFTProtocol is SetDVNs, BaseL0Script {
         );
     }
 
+    /// @notice Sourced from https://github.com/FraxFinance/LayerZero-v2-upgradeable/blob/e1470197e0cffe0d89dd9c776762c8fdcfc1e160/oapp/test/TestHelper.sol#L266
+    ///     With state checks
+    function deployFrxUsdOFTUpgradeableAndProxy() public virtual returns (address implementation, address proxy) {
+        implementation = address(new FrxUSDOFTUpgradeable(broadcastConfig.endpoint)); 
+        /// @dev: create semi-pre-deterministic proxy address, then initialize with correct implementation
+        proxy = address(new TransparentUpgradeableProxy(implementationMock, vm.addr(oftDeployerPK), ""));
+
+        /// @dev: broadcastConfig deployer is temporary OFT owner until setPriviledgedRoles()
+        bytes memory initializeArgs = abi.encodeWithSelector(
+            FrxUSDOFTUpgradeable.initialize.selector,
+            vm.addr(configDeployerPK)
+        );
+        TransparentUpgradeableProxy(payable(proxy)).upgradeToAndCall({
+            newImplementation: implementation,
+            data: initializeArgs
+        });
+        TransparentUpgradeableProxy(payable(proxy)).changeAdmin(proxyAdmin);
+        proxyOfts.push(proxy);
+
+        // State checks
+        require(
+            isStringEqual(FraxOFTUpgradeable(proxy).name(), "Frax USD"),
+            "OFT name incorrect"
+        );
+        require(
+            isStringEqual(FraxOFTUpgradeable(proxy).symbol(), "frxUSD"),
+            "OFT symbol incorrect"
+        );
+        require(
+            address(FraxOFTUpgradeable(proxy).endpoint()) == broadcastConfig.endpoint,
+            "OFT endpoint incorrect"
+        );
+        require(
+            EndpointV2(broadcastConfig.endpoint).delegates(proxy) == vm.addr(configDeployerPK),
+            "Endpoint delegate incorrect"
+        );
+        require(
+            FraxOFTUpgradeable(proxy).owner() == vm.addr(configDeployerPK),
+            "OFT owner incorrect"
+        );
+    }
 
     function setPriviledgedRoles() public virtual {
+        if (broadcastConfig.delegate == address(0)) revert("Delegate cannot be zero address");
         /// @dev transfer ownership of OFT
         for (uint256 o=0; o<proxyOfts.length; o++) {
             address proxyOft = proxyOfts[o];

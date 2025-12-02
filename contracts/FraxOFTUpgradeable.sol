@@ -4,26 +4,40 @@ pragma solidity ^0.8.22;
 import { OFTUpgradeable } from "@fraxfinance/layerzero-v2-upgradeable/oapp/contracts/oft/OFTUpgradeable.sol";
 import { SendParam } from "@fraxfinance/layerzero-v2-upgradeable/oapp/contracts/oft/interfaces/IOFT.sol";
 
-contract FraxOFTUpgradeable is OFTUpgradeable {
+import {EIP3009Module} from "contracts/modules/EIP3009Module.sol";
+import {PermitModule} from "contracts/modules/PermitModule.sol";
+
+import {ERC20Upgradeable} from "@openzeppelin/contracts-upgradeable/token/ERC20/ERC20Upgradeable.sol";
+
+contract FraxOFTUpgradeable is OFTUpgradeable, EIP3009Module, PermitModule {
     constructor(address _lzEndpoint) OFTUpgradeable(_lzEndpoint) {
         _disableInitializers();
     }
 
-    function version() external pure returns (uint256 major, uint256 minor, uint256 patch) {
-        major = 1;
-        minor = 0;
-        patch = 1;
+    function version() public pure returns (string memory) {
+        return "1.1.0";
     }
 
+    //==============================================================================
     // Admin
+    //==============================================================================
 
-    function initialize(string memory _name, string memory _symbol, address _delegate) external initializer {
+    /// @dev This method is called specifically when deploying a new OFT
+    function initialize(string memory _name, string memory _symbol, address _delegate) external reinitializer(3) {
+        __EIP712_init(_name, version());
         __OFT_init(_name, _symbol, _delegate);
         __Ownable_init();
         _transferOwnership(_delegate);
     }
 
-    // Helper views
+    /// @dev This method is called specifically when upgrading an existing OFT
+    function initializeV110() external reinitializer(3) {
+        __EIP712_init(name(), version());
+    }
+
+    //==============================================================================
+    // Helper view
+    //==============================================================================
 
     function toLD(uint64 _amountSD) external view returns (uint256 amountLD) {
         return _toLD(_amountSD);
@@ -49,4 +63,17 @@ contract FraxOFTUpgradeable is OFTUpgradeable {
         return _buildMsgAndOptions(_sendParam, _amountLD);
     }
 
+    //==============================================================================
+    // Overrides
+    //==============================================================================
+
+    /// @dev supports EIP3009
+    function _transfer(address from, address to, uint256 amount) internal override(EIP3009Module, ERC20Upgradeable) {
+        return ERC20Upgradeable._transfer(from, to, amount);
+    }
+
+    /// @dev supports EIP2612
+    function _approve(address owner, address spender, uint256 amount) internal override(PermitModule, ERC20Upgradeable) {
+        return ERC20Upgradeable._approve(owner, spender, amount);
+    }
 }

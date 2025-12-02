@@ -58,8 +58,8 @@ contract UpgradeOFT is DeployFraxOFTProtocol {
         );
 
         // Verify the version
-        (uint256 major, uint256 minor, uint256 patch) = FraxOFTAdapterUpgradeable(oft).version();
-        require(major == 1 && minor == 0 && patch == 1, "Upgrade failed: Version mismatch");
+        // (uint256 major, uint256 minor, uint256 patch) = FraxOFTAdapterUpgradeable(oft).version();
+        // require(major == 1 && minor == 0 && patch == 1, "Upgrade failed: Version mismatch");
 
         // as admin() is only callable by the proxy admin, we prank to verify
         vm.prank(vm.addr(senderDeployerPK));

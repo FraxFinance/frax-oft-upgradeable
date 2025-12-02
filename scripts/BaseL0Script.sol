@@ -9,6 +9,7 @@ import { console } from "frax-std/FraxTest.sol";
 import { L0Constants, L0Config } from "scripts/L0Constants.sol";
 import { SerializedTx, SafeTxUtil } from "scripts/SafeBatchSerialize.sol";
 import { FraxOFTUpgradeable } from "contracts/FraxOFTUpgradeable.sol";
+import { FrxUSDOFTUpgradeable } from "contracts/frxUsd/FrxUSDOFTUpgradeable.sol";
 import { FraxProxyAdmin } from "contracts/FraxProxyAdmin.sol";
 import { ImplementationMock } from "contracts/mocks/ImplementationMock.sol";
 
@@ -138,6 +139,8 @@ contract BaseL0Script is L0Constants, Script {
         } else {
             require (proxyOfts.length == 6, "proxyOfts.length != 6");
         }
+
+        connectedOfts = new address[](6);
 
         /// @dev order maintained through L0Constants.sol `constructor()` and DeployFraxOFTProtocol.s.sol `deployFraxOFTUpgradeablesAndProxies()`
         if (simulateConfig.chainid == 1) {

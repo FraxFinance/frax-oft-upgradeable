@@ -97,6 +97,14 @@ This repository contains all of the contracts and deployment code used to manage
      - `sfrxETH`: `0x73382eb28F35d80Df8C3fe04A3EED71b1aFce5dE`
      - `WFRAX`: `0x879ba0efe1ab0119fefa745a21585fa205b07907`
      - `FPI`: `0x93cDc5d29293Cb6983f059Fec6e4FFEb656b6a62`
+- Chain: `Monad`
+  - OFTs:
+     - `frxUSD`: `0x58e3ee6accd124642ddb5d3f91928816be8d8ed3`
+     - `sfrxUSD`: `0x137643f7b2c189173867b3391f6629cab46f0f1a`
+     - `frxETH`: `0x288f9d76019469bfeb56bb77d86afa2bf563b75b`
+     - `sfrxETH`: `0x3b4cf37a3335f21c945a40088404c715525fcb29`
+     - `WFRAX`: `0x29acc7c504665a5ea95344796f784095f0cfcc58`
+     - `FPI`: `0xba554f7a47f0792b9fa41a1256d4cf628bb1d028`
 
 ### Contract design
 Overall, there are three types of LayerZero contracts that provide liquidity for users upon bridging:

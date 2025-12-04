@@ -33,11 +33,10 @@ import { FraxOFTUpgradeable } from "contracts/FraxOFTUpgradeable.sol";
 // aurora : forge script scripts/ops/FraxDVNTest/mainnet/5_SendMockFrax.s.sol --rpc-url https://mainnet.aurora.dev --legacy --broadcast
 // scroll : forge script scripts/ops/FraxDVNTest/mainnet/5_SendMockFrax.s.sol --rpc-url https://rpc.scroll.io --broadcast
 // hyperliquid : forge script scripts/ops/FraxDVNTest/mainnet/5_SendMockFrax.s.sol --rpc-url https://rpc.hyperliquid.xyz/evm --broadcast --slow
-// plasma : forge script scripts/ops/FraxDVNTest/mainnet/5_SendMockFrax.s.sol --rpc-url https://rpc.plasma.to --broadcast
 
 contract SendMockFrax is BaseL0Script {
     // 1,81457,8453,34443,1329,252,196,146,57073,42161,10,137,43114,56,1101,80094,480,130,
-    // 98866,747474,534352,999,9745
+    // 98866,747474,534352,999
     address public constant mockFrax = 0x57558Cb8d6005DE0BAe8a2789d5EfaaE52dba5a8;
     address public constant mockFraxWallet = 0x741F0d8Bde14140f62107FC60A0EE122B37D4630;
     // 324, zksync, 30165
@@ -96,11 +95,6 @@ contract SendMockFrax is BaseL0Script {
                 // aptos (30108)
                 if (allConfigs[_i].eid == 30108) continue;
             }
-            if (broadcastConfig.eid == 30383) {
-                // L0 team has not setup defaultSendLibrary and defaultReceiveLibrary on plasma for
-                // movement(30325), aptos(30108)
-                if (allConfigs[_i].eid == 30325 || allConfigs[_i].eid == 30108) continue;
-            }
             if (broadcastConfig.chainid == allConfigs[_i].chainid) {
                 if (allConfigs[_i].chainid == 59144) {
                     // linea
@@ -120,7 +114,7 @@ contract SendMockFrax is BaseL0Script {
                     senderWallet = mockFraxAuroraWallet;
                 } else {
                     // 1,81457,8453,34443,1329,252,196,146,57073,42161,10,137,43114,56,1101,80094,480,130,98866,
-                    // 747474,534352,999,9745
+                    // 747474,534352,999
                     sourceOFT = mockFrax;
                     senderWallet = mockFraxWallet;
                 }
@@ -168,12 +162,6 @@ contract SendMockFrax is BaseL0Script {
                 // Botanix (botanixlabs)
                 if (allConfigs[_i].eid == 30376) continue;
             }
-            if (broadcastConfig.eid == 30383) {
-                // L0 team has not setup defaultSendLibrary and defaultReceiveLibrary on plasma for
-                // movement(30325), aptos(30108)
-                if (allConfigs[_i].eid == 30325 || allConfigs[_i].eid == 30108) continue;
-            }
-            if (allConfigs[_i].eid != 30383) continue; // Note. change with desired remote id
             bytes32 recipientWallet;
             if (allConfigs[_i].eid == 30168) {
                 // solana

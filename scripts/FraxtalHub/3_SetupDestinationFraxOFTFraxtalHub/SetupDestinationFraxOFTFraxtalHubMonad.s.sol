@@ -1,10 +1,10 @@
 // SPDX-License-Identifier: ISC
 pragma solidity ^0.8.19;
 
-import "./SetupSourceFraxOFTFraxtalHub.sol";
+import "./SetupDestinationFraxOFTFraxtalHub.sol";
 
-// forge script scripts/FraxtalHub/2_SetupSourceFraxOFTFraxtalHub/SetupSourceFraxOFTFraxtalHubMonad.s.sol --rpc-url https://rpc.monad.xyz --broadcast
-contract SetupSourceFraxOFTFraxtalHubMonad is SetupSourceFraxOFTFraxtalHub {
+// forge script scripts/FraxtalHub/3_SetupDestinationFraxOFTFraxtalHub/SetupDestinationFraxOFTFraxtalHubMonad.s.sol --rpc-url https://rpc.monad.xyz --ffi
+contract SetupDestinationFraxOFTFraxtalHubMonad is SetupDestinationFraxOFTFraxtalHub {
     constructor() {
         wfraxOft = 0x29aCC7c504665A5EA95344796f784095f0cfcC58;
         sfrxUsdOft = 0x137643F7b2C189173867b3391f6629caB46F0F1a;
@@ -19,5 +19,9 @@ contract SetupSourceFraxOFTFraxtalHubMonad is SetupSourceFraxOFTFraxtalHub {
         proxyOfts.push(frxUsdOft);
         proxyOfts.push(frxEthOft);
         proxyOfts.push(fpiOft);
+    }
+
+    function getFileExtension() internal pure override returns (string memory) {
+        return "";
     }
 }

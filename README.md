@@ -50,6 +50,7 @@ This repository contains all of the contracts and deployment code used to manage
   - [`Scroll`](https://app.safe.global/home?safe=scr:0x73F365d34b81E731825a094c2E722A08574335cd)
   - [`HyperEVM`](https://safe.onchainden.com/home?safe=hyperevm:0x738ee62157f127C879Ff5c4B7102Eb0d166C7a6d)
   - [`Stable`](https://app.safe.global/home?safe=stable:0x0C46f54BF9EF8fd58e2D294b8cEA488204EcB3D8)
+  - [`Monad`](https://app.safe.global/home?safe=monad:0x47FF5bBAB981Ff022743AA4281D4d6Dd7Fb1a4D0)
 
 ### Proxy (upgradeable) OFTs
 - Chain: `Mode`, `Sei`, `X-Layer`, `Ink`, `Sonic`, `Arbitrum`, `Optimism`, `Polygon`, `BSC`, `Avalanche`, `Polygon zkEvm`, `Blast`, `Berachain`, `Worldchain`, `Unichain`, `Plume`, `Katana`, `Aurora`, `Hyperliquid`, `Stable`
@@ -95,6 +96,14 @@ This repository contains all of the contracts and deployment code used to manage
      - `sfrxETH`: `0x73382eb28F35d80Df8C3fe04A3EED71b1aFce5dE`
      - `WFRAX`: `0x879ba0efe1ab0119fefa745a21585fa205b07907`
      - `FPI`: `0x93cDc5d29293Cb6983f059Fec6e4FFEb656b6a62`
+- Chain: `Monad`
+  - OFTs:
+     - `frxUSD`: `0x58e3ee6accd124642ddb5d3f91928816be8d8ed3`
+     - `sfrxUSD`: `0x137643f7b2c189173867b3391f6629cab46f0f1a`
+     - `frxETH`: `0x288f9d76019469bfeb56bb77d86afa2bf563b75b`
+     - `sfrxETH`: `0x3b4cf37a3335f21c945a40088404c715525fcb29`
+     - `WFRAX`: `0x29acc7c504665a5ea95344796f784095f0cfcc58`
+     - `FPI`: `0xba554f7a47f0792b9fa41a1256d4cf628bb1d028`
 
 ### Contract design
 Overall, there are three types of LayerZero contracts that provide liquidity for users upon bridging:

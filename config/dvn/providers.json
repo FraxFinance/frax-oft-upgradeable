@@ -296,5 +296,19 @@
             "https://stable-mainnet-rpc.ops.frax.com"
         ],
         "quorum": 2
+    },
+    "monad": {
+        "uris": [
+            "https://monad-mainnet-rpc.spidernode.net",
+            "https://rpc3.monad.xyz",
+            "https://rpc-mainnet.monadinfra.com",
+            "https://monad-mainnet.drpc.org",
+            "https://monad-mainnet.api.onfinality.io/public",
+            "https://rpc1.monad.xyz",
+            "https://rpc.monad.xyz",
+            "https://rpc4.monad.xyz",
+            "https://rpc2.monad.xyz"
+        ],
+        "quorum": 2
     }
 }

@@ -266,26 +266,6 @@ Note: verified to zkevm.polygonscan.com which is now deprecated.
     - Proxy: [`0xeedd3a0dddf977462a97c1f0ebb89c3fbe8d084b`](https://basescan.org/address/0xeedd3a0dddf977462a97c1f0ebb89c3fbe8d084b)
     - Implementation: [`0xccc012d6a3e68ab69f8f5b1dfe5c2ddc92c9f6d7`](https://basescan.org/address/0xccc012d6a3e68ab69f8f5b1dfe5c2ddc92c9f6d7)
 
-#### Plasma
-- WFRAX
-    - Proxy: [`0x64445f0aecc51e94ad52d8ac56b7190e764e561a`](https://plasmascan.to/address/0x64445f0aecc51e94ad52d8ac56b7190e764e561a)
-    - Implementation: [`0x192e0c7cc9b263d93fa6d472de47bbefe1fb12ba`](https://plasmascan.to/address/0x192e0c7cc9b263d93fa6d472de47bbefe1fb12ba)
-- sfrxUSD
-    - Proxy: [`0x5bff88ca1442c2496f7e475e9e7786383bc070c0`](https://plasmascan.to/address/0x5bff88ca1442c2496f7e475e9e7786383bc070c0)
-    - Implementation: [`0x36c28ef9a8116a64752efd6b9efa3056f24a82ae`](https://plasmascan.to/address/0x36c28ef9a8116a64752efd6b9efa3056f24a82ae)
-- sfrxETH
-    - Proxy: [`0x3ec3849c33291a9ef4c5db86de593eb4a37fde45`](https://plasmascan.to/address/0x3ec3849c33291a9ef4c5db86de593eb4a37fde45)
-    - Implementation: [`0x231788c09f3936cd343c4f1bded89f0fbe80719c`](https://plasmascan.to/address/0x231788c09f3936cd343c4f1bded89f0fbe80719c)
-- frxUSD
-    - Proxy: [`0x80eede496655fb9047dd39d9f418d5483ed600df`](https://plasmascan.to/address/0x80eede496655fb9047dd39d9f418d5483ed600df)
-    - Implementation: [`0x4e7f19d86a81857c46e87182a14b4e894b8ada1a`](https://plasmascan.to/address/0x4e7f19d86a81857c46e87182a14b4e894b8ada1a)
-- frxETH
-    - Proxy: [`0x43edd7f3831b08fe70b7555ddd373c8bf65a9050`](https://plasmascan.to/address/0x43edd7f3831b08fe70b7555ddd373c8bf65a9050)
-    - Implementation: [`0x231788c09f3936cd343c4f1bded89f0fbe80719c`](https://plasmascan.to/address/0x231788c09f3936cd343c4f1bded89f0fbe80719c)
-- FPI
-    - Proxy: [`0x90581eca9469d8d7f5d3b60f4715027adfcf7927`](https://plasmascan.to/address/0x90581eca9469d8d7f5d3b60f4715027adfcf7927)
-    - Implementation: [`0x231788c09f3936cd343c4f1bded89f0fbe80719c`](https://plasmascan.to/address/0x231788c09f3936cd343c4f1bded89f0fbe80719c)
-
 #### Mode
 - WFRAX
     - Proxy: [`0x64445f0aecc51e94ad52d8ac56b7190e764e561a`](https://modescan.io/address/0x64445f0aecc51e94ad52d8ac56b7190e764e561a)

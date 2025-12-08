@@ -14,24 +14,20 @@ import {
 interface Args {
     fromEid: EndpointId
     toEid: EndpointId
-    tokenProgram: string
 }
 
 // Define a Hardhat task for getting enforced options
 task('lz:oft:solana:getenforceoptions', 'get enforced options')
     .addParam('fromEid', 'The source endpoint ID', undefined, devtoolsTypes.eid)
     .addParam('toEid', 'The destination endpoint ID', undefined, devtoolsTypes.eid)
-    .addParam('tokenProgram', 'The Token Program public key', TOKEN_PROGRAM_ID.toBase58(), devtoolsTypes.string, true)
     .setAction(async (args: Args) => {
-        const { fromEid, toEid, tokenProgram: tokenProgramStr } = args
+        const { fromEid, toEid } = args
 
-        const { connection, umi, umiWalletSigner } = await deriveConnection(fromEid)
+        const { umi } = await deriveConnection(fromEid)
 
         const solanaDeployment = getSolanaDeployment(fromEid)
 
         const oftProgramId = publicKey(solanaDeployment.programId)
-        const mint = publicKey(solanaDeployment.mint)
-        const tokenProgramId = tokenProgramStr ? publicKey(tokenProgramStr) : fromWeb3JsPublicKey(TOKEN_PROGRAM_ID)
 
         const res = await oft.getEnforcedOptions(
             umi.rpc,

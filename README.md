@@ -15,6 +15,8 @@ This repository contains all of the contracts and deployment code used to manage
     - `0x8f1b9c1fd67136d525e14d96efb3887a33f16250`
   - `ZKSync`, `Abstract`
     - `0xe59dcae52a4ffa39be99588486c84bc2dc1ba52f`
+  - `Monad`
+    - `0xc2871eae630640ce1a16b39a17c498f22d76c21a`
 
 - Msigs (links to gnosis safe and squad for Solana)
   - `Ethereum`

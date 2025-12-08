@@ -168,6 +168,8 @@
     "@ethersproject/hash": "^5.8.0",
     "@openzeppelin-5/contracts": "npm:@openzeppelin/contracts@^5.4.0",
     "@openzeppelin-5/contracts-upgradeable": "npm:@openzeppelin/contracts-upgradeable@^5.4.0",
+    "@solana-program/token": "^0.9.0",
+    "@solana/kit": "^5.0.0",
     "solady": "^0.1.24",
     "viem": "^2.33.1"
   }

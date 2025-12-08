@@ -180,7 +180,15 @@ contract BaseL0Script is L0Constants, Script {
             connectedOfts[3] = scrollProxyOfts[3];
             connectedOfts[4] = scrollProxyOfts[4];
             connectedOfts[5] = scrollProxyOfts[5];
-        } else if (simulateConfig.chainid == 2741 || simulateConfig.chainid == 324) {
+        } else if (simulateConfig.chainid == 143) {
+            connectedOfts[0] = monadProxyOfts[0];
+            connectedOfts[1] = monadProxyOfts[1];
+            connectedOfts[2] = monadProxyOfts[2];
+            connectedOfts[3] = monadProxyOfts[3];
+            connectedOfts[4] = monadProxyOfts[4];
+            connectedOfts[5] = monadProxyOfts[5];
+        }
+         else if (simulateConfig.chainid == 2741 || simulateConfig.chainid == 324) {
             connectedOfts[0] = zkEraProxyOfts[0];
             connectedOfts[1] = zkEraProxyOfts[1];
             connectedOfts[2] = zkEraProxyOfts[2];

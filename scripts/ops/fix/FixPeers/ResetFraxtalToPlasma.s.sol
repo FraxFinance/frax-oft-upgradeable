@@ -3,7 +3,7 @@ pragma solidity ^0.8.19;
 
 import "scripts/DeployFraxOFTProtocol/DeployFraxOFTProtocol.s.sol";
 
-// Reset Fraxtal peers to zero address for Plasma (Plume) chain
+// Reset Fraxtal peers to zero address for Plasma chain
 // forge script scripts/ops/fix/FixPeers/ResetFraxtalToPlasma.s.sol --rpc-url https://rpc.frax.com
 contract ResetFraxtalToPlasma is DeployFraxOFTProtocol {
     using Strings for uint256;
@@ -44,9 +44,9 @@ contract ResetFraxtalToPlasma is DeployFraxOFTProtocol {
 
             // Set the config per chain
             for (uint256 c=0; c<_configs.length; c++) {
-                // Only reset peers for Plasma chain (Plume chain ID: 98866)
-                // Skip if not Plasma/Plume
-                if (_configs[c].chainid != 98866) continue;
+                // Only reset peers for Plasma chain (chain ID: 9745)
+                // Skip if not Plasma
+                if (_configs[c].chainid != 9745) continue;
 
                 setPeer({
                     _config: _configs[c],

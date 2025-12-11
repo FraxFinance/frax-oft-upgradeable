@@ -2,17 +2,71 @@
 pragma solidity ^0.8.22;
 
 import { FrxUSDOFTTIP20Upgradeable } from "contracts/frxUsd/FrxUSDOFTTIP20Upgradeable.sol";
-import { ITIP20Extended } from "contracts/interfaces/ITIP20Extended.sol";
+import { ITIP20Frax } from "contracts/interfaces/ITIP20Frax.sol";
+import { ITIP20 } from "@tempo/interfaces/ITIP20.sol";
 import { FraxTest } from "frax-std/FraxTest.sol";
+import { TransparentUpgradeableProxy } from "@fraxfinance/layerzero-v2-upgradeable/messagelib/contracts/upgradeable/proxy/TransparentUpgradeableProxy.sol";
 
 contract FrxUSDOFTTIP20UpgradeableTest is FraxTest {
     FrxUSDOFTTIP20Upgradeable oft;
+    address proxyAdmin = address(0x9999); // Separate proxy admin address
+    address contractOwner = address(this); // Contract owner for roles
+    address lzEndpoint = address(0x1234); // Mock LZ endpoint
+    address quoteToken = address(0x5678); // Mock quote token
     address al = vm.addr(0x41);
     address bob = vm.addr(0xb0b);
     address carl = vm.addr(0xc421);
 
     function setUp() external {
-        oft = new FrxUSDOFTTIP20Upgradeable(address(0));
+        // Mock the LayerZero endpoint
+        vm.etch(lzEndpoint, hex"00");
+        
+        // Mock the quote token with quoteToken() returning address(0)
+        vm.etch(quoteToken, hex"00");
+        vm.mockCall(
+            quoteToken,
+            abi.encodeWithSignature("quoteToken()"),
+            abi.encode(address(0))
+        );
+        
+        // Mock TIP403 Registry precompile to always return true for isAuthorized
+        address tip403Registry = 0x403c000000000000000000000000000000000000;
+        vm.mockCall(
+            tip403Registry,
+            abi.encodeWithSignature("isAuthorized(uint64,address)"),
+            abi.encode(true)
+        );
+        
+        // Mock TIP20Factory to always return true for isTIP20
+        address factory = 0x20Fc000000000000000000000000000000000000;
+        vm.mockCall(
+            factory,
+            abi.encodeWithSignature("isTIP20(address)"),
+            abi.encode(true)
+        );
+        
+        // Deploy implementation
+        FrxUSDOFTTIP20Upgradeable implementation = new FrxUSDOFTTIP20Upgradeable(lzEndpoint);
+        
+        // Prepare initialization data
+        bytes memory initData = abi.encodeWithSelector(
+            FrxUSDOFTTIP20Upgradeable.initialize.selector,
+            contractOwner,         // _delegate (owner)
+            "USD",                 // _currency
+            ITIP20(quoteToken),    // _quoteToken
+            contractOwner          // _admin (gets all roles)
+        );
+        
+        // Deploy TransparentUpgradeableProxy with initialization
+        // Use a different address as proxy admin so test contract can interact normally
+        TransparentUpgradeableProxy proxy = new TransparentUpgradeableProxy(
+            address(implementation),
+            proxyAdmin,  // proxy admin address (different from contract owner)
+            initData
+        );
+        
+        // Cast proxy to interface
+        oft = FrxUSDOFTTIP20Upgradeable(address(proxy));
     }
 
     // ---------------------------------------------------
@@ -35,9 +89,9 @@ contract FrxUSDOFTTIP20UpgradeableTest is FraxTest {
     // SupplyCap Tests
     // ---------------------------------------------------
 
-    /// @dev Verifies supply cap is initially zero (no cap)
+    /// @dev Verifies supply cap is initially set to type(uint128).max
     function test_SupplyCap_initiallyZero() external {
-        assertEq(oft.supplyCap(), 0);
+        assertEq(oft.supplyCap(), type(uint128).max);
     }
 
     /// @dev Verifies owner can successfully set a supply cap
@@ -61,9 +115,9 @@ contract FrxUSDOFTTIP20UpgradeableTest is FraxTest {
     // TransferPolicyId Tests
     // ---------------------------------------------------
 
-    /// @dev Verifies transfer policy ID is initially zero
+    /// @dev Verifies transfer policy ID is initially 1 (always-allow policy)
     function test_TransferPolicyId_initiallyZero() external {
-        assertEq(oft.transferPolicyId(), 0);
+        assertEq(oft.transferPolicyId(), 1);
     }
 
     /// @dev Verifies owner can successfully change transfer policy ID
@@ -87,63 +141,103 @@ contract FrxUSDOFTTIP20UpgradeableTest is FraxTest {
     // Currency Tests
     // ---------------------------------------------------
 
-    /// @dev Verifies currency string is initially empty
+    /// @dev Verifies currency string is initially "USD"
     function test_Currency_initiallyEmpty() external {
-        assertEq(oft.currency(), "");
+        assertEq(oft.currency(), "USD");
     }
 
     // ---------------------------------------------------
     // QuoteToken Tests
     // ---------------------------------------------------
 
-    /// @dev Verifies quote token is initially zero address
+    /// @dev Verifies quote token is initially set to the provided token
     function test_QuoteToken_initiallyZero() external {
-        assertEq(address(oft.quoteToken()), address(0));
+        assertEq(address(oft.quoteToken()), quoteToken);
     }
 
-    /// @dev Verifies next quote token is initially zero address
+    /// @dev Verifies next quote token is initially set to the provided token
     function test_NextQuoteToken_initiallyZero() external {
-        assertEq(address(oft.nextQuoteToken()), address(0));
+        assertEq(address(oft.nextQuoteToken()), quoteToken);
     }
 
     /// @dev Verifies owner can set next quote token
     function test_SetNextQuoteToken_succeeds() external {
-        FrxUSDOFTTIP20Upgradeable anotherToken = new FrxUSDOFTTIP20Upgradeable(address(0));
+        address anotherToken = address(0xABC123);
+        
+        // Mock currency() to return "USD"
+        vm.mockCall(
+            anotherToken,
+            abi.encodeWithSignature("currency()"),
+            abi.encode("USD")
+        );
 
         vm.prank(oft.owner());
-        oft.setNextQuoteToken(ITIP20Extended(address(anotherToken)));
+        oft.setNextQuoteToken(ITIP20(anotherToken));
 
-        assertEq(address(oft.nextQuoteToken()), address(anotherToken));
+        assertEq(address(oft.nextQuoteToken()), anotherToken);
     }
 
     /// @dev Verifies non-owner cannot set next quote token
     function test_SetNextQuoteToken_OnlyOwner() external {
         vm.prank(al);
         vm.expectRevert();
-        oft.setNextQuoteToken(ITIP20Extended(address(0x123)));
+        oft.setNextQuoteToken(ITIP20(address(0x123)));
     }
 
     /// @dev Verifies quote token update completion moves nextQuoteToken to quoteToken
     function test_CompleteQuoteTokenUpdate_succeeds() external {
-        FrxUSDOFTTIP20Upgradeable anotherToken = new FrxUSDOFTTIP20Upgradeable(address(0));
+        address anotherToken = address(0xABC123);
+        
+        // Mock currency() and quoteToken() to return proper values
+        vm.mockCall(
+            anotherToken,
+            abi.encodeWithSignature("currency()"),
+            abi.encode("USD")
+        );
+        vm.mockCall(
+            anotherToken,
+            abi.encodeWithSignature("quoteToken()"),
+            abi.encode(address(0))
+        );
 
         vm.startPrank(oft.owner());
-        oft.setNextQuoteToken(ITIP20Extended(address(anotherToken)));
+        oft.setNextQuoteToken(ITIP20(anotherToken));
 
         vm.expectEmit(true, true, false, false);
-        emit ITIP20Extended.QuoteTokenUpdate(oft.owner(), ITIP20Extended(address(anotherToken)));
+        emit ITIP20Frax.QuoteTokenUpdate(oft.owner(), ITIP20(anotherToken));
         oft.completeQuoteTokenUpdate();
         vm.stopPrank();
 
         assertEq(address(oft.quoteToken()), address(anotherToken));
-        assertEq(address(oft.nextQuoteToken()), address(0));
+        // nextQuoteToken remains as set, it's not reset to 0
+        assertEq(address(oft.nextQuoteToken()), address(anotherToken));
     }
 
-    /// @dev Verifies completing quote token update reverts if nextQuoteToken is zero
+    /// @dev Verifies completing quote token update reverts if nextQuoteToken creates a loop
     function test_CompleteQuoteTokenUpdate_InvalidQuoteToken_reverts() external {
-        vm.prank(oft.owner());
-        vm.expectRevert(ITIP20Extended.InvalidQuoteToken.selector);
+        // Create a mock token that has THIS token as its quote token (loop)
+        address loopToken = address(0xDEAD);
+        
+        // Mock loopToken.currency() to return "USD"
+        vm.mockCall(
+            loopToken,
+            abi.encodeWithSignature("currency()"),
+            abi.encode("USD")
+        );
+        
+        // Mock loopToken.quoteToken() to return address(oft) - this creates a loop!
+        vm.mockCall(
+            loopToken,
+            abi.encodeWithSignature("quoteToken()"),
+            abi.encode(address(oft))
+        );
+        
+        vm.startPrank(oft.owner());
+        oft.setNextQuoteToken(ITIP20(loopToken));
+        
+        vm.expectRevert(ITIP20Frax.InvalidQuoteToken.selector);
         oft.completeQuoteTokenUpdate();
+        vm.stopPrank();
     }
 
     /// @dev Verifies non-owner cannot complete quote token update
@@ -179,7 +273,7 @@ contract FrxUSDOFTTIP20UpgradeableTest is FraxTest {
     function test_SetRewardRecipient_succeeds() external {
         vm.prank(al);
         vm.expectEmit(true, true, false, false);
-        emit ITIP20Extended.RewardRecipientSet(al, bob);
+        emit ITIP20Frax.RewardRecipientSet(al, bob);
         oft.setRewardRecipient(bob);
 
         (address rewardRecipient, , ) = oft.userRewardInfo(al);
@@ -188,15 +282,23 @@ contract FrxUSDOFTTIP20UpgradeableTest is FraxTest {
 
     /// @dev Verifies startReward reverts when seconds_ > 0 (scheduled rewards disabled)
     function test_StartReward_ScheduledRewardsDisabled_reverts() external {
+        // First mint tokens to owner
         vm.prank(oft.owner());
-        vm.expectRevert(ITIP20Extended.ScheduledRewardsDisabled.selector);
+        oft.mint(oft.owner(), 1000e18);
+        
+        vm.prank(oft.owner());
+        vm.expectRevert(ITIP20Frax.ScheduledRewardsDisabled.selector);
         oft.startReward(1000e18, 100); // seconds_ > 0
     }
 
     /// @dev Verifies startReward reverts when no supply has opted in
     function test_StartReward_NoOptedInSupply_reverts() external {
+        // First mint tokens to owner
         vm.prank(oft.owner());
-        vm.expectRevert(ITIP20Extended.NoOptedInSupply.selector);
+        oft.mint(oft.owner(), 1000e18);
+        
+        vm.prank(oft.owner());
+        vm.expectRevert(ITIP20Frax.NoOptedInSupply.selector);
         oft.startReward(1000e18, 0);
     }
 
@@ -224,7 +326,7 @@ contract FrxUSDOFTTIP20UpgradeableTest is FraxTest {
 
         vm.prank(al);
         vm.expectEmit(true, false, false, true);
-        emit ITIP20Extended.Burn(al, 5e18);
+        emit ITIP20Frax.Burn(al, 5e18);
         oft.burn(5e18);
 
         assertEq(oft.balanceOf(al), 5e18);
@@ -244,9 +346,17 @@ contract FrxUSDOFTTIP20UpgradeableTest is FraxTest {
     function test_BurnBlocked_succeeds() external {
         deal(address(oft), al, 10e18);
 
+        // Mock TIP403 to return false for this address (blocked)
+        address tip403Registry = 0x403c000000000000000000000000000000000000;
+        vm.mockCall(
+            tip403Registry,
+            abi.encodeWithSignature("isAuthorized(uint64,address)", 1, al),
+            abi.encode(false)
+        );
+
         vm.prank(oft.owner());
         vm.expectEmit(true, false, false, true);
-        emit ITIP20Extended.BurnBlocked(al, 5e18);
+        emit ITIP20Frax.BurnBlocked(al, 5e18);
         oft.burnBlocked(al, 5e18);
 
         assertEq(oft.balanceOf(al), 5e18);
@@ -268,7 +378,7 @@ contract FrxUSDOFTTIP20UpgradeableTest is FraxTest {
 
         vm.prank(al);
         vm.expectEmit(true, false, false, true);
-        emit ITIP20Extended.Burn(al, 5e18);
+        emit ITIP20Frax.Burn(al, 5e18);
         oft.burnWithMemo(5e18, memo);
 
         assertEq(oft.balanceOf(al), 5e18);
@@ -282,7 +392,7 @@ contract FrxUSDOFTTIP20UpgradeableTest is FraxTest {
     function test_Mint_succeeds() external {
         vm.prank(oft.owner());
         vm.expectEmit(true, false, false, true);
-        emit ITIP20Extended.Mint(al, 100e18);
+        emit ITIP20Frax.Mint(al, 100e18);
         oft.mint(al, 100e18);
 
         assertEq(oft.balanceOf(al), 100e18);
@@ -300,7 +410,7 @@ contract FrxUSDOFTTIP20UpgradeableTest is FraxTest {
         vm.startPrank(oft.owner());
         oft.setSupplyCap(100e18);
 
-        vm.expectRevert(ITIP20Extended.SupplyCapExceeded.selector);
+        vm.expectRevert(ITIP20Frax.SupplyCapExceeded.selector);
         oft.mint(al, 101e18);
         vm.stopPrank();
     }
@@ -329,7 +439,7 @@ contract FrxUSDOFTTIP20UpgradeableTest is FraxTest {
 
         vm.prank(oft.owner());
         vm.expectEmit(true, false, false, true);
-        emit ITIP20Extended.Mint(al, 100e18);
+        emit ITIP20Frax.Mint(al, 100e18);
         oft.mintWithMemo(al, 100e18, memo);
 
         assertEq(oft.balanceOf(al), 100e18);
@@ -347,7 +457,7 @@ contract FrxUSDOFTTIP20UpgradeableTest is FraxTest {
         vm.startPrank(oft.owner());
         oft.setSupplyCap(100e18);
 
-        vm.expectRevert(ITIP20Extended.SupplyCapExceeded.selector);
+        vm.expectRevert(ITIP20Frax.SupplyCapExceeded.selector);
         oft.mintWithMemo(al, 101e18, keccak256("memo"));
         vm.stopPrank();
     }
@@ -363,7 +473,7 @@ contract FrxUSDOFTTIP20UpgradeableTest is FraxTest {
 
         vm.prank(al);
         vm.expectEmit(true, true, true, true);
-        emit ITIP20Extended.TransferWithMemo(al, bob, 50e18, memo);
+        emit ITIP20Frax.TransferWithMemo(al, bob, 50e18, memo);
         oft.transferWithMemo(bob, 50e18, memo);
 
         assertEq(oft.balanceOf(al), 50e18);
@@ -380,7 +490,7 @@ contract FrxUSDOFTTIP20UpgradeableTest is FraxTest {
 
         vm.prank(bob);
         vm.expectEmit(true, true, true, true);
-        emit ITIP20Extended.TransferWithMemo(al, carl, 50e18, memo);
+        emit ITIP20Frax.TransferWithMemo(al, carl, 50e18, memo);
         bool success = oft.transferFromWithMemo(al, carl, 50e18, memo);
 
         assertTrue(success);
@@ -404,11 +514,14 @@ contract FrxUSDOFTTIP20UpgradeableTest is FraxTest {
     // SystemTransferFrom Tests
     // ---------------------------------------------------
 
-    /// @dev Verifies owner can perform system transfers
+    /// @dev Verifies TIP_FEE_MANAGER_ADDRESS can perform system transfers
     function test_SystemTransferFrom_succeeds() external {
-        deal(address(oft), al, 100e18);
-
+        // Mint tokens to al
         vm.prank(oft.owner());
+        oft.mint(al, 100e18);
+
+        address tipFeeManager = 0xfeEC000000000000000000000000000000000000;
+        vm.prank(tipFeeManager);
         bool success = oft.systemTransferFrom(al, bob, 50e18);
 
         assertTrue(success);
@@ -416,9 +529,11 @@ contract FrxUSDOFTTIP20UpgradeableTest is FraxTest {
         assertEq(oft.balanceOf(bob), 50e18);
     }
 
-    /// @dev Verifies non-owner cannot perform system transfers
+    /// @dev Verifies non-TIP_FEE_MANAGER cannot perform system transfers
     function test_SystemTransferFrom_OnlyOwner() external {
-        deal(address(oft), al, 100e18);
+        // Mint tokens to al
+        vm.prank(oft.owner());
+        oft.mint(al, 100e18);
 
         vm.prank(bob);
         vm.expectRevert();
@@ -427,10 +542,13 @@ contract FrxUSDOFTTIP20UpgradeableTest is FraxTest {
 
     /// @dev Verifies system transfers do not require allowance
     function test_SystemTransferFrom_noAllowanceRequired() external {
-        deal(address(oft), al, 100e18);
-        // No approval given, but owner can still transfer
-
+        // Mint tokens to al
         vm.prank(oft.owner());
+        oft.mint(al, 100e18);
+        // No approval given, but TIP_FEE_MANAGER can still transfer
+
+        address tipFeeManager = 0xfeEC000000000000000000000000000000000000;
+        vm.prank(tipFeeManager);
         bool success = oft.systemTransferFrom(al, bob, 100e18);
 
         assertTrue(success);
@@ -444,13 +562,25 @@ contract FrxUSDOFTTIP20UpgradeableTest is FraxTest {
 
     /// @dev Verifies transferFeePreTx hook does not revert (empty implementation)
     function test_TransferFeePreTx_doesNotRevert() external {
-        // Just verify it doesn't revert
+        // First mint tokens to al
+        vm.prank(oft.owner());
+        oft.mint(al, 100e18);
+        
+        // Call as TIP_FEE_MANAGER_ADDRESS
+        address tipFeeManager = 0xfeEC000000000000000000000000000000000000;
+        vm.prank(tipFeeManager);
         oft.transferFeePreTx(al, 100e18);
     }
 
     /// @dev Verifies transferFeePostTx hook does not revert (empty implementation)
     function test_TransferFeePostTx_doesNotRevert() external {
-        // Just verify it doesn't revert
+        // First mint tokens to TIP_FEE_MANAGER_ADDRESS
+        address tipFeeManager = 0xfeEC000000000000000000000000000000000000;
+        vm.prank(oft.owner());
+        oft.mint(tipFeeManager, 100e18);
+        
+        // Call as TIP_FEE_MANAGER_ADDRESS
+        vm.prank(tipFeeManager);
         oft.transferFeePostTx(al, 50e18, 25e18);
     }
 
@@ -482,7 +612,7 @@ contract FrxUSDOFTTIP20UpgradeableTest is FraxTest {
         oft.mint(bob, 40e18);
 
         // This should fail - would exceed cap
-        vm.expectRevert(ITIP20Extended.SupplyCapExceeded.selector);
+        vm.expectRevert(ITIP20Frax.SupplyCapExceeded.selector);
         oft.mint(carl, 20e18);
 
         // This should succeed - exactly at cap

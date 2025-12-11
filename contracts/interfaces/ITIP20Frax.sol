@@ -1,13 +1,11 @@
 // SPDX-License-Identifier: MIT
-pragma solidity ^0.8.22;
+pragma solidity ^0.8.13;
 
-/// @title ITIP20Extended - TIP-20 extensions beyond ERC-20
+import { ITIP20 } from "@tempo/interfaces/ITIP20.sol";
+
+/// @title The interface for TIP-20 compliant tokens
 /// @notice A token standard that extends ERC-20 with additional features including transfer policies, memo support, and pause functionality
-/// @dev This interface excludes functions already defined in ERC-20 (name, symbol, decimals,
-///      totalSupply, balanceOf, allowance, approve, transfer, transferFrom) and functions
-///      already implemented in FrxUSDOFTUpgradeable (pause, unpause)
-interface ITIP20Extended {
-    // ============ Errors ============
+interface ITIP20Frax {
 
     /// @notice Error when attempting an operation while the contract is paused.
     error ContractPaused();
@@ -17,22 +15,18 @@ interface ITIP20Extended {
 
     /// @notice Error when an account has insufficient balance for the requested operation.
     error InsufficientBalance(uint256 currentBalance, uint256 expectedBalance, address);
-
     error InvalidAmount();
 
     /// @notice Error when an invalid currency identifier is provided.
     error InvalidCurrency();
-
     error InvalidQuoteToken();
     error InvalidBaseToken();
     error InvalidToken();
 
     /// @notice Error when attempting to transfer to an invalid recipient address.
     error InvalidRecipient();
-
     error InvalidSupplyCap();
     error NoOptedInSupply();
-
     /// @notice Error when starting a reward stream with seconds > 0
     error ScheduledRewardsDisabled();
 
@@ -41,10 +35,7 @@ interface ITIP20Extended {
 
     /// @notice Error when attempting to burn from a protected address.
     error ProtectedAddress();
-
     error SupplyCapExceeded();
-
-    // ============ Events ============
 
     /// @notice Emitted when tokens are burned.
     /// @param from The address from which tokens were burned.
@@ -60,17 +51,17 @@ interface ITIP20Extended {
     /// @param to The address that received the newly minted tokens.
     /// @param amount The amount of tokens minted.
     event Mint(address indexed to, uint256 amount);
-
-    event NextQuoteTokenSet(address indexed updater, ITIP20Extended indexed nextQuoteToken);
+    event NextQuoteTokenSet(address indexed updater, ITIP20 indexed nextQuoteToken);
 
     /// @notice Emitted when the contract's pause state changes.
     /// @param updater The address that initiated the pause state change.
     /// @param isPaused The new pause state of the contract.
     event PauseStateUpdate(address indexed updater, bool isPaused);
-
-    event QuoteTokenUpdate(address indexed updater, ITIP20Extended indexed newQuoteToken);
+    event QuoteTokenUpdate(address indexed updater, ITIP20 indexed newQuoteToken);
     event RewardRecipientSet(address indexed holder, address indexed recipient);
-    event RewardScheduled(address indexed funder, uint64 indexed id, uint256 amount, uint32 durationSeconds);
+    event RewardScheduled(
+        address indexed funder, uint64 indexed id, uint256 amount, uint32 durationSeconds
+    );
 
     /// @notice Emitted when the supply cap is updated.
     /// @param updater The address that initiated the supply cap update.
@@ -87,37 +78,25 @@ interface ITIP20Extended {
     /// @param to The address tokens were transferred to.
     /// @param amount The amount of tokens transferred.
     /// @param memo The memo attached to the transfer.
-    event TransferWithMemo(address indexed from, address indexed to, uint256 amount, bytes32 indexed memo);
+    event TransferWithMemo(
+        address indexed from, address indexed to, uint256 amount, bytes32 indexed memo
+    );
 
-    // ============ View Functions ============
+    /// @notice Returns the role identifier for burning tokens from blocked accounts.
+    /// @return The burn blocked role identifier.
+    function BURN_BLOCKED_ROLE() external view returns (bytes32);
 
-    function currency() external view returns (string memory);
+    /// @notice Returns the role identifier for issuing tokens.
+    /// @return The issuer role identifier.
+    function ISSUER_ROLE() external view returns (bytes32);
 
-    function globalRewardPerToken() external view returns (uint256);
+    /// @notice Returns the role identifier for pausing the contract.
+    /// @return The pause role identifier.
+    function PAUSE_ROLE() external view returns (bytes32);
 
-    function nextQuoteToken() external view returns (ITIP20Extended);
-
-    function optedInSupply() external view returns (uint128);
-
-    /// @notice Returns whether the contract is currently paused.
-    /// @return True if the contract is paused, false otherwise.
-    function paused() external view returns (bool);
-
-    function quoteToken() external view returns (ITIP20Extended);
-
-    /// @notice Returns the maximum supply cap for the token.
-    /// @return The supply cap amount.
-    function supplyCap() external view returns (uint256);
-
-    /// @notice Returns the current transfer policy identifier.
-    /// @return The active transfer policy ID.
-    function transferPolicyId() external view returns (uint64);
-
-    function userRewardInfo(
-        address account
-    ) external view returns (address rewardRecipient, uint256 rewardPerToken, uint256 rewardBalance);
-
-    // ============ Burn Functions ============
+    /// @notice Returns the role identifier for unpausing the contract.
+    /// @return The unpause role identifier.
+    function UNPAUSE_ROLE() external view returns (bytes32);
 
     /// @notice Burns tokens from the caller's balance.
     /// @param amount The amount of tokens to burn.
@@ -133,7 +112,19 @@ interface ITIP20Extended {
     /// @param memo The memo to attach to the burn operation.
     function burnWithMemo(uint256 amount, bytes32 memo) external;
 
-    // ============ Mint Functions ============
+    /// @notice Changes the transfer policy identifier.
+    /// @param newPolicyId The new policy identifier to set.
+    function changeTransferPolicyId(uint64 newPolicyId) external;
+
+    function claimRewards() external returns (uint256 maxAmount);
+
+    function completeQuoteTokenUpdate() external;
+
+    function currency() external view returns (string memory);
+
+    function decimals() external pure returns (uint8);
+
+    function globalRewardPerToken() external view returns (uint256);
 
     /// @notice Mints new tokens to a specified address.
     /// @param to The address to mint tokens to.
@@ -146,13 +137,40 @@ interface ITIP20Extended {
     /// @param memo The memo to attach to the mint operation.
     function mintWithMemo(address to, uint256 amount, bytes32 memo) external;
 
-    // ============ Transfer Functions with Memo ============
+    function name() external view returns (string memory);
 
-    /// @notice Transfers tokens with an attached memo.
-    /// @param to The address to transfer tokens to.
-    /// @param amount The amount of tokens to transfer.
-    /// @param memo The memo to attach to the transfer.
-    function transferWithMemo(address to, uint256 amount, bytes32 memo) external;
+    function nextQuoteToken() external view returns (ITIP20);
+
+    function optedInSupply() external view returns (uint128);
+
+    /// @notice Pauses the contract, preventing transfers and other operations.
+    function pause() external;
+
+    /// @notice Returns whether the contract is currently paused.
+    /// @return True if the contract is paused, false otherwise.
+    function paused() external view returns (bool);
+
+    function quoteToken() external view returns (ITIP20);
+
+    function setNextQuoteToken(ITIP20 newQuoteToken) external;
+
+    function setRewardRecipient(address newRewardRecipient) external;
+
+    function setSupplyCap(uint256 newSupplyCap) external;
+
+    function startReward(uint256 amount, uint32 seconds_) external returns (uint64);
+
+    /// @notice Returns the maximum supply cap for the token.
+    /// @return The supply cap amount.
+    function supplyCap() external view returns (uint256);
+
+    function symbol() external view returns (string memory);
+
+    function systemTransferFrom(address from, address to, uint256 amount) external returns (bool);
+
+    function transferFeePostTx(address to, uint256 refund, uint256 actualUsed) external;
+
+    function transferFeePreTx(address from, uint256 amount) external;
 
     /// @notice Transfers tokens from one address to another with a memo using allowance.
     /// @param from The address to transfer tokens from.
@@ -160,33 +178,26 @@ interface ITIP20Extended {
     /// @param amount The amount of tokens to transfer.
     /// @param memo The memo to attach to the transfer.
     /// @return success True if the transfer was successful.
-    function transferFromWithMemo(address from, address to, uint256 amount, bytes32 memo) external returns (bool);
+    function transferFromWithMemo(address from, address to, uint256 amount, bytes32 memo)
+        external
+        returns (bool);
 
-    function systemTransferFrom(address from, address to, uint256 amount) external returns (bool);
+    /// @notice Returns the current transfer policy identifier.
+    /// @return The active transfer policy ID.
+    function transferPolicyId() external view returns (uint64);
 
-    // ============ Policy & Config Functions ============
+    /// @notice Transfers tokens with an attached memo.
+    /// @param to The address to transfer tokens to.
+    /// @param amount The amount of tokens to transfer.
+    /// @param memo The memo to attach to the transfer.
+    function transferWithMemo(address to, uint256 amount, bytes32 memo) external;
 
-    /// @notice Changes the transfer policy identifier.
-    /// @param newPolicyId The new policy identifier to set.
-    function changeTransferPolicyId(uint64 newPolicyId) external;
+    /// @notice Unpauses the contract, allowing transfers and other operations to resume.
+    function unpause() external;
 
-    function setSupplyCap(uint256 newSupplyCap) external;
+    function userRewardInfo(address)
+        external
+        view
+        returns (address rewardRecipient, uint256 rewardPerToken, uint256 rewardBalance);
 
-    function setNextQuoteToken(ITIP20Extended newQuoteToken) external;
-
-    function completeQuoteTokenUpdate() external;
-
-    // ============ Reward Functions ============
-
-    function setRewardRecipient(address newRewardRecipient) external;
-
-    function startReward(uint256 amount, uint32 seconds_) external returns (uint64);
-
-    function claimRewards() external returns (uint256 maxAmount);
-
-    // ============ Fee Functions ============
-
-    function transferFeePreTx(address from, uint256 amount) external;
-
-    function transferFeePostTx(address to, uint256 refund, uint256 actualUsed) external;
 }

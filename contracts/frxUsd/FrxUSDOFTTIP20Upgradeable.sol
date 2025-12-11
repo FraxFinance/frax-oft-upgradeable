@@ -8,11 +8,12 @@ import { EIP3009Module } from "contracts/modules/EIP3009Module.sol";
 import { PermitModule } from "contracts/modules/PermitModule.sol";
 import { SendParam } from "@fraxfinance/layerzero-v2-upgradeable/oapp/contracts/oft/interfaces/IOFT.sol";
 import { ERC20Upgradeable } from "@openzeppelin/contracts-upgradeable/token/ERC20/ERC20Upgradeable.sol";
-import { TIP403Registry } from "@tempo/TIP403Registry.sol";
+import { ITIP403Registry } from "contracts/interfaces/ITIP403Registry.sol";
+import { ITIP20Frax } from "contracts/interfaces/ITIP20Frax.sol";
+import { ITIP20Factory } from "contracts/interfaces/ITIP20Factory.sol";
 import { ITIP20 } from "@tempo/interfaces/ITIP20.sol";
-import { TIP20RolesAuth } from "@tempo/abstracts/TIP20RolesAuth.sol";
-import { TIP20Factory } from "@tempo/TIP20Factory.sol";
-import { AccessControlDefaultAdminRulesUpgradeable } from "@openzeppelin/contracts-upgradeable/access/AccessControlDefaultAdminRulesUpgradeable.sol";
+import { OwnableUpgradeable } from "@openzeppelin/contracts-upgradeable/access/OwnableUpgradeable.sol";
+import {TIP20RolesAuthUpgradeable} from "contracts/modules/tempo/TIP20RolesAuthUpgradeable.sol";
 
 /**
  * @title FrxUSDOFTTIP20Upgradeable
@@ -24,10 +25,10 @@ contract FrxUSDOFTTIP20Upgradeable is
     PermitModule,
     FreezeThawModule,
     PauseModule,
-    ITIP20,
-    AccessControlDefaultAdminRulesUpgradeable
+    ITIP20Frax,
+    TIP20RolesAuthUpgradeable
 {
-    TIP403Registry internal constant TIP403_REGISTRY = TIP403Registry(0x403c000000000000000000000000000000000000);
+    ITIP403Registry internal constant TIP403_REGISTRY = ITIP403Registry(0x403c000000000000000000000000000000000000);
 
     address internal constant TIP_FEE_MANAGER_ADDRESS = 0xfeEC000000000000000000000000000000000000;
     address internal constant STABLECOIN_EXCHANGE_ADDRESS = 0xDEc0000000000000000000000000000000000000;
@@ -77,12 +78,12 @@ contract FrxUSDOFTTIP20Upgradeable is
     }
 
     /// @dev overrides state where previous OFT versions were named the legacy "FRAX"
-    function name() public pure override returns (string memory) {
+    function name() public pure override(ERC20Upgradeable, ITIP20Frax) returns (string memory) {
         return "Frax USD";
     }
 
     /// @dev overrides state where previous OFT versions were named the legacy "FRAX"
-    function symbol() public pure override returns (string memory) {
+    function symbol() public pure override(ERC20Upgradeable, ITIP20Frax) returns (string memory) {
         return "frxUSD";
     }
 
@@ -93,28 +94,27 @@ contract FrxUSDOFTTIP20Upgradeable is
         address _delegate,
         string memory _currency,
         ITIP20 _quoteToken,
-        address _admin,
-        uint48 _initialDelay
+        address _admin
     ) external initializer {
         __OFT_init(name(), symbol(), _delegate);
         __EIP712_init(name(), version());
 
         __Ownable_init();
         _transferOwnership(_delegate);
-        __AccessControlDefaultAdminRules_init(_initialDelay, _admin);
-        _setupRole(PAUSE_ROLE, _admin);
-        _setupRole(UNPAUSE_ROLE, _admin);
-        _setupRole(ISSUER_ROLE, _admin);
-        _setupRole(BURN_BLOCKED_ROLE, _admin);
+        __TIP20RolesAuth_init();
+        TIP20RolesAuthStorage storage $Auth = _getTIP20RolesAuthStorage();
+        $Auth.hasRole[_admin][DEFAULT_ADMIN_ROLE] = true;
+        $Auth.hasRole[_admin][PAUSE_ROLE] = true;
+        $Auth.hasRole[_admin][UNPAUSE_ROLE] = true;
+        $Auth.hasRole[_admin][ISSUER_ROLE] = true;
+        $Auth.hasRole[_admin][BURN_BLOCKED_ROLE] = true;
 
-        TIP20Storage storage $ = _getTIP20Storage();
-        $.transferPolicyId = 1; // "Always-allow" policy by default
-        $.supplyCap = type(uint128).max; // Default to cap at uint128.max
-        $.currency = _currency;
-        $.quoteToken = _quoteToken;
-        $.nextQuoteToken = _quoteToken;
-
-        hasRole[_admin][DEFAULT_ADMIN_ROLE] = true; // Grant admin role to first admin.
+        TIP20Storage storage $TIP20 = _getTIP20Storage();
+        $TIP20.transferPolicyId = 1; // "Always-allow" policy by default
+        $TIP20.supplyCap = type(uint128).max; // Default to cap at uint128.max
+        $TIP20.currency = _currency;
+        $TIP20.quoteToken = _quoteToken;
+        $TIP20.nextQuoteToken = _quoteToken;
     }
 
     /// @notice External admin gated function to add a freezer role to an account
@@ -211,7 +211,8 @@ contract FrxUSDOFTTIP20Upgradeable is
             ) revert PolicyForbids();
             if (isFrozen(to) || isFrozen(from) || isFrozen(msg.sender)) revert BeforeTokenTransferBlocked();
         }
-        if (amount > balanceOf(from)) {
+        // Skip balance check for mints (from == address(0))
+        if (from != address(0) && amount > balanceOf(from)) {
             revert InsufficientBalance(balanceOf(from), amount, address(this));
         }
 
@@ -272,11 +273,11 @@ contract FrxUSDOFTTIP20Upgradeable is
 
     /// @dev supports EIP2612
     function _approve(
-        address owner,
-        address spender,
-        uint256 amount
+        address _owner,
+        address _spender,
+        uint256 _amount
     ) internal override(PermitModule, ERC20Upgradeable) {
-        return ERC20Upgradeable._approve(owner, spender, amount);
+        return ERC20Upgradeable._approve(_owner, _spender, _amount);
     }
 
     /* ========== ERRORS ========== */
@@ -285,53 +286,53 @@ contract FrxUSDOFTTIP20Upgradeable is
 
     // ============ ITIP20 Implementation ============
 
-    function decimals() public pure returns (uint8) {
+    function decimals() public pure override(ERC20Upgradeable, ITIP20Frax) returns (uint8) {
         return 6;
     }
 
-    /// @inheritdoc ITIP20
+    /// @inheritdoc ITIP20Frax
     function currency() external view override returns (string memory) {
         TIP20Storage storage $ = _getTIP20Storage();
         return $.currency;
     }
 
-    /// @inheritdoc ITIP20
+    /// @inheritdoc ITIP20Frax
     function supplyCap() external view override returns (uint256) {
         TIP20Storage storage $ = _getTIP20Storage();
         return $.supplyCap;
     }
 
-    /// @inheritdoc ITIP20
+    /// @inheritdoc ITIP20Frax
     function transferPolicyId() external view override returns (uint64) {
         TIP20Storage storage $ = _getTIP20Storage();
         return $.transferPolicyId;
     }
 
-    /// @inheritdoc ITIP20
+    /// @inheritdoc ITIP20Frax
     function quoteToken() external view override returns (ITIP20) {
         TIP20Storage storage $ = _getTIP20Storage();
         return $.quoteToken;
     }
 
-    /// @inheritdoc ITIP20
+    /// @inheritdoc ITIP20Frax
     function nextQuoteToken() external view override returns (ITIP20) {
         TIP20Storage storage $ = _getTIP20Storage();
         return $.nextQuoteToken;
     }
 
-    /// @inheritdoc ITIP20
+    /// @inheritdoc ITIP20Frax
     function globalRewardPerToken() external view override returns (uint256) {
         TIP20Storage storage $ = _getTIP20Storage();
         return $.globalRewardPerToken;
     }
 
-    /// @inheritdoc ITIP20
+    /// @inheritdoc ITIP20Frax
     function optedInSupply() external view override returns (uint128) {
         TIP20Storage storage $ = _getTIP20Storage();
         return $.optedInSupply;
     }
 
-    /// @inheritdoc ITIP20
+    /// @inheritdoc ITIP20Frax
     function userRewardInfo(
         address account
     ) external view override returns (address rewardRecipient, uint256 rewardPerToken, uint256 rewardBalance) {
@@ -340,14 +341,14 @@ contract FrxUSDOFTTIP20Upgradeable is
         return (info.rewardRecipient, info.rewardPerToken, info.rewardBalance);
     }
 
-    /// @inheritdoc ITIP20
+    /// @inheritdoc ITIP20Frax
     function changeTransferPolicyId(uint64 newPolicyId) external override onlyRole(DEFAULT_ADMIN_ROLE) {
         TIP20Storage storage $ = _getTIP20Storage();
         $.transferPolicyId = newPolicyId;
         emit TransferPolicyUpdate(msg.sender, newPolicyId);
     }
 
-    /// @inheritdoc ITIP20
+    /// @inheritdoc ITIP20Frax
     function setSupplyCap(uint256 newSupplyCap) external override onlyRole(DEFAULT_ADMIN_ROLE) {
         if (newSupplyCap < totalSupply()) revert InvalidSupplyCap();
         if (newSupplyCap > type(uint128).max) revert SupplyCapExceeded();
@@ -356,12 +357,12 @@ contract FrxUSDOFTTIP20Upgradeable is
         emit SupplyCapUpdate(msg.sender, newSupplyCap);
     }
 
-    /// @inheritdoc ITIP20
+    /// @inheritdoc ITIP20Frax
     function setNextQuoteToken(ITIP20 newQuoteToken) external override onlyRole(DEFAULT_ADMIN_ROLE) {
         TIP20Storage storage $ = _getTIP20Storage();
         // sets next quote token, to put the DEX for that pair into place-only mode
         // does not check for loops; that is checked in completeQuoteTokenUpdate
-        if (!TIP20Factory(FACTORY).isTIP20(address(newQuoteToken))) {
+        if (!ITIP20Factory(FACTORY).isTIP20(address(newQuoteToken))) {
             revert InvalidQuoteToken();
         }
 
@@ -376,13 +377,13 @@ contract FrxUSDOFTTIP20Upgradeable is
         emit NextQuoteTokenSet(msg.sender, newQuoteToken);
     }
 
-    /// @inheritdoc ITIP20
+    /// @inheritdoc ITIP20Frax
     function completeQuoteTokenUpdate() external override onlyRole(DEFAULT_ADMIN_ROLE) {
         TIP20Storage storage $ = _getTIP20Storage();
         // check that this does not create a loop, by looping through quote token until we reach the root
         ITIP20 current = $.nextQuoteToken;
         while (address(current) != address(0)) {
-            if (current == this) revert InvalidQuoteToken();
+            if (address(current) == address(this)) revert InvalidQuoteToken();
             current = current.quoteToken();
         }
 
@@ -390,7 +391,7 @@ contract FrxUSDOFTTIP20Upgradeable is
         emit QuoteTokenUpdate(msg.sender, $.nextQuoteToken);
     }
 
-    /// @inheritdoc ITIP20
+    /// @inheritdoc ITIP20Frax
     function setRewardRecipient(address newRewardRecipient) external override {
         if (isPaused()) revert ContractPaused();
         TIP20Storage storage $ = _getTIP20Storage();
@@ -415,7 +416,7 @@ contract FrxUSDOFTTIP20Upgradeable is
         emit RewardRecipientSet(msg.sender, newRewardRecipient);
     }
 
-    /// @inheritdoc ITIP20
+    /// @inheritdoc ITIP20Frax
     function startReward(uint256 amount, uint32 seconds_) external override returns (uint64) {
         if (isPaused()) revert ContractPaused();
         TIP20Storage storage $ = _getTIP20Storage();
@@ -443,7 +444,7 @@ contract FrxUSDOFTTIP20Upgradeable is
         }
     }
 
-    /// @inheritdoc ITIP20
+    /// @inheritdoc ITIP20Frax
     function claimRewards() external override returns (uint256 maxAmount) {
         if (isPaused()) revert ContractPaused();
         TIP20Storage storage $ = _getTIP20Storage();
@@ -464,14 +465,14 @@ contract FrxUSDOFTTIP20Upgradeable is
         emit Transfer(address(this), msg.sender, maxAmount);
     }
 
-    /// @inheritdoc ITIP20
+    /// @inheritdoc ITIP20Frax
     function transferFeePreTx(address from, uint256 amount) external override {
         TIP20Storage storage $ = _getTIP20Storage();
         require(msg.sender == TIP_FEE_MANAGER_ADDRESS);
         require(from != address(0));
 
         if (amount > balanceOf(from)) {
-            revert InsufficientBalance(balanceOf[from], amount, address(this));
+            revert InsufficientBalance(balanceOf(from), amount, address(this));
         }
 
         address fromsRewardRecipient = _updateRewardsAndGetRecipient(from);
@@ -481,7 +482,7 @@ contract FrxUSDOFTTIP20Upgradeable is
         _transfer(from, TIP_FEE_MANAGER_ADDRESS, amount);
     }
 
-    /// @inheritdoc ITIP20
+    /// @inheritdoc ITIP20Frax
     function transferFeePostTx(address to, uint256 refund, uint256 actualUsed) external override {
         TIP20Storage storage $ = _getTIP20Storage();
         require(msg.sender == TIP_FEE_MANAGER_ADDRESS);
@@ -502,18 +503,18 @@ contract FrxUSDOFTTIP20Upgradeable is
         emit Transfer(to, TIP_FEE_MANAGER_ADDRESS, actualUsed);
     }
 
-    /// @inheritdoc ITIP20
+    /// @inheritdoc ITIP20Frax
     function paused() external view override returns (bool) {
         return isPaused();
     }
 
-    /// @inheritdoc ITIP20
-    function burn(uint256 amount) external override onlyRole(ISSUER_ROLE) {
+    /// @inheritdoc ITIP20Frax
+    function burn(uint256 amount) external override {
         _burn(msg.sender, amount);
         emit Burn(msg.sender, amount);
     }
 
-    /// @inheritdoc ITIP20
+    /// @inheritdoc ITIP20Frax
     function burnBlocked(address from, uint256 amount) external override onlyRole(BURN_BLOCKED_ROLE) {
         TIP20Storage storage $ = _getTIP20Storage();
         // Prevent burning from protected precompile addresses
@@ -529,14 +530,14 @@ contract FrxUSDOFTTIP20Upgradeable is
         emit BurnBlocked(from, amount);
     }
 
-    /// @inheritdoc ITIP20
-    function burnWithMemo(uint256 amount, bytes32 memo) external override onlyRole(ISSUER_ROLE) {
+    /// @inheritdoc ITIP20Frax
+    function burnWithMemo(uint256 amount, bytes32 memo) external override {
         _burn(msg.sender, amount);
         emit Burn(msg.sender, amount);
         emit TransferWithMemo(msg.sender, address(0), amount, memo);
     }
 
-    /// @inheritdoc ITIP20
+    /// @inheritdoc ITIP20Frax
     function mint(address to, uint256 amount) external override onlyRole(ISSUER_ROLE) {
         TIP20Storage storage $ = _getTIP20Storage();
         _mint(to, amount);
@@ -557,7 +558,7 @@ contract FrxUSDOFTTIP20Upgradeable is
         super._mint(to, amount);
     }
 
-    /// @inheritdoc ITIP20
+    /// @inheritdoc ITIP20Frax
     function mintWithMemo(address to, uint256 amount, bytes32 memo) external override onlyRole(ISSUER_ROLE) {
         TIP20Storage storage $ = _getTIP20Storage();
         _mint(to, amount);
@@ -565,13 +566,13 @@ contract FrxUSDOFTTIP20Upgradeable is
         emit TransferWithMemo(address(0), to, amount, memo);
     }
 
-    /// @inheritdoc ITIP20
+    /// @inheritdoc ITIP20Frax
     function transferWithMemo(address to, uint256 amount, bytes32 memo) external override {
         transfer(to, amount);
         emit TransferWithMemo(msg.sender, to, amount, memo);
     }
 
-    /// @inheritdoc ITIP20
+    /// @inheritdoc ITIP20Frax
     function transferFromWithMemo(
         address from,
         address to,
@@ -584,17 +585,17 @@ contract FrxUSDOFTTIP20Upgradeable is
     }
 
     /// @inheritdoc ERC20Upgradeable
-    function _spendAllowance(address owner, address spender, uint256 amount) internal override {
-        uint256 currentAllowance = allowance(owner, spender);
+    function _spendAllowance(address _owner, address _spender, uint256 _amount) internal override {
+        uint256 currentAllowance = allowance(_owner, _spender);
         if (currentAllowance != type(uint256).max) {
-            if (amount > currentAllowance) revert InsufficientAllowance();
+            if (_amount > currentAllowance) revert InsufficientAllowance();
             unchecked {
-                _approve(owner, spender, currentAllowance - amount);
+                _approve(_owner, _spender, currentAllowance - _amount);
             }
         }
     }
 
-    /// @inheritdoc ITIP20
+    /// @inheritdoc ITIP20Frax
     function systemTransferFrom(address from, address to, uint256 amount) external override returns (bool) {
         require(msg.sender == TIP_FEE_MANAGER_ADDRESS);
         _transfer(from, to, amount);

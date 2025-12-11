@@ -3,11 +3,10 @@ pragma solidity ^0.8.22;
 
 /// @title ITIP20Extended - TIP-20 extensions beyond ERC-20
 /// @notice A token standard that extends ERC-20 with additional features including transfer policies, memo support, and pause functionality
-/// @dev This interface excludes functions already defined in ERC-20 (name, symbol, decimals, 
+/// @dev This interface excludes functions already defined in ERC-20 (name, symbol, decimals,
 ///      totalSupply, balanceOf, allowance, approve, transfer, transferFrom) and functions
 ///      already implemented in FrxUSDOFTUpgradeable (pause, unpause)
 interface ITIP20Extended {
-
     // ============ Errors ============
 
     /// @notice Error when attempting an operation while the contract is paused.
@@ -90,24 +89,6 @@ interface ITIP20Extended {
     /// @param memo The memo attached to the transfer.
     event TransferWithMemo(address indexed from, address indexed to, uint256 amount, bytes32 indexed memo);
 
-    // ============ Role Constants ============
-
-    /// @notice Returns the role identifier for burning tokens from blocked accounts.
-    /// @return The burn blocked role identifier.
-    function BURN_BLOCKED_ROLE() external view returns (bytes32);
-
-    /// @notice Returns the role identifier for issuing tokens.
-    /// @return The issuer role identifier.
-    function ISSUER_ROLE() external view returns (bytes32);
-
-    /// @notice Returns the role identifier for pausing the contract.
-    /// @return The pause role identifier.
-    function PAUSE_ROLE() external view returns (bytes32);
-
-    /// @notice Returns the role identifier for unpausing the contract.
-    /// @return The unpause role identifier.
-    function UNPAUSE_ROLE() external view returns (bytes32);
-
     // ============ View Functions ============
 
     function currency() external view returns (string memory);
@@ -132,11 +113,9 @@ interface ITIP20Extended {
     /// @return The active transfer policy ID.
     function transferPolicyId() external view returns (uint64);
 
-    function userRewardInfo(address account) external view returns (
-        address rewardRecipient,
-        uint256 rewardPerToken,
-        uint256 rewardBalance
-    );
+    function userRewardInfo(
+        address account
+    ) external view returns (address rewardRecipient, uint256 rewardPerToken, uint256 rewardBalance);
 
     // ============ Burn Functions ============
 

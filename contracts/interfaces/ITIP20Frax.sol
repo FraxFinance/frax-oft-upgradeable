@@ -3,8 +3,19 @@ pragma solidity ^0.8.13;
 
 import { ITIP20 } from "@tempo/interfaces/ITIP20.sol";
 
-/// @title The interface for TIP-20 compliant tokens
-/// @notice A token standard that extends ERC-20 with additional features including transfer policies, memo support, and pause functionality
+/**
+ * @title ITIP20Frax
+ * @author Frax Finance
+ * @notice Interface for TIP-20 compliant tokens with Frax-specific extensions
+ * @dev Extends the base TIP-20 standard with additional features for Tempo Finance integration.
+ *      This interface defines all functions required for TIP-20 compliance including:
+ *      - Transfer policies via TIP-403 Registry
+ *      - Supply cap management
+ *      - Quote token hierarchy for stablecoin pricing
+ *      - Reward distribution system
+ *      - Memo-enabled operations
+ *      - Role-based access control
+ */
 interface ITIP20Frax {
 
     /// @notice Error when attempting an operation while the contract is paused.
@@ -81,22 +92,6 @@ interface ITIP20Frax {
     event TransferWithMemo(
         address indexed from, address indexed to, uint256 amount, bytes32 indexed memo
     );
-
-    /// @notice Returns the role identifier for burning tokens from blocked accounts.
-    /// @return The burn blocked role identifier.
-    function BURN_BLOCKED_ROLE() external view returns (bytes32);
-
-    /// @notice Returns the role identifier for issuing tokens.
-    /// @return The issuer role identifier.
-    function ISSUER_ROLE() external view returns (bytes32);
-
-    /// @notice Returns the role identifier for pausing the contract.
-    /// @return The pause role identifier.
-    function PAUSE_ROLE() external view returns (bytes32);
-
-    /// @notice Returns the role identifier for unpausing the contract.
-    /// @return The unpause role identifier.
-    function UNPAUSE_ROLE() external view returns (bytes32);
 
     /// @notice Burns tokens from the caller's balance.
     /// @param amount The amount of tokens to burn.

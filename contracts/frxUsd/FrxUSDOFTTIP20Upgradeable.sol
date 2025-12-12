@@ -6,166 +6,162 @@ import { FreezeThawModule } from "contracts/modules/FreezeThawModule.sol";
 import { PauseModule } from "contracts/modules/PauseModule.sol";
 import { EIP3009Module } from "contracts/modules/EIP3009Module.sol";
 import { PermitModule } from "contracts/modules/PermitModule.sol";
+import { TIP20Module } from "contracts/modules/tempo/TIP20Module.sol";
 import { SendParam } from "@fraxfinance/layerzero-v2-upgradeable/oapp/contracts/oft/interfaces/IOFT.sol";
 import { ERC20Upgradeable } from "@openzeppelin/contracts-upgradeable/token/ERC20/ERC20Upgradeable.sol";
-import { ITIP403Registry } from "contracts/interfaces/ITIP403Registry.sol";
-import { ITIP20Frax } from "contracts/interfaces/ITIP20Frax.sol";
-import { ITIP20Factory } from "contracts/interfaces/ITIP20Factory.sol";
-import { ITIP20 } from "@tempo/interfaces/ITIP20.sol";
 import { OwnableUpgradeable } from "@openzeppelin/contracts-upgradeable/access/OwnableUpgradeable.sol";
-import {TIP20RolesAuthUpgradeable} from "contracts/modules/tempo/TIP20RolesAuthUpgradeable.sol";
+import { ITIP20 } from "@tempo/interfaces/ITIP20.sol";
+import { ITIP20Frax } from "contracts/interfaces/ITIP20Frax.sol";
 
 /**
  * @title FrxUSDOFTTIP20Upgradeable
- * @dev Extends FrxUSDOFTUpgradeable with TIP-20 compliance
+ * @author Frax Finance
+ * @notice LayerZero OFT token with TIP-20 compliance for Tempo Finance integration
+ * @dev This contract combines LayerZero's Omnichain Fungible Token (OFT) functionality 
+ *      with TIP-20 (Tempo Improvement Proposal 20) compliance using a modular architecture.
+ * 
+ * Architecture:
+ * - Inherits OFTUpgradeable for cross-chain token transfers via LayerZero
+ * - Composes EIP3009Module for gasless transfers (transferWithAuthorization)
+ * - Composes PermitModule for gasless approvals (EIP-2612)
+ * - Composes FreezeThawModule for account freezing/thawing
+ * - Composes PauseModule for emergency pause functionality
+ * - Composes TIP20Module for Tempo Finance TIP-20 compliance
+ * 
+ * TIP-20 Features:
+ * - Transfer policy enforcement via TIP-403 Registry
+ * - Supply cap management
+ * - Quote token hierarchy for stablecoin pricing
+ * - Reward distribution system for opted-in users
+ * - Role-based access control (PAUSE_ROLE, UNPAUSE_ROLE, ISSUER_ROLE, BURN_BLOCKED_ROLE)
+ * - Memo-enabled transfers, mints, and burns
+ * 
+ * Storage:
+ * - Uses ERC-7201 namespaced storage pattern to avoid storage collisions
+ * - TIP20Module storage at slot: 0x3f4e...3f00
+ * - TIP20RolesAuth storage at slot: 0x8c4e...0000
  */
-contract FrxUSDOFTTIP20Upgradeable is
-    OFTUpgradeable,
-    EIP3009Module,
-    PermitModule,
-    FreezeThawModule,
+contract FrxUSDOFTTIP20Upgradeable is 
+    OFTUpgradeable, 
+    EIP3009Module, 
+    PermitModule, 
+    FreezeThawModule, 
     PauseModule,
-    ITIP20Frax,
-    TIP20RolesAuthUpgradeable
+    TIP20Module 
 {
-    ITIP403Registry internal constant TIP403_REGISTRY = ITIP403Registry(0x403c000000000000000000000000000000000000);
-
-    address internal constant TIP_FEE_MANAGER_ADDRESS = 0xfeEC000000000000000000000000000000000000;
-    address internal constant STABLECOIN_EXCHANGE_ADDRESS = 0xDEc0000000000000000000000000000000000000;
-
-    address internal constant FACTORY = 0x20Fc000000000000000000000000000000000000;
-
-    bytes32 public constant PAUSE_ROLE = keccak256("PAUSE_ROLE");
-    bytes32 public constant UNPAUSE_ROLE = keccak256("UNPAUSE_ROLE");
-    bytes32 public constant ISSUER_ROLE = keccak256("ISSUER_ROLE");
-    bytes32 public constant BURN_BLOCKED_ROLE = keccak256("BURN_BLOCKED_ROLE");
-
-    uint256 internal constant ACC_PRECISION = 1e18;
-
-    struct UserRewardInfo {
-        address rewardRecipient;
-        uint256 rewardPerToken;
-        uint256 rewardBalance;
-    }
-
-    /// @custom:storage-location erc7201:frax.storage.TIP20
-    struct TIP20Storage {
-        uint256 supplyCap;
-        uint64 transferPolicyId;
-        string currency;
-        ITIP20 quoteToken;
-        ITIP20 nextQuoteToken;
-        uint256 globalRewardPerToken;
-        uint128 optedInSupply;
-        mapping(address => UserRewardInfo) userRewardInfo;
-    }
-
-    /// @dev keccak256(abi.encode(uint256(keccak256("frax.storage.TIP20")) - 1)) & ~bytes32(uint256(0xff))
-    bytes32 private constant TIP20StorageLocation = 0x9fd7d0c44526e808a04e8633c77b144fb613d422fc75d4d0ebc0c5329184a400;
-
-    function _getTIP20Storage() internal pure returns (TIP20Storage storage $) {
-        assembly {
-            $.slot := TIP20StorageLocation
-        }
-    }
-
+    /// @notice Constructor sets the LayerZero endpoint and disables initializers
+    /// @param _lzEndpoint The LayerZero endpoint address for cross-chain messaging
     constructor(address _lzEndpoint) OFTUpgradeable(_lzEndpoint) {
         _disableInitializers();
     }
 
+    /// @notice Returns the contract version
+    /// @return The version string "1.1.0"
     function version() public pure returns (string memory) {
         return "1.1.0";
     }
 
-    /// @dev overrides state where previous OFT versions were named the legacy "FRAX"
+    /// @notice Returns the token name
+    /// @dev Overrides ERC20 storage to return hardcoded value for consistency across chains
+    /// @return The token name "Frax USD"
     function name() public pure override(ERC20Upgradeable, ITIP20Frax) returns (string memory) {
         return "Frax USD";
     }
 
-    /// @dev overrides state where previous OFT versions were named the legacy "FRAX"
+    /// @notice Returns the token symbol
+    /// @dev Overrides ERC20 storage to return hardcoded value for consistency across chains
+    /// @return The token symbol "frxUSD"
     function symbol() public pure override(ERC20Upgradeable, ITIP20Frax) returns (string memory) {
         return "frxUSD";
     }
 
-    // Admin
+    /// @notice Returns the token decimals
+    /// @dev Returns 6 decimals as per TIP-20 specification
+    /// @return The number of decimals (6)
+    function decimals() public pure override(ERC20Upgradeable, ITIP20Frax) returns (uint8) {
+        return 6;
+    }
 
-    /// @dev This method is called specifically when deploying a new OFT
+    // ============ Override functions from multiple inheritance ============
+
+    /// @dev Override owner() to satisfy multiple inheritance
+    function owner() public view override(OwnableUpgradeable, TIP20Module) returns (address) {
+        return OwnableUpgradeable.owner();
+    }
+
+    /// @dev Override isPaused() to satisfy multiple inheritance
+    function isPaused() public view override(PauseModule, TIP20Module) returns (bool) {
+        return PauseModule.isPaused();
+    }
+
+    /// @dev Override balanceOf() to satisfy multiple inheritance
+    function balanceOf(address account) public view override(ERC20Upgradeable, TIP20Module) returns (uint256) {
+        return ERC20Upgradeable.balanceOf(account);
+    }
+
+    /// @dev Override totalSupply() to satisfy multiple inheritance
+    function totalSupply() public view override(ERC20Upgradeable, TIP20Module) returns (uint256) {
+        return ERC20Upgradeable.totalSupply();
+    }
+
+    // ============ Initialization ============
+
+    /// @notice Initialize the contract with TIP-20 parameters
+    /// @param _delegate The delegate address for OFT
+    /// @param _currency The currency string (e.g., "USD")
+    /// @param _quoteToken The initial quote token
+    /// @param _admin The admin address that receives all roles
     function initialize(
         address _delegate,
         string memory _currency,
         ITIP20 _quoteToken,
         address _admin
     ) external initializer {
+        // Initialize base OFT and ownership
         __OFT_init(name(), symbol(), _delegate);
         __EIP712_init(name(), version());
-
         __Ownable_init();
         _transferOwnership(_delegate);
-        __TIP20RolesAuth_init();
-        TIP20RolesAuthStorage storage $Auth = _getTIP20RolesAuthStorage();
-        $Auth.hasRole[_admin][DEFAULT_ADMIN_ROLE] = true;
-        $Auth.hasRole[_admin][PAUSE_ROLE] = true;
-        $Auth.hasRole[_admin][UNPAUSE_ROLE] = true;
-        $Auth.hasRole[_admin][ISSUER_ROLE] = true;
-        $Auth.hasRole[_admin][BURN_BLOCKED_ROLE] = true;
-
-        TIP20Storage storage $TIP20 = _getTIP20Storage();
-        $TIP20.transferPolicyId = 1; // "Always-allow" policy by default
-        $TIP20.supplyCap = type(uint128).max; // Default to cap at uint128.max
-        $TIP20.currency = _currency;
-        $TIP20.quoteToken = _quoteToken;
-        $TIP20.nextQuoteToken = _quoteToken;
+        
+        // Initialize TIP-20 module
+        __TIP20Module_init(_currency, _quoteToken, _admin);
     }
 
+    // ============ Admin Functions (from FrxUSDOFTUpgradeable) ============
+
     /// @notice External admin gated function to add a freezer role to an account
-    /// @param account The account to be added as a freezer
-    /// @dev Added in v1.1.0
     function addFreezer(address account) external onlyOwner {
         _addFreezer(account);
     }
 
     /// @notice External admin gated function to remove a freezer role from an account
-    /// @param account The account to be removed as a freezer
-    /// @dev Added in v1.1.0
     function removeFreezer(address account) external onlyOwner {
         _removeFreezer(account);
     }
 
     /// @notice External admin gated function to unfreeze a set of accounts
-    /// @param accounts Array of accounts to be unfrozen
-    /// @dev Added in v1.1.0
     function thawMany(address[] memory accounts) external onlyOwner {
         _thawMany(accounts);
     }
 
     /// @notice External admin gated function to unfreeze an account
-    /// @param account The account to be unfrozen
-    /// @dev Added in v1.1.0
     function thaw(address account) external onlyOwner {
         _thaw(account);
     }
 
     /// @notice External admin gated function to batch freeze a set of accounts
-    /// @param accounts Array of accounts to be frozen
-    /// @dev Added in v1.1.0
     function freezeMany(address[] memory accounts) external {
         if (!isFreezer(msg.sender) && msg.sender != owner()) revert NotFreezer();
         _freezeMany(accounts);
     }
 
     /// @notice External admin gated function to freeze a given account
-    /// @param account The account to be
-    /// @dev Added in v1.1.0
     function freeze(address account) external {
         if (!isFreezer(msg.sender) && msg.sender != owner()) revert NotFreezer();
         _freeze(account);
     }
 
     /// @notice External admin gated function to batch burn balance from a set of accounts
-    /// @param accounts Array of accounts whose balances will be burned
-    /// @param amounts Array of amounts corresponding to the balances to be burned
-    /// @dev Added in v1.1.0
-    /// @dev if `amount` == 0, entire balance will be burned
     function burnMany(address[] memory accounts, uint256[] memory amounts) external onlyOwner {
         uint lenOwner = accounts.length;
         if (accounts.length != amounts.length) revert ArrayMisMatch();
@@ -175,64 +171,51 @@ contract FrxUSDOFTTIP20Upgradeable is
         }
     }
 
-    /// @notice External admin gated function to burn balance from a given account
-    /// @param account  The account whose balance will be burned
-    /// @param amount The amount of balance to burn
-    /// @dev Added in v1.1.0
-    /// @dev if `amount` == 0, entire balance will be burned
+    /// @notice Admin burn from an account (requires ISSUER_ROLE for TIP-20)
+    /// @param account The account to burn from
+    /// @param amount The amount to burn (0 = burn entire balance)
     function burn(address account, uint256 amount) external onlyRole(ISSUER_ROLE) {
         if (amount == 0) amount = balanceOf(account);
         _burn(account, amount);
         emit Burn(msg.sender, amount);
     }
 
-    /// @notice External admin gated pause function
-    /// @dev Added in v1.1.0
+    /// @notice Admin pause function (requires PAUSE_ROLE for TIP-20)
     function pause() external onlyRole(PAUSE_ROLE) {
         _pause();
         emit PauseStateUpdate(msg.sender, true);
     }
 
-    /// @notice External admin gated unpause function
-    /// @dev Added in v1.1.0
+    /// @notice Admin unpause function (requires UNPAUSE_ROLE for TIP-20)
     function unpause() external onlyRole(UNPAUSE_ROLE) {
         _unpause();
         emit PauseStateUpdate(msg.sender, false);
     }
 
+    // ============ Integrate TIP-20 Hooks into Token Transfer ============
+
+    /// @dev Override _beforeTokenTransfer to integrate both base checks and TIP-20 checks
     function _beforeTokenTransfer(address from, address to, uint256 amount) internal override {
-        TIP20Storage storage $ = _getTIP20Storage();
-        if (msg.sender != owner()) {
-            if (isPaused()) revert ContractPaused();
-            if ((uint160(to) >> 64) == 0x20c000000000000000000000) revert InvalidRecipient();
-            if (
-                !TIP403_REGISTRY.isAuthorized($.transferPolicyId, from) ||
-                !TIP403_REGISTRY.isAuthorized($.transferPolicyId, to)
-            ) revert PolicyForbids();
-            if (isFrozen(to) || isFrozen(from) || isFrozen(msg.sender)) revert BeforeTokenTransferBlocked();
-        }
         // Skip balance check for mints (from == address(0))
         if (from != address(0) && amount > balanceOf(from)) {
             revert InsufficientBalance(balanceOf(from), amount, address(this));
         }
 
-        // Handle reward accounting for opted-in sender
-        address fromsRewardRecipient = _updateRewardsAndGetRecipient(from);
-
-        // Handle reward accounting for opted-in receiver (but not when burning)
-        address tosRewardRecipient = _updateRewardsAndGetRecipient(to);
-
-        if (fromsRewardRecipient != address(0)) {
-            if (tosRewardRecipient == address(0)) {
-                $.optedInSupply -= uint128(amount);
-            }
-        } else if (tosRewardRecipient != address(0)) {
-            $.optedInSupply += uint128(amount);
+        // Call TIP-20 hook for reward accounting and policy checks
+        _beforeTokenTransferTIP20(from, to, amount);
+        
+        // Call parent hook for freeze/thaw and pause checks
+        if (msg.sender != owner()) {
+            if (
+                isPaused() ||
+                isFrozen(to) || isFrozen(from) || isFrozen(msg.sender)
+            ) revert BeforeTokenTransferBlocked();
         }
+        
         super._beforeTokenTransfer(from, to, amount);
     }
 
-    // Helper views
+    // ============ Helper Views (from FrxUSDOFTUpgradeable) ============
 
     function toLD(uint64 _amountSD) external view returns (uint256 amountLD) {
         return _toLD(_amountSD);
@@ -251,7 +234,6 @@ contract FrxUSDOFTTIP20Upgradeable is
         uint256 _minAmountLD,
         uint32 _dstEid
     ) external view returns (uint256 amountSentLD, uint256 amountReceivedLD) {
-        /// @dev: _dstEid is unused in _debitView
         return _debitView(_amountLD, _minAmountLD, _dstEid);
     }
 
@@ -262,361 +244,47 @@ contract FrxUSDOFTTIP20Upgradeable is
         return _buildMsgAndOptions(_sendParam, _amountLD);
     }
 
-    //==============================================================================
-    // Overrides
-    //==============================================================================
+    // ============ Internal Overrides for Multiple Inheritance ============
+
+    /// @dev Override _mint to call ERC20 mint (TIP-20 checks are done in TIP20Module.mint/mintWithMemo)
+    function _mint(address to, uint256 amount) internal override(ERC20Upgradeable, TIP20Module) {
+        ERC20Upgradeable._mint(to, amount);
+    }
 
     /// @dev supports EIP3009
-    function _transfer(address from, address to, uint256 amount) internal override(EIP3009Module, ERC20Upgradeable) {
-        return ERC20Upgradeable._transfer(from, to, amount);
+    function _transfer(address from, address to, uint256 amount) 
+        internal 
+        override(EIP3009Module, ERC20Upgradeable, TIP20Module) 
+    {
+        ERC20Upgradeable._transfer(from, to, amount);
+    }
+
+    /// @dev Override _burn to satisfy multiple inheritance
+    function _burn(address from, uint256 amount) 
+        internal 
+        override(ERC20Upgradeable, TIP20Module) 
+    {
+        ERC20Upgradeable._burn(from, amount);
     }
 
     /// @dev supports EIP2612
-    function _approve(
-        address _owner,
-        address _spender,
-        uint256 _amount
-    ) internal override(PermitModule, ERC20Upgradeable) {
+    function _approve(address _owner, address _spender, uint256 _amount) 
+        internal 
+        override(PermitModule, ERC20Upgradeable) 
+    {
         return ERC20Upgradeable._approve(_owner, _spender, _amount);
     }
 
-    /* ========== ERRORS ========== */
+    /// @dev Override _spendAllowance to satisfy multiple inheritance
+    function _spendAllowance(address owner, address spender, uint256 value) 
+        internal 
+        override(ERC20Upgradeable, TIP20Module) 
+    {
+        ERC20Upgradeable._spendAllowance(owner, spender, value);
+    }
+
+    // ============ Errors ============
+
     error ArrayMisMatch();
     error BeforeTokenTransferBlocked();
-
-    // ============ ITIP20 Implementation ============
-
-    function decimals() public pure override(ERC20Upgradeable, ITIP20Frax) returns (uint8) {
-        return 6;
-    }
-
-    /// @inheritdoc ITIP20Frax
-    function currency() external view override returns (string memory) {
-        TIP20Storage storage $ = _getTIP20Storage();
-        return $.currency;
-    }
-
-    /// @inheritdoc ITIP20Frax
-    function supplyCap() external view override returns (uint256) {
-        TIP20Storage storage $ = _getTIP20Storage();
-        return $.supplyCap;
-    }
-
-    /// @inheritdoc ITIP20Frax
-    function transferPolicyId() external view override returns (uint64) {
-        TIP20Storage storage $ = _getTIP20Storage();
-        return $.transferPolicyId;
-    }
-
-    /// @inheritdoc ITIP20Frax
-    function quoteToken() external view override returns (ITIP20) {
-        TIP20Storage storage $ = _getTIP20Storage();
-        return $.quoteToken;
-    }
-
-    /// @inheritdoc ITIP20Frax
-    function nextQuoteToken() external view override returns (ITIP20) {
-        TIP20Storage storage $ = _getTIP20Storage();
-        return $.nextQuoteToken;
-    }
-
-    /// @inheritdoc ITIP20Frax
-    function globalRewardPerToken() external view override returns (uint256) {
-        TIP20Storage storage $ = _getTIP20Storage();
-        return $.globalRewardPerToken;
-    }
-
-    /// @inheritdoc ITIP20Frax
-    function optedInSupply() external view override returns (uint128) {
-        TIP20Storage storage $ = _getTIP20Storage();
-        return $.optedInSupply;
-    }
-
-    /// @inheritdoc ITIP20Frax
-    function userRewardInfo(
-        address account
-    ) external view override returns (address rewardRecipient, uint256 rewardPerToken, uint256 rewardBalance) {
-        TIP20Storage storage $ = _getTIP20Storage();
-        UserRewardInfo storage info = $.userRewardInfo[account];
-        return (info.rewardRecipient, info.rewardPerToken, info.rewardBalance);
-    }
-
-    /// @inheritdoc ITIP20Frax
-    function changeTransferPolicyId(uint64 newPolicyId) external override onlyRole(DEFAULT_ADMIN_ROLE) {
-        TIP20Storage storage $ = _getTIP20Storage();
-        $.transferPolicyId = newPolicyId;
-        emit TransferPolicyUpdate(msg.sender, newPolicyId);
-    }
-
-    /// @inheritdoc ITIP20Frax
-    function setSupplyCap(uint256 newSupplyCap) external override onlyRole(DEFAULT_ADMIN_ROLE) {
-        if (newSupplyCap < totalSupply()) revert InvalidSupplyCap();
-        if (newSupplyCap > type(uint128).max) revert SupplyCapExceeded();
-        TIP20Storage storage $ = _getTIP20Storage();
-        $.supplyCap = newSupplyCap;
-        emit SupplyCapUpdate(msg.sender, newSupplyCap);
-    }
-
-    /// @inheritdoc ITIP20Frax
-    function setNextQuoteToken(ITIP20 newQuoteToken) external override onlyRole(DEFAULT_ADMIN_ROLE) {
-        TIP20Storage storage $ = _getTIP20Storage();
-        // sets next quote token, to put the DEX for that pair into place-only mode
-        // does not check for loops; that is checked in completeQuoteTokenUpdate
-        if (!ITIP20Factory(FACTORY).isTIP20(address(newQuoteToken))) {
-            revert InvalidQuoteToken();
-        }
-
-        // If this token represents USD, enforce USD quote token
-        if (keccak256(bytes($.currency)) == keccak256(bytes("USD"))) {
-            if (keccak256(bytes(newQuoteToken.currency())) != keccak256(bytes("USD"))) {
-                revert InvalidQuoteToken();
-            }
-        }
-
-        $.nextQuoteToken = newQuoteToken;
-        emit NextQuoteTokenSet(msg.sender, newQuoteToken);
-    }
-
-    /// @inheritdoc ITIP20Frax
-    function completeQuoteTokenUpdate() external override onlyRole(DEFAULT_ADMIN_ROLE) {
-        TIP20Storage storage $ = _getTIP20Storage();
-        // check that this does not create a loop, by looping through quote token until we reach the root
-        ITIP20 current = $.nextQuoteToken;
-        while (address(current) != address(0)) {
-            if (address(current) == address(this)) revert InvalidQuoteToken();
-            current = current.quoteToken();
-        }
-
-        $.quoteToken = $.nextQuoteToken;
-        emit QuoteTokenUpdate(msg.sender, $.nextQuoteToken);
-    }
-
-    /// @inheritdoc ITIP20Frax
-    function setRewardRecipient(address newRewardRecipient) external override {
-        if (isPaused()) revert ContractPaused();
-        TIP20Storage storage $ = _getTIP20Storage();
-        // Check TIP-403 authorization
-        if (newRewardRecipient != address(0)) {
-            if (
-                !TIP403_REGISTRY.isAuthorized($.transferPolicyId, msg.sender) ||
-                !TIP403_REGISTRY.isAuthorized($.transferPolicyId, newRewardRecipient)
-            ) revert PolicyForbids();
-        }
-
-        address oldRewardRecipient = _updateRewardsAndGetRecipient(msg.sender);
-        if (oldRewardRecipient != address(0)) {
-            if (newRewardRecipient == address(0)) {
-                $.optedInSupply -= uint128(balanceOf(msg.sender));
-            }
-        } else if (newRewardRecipient != address(0)) {
-            $.optedInSupply += uint128(balanceOf(msg.sender));
-        }
-        $.userRewardInfo[msg.sender].rewardRecipient = newRewardRecipient;
-
-        emit RewardRecipientSet(msg.sender, newRewardRecipient);
-    }
-
-    /// @inheritdoc ITIP20Frax
-    function startReward(uint256 amount, uint32 seconds_) external override returns (uint64) {
-        if (isPaused()) revert ContractPaused();
-        TIP20Storage storage $ = _getTIP20Storage();
-
-        if (amount == 0) revert InvalidAmount();
-        if (!TIP403_REGISTRY.isAuthorized($.transferPolicyId, msg.sender)) {
-            revert PolicyForbids();
-        }
-
-        // Transfer tokens from sender to this contract
-        _transfer(msg.sender, address(this), amount);
-
-        if (seconds_ == 0) {
-            // Immediate payout
-            if ($.optedInSupply == 0) {
-                revert NoOptedInSupply();
-            }
-            uint256 deltaRPT = (amount * ACC_PRECISION) / $.optedInSupply;
-            $.globalRewardPerToken += deltaRPT;
-            emit RewardScheduled(msg.sender, 0, amount, 0);
-            return 0;
-        } else {
-            // Scheduled/streaming rewards are disabled post-Moderato
-            revert ScheduledRewardsDisabled();
-        }
-    }
-
-    /// @inheritdoc ITIP20Frax
-    function claimRewards() external override returns (uint256 maxAmount) {
-        if (isPaused()) revert ContractPaused();
-        TIP20Storage storage $ = _getTIP20Storage();
-        if (!TIP403_REGISTRY.isAuthorized($.transferPolicyId, msg.sender)) revert PolicyForbids();
-
-        _updateRewardsAndGetRecipient(msg.sender);
-
-        uint256 amount = $.userRewardInfo[msg.sender].rewardBalance;
-        uint256 selfBalance = balanceOf(address(this));
-        maxAmount = (selfBalance > amount ? amount : selfBalance);
-        $.userRewardInfo[msg.sender].rewardBalance -= maxAmount;
-
-        _transfer(address(this), msg.sender, maxAmount);
-        if ($.userRewardInfo[msg.sender].rewardRecipient != address(0)) {
-            $.optedInSupply += uint128(maxAmount);
-        }
-
-        emit Transfer(address(this), msg.sender, maxAmount);
-    }
-
-    /// @inheritdoc ITIP20Frax
-    function transferFeePreTx(address from, uint256 amount) external override {
-        TIP20Storage storage $ = _getTIP20Storage();
-        require(msg.sender == TIP_FEE_MANAGER_ADDRESS);
-        require(from != address(0));
-
-        if (amount > balanceOf(from)) {
-            revert InsufficientBalance(balanceOf(from), amount, address(this));
-        }
-
-        address fromsRewardRecipient = _updateRewardsAndGetRecipient(from);
-        if (fromsRewardRecipient != address(0)) {
-            $.optedInSupply -= uint128(amount);
-        }
-        _transfer(from, TIP_FEE_MANAGER_ADDRESS, amount);
-    }
-
-    /// @inheritdoc ITIP20Frax
-    function transferFeePostTx(address to, uint256 refund, uint256 actualUsed) external override {
-        TIP20Storage storage $ = _getTIP20Storage();
-        require(msg.sender == TIP_FEE_MANAGER_ADDRESS);
-        require(to != address(0));
-
-        uint256 feeManagerBalance = balanceOf(TIP_FEE_MANAGER_ADDRESS);
-        if (refund > feeManagerBalance) {
-            revert InsufficientBalance(feeManagerBalance, refund, address(this));
-        }
-
-        address tosRewardRecipient = _updateRewardsAndGetRecipient(to);
-        if (tosRewardRecipient != address(0)) {
-            $.optedInSupply += uint128(refund);
-        }
-
-        _transfer(TIP_FEE_MANAGER_ADDRESS, to, refund);
-        // TODO : verify event s as per TIP20 standard
-        emit Transfer(to, TIP_FEE_MANAGER_ADDRESS, actualUsed);
-    }
-
-    /// @inheritdoc ITIP20Frax
-    function paused() external view override returns (bool) {
-        return isPaused();
-    }
-
-    /// @inheritdoc ITIP20Frax
-    function burn(uint256 amount) external override {
-        _burn(msg.sender, amount);
-        emit Burn(msg.sender, amount);
-    }
-
-    /// @inheritdoc ITIP20Frax
-    function burnBlocked(address from, uint256 amount) external override onlyRole(BURN_BLOCKED_ROLE) {
-        TIP20Storage storage $ = _getTIP20Storage();
-        // Prevent burning from protected precompile addresses
-        if (from == TIP_FEE_MANAGER_ADDRESS || from == STABLECOIN_EXCHANGE_ADDRESS) {
-            revert ProtectedAddress();
-        }
-
-        // Only allow burning from addresses that are blocked from transferring.
-        if (TIP403_REGISTRY.isAuthorized($.transferPolicyId, from)) {
-            revert PolicyForbids();
-        }
-        _burn(from, amount);
-        emit BurnBlocked(from, amount);
-    }
-
-    /// @inheritdoc ITIP20Frax
-    function burnWithMemo(uint256 amount, bytes32 memo) external override {
-        _burn(msg.sender, amount);
-        emit Burn(msg.sender, amount);
-        emit TransferWithMemo(msg.sender, address(0), amount, memo);
-    }
-
-    /// @inheritdoc ITIP20Frax
-    function mint(address to, uint256 amount) external override onlyRole(ISSUER_ROLE) {
-        TIP20Storage storage $ = _getTIP20Storage();
-        _mint(to, amount);
-        emit Mint(to, amount);
-    }
-
-    function _mint(address to, uint256 amount) internal override {
-        TIP20Storage storage $ = _getTIP20Storage();
-        if (!TIP403_REGISTRY.isAuthorized($.transferPolicyId, to)) revert PolicyForbids();
-        if (totalSupply() + amount > $.supplyCap) revert SupplyCapExceeded(); // Catches overflow.
-
-        // Handle reward accounting for opted-in receiver
-        address tosRewardRecipient = _updateRewardsAndGetRecipient(to);
-        if (tosRewardRecipient != address(0)) {
-            $.optedInSupply += uint128(amount);
-        }
-
-        super._mint(to, amount);
-    }
-
-    /// @inheritdoc ITIP20Frax
-    function mintWithMemo(address to, uint256 amount, bytes32 memo) external override onlyRole(ISSUER_ROLE) {
-        TIP20Storage storage $ = _getTIP20Storage();
-        _mint(to, amount);
-        emit Mint(to, amount);
-        emit TransferWithMemo(address(0), to, amount, memo);
-    }
-
-    /// @inheritdoc ITIP20Frax
-    function transferWithMemo(address to, uint256 amount, bytes32 memo) external override {
-        transfer(to, amount);
-        emit TransferWithMemo(msg.sender, to, amount, memo);
-    }
-
-    /// @inheritdoc ITIP20Frax
-    function transferFromWithMemo(
-        address from,
-        address to,
-        uint256 amount,
-        bytes32 memo
-    ) external override returns (bool) {
-        transferFrom(from, to, amount);
-        emit TransferWithMemo(from, to, amount, memo);
-        return true;
-    }
-
-    /// @inheritdoc ERC20Upgradeable
-    function _spendAllowance(address _owner, address _spender, uint256 _amount) internal override {
-        uint256 currentAllowance = allowance(_owner, _spender);
-        if (currentAllowance != type(uint256).max) {
-            if (_amount > currentAllowance) revert InsufficientAllowance();
-            unchecked {
-                _approve(_owner, _spender, currentAllowance - _amount);
-            }
-        }
-    }
-
-    /// @inheritdoc ITIP20Frax
-    function systemTransferFrom(address from, address to, uint256 amount) external override returns (bool) {
-        require(msg.sender == TIP_FEE_MANAGER_ADDRESS);
-        _transfer(from, to, amount);
-        return true;
-    }
-
-    function _updateRewardsAndGetRecipient(address user) internal returns (address rewardRecipient) {
-        TIP20Storage storage $ = _getTIP20Storage();
-        rewardRecipient = $.userRewardInfo[user].rewardRecipient;
-        uint256 cachedGlobalRewardPerToken = $.globalRewardPerToken;
-        uint256 rewardPerTokenDelta = cachedGlobalRewardPerToken - $.userRewardInfo[user].rewardPerToken;
-
-        if (rewardPerTokenDelta != 0) {
-            // No rewards to update if not opted-in
-            if (rewardRecipient != address(0)) {
-                // Balance to update
-                uint256 reward = (uint256(balanceOf(user)) * (rewardPerTokenDelta)) / ACC_PRECISION;
-
-                $.userRewardInfo[rewardRecipient].rewardBalance += reward;
-            }
-            $.userRewardInfo[user].rewardPerToken = cachedGlobalRewardPerToken;
-        }
-    }
 }

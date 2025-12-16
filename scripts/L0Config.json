@@ -462,6 +462,54 @@
             "proxyAdmin": "0x0000000000000000000000000000000000000000",
             "receiveLib302": "0xcF1B0F4106B0324F96fEfcC31bA9498caa80701C",
             "sendLib302": "0xd682ECF100f6F4284138AA925348633B0611Ae21"
+        },
+        {
+            "RPC": "https://bnb-testnet.api.onfinality.io/public",
+            "chainid": 97,
+            "delegate": "0x0000000000000000000000000000000000000000",
+            "dvnHorizen": "0x98a7ad52b970d9b350fdee17d3892bbe79d0132a",
+            "dvnL0": "0x0ee552262f7b562efced6dd4a7e2878ab897d405",
+            "eid": 40102,
+            "endpoint": "0x6EDCE65403992e310A62460808c4b910D972f10f",
+            "proxyAdmin": "0x0000000000000000000000000000000000000000",
+            "receiveLib302": "0x188d4bbCeD671A7aA2b5055937F79510A32e9683",
+            "sendLib302": "0x55f16c442907e86D764AFdc2a07C2de3BdAc8BB7"
+        },
+        {
+            "RPC": "https://api.zan.top/opt-sepolia",
+            "chainid": 11155420,
+            "delegate": "0x0000000000000000000000000000000000000000",
+            "dvnHorizen": "0xc041606700ef1ae6c0430d7a6f3013cb6aebdfdb",
+            "dvnL0": "0xd680ec569f269aa7015f7979b4f1239b5aa4582c",
+            "eid": 40232,
+            "endpoint": "0x6EDCE65403992e310A62460808c4b910D972f10f",
+            "proxyAdmin": "0x0000000000000000000000000000000000000000",
+            "receiveLib302": "0x9284fd59B95b9143AF0b9795CAC16eb3C723C9Ca",
+            "sendLib302": "0xB31D2cb502E25B30C651842C7C3293c51Fe6d16f"
+        },
+        {
+            "RPC": "https://api.zan.top/polygon-amoy",
+            "chainid": 80002,
+            "delegate": "0x0000000000000000000000000000000000000000",
+            "dvnHorizen": "0x0000000000000000000000000000000000000000",
+            "dvnL0": "0x55c175dd5b039331db251424538169d8495c18d1",
+            "eid": 40267,
+            "endpoint": "0x6EDCE65403992e310A62460808c4b910D972f10f",
+            "proxyAdmin": "0x0000000000000000000000000000000000000000",
+            "receiveLib302": "0x53fd4C4fBBd53F6bC58CaE6704b92dB1f360A648",
+            "sendLib302": "0x1d186C560281B8F1AF831957ED5047fD3AB902F9"
+        },
+         {
+            "RPC": "https://rpc.testnet.tempo.xyz",
+            "chainid": 42429,
+            "delegate": "0x0000000000000000000000000000000000000000",
+            "dvnHorizen": "0x0000000000000000000000000000000000000000",
+            "dvnL0": "0x489fd72653924e25de141e9b1d1c2591a1150602",
+            "eid": 40439,
+            "endpoint": "0x50C21fE63c28191ccDc167961992A63e14393565",
+            "proxyAdmin": "0x0000000000000000000000000000000000000000",
+            "receiveLib302": "0x417cb9E12cfe7301c8b6ef8f63ffac55263e147C",
+            "sendLib302": "0xB8CFaA12Bf058492Ed6F9c746d1DaCf9356076Bc"
         }
     ]
 }

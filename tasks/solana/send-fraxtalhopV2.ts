@@ -72,7 +72,7 @@ interface MasterArgs {
     addressLookupTables?: string
 }
 
-task('lz:oft:send:fraxtalhop', 'Redeem nest tokens cross‐chain from Solana to any supported chain')
+task('lz:oft:send:fraxtalhopv2', 'Send frax OFT from Solana to any supported EVM chain via fraxtal hop')
     .addParam('srcEid', 'Source endpoint ID', undefined, types.int)
     .addParam('dstEid', 'Destination endpoint ID', undefined, types.int)
     .addParam('amount', 'Amount to send (human readable units, e.g. "1.5")', undefined, types.string)

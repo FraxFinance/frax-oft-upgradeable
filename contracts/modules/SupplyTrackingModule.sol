@@ -54,10 +54,6 @@ abstract contract SupplyTrackingModule {
     function _setInitialTotalSupply(uint32 _eid, uint256 _amount) internal {
         SupplyTrackingStorage storage $ = _getSupplyTrackingStorage();
         $.initialTotalSupply[_eid] = _amount;
-        // reset the transfer amounts for the EID as well as initialTotalSupply == current supply,
-        // which means there should be no pre-existing transferFrom/transferTo
-        $.totalTransferFrom[_eid] = 0;
-        $.totalTransferTo[_eid] = 0;
 
         emit SetInitialTotalSupply(_eid, _amount);
     }

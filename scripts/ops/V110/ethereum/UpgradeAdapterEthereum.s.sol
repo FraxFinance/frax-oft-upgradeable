@@ -23,9 +23,9 @@ contract UpgradeAdapter is DeployFraxOFTProtocol {
     address sfrxUsd = 0xcf62F905562626CfcDD2261162a51fd02Fc9c5b6;
     address fpi = 0x5Ca135cB8527d76e932f34B5145575F9d8cbE08E;
 
-    address frxUsdMintableLockboxImp;
-    address sfrxUsdMintableLockboxImp;
-    address fpiMintableLockboxImp = 0x2063961F26019B588F48007D1CC43770e8B7383C;
+    address frxUsdMintableLockboxImp; // deployed to 0xa5069a06d976C8ACfA3Ed8b4F4831366ff1fd20e
+    address sfrxUsdMintableLockboxImp; // deployed to 0xd912dA97A34aB0BEEb8FD089321b2189a6fCbEA4
+    address fpiMintableLockboxImp; // deployed to 0xED22202F067a57dE78a68368Ee5cE08BA5A1919C
 
     uint256 filecount;
 
@@ -43,23 +43,23 @@ contract UpgradeAdapter is DeployFraxOFTProtocol {
         root = string.concat(root, "/scripts/ops/V110/ethereum/txs/");
 
         filecount++;
-        string memory file = string.concat("UpgradeAdapter-", filecount.toString());
-        file = string.concat(file, "-");
-        file = string.concat(file, who.toHexString());
-        file = string.concat(file, "-fpi.json");
+        string memory file = string(abi.encodePacked(
+                "UpgradeAdapter-", filecount.toString(), "-", who.toHexString(), ".json"
+            )
+        );
 
         return string.concat(root, file);
     }
 
     function run() public override {
-        // deployMintableLockboxes();
+        deployMintableLockboxes();
         generateTxs();
     }
 
     function generateTxs() public {
         // addMinterRole(broadcastConfig.delegate, frxUsd, ethFrxUsdLockbox);
         // addMinterRole(0x4b45D73b83686e69d08E61105FdB7F7b51f41Bc1, sfrxUsd, ethSFrxUsdLockbox);
-        addMinterRole(0x6A7efa964Cf6D9Ab3BC3c47eBdDB853A8853C502, fpi, ethFpiLockbox);
+        // addMinterRole(0x6A7efa964Cf6D9Ab3BC3c47eBdDB853A8853C502, fpi, ethFpiLockbox);
 
         upgradeExistingLockboxes();
     }
@@ -85,8 +85,8 @@ contract UpgradeAdapter is DeployFraxOFTProtocol {
     function _validateAndPopulateMainnetOfts() internal override {}
 
     function deployMintableLockboxes() broadcastAs(senderDeployerPK) public {
-        // frxUsdMintableLockboxImp = deployMintableLockbox(frxUsd);
-        // sfrxUsdMintableLockboxImp = deployMintableLockbox(sfrxUsd);
+        frxUsdMintableLockboxImp = deployMintableLockbox(frxUsd);
+        sfrxUsdMintableLockboxImp = deployMintableLockbox(sfrxUsd);
         fpiMintableLockboxImp = deployMintableLockbox(fpi);
     }
 
@@ -100,8 +100,8 @@ contract UpgradeAdapter is DeployFraxOFTProtocol {
     }
 
     function upgradeExistingLockboxes() public prankAndWriteTxs(broadcastConfig.delegate) {
-        // upgradeExistingLockbox(ethFrxUsdLockbox, frxUsdMintableLockboxImp);
-        // upgradeExistingLockbox(ethSFrxUsdLockbox, sfrxUsdMintableLockboxImp);
+        upgradeExistingLockbox(ethFrxUsdLockbox, frxUsdMintableLockboxImp);
+        upgradeExistingLockbox(ethSFrxUsdLockbox, sfrxUsdMintableLockboxImp);
         upgradeExistingLockbox(ethFpiLockbox, fpiMintableLockboxImp);
     }
 

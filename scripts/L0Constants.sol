@@ -21,6 +21,7 @@ contract L0Constants {
     address[] public lineaProxyOfts;
     address[] public baseProxyOfts;
     address[] public scrollProxyOfts;
+    address[] public monadProxyOfts;
     address[] public zkEraProxyOfts;
     address[] public fraxtalLockboxes;
     address[] public ethLockboxes;
@@ -55,6 +56,13 @@ contract L0Constants {
     address public scrollSFrxEthOft = 0x73382eb28F35d80Df8C3fe04A3EED71b1aFce5dE;
     address public scrollFraxOft = 0x879BA0EFE1AB0119FefA745A21585Fa205B07907;
     address public scrollFpiOft = 0x93cDc5d29293Cb6983f059Fec6e4FFEb656b6a62;
+
+    address public monadFrxUsdOft = 0x58E3ee6accd124642dDB5d3f91928816Be8D8ed3;
+    address public monadSFrxUsdOft = 0x137643F7b2C189173867b3391f6629caB46F0F1a;
+    address public monadFrxEthOft = 0x288F9D76019469bfEb56BB77d86aFa2bF563B75B;
+    address public monadSFrxEthOft = 0x3B4cf37A3335F21c945a40088404c715525fCb29;
+    address public monadFraxOft = 0x29aCC7c504665A5EA95344796f784095f0cfcC58;
+    address public monadFpiOft = 0xBa554F7A47f0792b9fa41A1256d4cf628Bb1D028;
 
     address public zkEraFrxUsdOft = 0xEa77c590Bb36c43ef7139cE649cFBCFD6163170d;
     address public zkEraSFrxUsdOft = 0x9F87fbb47C33Cd0614E43500b9511018116F79eE;
@@ -126,6 +134,13 @@ contract L0Constants {
         scrollProxyOfts.push(scrollFrxUsdOft);
         scrollProxyOfts.push(scrollFrxEthOft);
         scrollProxyOfts.push(scrollFpiOft);
+
+        monadProxyOfts.push(monadFraxOft);
+        monadProxyOfts.push(monadSFrxUsdOft);
+        monadProxyOfts.push(monadSFrxEthOft);
+        monadProxyOfts.push(monadFrxUsdOft);
+        monadProxyOfts.push(monadFrxEthOft);
+        monadProxyOfts.push(monadFpiOft);
 
         zkEraProxyOfts.push(zkEraFraxOft);
         zkEraProxyOfts.push(zkEraSFrxUsdOft);

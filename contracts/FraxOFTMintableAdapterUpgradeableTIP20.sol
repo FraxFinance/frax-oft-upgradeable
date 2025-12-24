@@ -1,12 +1,11 @@
 // SPDX-License-Identifier: UNLICENSED
 pragma solidity ^0.8.22;
 
-import { FraxOFTMintableAdapterUpgradeable } from "contracts/FraxOFTMintableAdapterUpgradeable.sol";
 import { OFTAdapterUpgradeable } from "@fraxfinance/layerzero-v2-upgradeable/oapp/contracts/oft/OFTAdapterUpgradeable.sol";
 import { SupplyTrackingModule } from "contracts/modules/SupplyTrackingModule.sol";
 import { ITIP20 } from "@tempo/interfaces/ITIP20.sol";
 
-contract FrxOFTMintableAdapterUpgradeableTIP20 is is OFTAdapterUpgradeable, SupplyTrackingModule {
+contract FraxOFTMintableAdapterUpgradeableTIP20 is OFTAdapterUpgradeable, SupplyTrackingModule {
     constructor(
         address _token,
         address _lzEndpoint
@@ -16,6 +15,13 @@ contract FrxOFTMintableAdapterUpgradeableTIP20 is is OFTAdapterUpgradeable, Supp
 
     function version() public pure returns (string memory) {
         return "1.1.0";
+    }
+
+    /// @dev This method is called specifically when deploying a new OFT
+    function initialize(address _delegate) external initializer {
+        __OFTAdapter_init(_delegate);
+        __Ownable_init();
+        _transferOwnership(_delegate);
     }
 
     /// @notice Recover all tokens to owner

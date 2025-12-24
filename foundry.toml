@@ -26,6 +26,8 @@ remappings = [
     'forge-std/=node_modules/@layerzerolabs/toolbox-foundry/lib/forge-std',
     '@layerzerolabs/=node_modules/@layerzerolabs/',
     'frax-std/=node_modules/frax-standard-solidity/src/',
+    '@tempo/=node_modules/tempo/docs/specs/src/',
+    "tempo-std/=node_modules/tempoxyz/tempo-std/src/"
 ]
 
 via_ir = false

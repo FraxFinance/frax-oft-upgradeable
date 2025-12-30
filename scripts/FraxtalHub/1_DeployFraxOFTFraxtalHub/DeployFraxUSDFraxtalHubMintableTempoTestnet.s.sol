@@ -14,9 +14,9 @@ contract DeployFraxUSDFraxtalHubMintableTempoTestnet is DeployFraxOFTProtocol {
     L0Config[] public tempConfigs;
     address[] public proxyOftWallets;
 
-    constructor() {
-        isMainnet = false;
+    function setUp() public virtual override {
         StdPrecompiles.TIP_FEE_MANAGER.setUserToken(StdTokens.PATH_USD_ADDRESS);
+        super.setUp();
     }
 
     function run() public override {
@@ -68,15 +68,7 @@ contract DeployFraxUSDFraxtalHubMintableTempoTestnet is DeployFraxOFTProtocol {
     }
 
     function deployFrxUsdOFTUpgradeableAndProxy() public override returns (address implementation, address proxy) {
-        ITIP20 token = ITIP20(
-            StdPrecompiles.TIP20_FACTORY.createToken(
-                "Frax USD",
-                "frxUSD",
-                "USD",
-                StdTokens.PATH_USD,
-                vm.addr(configDeployerPK)
-            )
-        );
+        ITIP20 token = ITIP20(0x20C00000000000000000000000000000001116e8);
         implementation = address(new FraxOFTMintableAdapterUpgradeableTIP20(address(token), broadcastConfig.endpoint));
         /// @dev: create semi-pre-deterministic proxy address, then initialize with correct implementation
         proxy = address(new TransparentUpgradeableProxy(implementationMock, vm.addr(oftDeployerPK), ""));

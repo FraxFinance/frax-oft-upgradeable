@@ -121,6 +121,8 @@
     "prettier": "^3.6.2",
     "solhint": "^4.5.4",
     "solidity-bytes-utils": "^0.8.4",
+    "tempo": "github:tempoxyz/tempo#v0.7.3",
+    "tempoxyz/tempo-std": "github:tempoxyz/tempo-std",
     "ts-jest": "^29.4.0",
     "ts-node": "^10.9.2",
     "tsup": "^8.5.0",

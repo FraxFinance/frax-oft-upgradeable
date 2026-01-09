@@ -6,13 +6,20 @@ import { FraxOFTWalletUpgradeable } from "contracts/FraxOFTWalletUpgradeable.sol
 import { StdPrecompiles } from "tempo-std/StdPrecompiles.sol";
 import { StdTokens } from "tempo-std/StdTokens.sol";
 import { ITIP20 } from "tempo-std/interfaces/ITIP20.sol";
+import { ITIP20RolesAuth } from "tempo-std/interfaces/ITIP20RolesAuth.sol";
 import { FraxOFTMintableAdapterUpgradeableTIP20 } from "contracts/FraxOFTMintableAdapterUpgradeableTIP20.sol";
+import { FrxUSDPolicyAdminTempo } from "contracts/frxUsd/FrxUSDPolicyAdminTempo.sol";
 
 // Deploy everything with a hub model vs. a spoke model where the only peer is Fraxtal
 // forge script scripts/FraxtalHub/1_DeployFraxOFTFraxtalHub/DeployFraxUSDFraxtalHubMintableTempoTestnet.s.sol --rpc-url $RPC_URL --broadcast
 contract DeployFraxUSDFraxtalHubMintableTempoTestnet is DeployFraxOFTProtocol {
     L0Config[] public tempConfigs;
     address[] public proxyOftWallets;
+
+    bytes32 public constant ISSUER_ROLE = keccak256("ISSUER_ROLE");
+
+    address public policyAdminImplementation;
+    address public policyAdminProxy;
 
     function setUp() public virtual override {
         StdPrecompiles.TIP_FEE_MANAGER.setUserToken(StdTokens.PATH_USD_ADDRESS);
@@ -68,7 +75,16 @@ contract DeployFraxUSDFraxtalHubMintableTempoTestnet is DeployFraxOFTProtocol {
     }
 
     function deployFrxUsdOFTUpgradeableAndProxy() public override returns (address implementation, address proxy) {
-        ITIP20 token = ITIP20(0x20C00000000000000000000000000000001116e8);
+        // Create TIP20 token via factory
+        address tokenAddr = StdPrecompiles.TIP20_FACTORY.createToken({
+            name: "Frax USD",
+            symbol: "frxUSD",
+            currency: "USD",
+            quoteToken: StdTokens.PATH_USD,
+            admin: vm.addr(configDeployerPK)
+        });
+        ITIP20 token = ITIP20(tokenAddr);
+
         implementation = address(new FraxOFTMintableAdapterUpgradeableTIP20(address(token), broadcastConfig.endpoint));
         /// @dev: create semi-pre-deterministic proxy address, then initialize with correct implementation
         proxy = address(new TransparentUpgradeableProxy(implementationMock, vm.addr(oftDeployerPK), ""));
@@ -85,6 +101,11 @@ contract DeployFraxUSDFraxtalHubMintableTempoTestnet is DeployFraxOFTProtocol {
         TransparentUpgradeableProxy(payable(proxy)).changeAdmin(proxyAdmin);
 
         proxyOfts.push(proxy);
+
+        ITIP20RolesAuth(address(token)).grantRole(ISSUER_ROLE, proxy);
+
+        // Deploy FrxUSDPolicyAdminTempo for freeze/thaw management
+        (policyAdminImplementation, policyAdminProxy) = deployFrxUSDPolicyAdminTempo(address(token));
 
         // State checks
         require(
@@ -107,6 +128,35 @@ contract DeployFraxUSDFraxtalHubMintableTempoTestnet is DeployFraxOFTProtocol {
             FraxOFTMintableAdapterUpgradeableTIP20(proxy).owner() == vm.addr(configDeployerPK),
             "OFT owner incorrect"
         );
+    }
+
+    function deployFrxUSDPolicyAdminTempo(address token) internal returns (address implementation, address proxy) {
+        // Deploy implementation
+        implementation = address(new FrxUSDPolicyAdminTempo());
+
+        // Deploy proxy
+        proxy = address(new TransparentUpgradeableProxy(implementationMock, vm.addr(oftDeployerPK), ""));
+
+        // Initialize - this creates a BLACKLIST policy in TIP-403 Registry
+        bytes memory initializeArgs = abi.encodeWithSelector(
+            FrxUSDPolicyAdminTempo.initialize.selector,
+            vm.addr(configDeployerPK)
+        );
+        TransparentUpgradeableProxy(payable(proxy)).upgradeToAndCall({
+            newImplementation: implementation,
+            data: initializeArgs
+        });
+        TransparentUpgradeableProxy(payable(proxy)).changeAdmin(proxyAdmin);
+
+        // Get the policy ID from the deployed policy admin
+        uint64 newPolicyId = FrxUSDPolicyAdminTempo(proxy).policyId();
+
+        // Set the TIP20 token's transfer policy to use our blacklist policy
+        ITIP20(token).changeTransferPolicyId(newPolicyId);
+
+        // State checks
+        require(newPolicyId > 1, "Policy ID should be > 1");
+        require(FrxUSDPolicyAdminTempo(proxy).owner() == vm.addr(configDeployerPK), "PolicyAdmin owner incorrect");
     }
 
     function deployFraxOFTWalletUpgradeableAndProxy()

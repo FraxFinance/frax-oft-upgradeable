@@ -3,7 +3,7 @@ pragma solidity ^0.8.22;
 
 import { ERC20Upgradeable } from "@openzeppelin/contracts-upgradeable/token/ERC20/ERC20Upgradeable.sol";
 import { IERC20Upgradeable } from "@openzeppelin/contracts-upgradeable/token/ERC20/IERC20Upgradeable.sol";
-import { ITIP403Registry } from "contracts/interfaces/ITIP403Registry.sol";
+import { ITIP403Registry } from "tempo-std/interfaces/ITIP403Registry.sol";
 import { ITIP20Factory } from "contracts/interfaces/ITIP20Factory.sol";
 import { ITIP20 } from "@tempo/interfaces/ITIP20.sol";
 import { TIP20RolesAuthUpgradeable } from "contracts/modules/tempo/TIP20RolesAuthUpgradeable.sol";

@@ -2,14 +2,15 @@
 pragma solidity ^0.8.22;
 
 import { OFTAdapterUpgradeable } from "@fraxfinance/layerzero-v2-upgradeable/oapp/contracts/oft/OFTAdapterUpgradeable.sol";
+import { OAppSenderUpgradeable } from "@fraxfinance/layerzero-v2-upgradeable/oapp/contracts/oapp/OAppSenderUpgradeable.sol";
 import { SupplyTrackingModule } from "contracts/modules/SupplyTrackingModule.sol";
 import { ITIP20 } from "@tempo/interfaces/ITIP20.sol";
+import { StdPrecompiles } from "tempo-std/StdPrecompiles.sol";
+import { StdTokens } from "tempo-std/StdTokens.sol";
+import { MessagingParams, MessagingFee, MessagingReceipt } from "@layerzerolabs/lz-evm-protocol-v2/contracts/interfaces/ILayerZeroEndpointV2.sol";
 
 contract FraxOFTMintableAdapterUpgradeableTIP20 is OFTAdapterUpgradeable, SupplyTrackingModule {
-    constructor(
-        address _token,
-        address _lzEndpoint
-    ) OFTAdapterUpgradeable(_token, _lzEndpoint) {
+    constructor(address _token, address _lzEndpoint) OFTAdapterUpgradeable(_token, _lzEndpoint) {
         _disableInitializers();
     }
 
@@ -49,7 +50,7 @@ contract FraxOFTMintableAdapterUpgradeableTIP20 is OFTAdapterUpgradeable, Supply
         (amountSentLD, amountReceivedLD) = _debitView(_amountLD, _minAmountLD, _dstEid);
 
         _addToTotalTransferTo(_dstEid, amountSentLD);
-        
+
         ITIP20(address(innerToken)).transferFrom(msg.sender, address(this), amountSentLD);
 
         ITIP20(address(innerToken)).burn(amountSentLD);
@@ -62,11 +63,45 @@ contract FraxOFTMintableAdapterUpgradeableTIP20 is OFTAdapterUpgradeable, Supply
         uint256 _amountLD,
         uint32 _srcEid
     ) internal override returns (uint256 amountReceivedLD) {
-
         _addToTotalTransferFrom(_srcEid, _amountLD);
 
         ITIP20(address(innerToken)).mint(_to, _amountLD);
-        
+
         return _amountLD;
+    }
+
+    /// @inheritdoc OAppSenderUpgradeable
+    function _lzSend(
+        uint32 _dstEid,
+        bytes memory _message,
+        bytes memory _options,
+        MessagingFee memory _fee,
+        address _refundAddress
+    ) internal override returns (MessagingReceipt memory receipt) {
+        // If user's gas token is innerToken, swap to PATH_USD for LayerZero endpoint
+        address userToken = StdPrecompiles.TIP_FEE_MANAGER.userTokens(msg.sender);
+        if (userToken == address(innerToken)) {
+            uint128 amountIn = uint128(_fee.nativeFee);
+            // Approve StablecoinExchange to spend innerToken
+            ITIP20(address(innerToken)).approve(address(StdPrecompiles.STABLECOIN_EXCHANGE), amountIn);
+            // Swap innerToken for PATH_USD
+            StdPrecompiles.STABLECOIN_EXCHANGE.swapExactAmountIn({
+                tokenIn: address(innerToken),
+                tokenOut: StdTokens.PATH_USD_ADDRESS,
+                amountIn: amountIn,
+                minAmountOut: amountIn
+            });
+        }
+
+        // @dev Push corresponding fees to the endpoint, any excess is sent back to the _refundAddress from the endpoint.
+        uint256 messageValue = _payNative(_fee.nativeFee);
+        if (_fee.lzTokenFee > 0) _payLzToken(_fee.lzTokenFee);
+
+        return
+            endpoint.send{ value: messageValue }(
+                // solhint-disable-next-line check-send-result
+                MessagingParams(_dstEid, _getPeerOrRevert(_dstEid), _message, _options, _fee.lzTokenFee > 0),
+                _refundAddress
+            );
     }
 }

@@ -99,7 +99,7 @@ abstract contract SetupDestinationFraxOFTFraxtalHub is DeployFraxOFTProtocol {
         }
     }
 
-    function pushSerializedTx(string memory _name, address _to, uint256 _value, bytes memory _data) public override {
+    function pushSerializedTx(string memory _name, address _to, uint256 _value, bytes memory _data) public virtual override {
         string memory _tokenName;
         bytes memory sliced = new bytes(_data.length - 4);
         for (uint256 i = 0; i < sliced.length; i++) {

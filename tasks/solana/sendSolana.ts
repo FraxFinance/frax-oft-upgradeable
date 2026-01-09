@@ -97,6 +97,15 @@ export async function sendSolana({
     // 7️⃣ Quote (use our overridden `programId`)
     logger.info('Quoting the native gas cost for the send transaction...')
     const recipient = addressToBytes32(to)
+    
+    // Convert hex strings to proper byte arrays
+    const optionsBuffer = extraOptions 
+        ? Buffer.from(extraOptions.startsWith('0x') ? extraOptions.slice(2) : extraOptions, 'hex')
+        : Buffer.from('')
+    const composeMsgBuffer = composeMsg 
+        ? Buffer.from(composeMsg.startsWith('0x') ? composeMsg.slice(2) : composeMsg, 'hex')
+        : undefined
+    
     const { nativeFee } = await oft.quote(
         umi.rpc,
         {
@@ -110,8 +119,8 @@ export async function sendSolana({
             dstEid: dstEid,
             amountLd: amountUnits,
             minAmountLd: minAmount ? parseDecimalToUnits(minAmount, decimals) : amountUnits,
-            options: Buffer.from(extraOptions ? extraOptions.toString() : ''),
-            composeMsg: composeMsg ? Buffer.from(composeMsg.toString()) : undefined,
+            options: optionsBuffer,
+            composeMsg: composeMsgBuffer,
         },
         { oft: programId }, // ← use override
         [],
@@ -133,8 +142,8 @@ export async function sendSolana({
             dstEid: dstEid,
             amountLd: amountUnits,
             minAmountLd: minAmount ? parseDecimalToUnits(minAmount, decimals) : amountUnits,
-            options: Buffer.from(extraOptions ? extraOptions.toString() : ''),
-            composeMsg: composeMsg ? Buffer.from(composeMsg.toString()) : undefined,
+            options: optionsBuffer,
+            composeMsg: composeMsgBuffer,
             nativeFee: nativeFee,
         },
         { oft: programId, token: tokenProgramId } // ← use override

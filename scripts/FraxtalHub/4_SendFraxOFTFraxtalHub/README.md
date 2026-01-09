@@ -15,6 +15,11 @@
 * fraxtal : https://layerzeroscan.com/tx/0x7b95452da7dd7606dc3b2a4c5695790e9df85ece45e01cfb979c6ac1fce9f5c5
 * stable : https://layerzeroscan.com/tx/0x8ffd313858f743072eb786ed5167d31ba772e2229bf7c3a2176bfaddf09e1a66
 
+### Monad
+
+* fraxtal : https://layerzeroscan.com/tx/0x51dba4c9c9ee5c12ad170afd1ee6e53db5a7a1fef0170c36b0a049b48729998a
+* monad : https://layerzeroscan.com/tx/0xba36dd51972c1208c692e0fe25d21c623a81bf41e7bc41ad26aa8f64c4f35b88
+
 ### Tempo testnet
 
 * Sepolia : https://testnet.layerzeroscan.com/tx/0x19cc69f4a12435216c137e54e1920da1425c11810c8aa239c0c0187efd1175b1

@@ -1,0 +1,274 @@
+{
+    "PYUSD": {
+      "ethereum": {
+        "berachain": {
+          "peerAddressBytes32": "0x000000000000000000000000688e72142674041f8f6af4c808a4045ca1d6ac82",
+          "peerAddress": "0x688e72142674041f8f6Af4c808a4045cA1D6aC82",
+          "combinedOptionsSend": {
+            "gas": "110000",
+            "value": "0"
+          },
+          "enforcedOptions": {},
+          "defaultReceiveLibrary": "0xc02Ab410f0734EFa3F14628780e6e695156024C2",
+          "defaultReceiveLibraryTimeOut": {
+            "libAddress": "0x0000000000000000000000000000000000000000",
+            "expiry": "0"
+          },
+          "defaultSendLibrary": "0xbB2Ea70C9E858123480642Cf96acbcCE1372dCe1",
+          "receiveLibrary": {
+            "receiveLibraryAddress": "0xc02Ab410f0734EFa3F14628780e6e695156024C2",
+            "isDefault": false
+          },
+          "receiveLibraryTimeOut": {
+            "libAddress": "0x0000000000000000000000000000000000000000",
+            "expiry": "0"
+          },
+          "sendLibrary": "0xbB2Ea70C9E858123480642Cf96acbcCE1372dCe1",
+          "isDefaultSendLibrary": false,
+          "appUlnDefaultConfig": {
+            "receive": {
+              "confirmations": 20,
+              "requiredDVNCount": 2,
+              "optionalDVNCount": 0,
+              "optionalDVNThreshold": 0,
+              "requiredDVNs": [
+                "0x589dEDbD617e0CBcB916A9223F4d1300c294236b",
+                "0x8FafAE7Dd957044088b3d0F67359C327c6200d18"
+              ],
+              "optionalDVNs": []
+            },
+            "send": {
+              "confirmations": 15,
+              "requiredDVNCount": 2,
+              "optionalDVNCount": 0,
+              "optionalDVNThreshold": 0,
+              "requiredDVNs": [
+                "0x589dEDbD617e0CBcB916A9223F4d1300c294236b",
+                "0x8FafAE7Dd957044088b3d0F67359C327c6200d18"
+              ],
+              "optionalDVNs": []
+            }
+          },
+          "appUlnConfig": {
+            "receive": {
+              "confirmations": 20,
+              "requiredDVNCount": 2,
+              "optionalDVNCount": 0,
+              "optionalDVNThreshold": 0,
+              "requiredDVNs": [
+                "0x589dEDbD617e0CBcB916A9223F4d1300c294236b",
+                "0x8FafAE7Dd957044088b3d0F67359C327c6200d18"
+              ],
+              "optionalDVNs": []
+            },
+            "send": {
+              "confirmations": 15,
+              "requiredDVNCount": 2,
+              "optionalDVNCount": 0,
+              "optionalDVNThreshold": 0,
+              "requiredDVNs": [
+                "0x589dEDbD617e0CBcB916A9223F4d1300c294236b",
+                "0x8FafAE7Dd957044088b3d0F67359C327c6200d18"
+              ],
+              "optionalDVNs": []
+            }
+          },
+          "ulnDefaultConfig": {
+            "receive": {
+              "confirmations": 20,
+              "requiredDVNCount": 2,
+              "optionalDVNCount": 0,
+              "optionalDVNThreshold": 0,
+              "requiredDVNs": [
+                "0x589dEDbD617e0CBcB916A9223F4d1300c294236b",
+                "0x8FafAE7Dd957044088b3d0F67359C327c6200d18"
+              ],
+              "optionalDVNs": []
+            },
+            "send": {
+              "confirmations": 15,
+              "requiredDVNCount": 2,
+              "optionalDVNCount": 0,
+              "optionalDVNThreshold": 0,
+              "requiredDVNs": [
+                "0x589dEDbD617e0CBcB916A9223F4d1300c294236b",
+                "0x8FafAE7Dd957044088b3d0F67359C327c6200d18"
+              ],
+              "optionalDVNs": []
+            }
+          },
+          "ulnConfig": {
+            "receive": {
+              "confirmations": 20,
+              "requiredDVNCount": 2,
+              "optionalDVNCount": 0,
+              "optionalDVNThreshold": 0,
+              "requiredDVNs": [
+                "0x589dEDbD617e0CBcB916A9223F4d1300c294236b",
+                "0x8FafAE7Dd957044088b3d0F67359C327c6200d18"
+              ],
+              "optionalDVNs": []
+            },
+            "send": {
+              "confirmations": 15,
+              "requiredDVNCount": 2,
+              "optionalDVNCount": 0,
+              "optionalDVNThreshold": 0,
+              "requiredDVNs": [
+                "0x589dEDbD617e0CBcB916A9223F4d1300c294236b",
+                "0x8FafAE7Dd957044088b3d0F67359C327c6200d18"
+              ],
+              "optionalDVNs": []
+            }
+          },
+          "defaultReceiveLibSupportEid": true,
+          "receiveLibSupportEid": true,
+          "defaultExecutorConfig": {
+            "maxMessageSize": 10000,
+            "executorAddress": "0x173272739Bd7Aa6e4e214714048a9fE699453059"
+          },
+          "executorConfig": {
+            "maxMessageSize": 10000,
+            "executorAddress": "0x173272739Bd7Aa6e4e214714048a9fE699453059"
+          },
+          "defaultSendLibSupportEid": true,
+          "sendLibSupportEid": true
+        }
+      },
+      "berachain": {
+        "ethereum": {
+          "peerAddressBytes32": "0x000000000000000000000000688e72142674041f8f6af4c808a4045ca1d6ac82",
+          "peerAddress": "0x688e72142674041f8f6Af4c808a4045cA1D6aC82",
+          "combinedOptionsSend": {
+            "gas": "110000",
+            "value": "0"
+          },
+          "enforcedOptions": {},
+          "defaultReceiveLibrary": "0xe1844c5D63a9543023008D332Bd3d2e6f1FE1043",
+          "defaultReceiveLibraryTimeOut": {
+            "libAddress": "0x0000000000000000000000000000000000000000",
+            "expiry": "0"
+          },
+          "defaultSendLibrary": "0xC39161c743D0307EB9BCc9FEF03eeb9Dc4802de7",
+          "receiveLibrary": {
+            "receiveLibraryAddress": "0xe1844c5D63a9543023008D332Bd3d2e6f1FE1043",
+            "isDefault": false
+          },
+          "receiveLibraryTimeOut": {
+            "libAddress": "0x0000000000000000000000000000000000000000",
+            "expiry": "0"
+          },
+          "sendLibrary": "0xC39161c743D0307EB9BCc9FEF03eeb9Dc4802de7",
+          "isDefaultSendLibrary": false,
+          "appUlnDefaultConfig": {
+            "receive": {
+              "confirmations": 15,
+              "requiredDVNCount": 2,
+              "optionalDVNCount": 0,
+              "optionalDVNThreshold": 0,
+              "requiredDVNs": [
+                "0x282b3386571f7f794450d5789911a9804FA346b4",
+                "0x6E70FCdc42D3d63748B7d8883399Dcb16BBB5c8c"
+              ],
+              "optionalDVNs": []
+            },
+            "send": {
+              "confirmations": 20,
+              "requiredDVNCount": 2,
+              "optionalDVNCount": 0,
+              "optionalDVNThreshold": 0,
+              "requiredDVNs": [
+                "0x282b3386571f7f794450d5789911a9804FA346b4",
+                "0x6E70FCdc42D3d63748B7d8883399Dcb16BBB5c8c"
+              ],
+              "optionalDVNs": []
+            }
+          },
+          "appUlnConfig": {
+            "receive": {
+              "confirmations": 15,
+              "requiredDVNCount": 2,
+              "optionalDVNCount": 0,
+              "optionalDVNThreshold": 0,
+              "requiredDVNs": [
+                "0x282b3386571f7f794450d5789911a9804FA346b4",
+                "0x6E70FCdc42D3d63748B7d8883399Dcb16BBB5c8c"
+              ],
+              "optionalDVNs": []
+            },
+            "send": {
+              "confirmations": 20,
+              "requiredDVNCount": 2,
+              "optionalDVNCount": 0,
+              "optionalDVNThreshold": 0,
+              "requiredDVNs": [
+                "0x282b3386571f7f794450d5789911a9804FA346b4",
+                "0x6E70FCdc42D3d63748B7d8883399Dcb16BBB5c8c"
+              ],
+              "optionalDVNs": []
+            }
+          },
+          "ulnDefaultConfig": {
+            "receive": {
+              "confirmations": 15,
+              "requiredDVNCount": 2,
+              "optionalDVNCount": 0,
+              "optionalDVNThreshold": 0,
+              "requiredDVNs": [
+                "0x282b3386571f7f794450d5789911a9804FA346b4",
+                "0x6E70FCdc42D3d63748B7d8883399Dcb16BBB5c8c"
+              ],
+              "optionalDVNs": []
+            },
+            "send": {
+              "confirmations": 20,
+              "requiredDVNCount": 2,
+              "optionalDVNCount": 0,
+              "optionalDVNThreshold": 0,
+              "requiredDVNs": [
+                "0x282b3386571f7f794450d5789911a9804FA346b4",
+                "0x6E70FCdc42D3d63748B7d8883399Dcb16BBB5c8c"
+              ],
+              "optionalDVNs": []
+            }
+          },
+          "ulnConfig": {
+            "receive": {
+              "confirmations": 15,
+              "requiredDVNCount": 2,
+              "optionalDVNCount": 0,
+              "optionalDVNThreshold": 0,
+              "requiredDVNs": [
+                "0x282b3386571f7f794450d5789911a9804FA346b4",
+                "0x6E70FCdc42D3d63748B7d8883399Dcb16BBB5c8c"
+              ],
+              "optionalDVNs": []
+            },
+            "send": {
+              "confirmations": 20,
+              "requiredDVNCount": 2,
+              "optionalDVNCount": 0,
+              "optionalDVNThreshold": 0,
+              "requiredDVNs": [
+                "0x282b3386571f7f794450d5789911a9804FA346b4",
+                "0x6E70FCdc42D3d63748B7d8883399Dcb16BBB5c8c"
+              ],
+              "optionalDVNs": []
+            }
+          },
+          "defaultReceiveLibSupportEid": true,
+          "receiveLibSupportEid": true,
+          "defaultExecutorConfig": {
+            "maxMessageSize": 10000,
+            "executorAddress": "0x4208D6E27538189bB48E603D6123A94b8Abe0A0b"
+          },
+          "executorConfig": {
+            "maxMessageSize": 10000,
+            "executorAddress": "0x4208D6E27538189bB48E603D6123A94b8Abe0A0b"
+          },
+          "defaultSendLibSupportEid": true,
+          "sendLibSupportEid": true
+        }
+      }
+    }
+  }

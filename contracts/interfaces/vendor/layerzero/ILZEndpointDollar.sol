@@ -36,4 +36,11 @@ interface ILZEndpointDollar {
      * @return The number of decimals.
      */
     function decimals() external view returns (uint8);
+
+    /**
+     * @notice Returns the list of whitelisted tokens.
+     * @dev The whitelisted tokens array is unbounded.
+     * @return An array of addresses representing the whitelisted tokens.
+     */
+    function getWhitelistedTokens() external view returns (address[] memory);
 }

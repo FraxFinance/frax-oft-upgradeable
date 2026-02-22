@@ -5,7 +5,6 @@ import { FraxOFTUpgradeable } from "contracts/FraxOFTUpgradeable.sol";
 import { OAppSenderUpgradeable } from "@fraxfinance/layerzero-v2-upgradeable/oapp/contracts/oapp/OAppSenderUpgradeable.sol";
 import { ITIP20 } from "@tempo/interfaces/ITIP20.sol";
 import { StdPrecompiles } from "tempo-std/StdPrecompiles.sol";
-import { StdTokens } from "tempo-std/StdTokens.sol";
 import { ILZEndpointDollar } from "contracts/interfaces/vendor/layerzero/ILZEndpointDollar.sol";
 import { MessagingFee, MessagingReceipt } from "@layerzerolabs/lz-evm-protocol-v2/contracts/interfaces/ILayerZeroEndpointV2.sol";
 import { IOFT, SendParam, OFTReceipt } from "@fraxfinance/layerzero-v2-upgradeable/oapp/contracts/oft/interfaces/IOFT.sol";
@@ -19,7 +18,7 @@ interface IEndpointV2Alt {
 contract FraxOFTUpgradeableTempo is FraxOFTUpgradeable {
     error NativeTokenUnavailable();
     error OFTAltCore__msg_value_not_zero(uint256 _msg_value);
-    error UnsupportedGasToken(address token);
+    error NoSwappableWhitelistedToken(address userToken);
 
     ILZEndpointDollar public immutable nativeToken;
 
@@ -54,8 +53,45 @@ contract FraxOFTUpgradeableTempo is FraxOFTUpgradeable {
         emit OFTSent(msgReceipt.guid, _sendParam.dstEid, msg.sender, amountSentLD, amountReceivedLD);
     }
 
-    /// @dev Overrides _quote to return the fee in the user's TIP20 token instead of the endpoint's native token.
-    ///      This allows users to get an accurate quote for their gas token.
+    /// @dev Finds the best whitelisted token that can be swapped to from `_userToken`.
+    ///      Returns the whitelisted token address and the quoted input amount.
+    ///      Reverts if no viable swap path exists.
+    function _findSwapTarget(
+        address _userToken,
+        uint128 _amountOut
+    ) internal view returns (address whitelistedToken, uint128 amountIn) {
+        address[] memory tokens = nativeToken.getWhitelistedTokens();
+        uint128 bestAmountIn = type(uint128).max;
+        address bestToken;
+
+        for (uint256 i = 0; i < tokens.length; i++) {
+            // Skip the userToken itself (handled by direct wrap path)
+            if (tokens[i] == _userToken) continue;
+
+            // Try to quote a swap; if it reverts, skip this token
+            try
+                StdPrecompiles.STABLECOIN_DEX.quoteSwapExactAmountOut({
+                    tokenIn: _userToken,
+                    tokenOut: tokens[i],
+                    amountOut: _amountOut
+                })
+            returns (uint128 quoted) {
+                if (quoted < bestAmountIn) {
+                    bestAmountIn = quoted;
+                    bestToken = tokens[i];
+                }
+            } catch {
+                continue;
+            }
+        }
+
+        if (bestToken == address(0)) revert NoSwappableWhitelistedToken(_userToken);
+        return (bestToken, bestAmountIn);
+    }
+
+    /// @dev Overrides _quote to validate the user's gas token has a viable swap path.
+    ///      Returns the fee in endpoint-native (LZEndpointDollar) units.
+    ///      Use quoteUserTokenFee() to estimate the cost in the user's gas token.
     function _quote(
         uint32 _dstEid,
         bytes memory _message,
@@ -69,33 +105,40 @@ contract FraxOFTUpgradeableTempo is FraxOFTUpgradeable {
 
         address userToken = StdPrecompiles.TIP_FEE_MANAGER.userTokens(msg.sender);
 
-        // If userToken is whitelisted in LZEndpointDollar, no swap needed
+        // If userToken is directly whitelisted, no swap needed
         if (nativeToken.isWhitelistedToken(userToken)) {
             return fee;
         }
 
-        // userToken is not whitelisted, check if PATH_USD is whitelisted
-        if (!nativeToken.isWhitelistedToken(StdTokens.PATH_USD_ADDRESS)) {
-            revert UnsupportedGasToken(userToken);
-        }
+        // Validate that a swap path exists (reverts if no viable path).
+        // fee.nativeFee stays in endpoint-native units so _payNative() can
+        // correctly determine the whitelisted-token amountOut to acquire.
+        _findSwapTarget(userToken, uint128(fee.nativeFee));
+    }
 
-        // Quote swap from userToken to PATH_USD
-        fee.nativeFee = StdPrecompiles.STABLECOIN_DEX.quoteSwapExactAmountOut({
-            tokenIn: userToken,
-            tokenOut: StdTokens.PATH_USD_ADDRESS,
-            amountOut: uint128(fee.nativeFee)
-        });
+    /// @notice Estimates the amount of the caller's gas token needed for a given endpoint-native fee.
+    /// @dev UIs should call this after quoteSend() to determine the token approval amount and
+    ///      display the cost in the user's chosen gas token.
+    /// @param _endpointFee The fee in endpoint-native (LZEndpointDollar) units, as returned by quoteSend().
+    /// @return userTokenAmount The estimated amount of the caller's gas token required.
+    function quoteUserTokenFee(uint256 _endpointFee) external view returns (uint256 userTokenAmount) {
+        if (_endpointFee == 0) return 0;
+        address userToken = StdPrecompiles.TIP_FEE_MANAGER.userTokens(msg.sender);
+        if (nativeToken.isWhitelistedToken(userToken)) {
+            return _endpointFee;
+        }
+        (, uint128 amountIn) = _findSwapTarget(userToken, uint128(_endpointFee));
+        return amountIn;
     }
 
     /// @dev Handles gas payment for EndpointV2Alt which uses an ERC20 token as native.
-    ///      If userToken is whitelisted in LZEndpointDollar, wraps directly.
-    ///      Otherwise swaps to PATH_USD (if whitelisted) and wraps.
+    ///      Dynamically resolves the best whitelisted swap target from LZEndpointDollar.
     function _payNative(uint256 _nativeFee) internal virtual override returns (uint256 nativeFee) {
         if (address(nativeToken) == address(0)) revert NativeTokenUnavailable();
 
         address userToken = StdPrecompiles.TIP_FEE_MANAGER.userTokens(msg.sender);
 
-        // If userToken is whitelisted in LZEndpointDollar, wrap directly
+        // If userToken is directly whitelisted, wrap directly
         if (nativeToken.isWhitelistedToken(userToken)) {
             ITIP20(userToken).transferFrom(msg.sender, address(this), _nativeFee);
             ITIP20(userToken).approve(address(nativeToken), _nativeFee);
@@ -103,30 +146,21 @@ contract FraxOFTUpgradeableTempo is FraxOFTUpgradeable {
             return 0;
         }
 
-        // userToken is not whitelisted, check if PATH_USD is whitelisted
-        if (!nativeToken.isWhitelistedToken(StdTokens.PATH_USD_ADDRESS)) {
-            revert UnsupportedGasToken(userToken);
-        }
-
-        // Swap userToken to PATH_USD, then wrap
-        uint128 userTokenAmount = StdPrecompiles.STABLECOIN_DEX.quoteSwapExactAmountOut({
-            tokenIn: userToken,
-            tokenOut: StdTokens.PATH_USD_ADDRESS,
-            amountOut: uint128(_nativeFee)
-        });
+        // Find the cheapest whitelisted token to swap to
+        (address targetToken, uint128 userTokenAmount) = _findSwapTarget(userToken, uint128(_nativeFee));
 
         ITIP20(userToken).transferFrom(msg.sender, address(this), userTokenAmount);
         ITIP20(userToken).approve(address(StdPrecompiles.STABLECOIN_DEX), userTokenAmount);
         StdPrecompiles.STABLECOIN_DEX.swapExactAmountOut({
             tokenIn: userToken,
-            tokenOut: StdTokens.PATH_USD_ADDRESS,
+            tokenOut: targetToken,
             amountOut: uint128(_nativeFee),
             maxAmountIn: userTokenAmount
         });
 
-        // Wrap PATH_USD into LZEndpointDollar and send to endpoint
-        ITIP20(StdTokens.PATH_USD_ADDRESS).approve(address(nativeToken), _nativeFee);
-        nativeToken.wrap(StdTokens.PATH_USD_ADDRESS, address(endpoint), _nativeFee);
+        // Wrap the target whitelisted token and send to endpoint
+        ITIP20(targetToken).approve(address(nativeToken), _nativeFee);
+        nativeToken.wrap(targetToken, address(endpoint), _nativeFee);
 
         return 0;
     }

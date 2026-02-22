@@ -23,6 +23,7 @@ contract MockLZEndpointDollarForAdapter {
     mapping(address => uint256) public balanceOf;
     mapping(address => mapping(address => uint256)) public allowance;
     mapping(address => bool) private _whitelistedTokens;
+    address[] private _whitelistedTokensList;
     uint256 public totalSupply;
 
     address public owner;
@@ -36,10 +37,15 @@ contract MockLZEndpointDollarForAdapter {
 
     function whitelistToken(address token) external {
         _whitelistedTokens[token] = true;
+        _whitelistedTokensList.push(token);
     }
 
     function isWhitelistedToken(address token) external view returns (bool) {
         return _whitelistedTokens[token];
+    }
+
+    function getWhitelistedTokens() external view returns (address[] memory) {
+        return _whitelistedTokensList;
     }
 
     function wrap(address token, address to, uint256 amount) external {
@@ -556,8 +562,8 @@ contract FraxOFTMintableAdapterUpgradeableTIP20Test is TempoTestHelpers {
         assertEq(fee.lzTokenFee, 0, "lzTokenFee should be 0");
     }
 
-    /// @dev When user's gas token is innerToken (frxUSD), quoteSend returns fee converted to frxUSD
-    function test_QuoteSend_ReturnsConvertedFee_WhenUserGasTokenIsInnerToken() external {
+    /// @dev When user's gas token is non-whitelisted, quoteSend returns fee in endpoint-native units
+    function test_QuoteSend_ReturnsEndpointNativeFee_WhenUserGasTokenIsNonWhitelisted() external {
         uint256 sendAmount = 100e6;
         uint256 nativeFee = 20_000e6; // Must be >= MIN_ORDER_AMOUNT for DEX quote
 
@@ -570,10 +576,45 @@ contract FraxOFTMintableAdapterUpgradeableTIP20Test is TempoTestHelpers {
         vm.prank(alice);
         MessagingFee memory fee = adapter.quoteSend(sendParam, false);
 
-        // Fee should be converted from endpoint native token to frxUSD via DEX quote
-        // Since stablecoins are 1:1, the fee should be approximately equal
-        assertGe(fee.nativeFee, nativeFee, "Converted fee should be >= endpoint native fee (accounting for swap)");
+        // Fee stays in endpoint-native units — use quoteUserTokenFee() for user token cost
+        assertEq(fee.nativeFee, nativeFee, "Fee should remain in endpoint-native units (no conversion)");
         assertEq(fee.lzTokenFee, 0, "lzTokenFee should be 0");
+    }
+
+    /// @dev quoteUserTokenFee returns the user's gas token amount for a given endpoint fee
+    function test_QuoteUserTokenFee_ReturnsUserTokenAmount() external {
+        uint256 endpointFee = 20_000e6;
+
+        _setUserGasToken(alice, address(frxUsdToken));
+        _addDexLiquidity(address(frxUsdToken), endpointFee * 2);
+
+        vm.prank(alice);
+        uint256 userTokenAmount = adapter.quoteUserTokenFee(endpointFee);
+
+        // At 1:1 stablecoin pricing, userToken amount should be >= endpoint fee (swap overhead)
+        assertGe(userTokenAmount, endpointFee, "User token amount should be >= endpoint fee");
+    }
+
+    /// @dev quoteUserTokenFee returns endpoint fee directly for whitelisted tokens
+    function test_QuoteUserTokenFee_ReturnsEndpointFee_WhenWhitelisted() external {
+        uint256 endpointFee = 10e6;
+
+        _setUserGasToken(alice, StdTokens.PATH_USD_ADDRESS);
+
+        vm.prank(alice);
+        uint256 userTokenAmount = adapter.quoteUserTokenFee(endpointFee);
+
+        assertEq(userTokenAmount, endpointFee, "Whitelisted token should return endpoint fee 1:1");
+    }
+
+    /// @dev quoteUserTokenFee returns 0 for zero fee
+    function test_QuoteUserTokenFee_ReturnsZero_WhenFeeIsZero() external {
+        _setUserGasToken(alice, address(frxUsdToken));
+
+        vm.prank(alice);
+        uint256 userTokenAmount = adapter.quoteUserTokenFee(0);
+
+        assertEq(userTokenAmount, 0, "Should return 0 for zero fee");
     }
 
     /// @dev quoteSend with zero nativeFee returns zero (no conversion needed)

@@ -258,6 +258,67 @@ contract FraxOFTUpgradeableTempoTest is TempoTestHelpers, LZTestHelperOz4 {
         assertEq(fee.nativeFee, 0, "Fee should be 0 when no native fee required");
     }
 
+    /// @dev When user's gas token is non-whitelisted, quoteSend returns fee in endpoint-native units
+    function test_QuoteSend_ReturnsEndpointNativeFee_WhenUserGasTokenIsNonWhitelisted() external {
+        uint256 sendAmount = 100e6;
+        uint256 nativeFee = 20_000e6;
+
+        lzEndpoint.setMockNativeFee(nativeFee);
+
+        ITIP20 gasToken = _createTIP20WithDexPair("QuoteGas", "QGAS", keccak256("test_QuoteSend_NonWhitelisted"));
+        _setUserGasToken(alice, address(gasToken));
+        _addDexLiquidity(address(gasToken), nativeFee * 2);
+        _setupPeer();
+
+        SendParam memory sendParam = _buildQuoteSendParam(sendAmount);
+        vm.prank(alice);
+        MessagingFee memory fee = oft.quoteSend(sendParam, false);
+
+        // Fee stays in endpoint-native units — use quoteUserTokenFee() for user token cost
+        assertEq(fee.nativeFee, nativeFee, "Fee should remain in endpoint-native units (no conversion)");
+        assertEq(fee.lzTokenFee, 0, "lzTokenFee should be 0");
+    }
+
+    // ---------------------------------------------------
+    // quoteUserTokenFee Tests
+    // ---------------------------------------------------
+
+    /// @dev quoteUserTokenFee returns the user's gas token amount for a given endpoint fee
+    function test_QuoteUserTokenFee_ReturnsUserTokenAmount() external {
+        uint256 endpointFee = 20_000e6;
+
+        ITIP20 gasToken = _createTIP20WithDexPair("FeeGas", "FGAS", keccak256("test_QuoteUserTokenFee"));
+        _setUserGasToken(alice, address(gasToken));
+        _addDexLiquidity(address(gasToken), endpointFee * 2);
+
+        vm.prank(alice);
+        uint256 userTokenAmount = oft.quoteUserTokenFee(endpointFee);
+
+        assertGe(userTokenAmount, endpointFee, "User token amount should be >= endpoint fee");
+    }
+
+    /// @dev quoteUserTokenFee returns endpoint fee directly for whitelisted tokens
+    function test_QuoteUserTokenFee_ReturnsEndpointFee_WhenWhitelisted() external {
+        uint256 endpointFee = 10e6;
+
+        _setUserGasToken(alice, StdTokens.PATH_USD_ADDRESS);
+
+        vm.prank(alice);
+        uint256 userTokenAmount = oft.quoteUserTokenFee(endpointFee);
+
+        assertEq(userTokenAmount, endpointFee, "Whitelisted token should return endpoint fee 1:1");
+    }
+
+    /// @dev quoteUserTokenFee returns 0 for zero fee
+    function test_QuoteUserTokenFee_ReturnsZero_WhenFeeIsZero() external {
+        _setUserGasToken(alice, StdTokens.PATH_USD_ADDRESS);
+
+        vm.prank(alice);
+        uint256 userTokenAmount = oft.quoteUserTokenFee(0);
+
+        assertEq(userTokenAmount, 0, "Should return 0 for zero fee");
+    }
+
     // ---------------------------------------------------
     // send() Override Tests
     // ---------------------------------------------------

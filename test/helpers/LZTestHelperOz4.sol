@@ -42,6 +42,10 @@ contract MockLZEndpointDollar {
         return _whitelistedTokens[token];
     }
 
+    function getWhitelistedTokens() external view returns (address[] memory) {
+        return _whitelistedTokensList;
+    }
+
     function wrap(address token, address to, uint256 amount) external {
         require(_whitelistedTokens[token], "Not whitelisted");
         IERC20(token).transferFrom(msg.sender, address(this), amount);

@@ -2,6 +2,7 @@
 pragma solidity ^0.8.22;
 
 import { FraxOFTUpgradeableTempo } from "contracts/FraxOFTUpgradeableTempo.sol";
+import { TempoAltTokenBase } from "contracts/base/TempoAltTokenBase.sol";
 import { ITIP20 } from "tempo-std/interfaces/ITIP20.sol";
 import { IStablecoinDEX } from "tempo-std/interfaces/IStablecoinDEX.sol";
 import { StdPrecompiles } from "tempo-std/StdPrecompiles.sol";
@@ -288,11 +289,9 @@ contract FraxOFTUpgradeableTempoTest is TempoTestHelpers, LZTestHelperOz4 {
         uint256 endpointFee = 20_000e6;
 
         ITIP20 gasToken = _createTIP20WithDexPair("FeeGas", "FGAS", keccak256("test_QuoteUserTokenFee"));
-        _setUserGasToken(alice, address(gasToken));
         _addDexLiquidity(address(gasToken), endpointFee * 2);
 
-        vm.prank(alice);
-        uint256 userTokenAmount = oft.quoteUserTokenFee(endpointFee);
+        uint256 userTokenAmount = oft.quoteUserTokenFee(address(gasToken), endpointFee);
 
         assertGe(userTokenAmount, endpointFee, "User token amount should be >= endpoint fee");
     }
@@ -301,20 +300,14 @@ contract FraxOFTUpgradeableTempoTest is TempoTestHelpers, LZTestHelperOz4 {
     function test_QuoteUserTokenFee_ReturnsEndpointFee_WhenWhitelisted() external {
         uint256 endpointFee = 10e6;
 
-        _setUserGasToken(alice, StdTokens.PATH_USD_ADDRESS);
-
-        vm.prank(alice);
-        uint256 userTokenAmount = oft.quoteUserTokenFee(endpointFee);
+        uint256 userTokenAmount = oft.quoteUserTokenFee(StdTokens.PATH_USD_ADDRESS, endpointFee);
 
         assertEq(userTokenAmount, endpointFee, "Whitelisted token should return endpoint fee 1:1");
     }
 
     /// @dev quoteUserTokenFee returns 0 for zero fee
     function test_QuoteUserTokenFee_ReturnsZero_WhenFeeIsZero() external {
-        _setUserGasToken(alice, StdTokens.PATH_USD_ADDRESS);
-
-        vm.prank(alice);
-        uint256 userTokenAmount = oft.quoteUserTokenFee(0);
+        uint256 userTokenAmount = oft.quoteUserTokenFee(StdTokens.PATH_USD_ADDRESS, 0);
 
         assertEq(userTokenAmount, 0, "Should return 0 for zero fee");
     }
@@ -346,7 +339,7 @@ contract FraxOFTUpgradeableTempoTest is TempoTestHelpers, LZTestHelperOz4 {
         vm.prank(alice);
         vm.expectRevert(
             abi.encodeWithSelector(
-                FraxOFTUpgradeableTempo.OFTAltCore__msg_value_not_zero.selector,
+                TempoAltTokenBase.OFTAltCore__msg_value_not_zero.selector,
                 1 ether
             )
         );

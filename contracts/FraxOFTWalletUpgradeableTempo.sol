@@ -108,7 +108,9 @@ contract FraxOFTWalletUpgradeableTempo is FraxOFTWalletUpgradeable {
 
     // ─── Internal ────────────────────────────────────────────────────────
 
-    /// @dev Resolve the gas token for this wallet. If none is set in TIP_FEE_MANAGER, default to PATH_USD.
+    /// @dev Resolve the gas token for this wallet using Tempo's cascading fee token selection:
+    ///      1. `TIP_FEE_MANAGER.userTokens(address(this))` — wallet's explicit choice
+    ///      2. Falls back to `PATH_USD` if no token is set (address(0))
     function _resolveGasToken() internal view returns (address gasToken) {
         gasToken = StdPrecompiles.TIP_FEE_MANAGER.userTokens(address(this));
         if (gasToken == address(0)) {

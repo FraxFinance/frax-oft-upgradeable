@@ -6,7 +6,7 @@ import "forge-std/StdJson.sol";
 import "frax-template/src/Constants.sol";
 import { console } from "frax-std/FraxTest.sol";
 
-import { L0Constants, L0Config } from "scripts/L0Constants.sol";
+import { L0Constants, L0Config, NUM_OFTS, Token } from "scripts/L0Constants.sol";
 import { SerializedTx, SafeTxUtil } from "scripts/SafeBatchSerialize.sol";
 import { FraxOFTUpgradeable } from "contracts/FraxOFTUpgradeable.sol";
 import { FrxUSDOFTUpgradeable } from "contracts/frxUsd/FrxUSDOFTUpgradeable.sol";
@@ -129,80 +129,42 @@ contract BaseL0Script is L0Constants, Script {
     }
 
     function _validateAndPopulateMainnetOfts() internal virtual {
-        // @dev check to prevent array mismatch.  This will trigger when, for example, managing peers of 2 of 6 OFTs as
-        // this method asumes we're managing all 6 OFTs
+        // @dev check to prevent array mismatch.  This will trigger when, for example, managing peers of 2 of NUM_OFTS OFTs as
+        // this method asumes we're managing all NUM_OFTS OFTs.
         // @dev if proxyOfts are empty, pre-populate
         if (proxyOfts.length == 0) {
             for (uint256 i=0; i<expectedProxyOfts.length; i++) {
                 proxyOfts.push(expectedProxyOfts[i]);
             }
         } else {
-            require (proxyOfts.length == 6, "proxyOfts.length != 6");
+            require (proxyOfts.length == NUM_OFTS, "proxyOfts.length != NUM_OFTS");
         }
 
-        connectedOfts = new address[](6);
+        connectedOfts = new address[](NUM_OFTS);
 
-        /// @dev order maintained through L0Constants.sol `constructor()` and DeployFraxOFTProtocol.s.sol `deployFraxOFTUpgradeablesAndProxies()`
-        if (simulateConfig.chainid == 1) {
-            connectedOfts[0] = ethLockboxes[0];
-            connectedOfts[1] = ethLockboxes[1];
-            connectedOfts[2] = ethLockboxes[2];
-            connectedOfts[3] = ethLockboxes[3];
-            connectedOfts[4] = ethLockboxes[4];
-            connectedOfts[5] = ethLockboxes[5];
-        } else if (simulateConfig.chainid == 252) {
-            // TODO: modify this readme to "Fraxtal Lockboxes"
-            // https://github.com/FraxFinance/frax-oft-upgradeable?tab=readme-ov-file#fraxtal-standalone-frxusdsfrxusd-lockboxes
-            connectedOfts[0] = fraxtalLockboxes[0];
-            connectedOfts[1] = fraxtalLockboxes[1];
-            connectedOfts[2] = fraxtalLockboxes[2];
-            connectedOfts[3] = fraxtalLockboxes[3];
-            connectedOfts[4] = fraxtalLockboxes[4];
-            connectedOfts[5] = fraxtalLockboxes[5];
-        } else if (simulateConfig.chainid == 8453) {
-            connectedOfts[0] = baseProxyOfts[0];
-            connectedOfts[1] = baseProxyOfts[1];
-            connectedOfts[2] = baseProxyOfts[2];
-            connectedOfts[3] = baseProxyOfts[3];
-            connectedOfts[4] = baseProxyOfts[4];
-            connectedOfts[5] = baseProxyOfts[5];
-        } else if (simulateConfig.chainid == 59144) {
-            connectedOfts[0] = lineaProxyOfts[0];
-            connectedOfts[1] = lineaProxyOfts[1];
-            connectedOfts[2] = lineaProxyOfts[2];
-            connectedOfts[3] = lineaProxyOfts[3];
-            connectedOfts[4] = lineaProxyOfts[4];
-            connectedOfts[5] = lineaProxyOfts[5];
-        } else if (simulateConfig.chainid == 534352) {
-            connectedOfts[0] = scrollProxyOfts[0];
-            connectedOfts[1] = scrollProxyOfts[1];
-            connectedOfts[2] = scrollProxyOfts[2];
-            connectedOfts[3] = scrollProxyOfts[3];
-            connectedOfts[4] = scrollProxyOfts[4];
-            connectedOfts[5] = scrollProxyOfts[5];
-        } else if (simulateConfig.chainid == 143) {
-            connectedOfts[0] = monadProxyOfts[0];
-            connectedOfts[1] = monadProxyOfts[1];
-            connectedOfts[2] = monadProxyOfts[2];
-            connectedOfts[3] = monadProxyOfts[3];
-            connectedOfts[4] = monadProxyOfts[4];
-            connectedOfts[5] = monadProxyOfts[5];
+        /// @dev Lookup chain-specific OFT addresses from the registry populated in L0Constants.
+        ///      To add a new chain, register it in L0Constants._registerChain() — no edits here.
+        address[] memory peers = _getChainPeers(simulateConfig.chainid);
+        for (uint256 i = 0; i < NUM_OFTS; i++) {
+            connectedOfts[i] = peers[i];
         }
-         else if (simulateConfig.chainid == 2741 || simulateConfig.chainid == 324) {
-            connectedOfts[0] = zkEraProxyOfts[0];
-            connectedOfts[1] = zkEraProxyOfts[1];
-            connectedOfts[2] = zkEraProxyOfts[2];
-            connectedOfts[3] = zkEraProxyOfts[3];
-            connectedOfts[4] = zkEraProxyOfts[4];
-            connectedOfts[5] = zkEraProxyOfts[5];
-        } else {
-            // https://github.com/FraxFinance/frax-oft-upgradeable?tab=readme-ov-file#proxy-upgradeable-ofts
-            connectedOfts[0] = expectedProxyOfts[0];
-            connectedOfts[1] = expectedProxyOfts[1];
-            connectedOfts[2] = expectedProxyOfts[2];
-            connectedOfts[3] = expectedProxyOfts[3];
-            connectedOfts[4] = expectedProxyOfts[4];
-            connectedOfts[5] = expectedProxyOfts[5];
+    }
+
+    /// @notice Resolve per-chain OFT addresses.  Falls back to expectedProxyOfts for
+    ///         chains that were not registered in chainPeerAddresses (i.e. standard proxy chains).
+    function _getChainPeers(uint256 _chainid) internal view returns (address[] memory peers) {
+        // Check the data-driven registry first
+        if (chainPeerAddresses[_chainid].length == NUM_OFTS) {
+            peers = new address[](NUM_OFTS);
+            for (uint256 i = 0; i < NUM_OFTS; i++) {
+                peers[i] = chainPeerAddresses[_chainid][i];
+            }
+            return peers;
+        }
+        // Default: use the pre-determined proxy OFT addresses
+        peers = new address[](NUM_OFTS);
+        for (uint256 i = 0; i < NUM_OFTS; i++) {
+            peers[i] = expectedProxyOfts[i];
         }
     }
 
@@ -317,13 +279,13 @@ contract BaseL0Script is L0Constants, Script {
         // As json has to be ordered alphabetically, sort the peer addresses in the order of OFT deployment
         for (uint256 i=0; i<nonEvmPeers.length; i++) {
             NonEvmPeer memory peer = nonEvmPeers[i];
-            bytes32[] memory peerArray = new bytes32[](6);
-            peerArray[0] = peer.wfrax;
-            peerArray[1] = peer.sfrxUSD;
-            peerArray[2] = peer.sfrxEth;
-            peerArray[3] = peer.frxUSD;
-            peerArray[4] = peer.frxEth;
-            peerArray[5] = peer.fpi;
+            bytes32[] memory peerArray = new bytes32[](NUM_OFTS);
+            peerArray[uint256(Token.WFRAX)]   = peer.wfrax;
+            peerArray[uint256(Token.SFRXUSD)] = peer.sfrxUSD;
+            peerArray[uint256(Token.SFRXETH)] = peer.sfrxEth;
+            peerArray[uint256(Token.FRXUSD)]  = peer.frxUSD;
+            peerArray[uint256(Token.FRXETH)]  = peer.frxEth;
+            peerArray[uint256(Token.FPI)]     = peer.fpi;
 
             nonEvmPeersArrays.push(peerArray);
         }
@@ -336,6 +298,37 @@ contract BaseL0Script is L0Constants, Script {
 
     function addressToBytes32(address _addr) public pure returns (bytes32) {
         return bytes32(uint256(uint160(_addr)));
+    }
+
+    /// @notice Map an OFT proxy address to its canonical Token index.
+    ///         Works for both the deterministic proxy addresses and the deployment-time
+    ///         OFT state variables (wfraxOft, frxUsdOft, etc.).
+    function tokenIndex(address _oft) public view returns (uint256) {
+        if (_oft == wfraxOft   || _oft == proxyFraxOft)   return uint256(Token.WFRAX);
+        if (_oft == sfrxUsdOft || _oft == proxySFrxUsdOft) return uint256(Token.SFRXUSD);
+        if (_oft == sfrxEthOft || _oft == proxySFrxEthOft) return uint256(Token.SFRXETH);
+        if (_oft == frxUsdOft  || _oft == proxyFrxUsdOft)  return uint256(Token.FRXUSD);
+        if (_oft == frxEthOft  || _oft == proxyFrxEthOft)  return uint256(Token.FRXETH);
+        if (_oft == fpiOft     || _oft == proxyFpiOft)     return uint256(Token.FPI);
+        revert(string.concat("tokenIndex: unknown OFT ", Strings.toHexString(_oft)));
+    }
+
+    /// @notice Low-level call that bubbles up the callee's revert reason instead of
+    ///         swallowing it behind a generic error string.
+    function _safeCall(
+        address _target,
+        bytes memory _data,
+        string memory _errorContext
+    ) internal {
+        (bool success, bytes memory returnData) = _target.call(_data);
+        if (!success) {
+            if (returnData.length > 0) {
+                /// @solidity memory-safe-assembly
+                assembly { revert(add(32, returnData), mload(returnData)) }
+            } else {
+                revert(string.concat(_errorContext, ": call reverted without reason"));
+            }
+        }
     }
 
 }

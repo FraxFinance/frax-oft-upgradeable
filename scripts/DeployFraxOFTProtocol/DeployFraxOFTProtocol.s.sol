@@ -18,6 +18,9 @@ contract DeployFraxOFTProtocol is SetDVNs, BaseL0Script {
     /// @dev Nick's method CREATE2 deployer (keyless deployment, available on all EVM chains)
     address public constant NICK_CREATE2_DEPLOYER = 0x4e59b44847b379578588920cA78FbF26c0B4956C;
 
+    /// @dev Google Cloud deployer address (passed via --sender on CLI)
+    address public constant GCS_DEPLOYER = 0x54F9b12743A7DeeC0ea48721683cbebedC6E17bC;
+
     function version() public virtual override pure returns (uint256, uint256, uint256) {
         return (1, 3, 1);
     }
@@ -84,7 +87,9 @@ contract DeployFraxOFTProtocol is SetDVNs, BaseL0Script {
         });
     }
 
-    function setupSource() public virtual broadcastAs(configDeployerPK) {
+    function setupSource() public virtual {
+        vm.startBroadcast();
+
         /// @dev set enforced options / peers separately
         setupEvms();
         setupNonEvms();
@@ -103,6 +108,8 @@ contract DeployFraxOFTProtocol is SetDVNs, BaseL0Script {
         });
 
         setPriviledgedRoles();
+
+        vm.stopBroadcast();
     }
 
     function setupEvms() public virtual {
@@ -151,16 +158,18 @@ contract DeployFraxOFTProtocol is SetDVNs, BaseL0Script {
         require(proxyOfts.length == 6, "Did not deploy all 6 OFTs");
     }
 
-    function deployFraxOFTUpgradeablesAndProxies() broadcastAs(oftDeployerPK) public virtual {
+    function deployFraxOFTUpgradeablesAndProxies() public virtual {
+        vm.startBroadcast();
 
         // Proxy admin — deployed deterministically via Nick's CREATE2
         proxyAdmin = deployCreate2({
             _salt: "FraxProxyAdmin",
             _initCode: abi.encodePacked(
                 type(FraxProxyAdmin).creationCode,
-                abi.encode(vm.addr(configDeployerPK))
+                abi.encode(msg.sender)
             )
         });
+        require(msg.sender == GCS_DEPLOYER, "Must pass --sender with GCS deployer address");
 
         // Implementation mock — deployed deterministically via Nick's CREATE2
         implementationMock = deployCreate2({
@@ -209,6 +218,8 @@ contract DeployFraxOFTProtocol is SetDVNs, BaseL0Script {
             _name: "Frax Price Index",
             _symbol: "FPI"
         });
+
+        vm.stopBroadcast();
     }
 
     /// @notice Sourced from https://github.com/FraxFinance/LayerZero-v2-upgradeable/blob/e1470197e0cffe0d89dd9c776762c8fdcfc1e160/oapp/test/TestHelper.sol#L266
@@ -224,7 +235,7 @@ contract DeployFraxOFTProtocol is SetDVNs, BaseL0Script {
             FraxOFTUpgradeable.initialize.selector,
             _name,
             _symbol,
-            vm.addr(configDeployerPK)
+            msg.sender
         );
 
         /// @dev: deploy deterministic proxy via Nick's CREATE2
@@ -232,7 +243,7 @@ contract DeployFraxOFTProtocol is SetDVNs, BaseL0Script {
             _salt: _symbol,
             _initCode: abi.encodePacked(
                 type(TransparentUpgradeableProxy).creationCode,
-                abi.encode(implementationMock, vm.addr(oftDeployerPK), "")
+                abi.encode(implementationMock, msg.sender, "")
             )
         });
 
@@ -261,11 +272,11 @@ contract DeployFraxOFTProtocol is SetDVNs, BaseL0Script {
             "OFT endpoint incorrect"
         );
         require(
-            EndpointV2(broadcastConfig.endpoint).delegates(proxy) == vm.addr(configDeployerPK),
+            EndpointV2(broadcastConfig.endpoint).delegates(proxy) == msg.sender,
             "Endpoint delegate incorrect"
         );
         require(
-            FraxOFTUpgradeable(proxy).owner() == vm.addr(configDeployerPK),
+            FraxOFTUpgradeable(proxy).owner() == msg.sender,
             "OFT owner incorrect"
         );
     }
@@ -278,7 +289,7 @@ contract DeployFraxOFTProtocol is SetDVNs, BaseL0Script {
         /// @dev: broadcastConfig deployer is temporary OFT owner until setPriviledgedRoles()
         bytes memory initializeArgs = abi.encodeWithSelector(
             FrxUSDOFTUpgradeable.initialize.selector,
-            vm.addr(configDeployerPK)
+            msg.sender
         );
 
         /// @dev: deploy deterministic proxy via Nick's CREATE2
@@ -286,7 +297,7 @@ contract DeployFraxOFTProtocol is SetDVNs, BaseL0Script {
             _salt: "frxUSD",
             _initCode: abi.encodePacked(
                 type(TransparentUpgradeableProxy).creationCode,
-                abi.encode(implementationMock, vm.addr(oftDeployerPK), "")
+                abi.encode(implementationMock, msg.sender, "")
             )
         });
 
@@ -315,11 +326,11 @@ contract DeployFraxOFTProtocol is SetDVNs, BaseL0Script {
             "OFT endpoint incorrect"
         );
         require(
-            EndpointV2(broadcastConfig.endpoint).delegates(proxy) == vm.addr(configDeployerPK),
+            EndpointV2(broadcastConfig.endpoint).delegates(proxy) == msg.sender,
             "Endpoint delegate incorrect"
         );
         require(
-            FraxOFTUpgradeable(proxy).owner() == vm.addr(configDeployerPK),
+            FraxOFTUpgradeable(proxy).owner() == msg.sender,
             "OFT owner incorrect"
         );
     }
@@ -731,7 +742,7 @@ contract DeployFraxOFTProtocol is SetDVNs, BaseL0Script {
         string memory _salt,
         bytes memory _initCode
     ) public virtual returns (address deployed) {
-        bytes32 salt = _generateCreate2Salt(vm.addr(oftDeployerPK), _salt);
+        bytes32 salt = _generateCreate2Salt(msg.sender, _salt);
 
         // Deploy via Nick's CREATE2 factory: calldata = salt ++ initCode
         (bool success, bytes memory ret) = NICK_CREATE2_DEPLOYER.call(
@@ -749,7 +760,7 @@ contract DeployFraxOFTProtocol is SetDVNs, BaseL0Script {
         string memory _salt,
         bytes memory _initCode
     ) public virtual view returns (address) {
-        bytes32 salt = _generateCreate2Salt(vm.addr(oftDeployerPK), _salt);
+        bytes32 salt = _generateCreate2Salt(GCS_DEPLOYER, _salt);
         return address(uint160(uint256(keccak256(abi.encodePacked(
             bytes1(0xff),
             NICK_CREATE2_DEPLOYER,

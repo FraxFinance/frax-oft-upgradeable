@@ -22,7 +22,8 @@ contract SendMockFrax is BaseL0Script {
 
     uint256 amount = 25; // 0.25 tokens, scaled by decimals in _amount() function
 
-    address gasToken = StdTokens.PATH_USD_ADDRESS; // Tempo's TIP20 gas token, used when broadcasting to Tempo
+    // mockfrxUSD TIP20 : 0x20C000000000000000000000CFD2e14f4Cdf1380
+    address gasToken = 0x20C000000000000000000000CFD2e14f4Cdf1380; // StdTokens.PATH_USD_ADDRESS; // Tempo's TIP20 gas token, used when broadcasting to Tempo
 
     SendParam[] public sendParams;
     IOFT[] public ofts;
@@ -188,11 +189,6 @@ contract SendMockFrax is BaseL0Script {
             destinations.push(senderWallet);
         }
         if (broadcastConfig.eid == 30410) {
-            // Tempo: approve underlying TIP20 token from wallet to OFT adapter for the send amount
-            address underlying = IOFT(sourceOFT).token();
-            uint256 totalSendAmount = _amount(sourceOFT) * sendParams.length;
-            FraxOFTWalletUpgradeableTempo(senderWallet).approveToken(IERC20(underlying), sourceOFT, totalSendAmount);
-
             // Tempo: set gas token, approve wallet to pull TIP20 gas token, then bridge
             ITIP20(gasToken).approve(senderWallet, _totalEthFee);
             FraxOFTWalletUpgradeableTempo(senderWallet).batchBridgeWithTIP20FeeFromWallet(

@@ -489,13 +489,19 @@ worldchain : https://layerzeroscan.com/tx/0x0662527651bcc375230985fdb1da1bd736d6
 
 ### mockfrax
 
-* Fraxtal : https://layerzeroscan.com/tx/0xbcf4edb87db31f675a84dbba2dcfd5bcdee52281810e247bc26b1fe6cf8951ca , https://layerzeroscan.com/tx/0x348e784ebbb0229197b2e809980e21551ca4c040e36437a3280ac9c3f67d8390, https://layerzeroscan.com/tx/0xd4d62d9e9770f2531af9d9473ff5ece43f22db5305681f679dfface364664f87
+* Fraxtal : https://layerzeroscan.com/tx/0x9c027a48ffa84009392918246e3cf824684bc4f5d2a665334cc4d9b33d7899ee
 
-* Tempo (pathUSD) : https://layerzeroscan.com/tx/0x82b8f29b1744a8a8e2438d6b20253c0e0cb1ec98139d463d2fdb033295d0c39c, https://layerzeroscan.com/tx/0x1a4bfbdea7878223140d532af9064e05fb19451f7ea6ea401e1e1d4cef0fa26a
+* Tempo (pathUSD) : https://layerzeroscan.com/tx/0x6bb97762a744da2239ff9fe47812039b065c2a4bfbabb1765b849a885f4f750c
+
+* Tempo (mockfrxUSD TIP20) : https://layerzeroscan.com/tx/0x533714498e065b07819e9646112fc25ec566685aba00a3acea986a3379ab5af7
 
 ### mockfrxUSD
 
-* Fraxtal : https://layerzeroscan.com/tx/0xf9631a4d79bb2ab7aeaa03ea5798b93d4265c6312a4907f9755bea1d773e6c50,https://layerzeroscan.com/tx/0xd04abc64c6fd40a16fcc6e2da1f315920a0a4924f3fb404b058ce79b43005efd, https://layerzeroscan.com/tx/0x398bd1abc1bf8287fa93788f19fec5bb6f5585ab88b50363cad4751cc6c3db70, https://layerzeroscan.com/tx/0x7742a141e2071dac94345569e1652c3dc3a66eabc5e973b9d9c70e42e19775aa, https://layerzeroscan.com/tx/0x640735e7e865fc2ac61dec6fbce7b4088bc81c38cb3b0b1d2312a0c06f01ef81, https://layerzeroscan.com/tx/0x2d03b893613a52955b238c5b4ce1bde44f00f8c5d637bd98b10429e9926be95e, https://layerzeroscan.com/tx/0x4321a4ecf41729b84500cdb5ccbf3799cdf4502decb212f1045e37b3480f0609
+* Fraxtal : https://layerzeroscan.com/tx/0xdea60fd5aab449d970cff060a3dc85053092009be71844fd9a1bf45171795a7d
 
-* Tempo (pathUSD) : https://layerzeroscan.com/tx/0xd8f51064a04f2fd71f0520b6d6c6662b108dacfcf5175a43c7b4434e8cf1a652
+* Tempo (pathUSD) : https://layerzeroscan.com/tx/0xdea60fd5aab449d970cff060a3dc85053092009be71844fd9a1bf45171795a7d
 
+* Tempo (mockfrxUSD TIP20) : https://layerzeroscan.com/tx/0x919edd98d758631b0ee83e3299aa7d75f00fc3cef999d5843c513401984c5b1c
+
+#### transaction using mockfrxUSD as gas token
+* transfer mockfrxUSD TIP20 : https://explore.mainnet.tempo.xyz/tx/0xd9bc059190d3a2491c39e94aecb2422580cbbb556774ff224873aea01fb3f605

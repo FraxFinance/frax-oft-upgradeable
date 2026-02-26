@@ -25,7 +25,6 @@ contract FraxOFTWalletUpgradeableTempo is FraxOFTWalletUpgradeable {
         StdPrecompiles.TIP_FEE_MANAGER.setUserToken(gasToken);
         MessagingFee memory fee = _oft.quoteSend(_sendParam, false);
         ITIP20(gasToken).transferFrom(msg.sender, address(this), fee.nativeFee);
-        _approveGasTokenToOFT(gasToken, address(_oft), fee.nativeFee);
         _oft.send(_sendParam, fee, payable(_destination));
     }
 
@@ -42,7 +41,6 @@ contract FraxOFTWalletUpgradeableTempo is FraxOFTWalletUpgradeable {
         _token.transferFrom(_sender, address(this), _sendParam.amountLD);
         MessagingFee memory fee = _oft.quoteSend(_sendParam, false);
         ITIP20(gasToken).transferFrom(msg.sender, address(this), fee.nativeFee);
-        _approveGasTokenToOFT(gasToken, address(_oft), fee.nativeFee);
         _oft.send(_sendParam, fee, payable(_destination));
     }
 
@@ -68,7 +66,6 @@ contract FraxOFTWalletUpgradeableTempo is FraxOFTWalletUpgradeable {
         }
         ITIP20(gasToken).transferFrom(msg.sender, address(this), totalGasFee);
         for (uint256 _i; _i < _len; _i++) {
-            _approveGasTokenToOFT(gasToken, address(_ofts[_i]), fees[_i].nativeFee);
             _ofts[_i].send(_sendParams[_i], fees[_i], _destinations[_i]);
         }
     }
@@ -84,12 +81,7 @@ contract FraxOFTWalletUpgradeableTempo is FraxOFTWalletUpgradeable {
         address gasToken = _resolveGasToken();
         StdPrecompiles.TIP_FEE_MANAGER.setUserToken(gasToken);
         uint256 _len = _sendParams.length;
-        if (
-            _len != _senders.length ||
-            _len != _tokens.length ||
-            _len != _ofts.length ||
-            _len != _destinations.length
-        ) {
+        if (_len != _senders.length || _len != _tokens.length || _len != _ofts.length || _len != _destinations.length) {
             revert MismatchedArrayLengthsTempo();
         }
         MessagingFee[] memory fees = new MessagingFee[](_len);
@@ -101,25 +93,19 @@ contract FraxOFTWalletUpgradeableTempo is FraxOFTWalletUpgradeable {
         }
         ITIP20(gasToken).transferFrom(msg.sender, address(this), totalGasFee);
         for (uint256 _i; _i < _len; _i++) {
-            _approveGasTokenToOFT(gasToken, address(_ofts[_i]), fees[_i].nativeFee);
             _ofts[_i].send(_sendParams[_i], fees[_i], _destinations[_i]);
         }
     }
 
     // ─── Internal ────────────────────────────────────────────────────────
 
-    /// @dev Resolve the gas token for this wallet using Tempo's cascading fee token selection:
-    ///      1. `TIP_FEE_MANAGER.userTokens(address(this))` — wallet's explicit choice
+    /// @dev Resolve the gas token using the caller's fee token preference:
+    ///      1. `TIP_FEE_MANAGER.userTokens(msg.sender)` — caller's explicit choice
     ///      2. Falls back to `PATH_USD` if no token is set (address(0))
     function _resolveGasToken() internal view returns (address gasToken) {
-        gasToken = StdPrecompiles.TIP_FEE_MANAGER.userTokens(address(this));
+        gasToken = StdPrecompiles.TIP_FEE_MANAGER.userTokens(msg.sender);
         if (gasToken == address(0)) {
             gasToken = StdTokens.PATH_USD_ADDRESS;
         }
-    }
-
-    /// @dev Approve the TIP20 gas token to the OFT so `_payNative` can pull it.
-    function _approveGasTokenToOFT(address _gasToken, address _oft, uint256 _amount) internal {
-        ITIP20(_gasToken).approve(_oft, _amount);
     }
 }

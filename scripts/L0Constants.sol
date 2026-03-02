@@ -15,6 +15,13 @@ struct L0Config {
     address sendLib302;
 }
 
+/// @dev Number of OFT tokens in the protocol. Used instead of magic number 6.
+uint256 constant NUM_OFTS = 6;
+
+/// @dev Canonical token identifiers, indexed 0..5 to match array ordering across all
+///      per-chain address arrays (proxyOfts, lockboxes, etc.).
+enum Token { WFRAX, SFRXUSD, SFRXETH, FRXUSD, FRXETH, FPI }
+
 contract L0Constants {
 
     address[] public expectedProxyOfts;
@@ -27,6 +34,10 @@ contract L0Constants {
     address[] public ethLockboxes;
     address[] public connectedOfts;
     address[] public ethLockboxesLegacy;
+
+    /// @dev Data-driven chain peer registry.  Adding a new chain only requires a
+    ///      `_registerChain()` call in the constructor instead of editing if/else ladders.
+    mapping(uint256 => address[]) internal chainPeerAddresses;
 
     // Semi Pre-deterministic upgradeable addresses 
     address public proxyFrxUsdOft = 0x80Eede496655FB9047dd39d9f418d5483ED600df;
@@ -178,5 +189,24 @@ contract L0Constants {
         arbitrumSepoliaOfts.push(arbitrumSepoliaFrxUsdOft);
 
         fraxtalTestnetLockboxes.push(fraxtalTestnetFrxUsdLockbox);
+
+        // ── Chain peer registry ──────────────────────────────────────
+        // To add a new chain: register it here and add its L0Config to
+        // L0Config.json.  No other code changes are required.
+        _registerChain(1, ethLockboxes);
+        _registerChain(252, fraxtalLockboxes);
+        _registerChain(8453, baseProxyOfts);
+        _registerChain(59144, lineaProxyOfts);
+        _registerChain(534352, scrollProxyOfts);
+        _registerChain(143, monadProxyOfts);
+        _registerChain(2741, zkEraProxyOfts);
+        _registerChain(324, zkEraProxyOfts); // ZKsync Era shares addresses with 2741
+    }
+
+    /// @notice Copy a per-chain address array into the chainPeerAddresses mapping.
+    function _registerChain(uint256 _chainid, address[] storage _peers) internal {
+        for (uint256 i = 0; i < _peers.length; i++) {
+            chainPeerAddresses[_chainid].push(_peers[i]);
+        }
     }
 }

@@ -117,7 +117,7 @@ contract DeployFraxOFTProtocol is SetDVNs, BaseL0Script {
     }
 
     function setupNonEvms() public virtual {
-        require(proxyOfts.length == 6, "Error: non-evm setup will be incorrect");
+        require(proxyOfts.length == NUM_OFTS, "Error: non-evm setup will be incorrect");
 
         setSolanaEnforcedOptions({
             _connectedOfts: proxyOfts
@@ -145,7 +145,7 @@ contract DeployFraxOFTProtocol is SetDVNs, BaseL0Script {
     }
 
     function postDeployChecks() internal virtual view {
-        require(proxyOfts.length == 6, "Did not deploy all 6 OFTs");
+        require(proxyOfts.length == NUM_OFTS, "Did not deploy all OFTs");
     }
 
     function deployFraxOFTUpgradeablesAndProxies() broadcastAs(oftDeployerPK) public virtual {
@@ -184,13 +184,15 @@ contract DeployFraxOFTProtocol is SetDVNs, BaseL0Script {
             _symbol: "frxETH"
         });
 
-        // Deploy broken FPI
+        /// @notice HISTORICAL ARTIFACT: The original deployment included a broken FPI proxy
+        ///         that consumed a nonce / address slot.  This mock is deployed only to
+        ///         replicate the address sequence of that historical deployment so that the
+        ///         correct FPI proxy lands at its expected address.
         deployFraxOFTUpgradeableAndProxy({
             _name: "Mock Frax Price Index",
             _symbol: "Mock FPI"
         });
-        // pop off pushed proxy addr as it's the broken FPI
-        proxyOfts.pop();
+        proxyOfts.pop(); // discard the broken FPI proxy
 
         // Deploy correct FPI
         (, fpiOft) = deployFraxOFTUpgradeableAndProxy({
@@ -199,80 +201,62 @@ contract DeployFraxOFTProtocol is SetDVNs, BaseL0Script {
         });
     }
 
-    /// @notice Sourced from https://github.com/FraxFinance/LayerZero-v2-upgradeable/blob/e1470197e0cffe0d89dd9c776762c8fdcfc1e160/oapp/test/TestHelper.sol#L266
-    ///     With state checks
+    /// @notice Deploy a FraxOFTUpgradeable behind a TransparentUpgradeableProxy.
+    /// @dev    Uses _deployAndValidateProxy() to eliminate duplicated proxy-creation
+    ///         and state-check logic (previously copy-pasted across two functions).
     function deployFraxOFTUpgradeableAndProxy(
         string memory _name,
         string memory _symbol
     ) public virtual returns (address implementation, address proxy) {
-        implementation = address(new FraxOFTUpgradeable(broadcastConfig.endpoint)); 
-        /// @dev: create semi-pre-deterministic proxy address, then initialize with correct implementation
-        proxy = address(new TransparentUpgradeableProxy(implementationMock, vm.addr(oftDeployerPK), ""));
-
-        /// @dev: broadcastConfig deployer is temporary OFT owner until setPriviledgedRoles()
+        implementation = address(new FraxOFTUpgradeable(broadcastConfig.endpoint));
         bytes memory initializeArgs = abi.encodeWithSelector(
             FraxOFTUpgradeable.initialize.selector,
             _name,
             _symbol,
             vm.addr(configDeployerPK)
         );
-        TransparentUpgradeableProxy(payable(proxy)).upgradeToAndCall({
-            newImplementation: implementation,
-            data: initializeArgs
-        });
-        TransparentUpgradeableProxy(payable(proxy)).changeAdmin(proxyAdmin);
-        proxyOfts.push(proxy);
-
-        // State checks
-        require(
-            isStringEqual(FraxOFTUpgradeable(proxy).name(), _name),
-            "OFT name incorrect"
-        );
-        require(
-            isStringEqual(FraxOFTUpgradeable(proxy).symbol(), _symbol),
-            "OFT symbol incorrect"
-        );
-        require(
-            address(FraxOFTUpgradeable(proxy).endpoint()) == broadcastConfig.endpoint,
-            "OFT endpoint incorrect"
-        );
-        require(
-            EndpointV2(broadcastConfig.endpoint).delegates(proxy) == vm.addr(configDeployerPK),
-            "Endpoint delegate incorrect"
-        );
-        require(
-            FraxOFTUpgradeable(proxy).owner() == vm.addr(configDeployerPK),
-            "OFT owner incorrect"
-        );
+        proxy = _deployAndValidateProxy(implementation, initializeArgs, _name, _symbol);
     }
 
-    /// @notice Sourced from https://github.com/FraxFinance/LayerZero-v2-upgradeable/blob/e1470197e0cffe0d89dd9c776762c8fdcfc1e160/oapp/test/TestHelper.sol#L266
-    ///     With state checks
+    /// @notice Deploy FrxUSDOFTUpgradeable (name/symbol are hardcoded in the contract itself).
     function deployFrxUsdOFTUpgradeableAndProxy() public virtual returns (address implementation, address proxy) {
-        implementation = address(new FrxUSDOFTUpgradeable(broadcastConfig.endpoint)); 
-        /// @dev: create semi-pre-deterministic proxy address, then initialize with correct implementation
-        proxy = address(new TransparentUpgradeableProxy(implementationMock, vm.addr(oftDeployerPK), ""));
-
-        /// @dev: broadcastConfig deployer is temporary OFT owner until setPriviledgedRoles()
+        implementation = address(new FrxUSDOFTUpgradeable(broadcastConfig.endpoint));
         bytes memory initializeArgs = abi.encodeWithSelector(
             FrxUSDOFTUpgradeable.initialize.selector,
             vm.addr(configDeployerPK)
         );
+        proxy = _deployAndValidateProxy(implementation, initializeArgs, "Frax USD", "frxUSD");
+    }
+
+    /// @notice Common proxy deployment + post-deploy validation.
+    ///         Creates a TransparentUpgradeableProxy pointing at the mock implementation,
+    ///         upgrades to the real implementation, transfers admin to proxyAdmin, and
+    ///         runs state checks.
+    function _deployAndValidateProxy(
+        address _implementation,
+        bytes memory _initializeArgs,
+        string memory _expectedName,
+        string memory _expectedSymbol
+    ) internal returns (address proxy) {
+        /// @dev: create semi-pre-deterministic proxy address, then initialize with correct implementation
+        proxy = address(new TransparentUpgradeableProxy(implementationMock, vm.addr(oftDeployerPK), ""));
+
+        /// @dev: broadcastConfig deployer is temporary OFT owner until setPriviledgedRoles()
         TransparentUpgradeableProxy(payable(proxy)).upgradeToAndCall({
-            newImplementation: implementation,
-            data: initializeArgs
+            newImplementation: _implementation,
+            data: _initializeArgs
         });
         TransparentUpgradeableProxy(payable(proxy)).changeAdmin(proxyAdmin);
         proxyOfts.push(proxy);
 
         // State checks
         require(
-            isStringEqual(FraxOFTUpgradeable(proxy).name(), "Frax USD"),
-            "OFT name incorrect"
+            isStringEqual(FraxOFTUpgradeable(proxy).name(), _expectedName),
+            string.concat("OFT name mismatch: expected ", _expectedName)
         );
         require(
-            isStringEqual(FraxOFTUpgradeable(proxy).symbol(), "frxUSD"),
-            "OFT symbol incorrect"
+            isStringEqual(FraxOFTUpgradeable(proxy).symbol(), _expectedSymbol),
+            string.concat("OFT symbol mismatch: expected ", _expectedSymbol)
         );
         require(
             address(FraxOFTUpgradeable(proxy).endpoint()) == broadcastConfig.endpoint,
@@ -286,10 +270,15 @@ contract DeployFraxOFTProtocol is SetDVNs, BaseL0Script {
             FraxOFTUpgradeable(proxy).owner() == vm.addr(configDeployerPK),
             "OFT owner incorrect"
         );
+        console.log(string.concat("  Deployed ", _expectedSymbol, " proxy"));
     }
 
+    /// @notice Transfer delegate + ownership of all OFTs and the ProxyAdmin to the
+    ///         configured delegate/multisig.
+    /// @dev    Name preserved for backward compatibility with downstream overrides.
     function setPriviledgedRoles() public virtual {
         if (broadcastConfig.delegate == address(0)) revert("Delegate cannot be zero address");
+        console.log("Transferring ownership to delegate");
         /// @dev transfer ownership of OFT
         for (uint256 o=0; o<proxyOfts.length; o++) {
             address proxyOft = proxyOfts[o];
@@ -326,106 +315,48 @@ contract DeployFraxOFTProtocol is SetDVNs, BaseL0Script {
         }
     }
 
-    // Overwrite the peer where necessary
-    // Conditional statement allows for overwriting peer whether (for example, frxUSD):
-    //  (1) frxUsdOft is set through deployFraxOFTUpgradeableAndProxy() (allows for non-predetermined addrs)
-    //  (2) connectedOft is the predetermined frxUsd OFT addr
-    //  (3) peer is either the ethereum/fraxtal frxUSD lockbox or a non-predeterministic address    
+    /// @notice Look up the correct peer OFT address for `_oft` on chain `_chainid`.
+    ///         Uses the data-driven `chainPeerAddresses` registry from L0Constants for
+    ///         registered chains, falls back to the supplied `_peerOfts` array otherwise.
+    ///         Adding a new chain only requires a `_registerChain()` call in L0Constants.
     // NOTE on partial token deployments, {token}Oft must be set
     function determinePeer(
         uint256 _chainid,
         address _oft,
         address[] memory _peerOfts
     ) public virtual view returns (address peer) {
-        if (_chainid == 252) {
-            peer = getPeerFromArray({
-                _oft: _oft,
-                _oftArray: fraxtalLockboxes
-            });
-            require(peer != address(0), "Invalid fraxtal peer");
-        } else if (_chainid == 1) {
-            peer = getPeerFromArray({
-                _oft: _oft,
-                _oftArray: ethLockboxes
-            });
-            require(peer != address(0), "Invalid ethereum peer");
-        } else if (_chainid == 59144) {
-            peer = getPeerFromArray({
-                _oft: _oft,
-                _oftArray: lineaProxyOfts
-            });
-            require(peer != address(0), "Invalid linea peer");
-        } else if (_chainid == 8453) {
-            peer = getPeerFromArray({
-                _oft: _oft,
-                _oftArray: baseProxyOfts
-            });
-            require(peer != address(0), "Invalid base peer");
-        } else if (_chainid == 2741 || _chainid == 324) {
-            peer = getPeerFromArray({
-                _oft: _oft,
-                _oftArray: zkEraProxyOfts
-            });
-            require(peer != address(0), "Invalid Zk Era peer");
-        } else if (_chainid == 534352) {
-            peer = getPeerFromArray({
-                _oft: _oft,
-                _oftArray: scrollProxyOfts
-            });
-            require(peer != address(0), "Invalid Scroll peer");
-        } else if (_chainid == 11155111) {
-            peer = getTestnetPeerFromArray({
-                _oft: _oft,
-                _oftArray: ethSepoliaLockboxes
-            });
-            require(peer != address(0), "Invalid eth sepolia peer");
+        // Testnet chains use separate single-element arrays
+        if (_chainid == 11155111) {
+            peer = getTestnetPeerFromArray({ _oft: _oft, _oftArray: ethSepoliaLockboxes });
         } else if (_chainid == 421614) {
-            peer = getTestnetPeerFromArray({
-                _oft: _oft,
-                _oftArray: arbitrumSepoliaOfts
-            });
-            require(peer != address(0), "Invalid arbitrum sepolia peer");
+            peer = getTestnetPeerFromArray({ _oft: _oft, _oftArray: arbitrumSepoliaOfts });
         } else if (_chainid == 2522) {
-            peer = getTestnetPeerFromArray({
-                _oft: _oft,
-                _oftArray: fraxtalTestnetLockboxes
-            });
-            require(peer != address(0), "Invalid fraxtal testnet peer");
+            peer = getTestnetPeerFromArray({ _oft: _oft, _oftArray: fraxtalTestnetLockboxes });
+        } else if (chainPeerAddresses[_chainid].length == NUM_OFTS) {
+            // Data-driven: registered chains resolved via the L0Constants registry.
+            // No code changes needed when adding new chains.
+            peer = getPeerFromArray({ _oft: _oft, _oftArray: chainPeerAddresses[_chainid] });
         } else {
-            peer = getPeerFromArray({
-                _oft: _oft,
-                _oftArray: _peerOfts
-            });
-            require(peer != address(0), "Invalid proxy peer");
+            // Fallback: use the caller-supplied proxy OFT addresses
+            peer = getPeerFromArray({ _oft: _oft, _oftArray: _peerOfts });
         }
+        require(peer != address(0), string.concat("Invalid peer for chain ", _chainid.toString()));
     }
 
+    /// @notice Resolve an OFT proxy address to the corresponding peer in a given per-chain
+    ///         address array.  Uses `tokenIndex()` from BaseL0Script to map the OFT to its
+    ///         canonical Token enum index, replacing the previous if/else ladder.
     function getPeerFromArray(address _oft, address[] memory _oftArray) public virtual view returns (address peer) {
-        require(_oftArray.length == 6, "getPeerFromArray index mismatch");
-        require(_oft != address(0), "getPeerFromArray() OFT == address(0)");
-        /// @dev maintains array of deployFraxOFTUpgradeablesAndProxies(), where proxyOfts is pushed to in the respective order
-        if (_oft == wfraxOft || _oft == proxyFraxOft) {
-            peer = _oftArray[0];
-        } else if (_oft == sfrxUsdOft || _oft == proxySFrxUsdOft) {
-            peer = _oftArray[1];
-        } else if (_oft == sfrxEthOft || _oft == proxySFrxEthOft) {
-            peer = _oftArray[2];
-        } else if (_oft == frxUsdOft || _oft == proxyFrxUsdOft) {
-            peer = _oftArray[3];
-        } else if (_oft == frxEthOft || _oft == proxyFrxEthOft) {
-            peer = _oftArray[4];
-        } else if (_oft == fpiOft || _oft == proxyFpiOft) {
-            peer = _oftArray[5];
-        }
+        require(_oftArray.length == NUM_OFTS, "getPeerFromArray: array length != NUM_OFTS");
+        require(_oft != address(0), "getPeerFromArray: OFT is zero address");
+        peer = _oftArray[tokenIndex(_oft)];
     }
 
     function getTestnetPeerFromArray(address _oft, address[] memory _oftArray) public virtual view returns (address peer) {
-        require(_oftArray.length == 1, "getPeerFromTestnetArray index mismatch");
-        require(_oft != address(0), "getPeerFromTestnetArray() OFT == address(0)");
-        // should only be frxUsd
-        if (_oft == frxUsdOft || _oft == proxyFrxUsdOft) {
-            peer = _oftArray[0];
-        }
+        require(_oftArray.length == 1, "getTestnetPeerFromArray: array length != 1");
+        require(_oft != address(0), "getTestnetPeerFromArray: OFT is zero address");
+        require(tokenIndex(_oft) == uint256(Token.FRXUSD), "getTestnetPeerFromArray: only frxUSD supported on testnet");
+        peer = _oftArray[0];
     }
 
     /// @dev Non-evm OFTs require their own unique peer address
@@ -459,8 +390,7 @@ contract DeployFraxOFTProtocol is SetDVNs, BaseL0Script {
                 uint32(_config.eid), _peerOftAsBytes32
             )
         );
-        (bool success, ) = _connectedOft.call(data);
-        require(success, "Unable to setPeer");
+        _safeCall(_connectedOft, data, "setPeer");
         pushSerializedTx({
             _name:"setPeer",
             _to:_connectedOft,
@@ -572,8 +502,7 @@ contract DeployFraxOFTProtocol is SetDVNs, BaseL0Script {
                 enforcedOptionParams
             )
         );
-        (bool success, ) = _connectedOft.call(data);
-        require(success, "Unable to setEnforcedOptions");
+        _safeCall(_connectedOft, data, "setEnforcedOptions");
         pushSerializedTx({
             _name:"setEnforcedOptions",
             _to: _connectedOft,
@@ -624,14 +553,12 @@ contract DeployFraxOFTProtocol is SetDVNs, BaseL0Script {
                     _connectedOft, uint32(_config.eid), _connectedConfig.sendLib302
                 )
             );
-            (bool success,) = _connectedConfig.endpoint.call(data);
-            require(success, "Unable to call setSendLibrary");
+            _safeCall(_connectedConfig.endpoint, data, "setSendLibrary");
             pushSerializedTx({
                 _name:"setSendLibrary",
                 _to: _connectedConfig.endpoint,
-                _value : 0,
-                _data:data
-
+                _value: 0,
+                _data: data
             });
         }
 
@@ -647,13 +574,12 @@ contract DeployFraxOFTProtocol is SetDVNs, BaseL0Script {
                     _connectedOft, uint32(_config.eid), _connectedConfig.receiveLib302, 0
                 )
             );
-            (bool success,) = _connectedConfig.endpoint.call(data);
-            require(success, "Unable to call setReceiveLibrary");
+            _safeCall(_connectedConfig.endpoint, data, "setReceiveLibrary");
             pushSerializedTx({
                 _name:"setReceiveLibrary",
                 _to: _connectedConfig.endpoint,
-                _value:0,
-                _data:data
+                _value: 0,
+                _data: data
             });
         }
     }

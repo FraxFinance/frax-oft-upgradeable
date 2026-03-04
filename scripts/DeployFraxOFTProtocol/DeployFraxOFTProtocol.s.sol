@@ -205,17 +205,7 @@ contract DeployFraxOFTProtocol is SetDVNs, BaseL0Script {
             _symbol: "frxETH"
         });
 
-        /// @notice HISTORICAL ARTIFACT: The original deployment included a broken FPI proxy
-        ///         that consumed a nonce / address slot.  This mock is deployed only to
-        ///         replicate the address sequence of that historical deployment so that the
-        ///         correct FPI proxy lands at its expected address.
-        deployFraxOFTUpgradeableAndProxy({
-            _name: "Mock Frax Price Index",
-            _symbol: "Mock FPI"
-        });
-        proxyOfts.pop(); // discard the broken FPI proxy
-
-        // Deploy correct FPI
+        // Deploy FPI
         (, fpiOft) = deployFraxOFTUpgradeableAndProxy({
             _name: "Frax Price Index",
             _symbol: "FPI"
@@ -227,11 +217,24 @@ contract DeployFraxOFTProtocol is SetDVNs, BaseL0Script {
     /// @notice Deploy a FraxOFTUpgradeable behind a TransparentUpgradeableProxy.
     /// @dev    Uses _deployAndValidateProxy() to eliminate duplicated proxy-creation
     ///         and state-check logic (previously copy-pasted across two functions).
+    /// @notice Create the OFT implementation contract.
+    /// @dev    Override to swap in a chain-specific implementation (e.g. FraxOFTUpgradeableTempo).
+    function _createOFTImplementation() internal virtual returns (address) {
+        return address(new FraxOFTUpgradeable(broadcastConfig.endpoint));
+    }
+
+    /// @notice Return the address used as the temporary TransparentUpgradeableProxy admin
+    ///         during deployment (before changeAdmin transfers it to proxyAdmin).
+    /// @dev    Override when the broadcaster identity differs from vm.addr(oftDeployerPK).
+    function _proxyTempAdmin() internal virtual view returns (address) {
+        return vm.addr(oftDeployerPK);
+    }
+
     function deployFraxOFTUpgradeableAndProxy(
         string memory _name,
         string memory _symbol
     ) public virtual returns (address implementation, address proxy) {
-        implementation = address(new FraxOFTUpgradeable(broadcastConfig.endpoint));
+        implementation = _createOFTImplementation();
         bytes memory initializeArgs = abi.encodeWithSelector(
             FraxOFTUpgradeable.initialize.selector,
             _name,
@@ -260,13 +263,13 @@ contract DeployFraxOFTProtocol is SetDVNs, BaseL0Script {
         bytes memory _initializeArgs,
         string memory _expectedName,
         string memory _expectedSymbol
-    ) internal returns (address proxy) {
+    ) internal virtual returns (address proxy) {
         /// @dev: deploy proxy deterministically via Nick's CREATE2 using the symbol as salt
         proxy = deployCreate2({
             _salt: _expectedSymbol,
             _initCode: abi.encodePacked(
                 type(TransparentUpgradeableProxy).creationCode,
-                abi.encode(implementationMock, vm.addr(oftDeployerPK), "")
+                abi.encode(implementationMock, _proxyTempAdmin(), "")
             )
         });
 
@@ -680,11 +683,37 @@ contract DeployFraxOFTProtocol is SetDVNs, BaseL0Script {
         )))));
     }
 
-    /// @notice Generate a CREATE2 salt for deterministic deployment
+    // ── Vanity CREATE2 salts (from create2crunch) ─────────────────────────
+    // Each salt is the raw 32-byte value sent to Nick's CREATE2 deployer.
+    // All addresses produced have 4 leading zero bytes for gas-efficient storage.
+
+    function _vanitySalt(string memory _name) internal pure returns (bytes32) {
+        bytes32 nameHash = keccak256(bytes(_name));
+
+        // Infrastructure
+        if (nameHash == keccak256("FraxProxyAdmin"))    return 0x00000000000000000000000000000000000000001ca47e3bdd2f9c2d22000094;
+        if (nameHash == keccak256("ImplementationMock")) return 0x00000000000000000000000000000000000000001c9e6c0415a3e0f991090040;
+
+        // OFT proxies
+        if (nameHash == keccak256("WFRAX"))    return 0x0000000000000000000000000000000000000000e89cf04fa1492387a9080080;
+        if (nameHash == keccak256("sfrxUSD"))  return 0x0000000000000000000000000000000000000000e89cf04fa1497779b3260030;
+        if (nameHash == keccak256("sfrxETH"))  return 0x0000000000000000000000000000000000000000e89cf04fa14917675b2700a0;
+        if (nameHash == keccak256("frxUSD"))   return 0x0000000000000000000000000000000000000000e89cf04fa149c185b52d0006;
+        if (nameHash == keccak256("frxETH"))   return 0x0000000000000000000000000000000000000000e89cf04fa14981f4e2470008;
+        if (nameHash == keccak256("FPI"))      return 0x0000000000000000000000000000000000000000e89cf04fa1496467a96d00c0;
+
+        return bytes32(0); // no vanity salt found
+    }
+
+    /// @notice Generate a CREATE2 salt for deterministic deployment.
+    ///         Uses a vanity salt from create2crunch when available, otherwise
+    ///         falls back to keccak256(deployer, name).
     /// @param _deployer The address of the deployer
     /// @param _name The name used to generate the salt
     /// @return The generated salt
     function _generateCreate2Salt(address _deployer, string memory _name) internal pure returns (bytes32) {
+        bytes32 vanity = _vanitySalt(_name);
+        if (vanity != bytes32(0)) return vanity;
         return keccak256(abi.encodePacked(_deployer, _name));
     }
 }

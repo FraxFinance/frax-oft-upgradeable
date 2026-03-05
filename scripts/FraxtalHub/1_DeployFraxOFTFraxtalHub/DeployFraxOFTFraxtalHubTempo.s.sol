@@ -27,6 +27,13 @@ contract DeployFraxOFTFraxtalHubTempo is DeployFraxOFTFraxtalHub {
     address public policyAdminImplementation;
     address public policyAdminProxy;
 
+    /// @notice Use --sender / --gcp instead of a raw private key.
+    modifier broadcastAs(uint256) override {
+        vm.startBroadcast();
+        _;
+        vm.stopBroadcast();
+    }
+
     /// @notice Use FraxOFTUpgradeableTempo instead of FraxOFTUpgradeable for non-frxUSD OFTs.
     function _createOFTImplementation() internal override returns (address) {
         return address(new FraxOFTUpgradeableTempo(broadcastConfig.endpoint));

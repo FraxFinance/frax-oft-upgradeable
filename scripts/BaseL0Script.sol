@@ -89,7 +89,7 @@ contract BaseL0Script is L0Constants, Script {
         return (1, 3, 2);
     }
 
-    modifier broadcastAs(uint256 privateKey) {
+    modifier broadcastAs(uint256 privateKey) virtual {
         vm.startBroadcast(privateKey);
         _;
         vm.stopBroadcast();

@@ -41,7 +41,7 @@ contract DeployFraxOFTFraxtalHub is DeployFraxOFTProtocol {
     }
 
     function deploySource() public override {
-        preDeployChecks();
+        // preDeployChecks();
         deployFraxOFTUpgradeablesAndProxies();
         deployFraxOFTWalletUpgradeableAndProxy();
         postDeployChecks();

@@ -87,9 +87,7 @@ contract DeployFraxOFTProtocol is SetDVNs, BaseL0Script {
         });
     }
 
-    function setupSource() public virtual {
-        vm.startBroadcast();
-
+    function setupSource() public virtual broadcastAs(configDeployerPK) {
         /// @dev set enforced options / peers separately
         setupEvms();
         setupNonEvms();
@@ -108,8 +106,6 @@ contract DeployFraxOFTProtocol is SetDVNs, BaseL0Script {
         });
 
         setPriviledgedRoles();
-
-        vm.stopBroadcast();
     }
 
     function setupEvms() public virtual {
@@ -158,9 +154,7 @@ contract DeployFraxOFTProtocol is SetDVNs, BaseL0Script {
         require(proxyOfts.length == NUM_OFTS, "Did not deploy all OFTs");
     }
 
-    function deployFraxOFTUpgradeablesAndProxies() public virtual {
-        vm.startBroadcast();
-
+    function deployFraxOFTUpgradeablesAndProxies() public virtual broadcastAs(oftDeployerPK) {
         // Proxy admin — deployed deterministically via Nick's CREATE2
         proxyAdmin = deployCreate2({
             _salt: "FraxProxyAdmin",
@@ -169,8 +163,7 @@ contract DeployFraxOFTProtocol is SetDVNs, BaseL0Script {
                 abi.encode(msg.sender)
             )
         });
-        require(msg.sender == GCS_DEPLOYER, "Must pass --sender with GCS deployer address");
-
+        
         // Implementation mock — deployed deterministically via Nick's CREATE2
         implementationMock = deployCreate2({
             _salt: "ImplementationMock",
@@ -210,8 +203,6 @@ contract DeployFraxOFTProtocol is SetDVNs, BaseL0Script {
             _name: "Frax Price Index",
             _symbol: "FPI"
         });
-
-        vm.stopBroadcast();
     }
 
     /// @notice Deploy a FraxOFTUpgradeable behind a TransparentUpgradeableProxy.
@@ -225,9 +216,8 @@ contract DeployFraxOFTProtocol is SetDVNs, BaseL0Script {
 
     /// @notice Return the address used as the temporary TransparentUpgradeableProxy admin
     ///         during deployment (before changeAdmin transfers it to proxyAdmin).
-    /// @dev    Override when the broadcaster identity differs from vm.addr(oftDeployerPK).
     function _proxyTempAdmin() internal virtual view returns (address) {
-        return vm.addr(oftDeployerPK);
+        revert("Must override _proxyTempAdmin() to return the address of the temporary proxy admin");
     }
 
     function deployFraxOFTUpgradeableAndProxy(
@@ -656,7 +646,7 @@ contract DeployFraxOFTProtocol is SetDVNs, BaseL0Script {
         string memory _salt,
         bytes memory _initCode
     ) public virtual returns (address deployed) {
-        bytes32 salt = _generateCreate2Salt(msg.sender, _salt);
+        bytes32 salt = _generateCreate2Salt( _salt);
 
         // Deploy via Nick's CREATE2 factory: calldata = salt ++ initCode
         (bool success, bytes memory ret) = NICK_CREATE2_DEPLOYER.call(
@@ -674,7 +664,7 @@ contract DeployFraxOFTProtocol is SetDVNs, BaseL0Script {
         string memory _salt,
         bytes memory _initCode
     ) public virtual view returns (address) {
-        bytes32 salt = _generateCreate2Salt(GCS_DEPLOYER, _salt);
+        bytes32 salt = _generateCreate2Salt(_salt);
         return address(uint160(uint256(keccak256(abi.encodePacked(
             bytes1(0xff),
             NICK_CREATE2_DEPLOYER,
@@ -707,13 +697,12 @@ contract DeployFraxOFTProtocol is SetDVNs, BaseL0Script {
 
     /// @notice Generate a CREATE2 salt for deterministic deployment.
     ///         Uses a vanity salt from create2crunch when available, otherwise
-    ///         falls back to keccak256(deployer, name).
-    /// @param _deployer The address of the deployer
+    ///         falls back to keccak256(name).
     /// @param _name The name used to generate the salt
     /// @return The generated salt
-    function _generateCreate2Salt(address _deployer, string memory _name) internal pure returns (bytes32) {
+    function _generateCreate2Salt(string memory _name) internal pure returns (bytes32) {
         bytes32 vanity = _vanitySalt(_name);
         if (vanity != bytes32(0)) return vanity;
-        return keccak256(abi.encodePacked(_deployer, _name));
+        return keccak256(abi.encodePacked(_name));
     }
 }

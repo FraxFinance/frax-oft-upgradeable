@@ -106,7 +106,7 @@ abstract contract SendFraxOFTFraxtalHub is DeployFraxOFTProtocol {
         vm.createSelectFork(_sourceRpc);
     }
 
-    function run() public override broadcastAs(configDeployerPK) {
+    function run() public virtual override broadcastAs(configDeployerPK) {
         require(
             OFTUpgradeable(srcFraxOft).isPeer(uint32(dstEid), addressToBytes32(dstFraxOft)),
             "wfrax is not wired to destination"
@@ -177,12 +177,12 @@ abstract contract SendFraxOFTFraxtalHub is DeployFraxOFTProtocol {
         );
     }
 
-    function _validateAddrs() internal view {
-        require(isStringEqual(IERC20Metadata(frxUsdOft).symbol(), "frxUSD"), "frxUsdOft != frxUSD");
-        require(isStringEqual(IERC20Metadata(sfrxUsdOft).symbol(), "sfrxUSD"), "sfrxUsdOft != sfrxUSD");
-        require(isStringEqual(IERC20Metadata(frxEthOft).symbol(), "frxETH"), "frxEthOft != frxETH");
-        require(isStringEqual(IERC20Metadata(sfrxEthOft).symbol(), "sfrxETH"), "sfrxEthOft != sfrxETH");
-        require(isStringEqual(IERC20Metadata(wfraxOft).symbol(), "WFRAX"), "wFraxOft != WFRAX");
-        require(isStringEqual(IERC20Metadata(fpiOft).symbol(), "FPI"), "fpiOft != FPI");
+    function _validateAddrs() internal view virtual {
+        require(isStringEqual(IERC20Metadata(IOFT(frxUsdOft).token()).symbol(), "frxUSD"), "frxUsdOft != frxUSD");
+        require(isStringEqual(IERC20Metadata(IOFT(sfrxUsdOft).token()).symbol(), "sfrxUSD"), "sfrxUsdOft != sfrxUSD");
+        require(isStringEqual(IERC20Metadata(IOFT(frxEthOft).token()).symbol(), "frxETH"), "frxEthOft != frxETH");
+        require(isStringEqual(IERC20Metadata(IOFT(sfrxEthOft).token()).symbol(), "sfrxETH"), "sfrxEthOft != sfrxETH");
+        require(isStringEqual(IERC20Metadata(IOFT(wfraxOft).token()).symbol(), "WFRAX"), "wFraxOft != WFRAX");
+        require(isStringEqual(IERC20Metadata(IOFT(fpiOft).token()).symbol(), "FPI"), "fpiOft != FPI");
     }
 }

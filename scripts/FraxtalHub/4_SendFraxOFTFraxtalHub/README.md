@@ -23,5 +23,5 @@
 ### Tempo
 
 * fraxtal : https://layerzeroscan.com/tx/0x571a48f4b0fc4a406d79c465f2589040c3bafc658887e5a768a9060181e59205
-* tempo (gas token is pathUSD) : 
+* tempo (gas token is pathUSD) : https://layerzeroscan.com/tx/0xfca62446152d8084e6c90dbb53f9cfabbc5def4e82198b61a978d34b980add37
 * tempo (gas token is frxUSD TIP20) : 

@@ -146,10 +146,14 @@ abstract contract SendFraxOFTFraxtalHub is DeployFraxOFTProtocol {
         simulateConfig.chainid = block.chainid;
         _validateAndPopulateMainnetOfts();
 
+        SendParam memory _frxUsdSendParam = _getsendParamsForfrxUSD(_sendParam);
+
         for (uint256 i; i < proxyOfts.length; i++) {
             sendParams.push(_sendParam);
             refundAddresses.push(senderWallet);
         }
+        // Replace frxUSD entry (index 3) with scaled send params
+        sendParams[3] = _frxUsdSendParam;
 
         ofts.push(IOFT(srcFraxOft));
         MessagingFee memory _fee = IOFT(srcFraxOft).quoteSend(_sendParam, false);
@@ -161,7 +165,7 @@ abstract contract SendFraxOFTFraxtalHub is DeployFraxOFTProtocol {
         _fee = IOFT(srcsfrxethOft).quoteSend(_sendParam, false);
         _totalEthFee += _fee.nativeFee;
         ofts.push(IOFT(srcfrxusdOft));
-        _fee = IOFT(srcfrxusdOft).quoteSend(_sendParam, false);
+        _fee = IOFT(srcfrxusdOft).quoteSend(_frxUsdSendParam, false);
         _totalEthFee += _fee.nativeFee;
         ofts.push(IOFT(srcfrxethOft));
         _fee = IOFT(srcfrxethOft).quoteSend(_sendParam, false);
@@ -170,7 +174,16 @@ abstract contract SendFraxOFTFraxtalHub is DeployFraxOFTProtocol {
         _fee = IOFT(srcfpiOft).quoteSend(_sendParam, false);
         _totalEthFee += _fee.nativeFee;
 
-        FraxOFTWalletUpgradeable(senderWallet).batchBridgeWithEthFeeFromWallet{ value: _totalEthFee }(
+        _executeBatchBridge(_totalEthFee);
+    }
+
+    function _getsendParamsForfrxUSD(SendParam memory _sendParam) internal view virtual returns (SendParam memory) {
+        return _sendParam;
+    }
+
+    /// @dev Override to change the batch bridge execution (e.g. TIP20 gas payment on Tempo).
+    function _executeBatchBridge(uint256 _totalFee) internal virtual {
+        FraxOFTWalletUpgradeable(senderWallet).batchBridgeWithEthFeeFromWallet{ value: _totalFee }(
             sendParams,
             ofts,
             refundAddresses

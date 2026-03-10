@@ -2,9 +2,10 @@
 pragma solidity ^0.8.19;
 
 import "./SendFraxOFTFraxtalHub.sol";
-import { TempoAltTokenBase } from "contracts/base/TempoAltTokenBase.sol";
+import { FraxOFTWalletUpgradeableTempo } from "contracts/FraxOFTWalletUpgradeableTempo.sol";
 import { StdPrecompiles } from "tempo-std/StdPrecompiles.sol";
 import { StdTokens } from "tempo-std/StdTokens.sol";
+import { ITIP20 } from "@tempo/interfaces/ITIP20.sol";
 
 // forge script scripts/FraxtalHub/4_SendFraxOFTFraxtalHub/SendFraxOFTTempoToFraxtal.s.sol --rpc-url $TEMPO_RPC_URL --broadcast
 
@@ -24,73 +25,38 @@ contract SendFraxOFTTempoToFraxtal is SendFraxOFTFraxtalHub {
         recipientWallet = 0x741F0d8Bde14140f62107FC60A0EE122B37D4630;
     }
 
-    /// @dev Override run() because Tempo OFTs use ERC20 for gas (no msg.value).
-    ///      There is no FraxOFTWalletUpgradeable on Tempo, so we send directly from the deployer.
-    function run() public override broadcastAs(configDeployerPK) {
-        // Validate peers on source chain
-        require(
-            OFTUpgradeable(srcFraxOft).isPeer(uint32(dstEid), addressToBytes32(dstFraxOft)),
-            "wfrax is not wired to destination"
-        );
-        require(
-            OFTUpgradeable(srcsfrxusdOft).isPeer(uint32(dstEid), addressToBytes32(dstsfrxusdOft)),
-            "sfrxusd is not wired to destination"
-        );
-        require(
-            OFTUpgradeable(srcsfrxethOft).isPeer(uint32(dstEid), addressToBytes32(dstsfrxethOft)),
-            "sfrxeth is not wired to destination"
-        );
-        require(
-            OFTUpgradeable(srcfrxusdOft).isPeer(uint32(dstEid), addressToBytes32(dstfrxusdOft)),
-            "frxusd is not wired to destination"
-        );
-        require(
-            OFTUpgradeable(srcfrxethOft).isPeer(uint32(dstEid), addressToBytes32(dstfrxethOft)),
-            "frxeth is not wired to destination"
-        );
-        require(
-            OFTUpgradeable(srcfpiOft).isPeer(uint32(dstEid), addressToBytes32(dstfpiOft)),
-            "fpi is not wired to destination"
-        );
+    /// @dev Tempo pays LZ fees in TIP20 (no msg.value) via FraxOFTWalletUpgradeableTempo.
+    function _executeBatchBridge(uint256 _totalFee) internal override {
+        FraxOFTWalletUpgradeableTempo _wallet = FraxOFTWalletUpgradeableTempo(senderWallet);
+        IERC20 _pathUsd = IERC20(StdTokens.PATH_USD_ADDRESS);
 
-        SendParam memory _sendParam = SendParam({
-            dstEid: uint32(dstEid),
-            to: addressToBytes32(recipientWallet),
-            amountLD: amount,
-            minAmountLD: 0,
-            extraOptions: "",
-            composeMsg: "",
-            oftCmd: ""
-        });
+        address FRXUSD_TIP20 = IOFT(frxUsdOft).token();
 
-        // Resolve user's TIP20 gas token for fee approvals
-        address gasToken = StdPrecompiles.TIP_FEE_MANAGER.userTokens(msg.sender);
-        if (gasToken == address(0)) gasToken = StdTokens.PATH_USD_ADDRESS;
+        _wallet.approveToken(IERC20(FRXUSD_TIP20), frxUsdOft, type(uint256).max);
 
-        // Send each OFT individually — no wallet on Tempo, ERC20 gas payment via TempoAltTokenBase
-        _sendOFTTempo(IOFT(srcFraxOft), _sendParam, gasToken);
-        _sendOFTTempo(IOFT(srcsfrxusdOft), _sendParam, gasToken);
-        _sendOFTTempo(IOFT(srcsfrxethOft), _sendParam, gasToken);
-        _sendOFTTempo(IOFT(srcfrxusdOft), _sendParam, gasToken);
-        _sendOFTTempo(IOFT(srcfrxethOft), _sendParam, gasToken);
-        _sendOFTTempo(IOFT(srcfpiOft), _sendParam, gasToken);
+        // Approve wallet to let each OFT pull PATH_USD for LZ gas fees
+        for (uint256 i; i < ofts.length; i++) {
+            _wallet.approveToken(_pathUsd, address(ofts[i]), type(uint256).max);
+        }
+
+        // Approve wallet to pull PATH_USD from deployer for the total fee
+        StdPrecompiles.TIP_FEE_MANAGER.setUserToken(StdTokens.PATH_USD_ADDRESS);
+        ITIP20(StdTokens.PATH_USD_ADDRESS).approve(senderWallet, _totalFee);
+        _wallet.batchBridgeWithTIP20FeeFromWallet(sendParams, ofts, refundAddresses);
     }
 
-    /// @dev Send a single OFT from Tempo using ERC20 gas payment.
-    ///      Approves the OFT for both the underlying token and the gas token,
-    ///      then calls send{value: 0} (Tempo OFTs revert on msg.value > 0).
-    function _sendOFTTempo(IOFT _oft, SendParam memory _sendParam, address _gasToken) internal {
-        // Approve OFT to spend the underlying token for bridging
-        IERC20(_oft.token()).approve(address(_oft), _sendParam.amountLD);
-
-        // Quote LZ fee (in endpoint-native / LZEndpointDollar units)
-        MessagingFee memory fee = _oft.quoteSend(_sendParam, false);
-
-        // Quote gas token cost and approve — TempoAltTokenBase pulls from msg.sender via transferFrom
-        uint256 gasTokenFee = TempoAltTokenBase(address(_oft)).quoteUserTokenFee(_gasToken, fee.nativeFee);
-        IERC20(_gasToken).approve(address(_oft), gasTokenFee);
-
-        // Send with value=0 — Tempo OFTs handle gas payment via ERC20 internally
-        _oft.send{ value: 0 }(_sendParam, fee, senderWallet);
+    /// @dev frxUSD on Tempo is a 6-decimal TIP20 — scale down from 18 decimals.
+    ///      Returns a NEW struct to avoid mutating the original (memory structs are pass-by-reference).
+    function _getsendParamsForfrxUSD(SendParam memory _sendParam) internal view override returns (SendParam memory) {
+        uint256 scaleFactor = 10 ** (18 - IERC20Metadata(IOFT(frxUsdOft).token()).decimals());
+        return SendParam({
+            dstEid: _sendParam.dstEid,
+            to: _sendParam.to,
+            amountLD: _sendParam.amountLD / scaleFactor,
+            minAmountLD: _sendParam.minAmountLD / scaleFactor,
+            extraOptions: _sendParam.extraOptions,
+            composeMsg: _sendParam.composeMsg,
+            oftCmd: _sendParam.oftCmd
+        });
     }
 }

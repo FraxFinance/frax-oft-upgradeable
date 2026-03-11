@@ -9,7 +9,7 @@ import { ITIP20 } from "@tempo/interfaces/ITIP20.sol";
 
 // forge script scripts/FraxtalHub/4_SendFraxOFTFraxtalHub/SendFraxOFTTempoToFraxtal.s.sol --rpc-url $TEMPO_RPC_URL --broadcast
 
-contract SendFraxOFTTempoToFraxtal is SendFraxOFTFraxtalHub {
+contract SendFraxOFTTempoToFraxtal is SendFraxOFTFraxtalHub { 
     constructor() {
         wfraxOft = 0x00000000E9CE0f293D1Ce552768b187eBA8a56D4;
         sfrxUsdOft = 0x00000000fD8C4B8A413A06821456801295921a71;
@@ -32,16 +32,18 @@ contract SendFraxOFTTempoToFraxtal is SendFraxOFTFraxtalHub {
 
         address FRXUSD_TIP20 = IOFT(frxUsdOft).token();
 
-        _wallet.approveToken(IERC20(FRXUSD_TIP20), frxUsdOft, type(uint256).max);
+        address gasToken = FRXUSD_TIP20; // StdTokens.PATH_USD_ADDRESSå
+
+        // _wallet.approveToken(IERC20(FRXUSD_TIP20), frxUsdOft, type(uint256).max);
 
         // Approve wallet to let each OFT pull PATH_USD for LZ gas fees
-        for (uint256 i; i < ofts.length; i++) {
-            _wallet.approveToken(_pathUsd, address(ofts[i]), type(uint256).max);
-        }
+        // for (uint256 i; i < ofts.length; i++) {
+        //     _wallet.approveToken(IERC20(gasToken), address(ofts[i]), type(uint256).max);
+        // }
 
         // Approve wallet to pull PATH_USD from deployer for the total fee
-        StdPrecompiles.TIP_FEE_MANAGER.setUserToken(StdTokens.PATH_USD_ADDRESS);
-        ITIP20(StdTokens.PATH_USD_ADDRESS).approve(senderWallet, _totalFee);
+        StdPrecompiles.TIP_FEE_MANAGER.setUserToken(gasToken);
+        // ITIP20(gasToken).approve(senderWallet, type(uint256).max);
         _wallet.batchBridgeWithTIP20FeeFromWallet(sendParams, ofts, refundAddresses);
     }
 

@@ -375,7 +375,7 @@
             "sendLib302": "0x37aaaf95887624a363effB7762D489E3C05c2a02"
         },
         {
-            "RPC": "https://rpc.tempo.xyz",
+            "RPC": "https://nervous-bose:jolly-jackson@rpc.tempo.xyz",
             "chainid": 4217,
             "delegate": "0x1Ba19a54a01AE967f5E3895764Caaa6919FD2bEe",
             "dvnHorizen": "0x0000000000000000000000000000000000000000",

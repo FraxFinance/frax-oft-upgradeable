@@ -17,6 +17,8 @@ This repository contains all of the contracts and deployment code used to manage
     - `0xe59dcae52a4ffa39be99588486c84bc2dc1ba52f`
   - `Monad`
     - `0xc2871eae630640ce1a16b39a17c498f22d76c21a`
+  - `Tempo`
+    - `0x000000dbfaA1Fb91ca46867cE6D41aB6da4f7428`
 
 - Msigs (links to gnosis safe and squad for Solana)
   - `Ethereum`
@@ -53,6 +55,7 @@ This repository contains all of the contracts and deployment code used to manage
   - [`HyperEVM`](https://safe.onchainden.com/home?safe=hyperevm:0x738ee62157f127C879Ff5c4B7102Eb0d166C7a6d)
   - [`Stable`](https://app.safe.global/home?safe=stable:0x0C46f54BF9EF8fd58e2D294b8cEA488204EcB3D8)
   - [`Monad`](https://app.safe.global/home?safe=monad:0x47FF5bBAB981Ff022743AA4281D4d6Dd7Fb1a4D0)
+  - [`Tempo`](https://app.test.safe.protofire.io/settings/setup?safe=tempo:0x1Ba19a54a01AE967f5E3895764Caaa6919FD2bEe)
 
 ### Proxy (upgradeable) OFTs
 - Chain: `Mode`, `Sei`, `X-Layer`, `Ink`, `Sonic`, `Arbitrum`, `Optimism`, `Polygon`, `BSC`, `Avalanche`, `Polygon zkEvm`, `Blast`, `Berachain`, `Worldchain`, `Unichain`, `Plume`, `Katana`, `Aurora`, `Hyperliquid`, `Stable`
@@ -106,6 +109,17 @@ This repository contains all of the contracts and deployment code used to manage
      - `sfrxETH`: `0x3b4cf37a3335f21c945a40088404c715525fcb29`
      - `WFRAX`: `0x29acc7c504665a5ea95344796f784095f0cfcc58`
      - `FPI`: `0xba554f7a47f0792b9fa41a1256d4cf628bb1d028`
+- Chain: `Tempo`
+  - OFTs:
+     - `frxUSD`: `0x00000000D61733e7A393A10A5B48c311AbE8f1E5`
+     - `sfrxUSD`: `0x00000000fD8C4B8A413A06821456801295921a71`
+     - `frxETH`: `0x000000008c3930dCA540bB9B3A5D0ee78FcA9A4c`
+     - `sfrxETH`: `0x00000000883279097A49dB1f2af954EAd0C77E3c`
+     - `WFRAX`: `0x00000000E9CE0f293D1Ce552768b187eBA8a56D4`
+     - `FPI`: `0x00000000bC4aEF4bA6363a437455Cb1af19e2aEb`
+     - `FrxUSDPolicyAdminTempo` : `0x766c2BD9C6dDc5BeE9ACd7D4C8ADD5b969952969`
+     - `PolicyID` : `5`
+     - `frxUSD TIP20` : `0x20C0000000000000000000003554d28269E0f3c2`
 
 ### Contract design
 Overall, there are three types of LayerZero contracts that provide liquidity for users upon bridging:
@@ -122,11 +136,12 @@ Overall, there are three types of LayerZero contracts that provide liquidity for
   - When tokens are sent to the chain, the Mintable Adapter mints the Frax token to the recipient
   - When tokens are sent from the chain, the Mintable Adapter burns the Frax token
 
-With the exception of Ethereum and Fraxtal, Frax tokens are represented as an OFT.  For Ethereum and Fraxtal, Frax tokens are utilized in the following:
+With the exception of Ethereum, Fraxtal and Tempo (frxUSD TIP20), Frax tokens are represented as an OFT.  For Ethereum and Fraxtal, Frax tokens are utilized in the following:
 
 #### frxUSD
 - Fraxtal (Mintable Adapter): `0x96A394058E2b84A89bac9667B19661Ed003cF5D4`
 - Ethereum (Mintable Adapter): `0x566a6442A5A6e9895B9dCA97cC7879D632c6e4B0`
+- Tempo (Mintable Adapter): `0x00000000D61733e7A393A10A5B48c311AbE8f1E5`
 
 #### sfrxUSD
 - Fraxtal (Mintable Adapter): `0x88Aa7854D3b2dAA5e37E7Ce73A1F39669623a361`

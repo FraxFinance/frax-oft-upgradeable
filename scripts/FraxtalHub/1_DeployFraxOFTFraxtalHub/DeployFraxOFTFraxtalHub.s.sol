@@ -41,7 +41,7 @@ contract DeployFraxOFTFraxtalHub is DeployFraxOFTProtocol {
     }
 
     function deploySource() public override {
-        preDeployChecks();
+        // preDeployChecks();
         deployFraxOFTUpgradeablesAndProxies();
         deployFraxOFTWalletUpgradeableAndProxy();
         postDeployChecks();
@@ -49,12 +49,13 @@ contract DeployFraxOFTFraxtalHub is DeployFraxOFTProtocol {
 
     function deployFraxOFTWalletUpgradeableAndProxy()
         public
+        virtual
         broadcastAs(oftDeployerPK)
         returns (address implementation, address proxy)
     {
         implementation = address(new FraxOFTWalletUpgradeable());
         /// @dev: create semi-pre-deterministic proxy address, then initialize with correct implementation
-        proxy = address(new TransparentUpgradeableProxy(implementationMock, vm.addr(oftDeployerPK), ""));
+        proxy = address(new TransparentUpgradeableProxy(implementationMock, _proxyTempAdmin(), ""));
         /// @dev: broadcastConfig deployer is temporary owner until setPriviledgedRoles()
         bytes memory initializeArgs = abi.encodeWithSelector(
             FraxOFTWalletUpgradeable.initialize.selector,
@@ -69,7 +70,7 @@ contract DeployFraxOFTFraxtalHub is DeployFraxOFTProtocol {
         proxyOftWallets.push(proxy);
     }
 
-    function postDeployChecks() internal view override {
+    function postDeployChecks() internal virtual view override {
         super.postDeployChecks();
         require(proxyOftWallets.length == 1, "Did not deploy proxy OFT wallet");
     }

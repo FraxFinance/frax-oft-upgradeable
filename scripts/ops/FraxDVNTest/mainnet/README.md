@@ -6,7 +6,7 @@
 * `delegate` : `0x45dce8e4f2dc005a5f28206a46cb034697eeda8e`
 * `proxyAdmin` : `0x45dce8e4f2dc005a5f28206a46cb034697eeda8e`
 
-* `ethereum` , `blast` , `base` , `mode` , `sei` , `frax` , `xlayer` , `sonic` , `ink` , `arbitrum` , `optimism` , `polygon` , `avalanche` , `bsc` , `zkpolygon` , `berachain` , `worldchain` , `unichain`
+* `ethereum` , `blast` , `base` , `mode` , `sei` , `frax` , `xlayer` , `sonic` , `ink` , `arbitrum` , `optimism` , `polygon` , `avalanche` , `bsc` , `zkpolygon` , `berachain` , `worldchain` , `unichain`, `Plume`, `Katana`, `Aurora`, `Hyperliquid`,  `Stable`, `Tempo` 
   * `mockFrax` : `0x57558Cb8d6005DE0BAe8a2789d5EfaaE52dba5a8`
   * `fraxOFTWallet` : `0x741F0d8Bde14140f62107FC60A0EE122B37D4630`
 * `zksync`
@@ -484,3 +484,24 @@ worldchain : https://layerzeroscan.com/tx/0x0662527651bcc375230985fdb1da1bd736d6
 * solana : https://layerzeroscan.com/tx/4epVNG253o9KZU1Dbzokmx9pECguCeLMCxMkYBXzS4vDbeoGeUwT5YELafcshFCKrjQDoq3KusWXoAFFwPCb2HhG
 
 * hyperliquid : https://layerzeroscan.com/tx/0xccc6e51b492055bc5a524aadfb381dcab33d265c22ab8e5964dc8e9486e7ca1a (zksync, abstract and movement blocked)
+
+## Tempo
+
+### mockfrax
+
+* Fraxtal : https://layerzeroscan.com/tx/0x9c027a48ffa84009392918246e3cf824684bc4f5d2a665334cc4d9b33d7899ee
+
+* Tempo (pathUSD) : https://layerzeroscan.com/tx/0x6bb97762a744da2239ff9fe47812039b065c2a4bfbabb1765b849a885f4f750c
+
+* Tempo (mockfrxUSD TIP20) : https://layerzeroscan.com/tx/0x533714498e065b07819e9646112fc25ec566685aba00a3acea986a3379ab5af7
+
+### mockfrxUSD
+
+* Fraxtal : https://layerzeroscan.com/tx/0xdea60fd5aab449d970cff060a3dc85053092009be71844fd9a1bf45171795a7d
+
+* Tempo (pathUSD) : https://layerzeroscan.com/tx/0xdea60fd5aab449d970cff060a3dc85053092009be71844fd9a1bf45171795a7d
+
+* Tempo (mockfrxUSD TIP20) : https://layerzeroscan.com/tx/0x919edd98d758631b0ee83e3299aa7d75f00fc3cef999d5843c513401984c5b1c
+
+#### transaction using mockfrxUSD as gas token
+* transfer mockfrxUSD TIP20 : https://explore.mainnet.tempo.xyz/tx/0xd9bc059190d3a2491c39e94aecb2422580cbbb556774ff224873aea01fb3f605

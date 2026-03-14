@@ -3,9 +3,13 @@ pragma solidity ^0.8.19;
 
 import "scripts/BaseL0Script.sol";
 import { FraxOFTWalletUpgradeable } from "contracts/FraxOFTWalletUpgradeable.sol";
+import { FraxOFTWalletUpgradeableTempo } from "contracts/FraxOFTWalletUpgradeableTempo.sol";
 import { IERC20 } from "@openzeppelin/contracts/token/ERC20/IERC20.sol";
 import { SendParam, OFTReceipt, MessagingFee, IOFT } from "@fraxfinance/layerzero-v2-upgradeable/oapp/contracts/oft/interfaces/IOFT.sol";
 import { FraxOFTUpgradeable } from "contracts/FraxOFTUpgradeable.sol";
+import { StdTokens } from "tempo-std/StdTokens.sol";
+import { StdPrecompiles } from "tempo-std/StdPrecompiles.sol";
+import { ITIP20 } from "@tempo/interfaces/ITIP20.sol";
 
 // fraxtal : forge script scripts/ops/FraxDVNTest/mainnet/7_SendFraxAssets.s.sol --rpc-url https://rpc.frax.com --broadcast
 // plumephoenix : forge script scripts/ops/FraxDVNTest/mainnet/7_SendFraxAssets.s.sol --rpc-url https://rpc.plume.org --broadcast
@@ -90,10 +94,22 @@ contract SendFraxAssets is BaseL0Script {
         refundAddresses.push(senderWallet);
         refundAddresses.push(senderWallet);
 
-        FraxOFTWalletUpgradeable(senderWallet).batchBridgeWithEthFeeFromWallet{ value: _totalEthFee }(
-            sendParams,
-            ofts,
-            refundAddresses
-        );
+        if (broadcastConfig.eid == 30410) {
+            // Tempo: approve wallet to pull TIP20 gas token, then bridge
+            StdPrecompiles.TIP_FEE_MANAGER.setUserToken(StdTokens.PATH_USD_ADDRESS);
+            ITIP20(StdTokens.PATH_USD_ADDRESS).approve(senderWallet, _totalEthFee);
+            FraxOFTWalletUpgradeableTempo(senderWallet).batchBridgeWithTIP20FeeFromWallet(
+                sendParams,
+                ofts,
+                refundAddresses
+            );
+        } else {
+            // All other chains: pays ETH
+            FraxOFTWalletUpgradeable(senderWallet).batchBridgeWithEthFeeFromWallet{ value: _totalEthFee }(
+                sendParams,
+                ofts,
+                refundAddresses
+            );
+        }
     }
 }

@@ -106,7 +106,7 @@ abstract contract SendFraxOFTFraxtalHub is DeployFraxOFTProtocol {
         vm.createSelectFork(_sourceRpc);
     }
 
-    function run() public override broadcastAs(configDeployerPK) {
+    function run() public virtual override broadcastAs(configDeployerPK) {
         require(
             OFTUpgradeable(srcFraxOft).isPeer(uint32(dstEid), addressToBytes32(dstFraxOft)),
             "wfrax is not wired to destination"
@@ -146,10 +146,14 @@ abstract contract SendFraxOFTFraxtalHub is DeployFraxOFTProtocol {
         simulateConfig.chainid = block.chainid;
         _validateAndPopulateMainnetOfts();
 
+        SendParam memory _frxUsdSendParam = _getsendParamsForfrxUSD(_sendParam);
+
         for (uint256 i; i < proxyOfts.length; i++) {
             sendParams.push(_sendParam);
             refundAddresses.push(senderWallet);
         }
+        // Replace frxUSD entry (index 3) with scaled send params
+        sendParams[3] = _frxUsdSendParam;
 
         ofts.push(IOFT(srcFraxOft));
         MessagingFee memory _fee = IOFT(srcFraxOft).quoteSend(_sendParam, false);
@@ -161,7 +165,7 @@ abstract contract SendFraxOFTFraxtalHub is DeployFraxOFTProtocol {
         _fee = IOFT(srcsfrxethOft).quoteSend(_sendParam, false);
         _totalEthFee += _fee.nativeFee;
         ofts.push(IOFT(srcfrxusdOft));
-        _fee = IOFT(srcfrxusdOft).quoteSend(_sendParam, false);
+        _fee = IOFT(srcfrxusdOft).quoteSend(_frxUsdSendParam, false);
         _totalEthFee += _fee.nativeFee;
         ofts.push(IOFT(srcfrxethOft));
         _fee = IOFT(srcfrxethOft).quoteSend(_sendParam, false);
@@ -170,19 +174,28 @@ abstract contract SendFraxOFTFraxtalHub is DeployFraxOFTProtocol {
         _fee = IOFT(srcfpiOft).quoteSend(_sendParam, false);
         _totalEthFee += _fee.nativeFee;
 
-        FraxOFTWalletUpgradeable(senderWallet).batchBridgeWithEthFeeFromWallet{ value: _totalEthFee }(
+        _executeBatchBridge(_totalEthFee);
+    }
+
+    function _getsendParamsForfrxUSD(SendParam memory _sendParam) internal view virtual returns (SendParam memory) {
+        return _sendParam;
+    }
+
+    /// @dev Override to change the batch bridge execution (e.g. TIP20 gas payment on Tempo).
+    function _executeBatchBridge(uint256 _totalFee) internal virtual {
+        FraxOFTWalletUpgradeable(senderWallet).batchBridgeWithEthFeeFromWallet{ value: _totalFee }(
             sendParams,
             ofts,
             refundAddresses
         );
     }
 
-    function _validateAddrs() internal view {
-        require(isStringEqual(IERC20Metadata(frxUsdOft).symbol(), "frxUSD"), "frxUsdOft != frxUSD");
-        require(isStringEqual(IERC20Metadata(sfrxUsdOft).symbol(), "sfrxUSD"), "sfrxUsdOft != sfrxUSD");
-        require(isStringEqual(IERC20Metadata(frxEthOft).symbol(), "frxETH"), "frxEthOft != frxETH");
-        require(isStringEqual(IERC20Metadata(sfrxEthOft).symbol(), "sfrxETH"), "sfrxEthOft != sfrxETH");
-        require(isStringEqual(IERC20Metadata(wfraxOft).symbol(), "WFRAX"), "wFraxOft != WFRAX");
-        require(isStringEqual(IERC20Metadata(fpiOft).symbol(), "FPI"), "fpiOft != FPI");
+    function _validateAddrs() internal view virtual {
+        require(isStringEqual(IERC20Metadata(IOFT(frxUsdOft).token()).symbol(), "frxUSD"), "frxUsdOft != frxUSD");
+        require(isStringEqual(IERC20Metadata(IOFT(sfrxUsdOft).token()).symbol(), "sfrxUSD"), "sfrxUsdOft != sfrxUSD");
+        require(isStringEqual(IERC20Metadata(IOFT(frxEthOft).token()).symbol(), "frxETH"), "frxEthOft != frxETH");
+        require(isStringEqual(IERC20Metadata(IOFT(sfrxEthOft).token()).symbol(), "sfrxETH"), "sfrxEthOft != sfrxETH");
+        require(isStringEqual(IERC20Metadata(IOFT(wfraxOft).token()).symbol(), "WFRAX"), "wFraxOft != WFRAX");
+        require(isStringEqual(IERC20Metadata(IOFT(fpiOft).token()).symbol(), "FPI"), "fpiOft != FPI");
     }
 }

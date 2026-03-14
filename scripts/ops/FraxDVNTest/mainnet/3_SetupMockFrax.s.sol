@@ -37,7 +37,7 @@ contract SetupMockFrax is DeployFraxOFTProtocol {
             expectedProxyOfts.push(0xA057D8D4Fc86a62801CE363C169b0A8d192F6cEE);
         } else {
             // 1,81457,8453,34443,1329,252,196,146,57073,42161,10,137,43114,56,1101,80094,480,130,98866,747474,
-            // 534352, 999
+            // 534352, 999, 143, 988, 4217
             connectedOfts[0] = 0x57558Cb8d6005DE0BAe8a2789d5EfaaE52dba5a8;
             proxyOfts.push(0x57558Cb8d6005DE0BAe8a2789d5EfaaE52dba5a8);
             expectedProxyOfts.push(0x57558Cb8d6005DE0BAe8a2789d5EfaaE52dba5a8);
@@ -71,7 +71,7 @@ contract SetupMockFrax is DeployFraxOFTProtocol {
             peer = 0xA057D8D4Fc86a62801CE363C169b0A8d192F6cEE;
         } else {
             // 1,81457,8453,34443,1329,252,196,146,57073,42161,10,137,43114,56,1101,80094,480,130,98866,747474,
-            // 534352, 999
+            // 534352, 999, 143, 988, 4217
             peer = 0x57558Cb8d6005DE0BAe8a2789d5EfaaE52dba5a8;
         }
     }
@@ -112,6 +112,11 @@ contract SetupMockFrax is DeployFraxOFTProtocol {
             // L0 team has not setup defaultSendLibrary and defaultReceiveLibrary on hyperliquid for
             // Botanix (botanixlabs)
             if (_config.eid == 30376) return;
+        }
+        if (_connectedConfig.eid == 30410) {
+            // L0 team has not setup defaultSendLibrary and defaultReceiveLibrary on tempo for
+            // Solana (30168), Movement (30325), Aptos (30108), Blast (30243)
+            if (_config.eid == 30168 || _config.eid == 30325 || _config.eid == 30108 || _config.eid == 30243) return;
         }
         // TODO : only set library if it is not same as config
         super.setLib(_connectedConfig, _connectedOft, _config);
@@ -155,6 +160,13 @@ contract SetupMockFrax is DeployFraxOFTProtocol {
             // L0 team has not setup defaultSendLibrary and defaultReceiveLibrary on hyperliquid for
             // Botanix (botanixlabs)
             if (_dstConfig.eid == 30376) return;
+        }
+        if (_srcConfig.eid == 30410) {
+            // L0 team has not setup defaultSendLibrary and defaultReceiveLibrary on tempo for
+            // Solana (30168), Movement (30325), Aptos (30108), Blast (30243)
+            if (
+                _dstConfig.eid == 30168 || _dstConfig.eid == 30325 || _dstConfig.eid == 30108 || _dstConfig.eid == 30243
+            ) return;
         }
         super.setConfig(_srcConfig, _dstConfig, _lib, _oft);
     }

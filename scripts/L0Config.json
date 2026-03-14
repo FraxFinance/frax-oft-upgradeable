@@ -363,7 +363,7 @@
             "sendLib302": "0xC39161c743D0307EB9BCc9FEF03eeb9Dc4802de7"
         },
         {
-            "RPC": "https://stable-mainnet-rpc.ops.frax.com",
+            "RPC": "https://rpc.stable.xyz",
             "chainid": 988,
             "delegate": "0x0C46f54BF9EF8fd58e2D294b8cEA488204EcB3D8",
             "dvnHorizen": "0x0000000000000000000000000000000000000000",
@@ -373,6 +373,18 @@
             "proxyAdmin": "0x223a681fc5c5522c85c96157c0efa18cd6c5405c",
             "receiveLib302": "0x15e51701F245F6D5bd0FEE87bCAf55B0841451B3",
             "sendLib302": "0x37aaaf95887624a363effB7762D489E3C05c2a02"
+        },
+        {
+            "RPC": "https://nervous-bose:jolly-jackson@rpc.tempo.xyz",
+            "chainid": 4217,
+            "delegate": "0x1Ba19a54a01AE967f5E3895764Caaa6919FD2bEe",
+            "dvnHorizen": "0x0000000000000000000000000000000000000000",
+            "dvnL0": "0x76faff60799021b301b45dc1bbede53f261f9961",
+            "eid": 30410,
+            "endpoint": "0x20Bb7C2E2f4e5ca2B4c57060d1aE2615245dCc9C",
+            "proxyAdmin": "0x000000dbfaA1Fb91ca46867cE6D41aB6da4f7428",
+            "receiveLib302": "0x0B6F08C2D39421Acb49c99abCe82050e356171e5",
+            "sendLib302": "0x572863d9247E52026E0892d9Cd2E519B41EdB73C"
         },
         {
             "RPC": "https://api.mainnet.abs.xyz",
@@ -474,6 +486,54 @@
             "proxyAdmin": "0x0000000000000000000000000000000000000000",
             "receiveLib302": "0xcF1B0F4106B0324F96fEfcC31bA9498caa80701C",
             "sendLib302": "0xd682ECF100f6F4284138AA925348633B0611Ae21"
+        },
+        {
+            "RPC": "https://bnb-testnet.api.onfinality.io/public",
+            "chainid": 97,
+            "delegate": "0x0000000000000000000000000000000000000000",
+            "dvnHorizen": "0x98a7ad52b970d9b350fdee17d3892bbe79d0132a",
+            "dvnL0": "0x0ee552262f7b562efced6dd4a7e2878ab897d405",
+            "eid": 40102,
+            "endpoint": "0x6EDCE65403992e310A62460808c4b910D972f10f",
+            "proxyAdmin": "0x0000000000000000000000000000000000000000",
+            "receiveLib302": "0x188d4bbCeD671A7aA2b5055937F79510A32e9683",
+            "sendLib302": "0x55f16c442907e86D764AFdc2a07C2de3BdAc8BB7"
+        },
+        {
+            "RPC": "https://api.zan.top/opt-sepolia",
+            "chainid": 11155420,
+            "delegate": "0x0000000000000000000000000000000000000000",
+            "dvnHorizen": "0xc041606700ef1ae6c0430d7a6f3013cb6aebdfdb",
+            "dvnL0": "0xd680ec569f269aa7015f7979b4f1239b5aa4582c",
+            "eid": 40232,
+            "endpoint": "0x6EDCE65403992e310A62460808c4b910D972f10f",
+            "proxyAdmin": "0x0000000000000000000000000000000000000000",
+            "receiveLib302": "0x9284fd59B95b9143AF0b9795CAC16eb3C723C9Ca",
+            "sendLib302": "0xB31D2cb502E25B30C651842C7C3293c51Fe6d16f"
+        },
+        {
+            "RPC": "https://api.zan.top/polygon-amoy",
+            "chainid": 80002,
+            "delegate": "0x0000000000000000000000000000000000000000",
+            "dvnHorizen": "0x0000000000000000000000000000000000000000",
+            "dvnL0": "0x55c175dd5b039331db251424538169d8495c18d1",
+            "eid": 40267,
+            "endpoint": "0x6EDCE65403992e310A62460808c4b910D972f10f",
+            "proxyAdmin": "0x0000000000000000000000000000000000000000",
+            "receiveLib302": "0x53fd4C4fBBd53F6bC58CaE6704b92dB1f360A648",
+            "sendLib302": "0x1d186C560281B8F1AF831957ED5047fD3AB902F9"
+        },
+        {
+            "RPC": "https://rpc.moderato.tempo.xyz",
+            "chainid": 42431,
+            "delegate": "0x0000000000000000000000000000000000000000",
+            "dvnHorizen": "0x0000000000000000000000000000000000000000",
+            "dvnL0": "0x0ac2924460a5b285fd205dedb46738ad46971061",
+            "eid": 40444,
+            "endpoint": "0xFB34352bA2e2D9cB93837bb19D36db5d93BcFC41",
+            "proxyAdmin": "0x0000000000000000000000000000000000000000",
+            "receiveLib302": "0xfeBE4c839EFA9f506C092a32fD0BB546B76A1d38",
+            "sendLib302": "0x91ec94dd5E949BdB2ecE3b91B9602EC5F7F59FFD"
         }
     ]
 }

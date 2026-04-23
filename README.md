@@ -55,7 +55,7 @@ This repository contains all of the contracts and deployment code used to manage
   - [`HyperEVM`](https://safe.onchainden.com/home?safe=hyperevm:0x738ee62157f127C879Ff5c4B7102Eb0d166C7a6d)
   - [`Stable`](https://app.safe.global/home?safe=stable:0x0C46f54BF9EF8fd58e2D294b8cEA488204EcB3D8)
   - [`Monad`](https://app.safe.global/home?safe=monad:0x47FF5bBAB981Ff022743AA4281D4d6Dd7Fb1a4D0)
-  - [`Tempo`](https://app.test.safe.protofire.io/settings/setup?safe=tempo:0x1Ba19a54a01AE967f5E3895764Caaa6919FD2bEe)
+  - [`Tempo`](https://app.safe.global/home?safe=tempo:0x1Ba19a54a01AE967f5E3895764Caaa6919FD2bEe)
   - [`Somnia`](https://safe.somnia.network/home?safe=somnia:0x9527e19F55d1afCE9F1e9Edcea79552bF41983F9)
 
 ### Proxy (upgradeable) OFTs

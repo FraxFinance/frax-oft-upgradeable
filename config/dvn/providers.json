@@ -263,15 +263,22 @@
         "quorum": 2
     },
     "hyperliquid": {
-        "uris": [
-            "https://rpc.hypurrscan.io",
-            "https://hyperliquid.drpc.org",
-            "https://rpc.hyperliquid.xyz/evm",
-            "https://hyperliquid-json-rpc.stakely.io",
-            "https://rpc.hyperlend.finance"
-        ],
+         "uris": [
+             "https://rpc.hypurrscan.io",
+             "https://hyperliquid.drpc.org",
+             "https://rpc.hyperliquid.xyz/evm",
+             "https://hyperliquid-json-rpc.stakely.io",
+             "https://rpc.hyperlend.finance",
+             "https://hyperevm.rpc.sentio.xyz",
+             "https://hyperliquid.api.onfinality.io/evm/public",
+             "https://hyperliquid.rpc.blxrbdn.com",
+             "https://1rpc.io/hyperliquid",
+             "https://hyperevm-mainnet.gateway.tatum.io/",
+             "https://hyperliquid.api.pocket.network/",
+             "https://999.rpc.thirdweb.com/"
+          ],
         "quorum": 2
-    },
+   },
     "scroll": {
         "uris": [
             "https://scroll-mainnet.public.blastapi.io",

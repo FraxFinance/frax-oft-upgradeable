@@ -31,6 +31,11 @@ contract SetDVNs is BaseInherited, Script {
         address stargate;
     }
 
+    struct ConfirmationConfig {
+        uint64 receiveConfirmations;
+        uint64 sendConfirmations;
+    }
+
     function setDVNs(
         L0Config memory _connectedConfig,
         address[] memory _connectedOfts,
@@ -89,12 +94,19 @@ contract SetDVNs is BaseInherited, Script {
             _dstChainId: _dstConfig.chainid
         });
 
-        // Determine if we are working with a different array of DVNs than what is currently configured
-        // Do nothing if the stack is the same as before
-        if (arraysAreEqual(currentUlnConfig.requiredDVNs, desiredDVNs)) return;
+        uint64 desiredConfirmations = getConfirmations({
+            _srcConfig: _srcConfig,
+            _dstConfig: _dstConfig,
+            _lib: _lib
+        });
+
+        // Determine if we are working with a different ULN config than what is currently configured
+        // Do nothing if the stack and confirmations are the same as before
+        if (currentUlnConfig.confirmations == desiredConfirmations && arraysAreEqual(currentUlnConfig.requiredDVNs, desiredDVNs)) return;
 
         // generate the config
         UlnConfig memory desiredUlnConfig;
+        desiredUlnConfig.confirmations = desiredConfirmations;
         desiredUlnConfig.requiredDVNCount = uint8(desiredDVNs.length);
         desiredUlnConfig.requiredDVNs = desiredDVNs;
 
@@ -122,6 +134,25 @@ contract SetDVNs is BaseInherited, Script {
             _value: 0,
             _data: data
         });
+    }
+
+    function getConfirmations(
+        L0Config memory _srcConfig,
+        L0Config memory _dstConfig,
+        address _lib
+    ) public view returns (uint64 confirmations) {
+        string memory root = vm.projectRoot();
+        root = string.concat(root, "/config/confirmations/");
+        string memory name = string.concat(_srcConfig.chainid.toString(), ".json");
+        string memory path = string.concat(root, name);
+
+        string memory jsonFile = vm.readFile(path);
+        string memory key = string.concat(".", _dstConfig.chainid.toString());
+        ConfirmationConfig memory confirmationConfig = abi.decode(jsonFile.parseRaw(key), (ConfirmationConfig));
+
+        if (_lib == _srcConfig.sendLib302) return confirmationConfig.sendConfirmations;
+        if (_lib == _srcConfig.receiveLib302) return confirmationConfig.receiveConfirmations;
+        revert("Unknown ULN lib");
     }
 
     function arraysAreEqual(address[] memory _dvnStackA, address[] memory _dvnStackB) public pure virtual returns (bool) {

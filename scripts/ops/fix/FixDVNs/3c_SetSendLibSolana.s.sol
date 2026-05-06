@@ -1,7 +1,7 @@
 // SPDX-License-Identifier: ISC
 pragma solidity ^0.8.19;
 
-import "scripts/DeployFraxOFTProtocol/DeployFraxOFTProtocol.s.sol";
+import "./FixDVNsInherited.s.sol";
 import {IOAppCore} from "@fraxfinance/layerzero-v2-upgradeable/oapp/contracts/oapp/interfaces/IOAppCore.sol";
 
 interface IEndpointV2 {
@@ -12,28 +12,22 @@ interface IEndpointV2 {
 
 error LZ_SameValue();
 
-
-contract SetSendLib is DeployFraxOFTProtocol {
+contract SetSendLib is FixDVNsInherited {
     using stdJson for string;
     using Strings for uint256;
 
     function filename() public view override returns (string memory) {
-        string memory root = vm.projectRoot();
-        root = string.concat(root, "/scripts/ops/fix/FixDVNs/txs/");
-        string memory name = string.concat((block.timestamp).toString(), "-3c_SetSendLibSolana-");
-        name = string.concat(name, simulateConfig.chainid.toString());
-        name = string.concat(name, ".json");
-
-        return string.concat(root, name);
+        return filenameForStep("3c_SetSendLibSolana");
     }
 
     function run() public override {
-        for (uint256 i=0; i<expectedProxyOfts.length; i++) {
+        for (uint256 i = 0; i < expectedProxyOfts.length; i++) {
             proxyOfts.push(expectedProxyOfts[i]);
         }
 
-        for (uint256 i=0; i<proxyConfigs.length; i++) {
-            if (proxyConfigs[i].chainid != 1 && proxyConfigs[i].chainid != 252) continue;
+        for (uint256 i = 0; i < proxyConfigs.length; i++) {
+            if (proxyConfigs[i].chainid != ETHEREUM_CHAIN_ID && proxyConfigs[i].chainid != FRAXTAL_CHAIN_ID) continue;
+            if (!matchesSource(proxyConfigs[i])) continue;
             if (proxyConfigs[i].chainid == 324 || proxyConfigs[i].chainid == 2741) {
                 // skip zksync and abstract, they have a separate script
                 continue;
@@ -44,12 +38,12 @@ contract SetSendLib is DeployFraxOFTProtocol {
     }
 
     function setSendLibs(L0Config memory _config) public simulateAndWriteTxs(_config) {
-
-        for (uint256 o=0; o<connectedOfts.length; o++) {
+        for (uint256 o = 0; o < connectedOfts.length; o++) {
             address connectedOft = connectedOfts[o];
 
-            for (uint256 i=0; i<nonEvmConfigs.length; i++) {
-                if (nonEvmConfigs[i].chainid != 111111111) continue; // only consider solana
+            for (uint256 i = 0; i < nonEvmConfigs.length; i++) {
+                if (nonEvmConfigs[i].chainid != SOLANA_CHAIN_ID) continue; // only consider solana
+                if (!matchesNonEvmDestination(_config, nonEvmConfigs[i])) continue;
                 // skip if peer is not set
                 if (!hasPeer(connectedOft, nonEvmConfigs[i])) {
                     continue;
@@ -57,17 +51,12 @@ contract SetSendLib is DeployFraxOFTProtocol {
 
                 // set the blocked library for the connected OFT
                 bytes memory data = abi.encodeCall(
-                    IMessageLibManager.setSendLibrary,
-                    (
-                        connectedOft,
-                        uint32(nonEvmConfigs[i].eid),
-                        _config.sendLib302
-                    )
+                    IMessageLibManager.setSendLibrary, (connectedOft, uint32(nonEvmConfigs[i].eid), _config.sendLib302)
                 );
                 (bool success, bytes memory returnData) = _config.endpoint.call(data);
 
                 if (!success) {
-                        if (returnData.length >= 4) {
+                    if (returnData.length >= 4) {
                         bytes4 errorSelector;
                         assembly {
                             errorSelector := mload(add(returnData, 32))
@@ -78,15 +67,8 @@ contract SetSendLib is DeployFraxOFTProtocol {
                         }
                     }
                 }
-                    
-                serializedTxs.push(
-                    SerializedTx({
-                        name: "SetBlockSendLib",
-                        to: _config.endpoint,
-                        value: 0,
-                        data: data
-                    })
-                );
+
+                serializedTxs.push(SerializedTx({name: "SetBlockSendLib", to: _config.endpoint, value: 0, data: data}));
             }
         }
     }

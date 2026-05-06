@@ -1,0 +1,134 @@
+{
+    "1": {
+        "receiveConfirmations": 15,
+        "sendConfirmations": 5
+    },
+    "10": {
+        "receiveConfirmations": 20,
+        "sendConfirmations": 5
+    },
+    "56": {
+        "receiveConfirmations": 20,
+        "sendConfirmations": 5
+    },
+    "1101": {
+        "receiveConfirmations": 22498,
+        "sendConfirmations": 5
+    },
+    "130": {
+        "receiveConfirmations": 20,
+        "sendConfirmations": 5
+    },
+    "137": {
+        "receiveConfirmations": 120,
+        "sendConfirmations": 5
+    },
+    "143": {
+        "receiveConfirmations": 4,
+        "sendConfirmations": 5
+    },
+    "146": {
+        "receiveConfirmations": 20,
+        "sendConfirmations": 5
+    },
+    "196": {
+        "receiveConfirmations": 225000,
+        "sendConfirmations": 5
+    },
+    "324": {
+        "receiveConfirmations": 20,
+        "sendConfirmations": 5
+    },
+    "480": {
+        "receiveConfirmations": 20,
+        "sendConfirmations": 5
+    },
+    "988": {
+        "receiveConfirmations": 3,
+        "sendConfirmations": 5
+    },
+    "999": {
+        "receiveConfirmations": 1,
+        "sendConfirmations": 5
+    },
+    "1329": {
+        "receiveConfirmations": 5,
+        "sendConfirmations": 5
+    },
+    "2741": {
+        "receiveConfirmations": 20,
+        "sendConfirmations": 5
+    },
+    "3637": {
+        "receiveConfirmations": 2,
+        "sendConfirmations": 5
+    },
+    "4217": {
+        "receiveConfirmations": 20,
+        "sendConfirmations": 5
+    },
+    "5031": {
+        "receiveConfirmations": 200,
+        "sendConfirmations": 5
+    },
+    "8453": {
+        "receiveConfirmations": 10,
+        "sendConfirmations": 5
+    },
+    "34443": {
+        "receiveConfirmations": 5,
+        "sendConfirmations": 5
+    },
+    "42161": {
+        "receiveConfirmations": 20,
+        "sendConfirmations": 5
+    },
+    "43114": {
+        "receiveConfirmations": 12,
+        "sendConfirmations": 5
+    },
+    "57073": {
+        "receiveConfirmations": 20,
+        "sendConfirmations": 5
+    },
+    "59144": {
+        "receiveConfirmations": 10,
+        "sendConfirmations": 5
+    },
+    "80094": {
+        "receiveConfirmations": 20,
+        "sendConfirmations": 5
+    },
+    "81457": {
+        "receiveConfirmations": 5,
+        "sendConfirmations": 5
+    },
+    "98866": {
+        "receiveConfirmations": 5,
+        "sendConfirmations": 5
+    },
+    "534352": {
+        "receiveConfirmations": 20,
+        "sendConfirmations": 5
+    },
+    "747474": {
+        "receiveConfirmations": 20,
+        "sendConfirmations": 5
+    },
+    "22222222": {
+        "receiveConfirmations": 30000,
+        "sendConfirmations": 5
+    },
+    "33333333": {
+        "receiveConfirmations": 260,
+        "sendConfirmations": 5
+    },
+    "111111111": {
+        "receiveConfirmations": 32,
+        "sendConfirmations": 5
+    },
+    "1313161554": {
+        "receiveConfirmations": 5,
+        "sendConfirmations": 5
+    }
+}

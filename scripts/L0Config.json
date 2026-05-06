@@ -63,7 +63,7 @@
             "sendLib302": "0x2367325334447C5E1E0f1b3a6fB947b262F58312"
         },
         {
-            "RPC": "https://sei.drpc.org",
+            "RPC": "https://evm-rpc.sei-apis.com",
             "chainid": 1329,
             "delegate": "0x0357D02fc95320b990322d3ff69204c3D251171b",
             "dvnHorizen": "0x87048402c32632B7c4d0A892d82bC1160E8B2393",
@@ -147,7 +147,7 @@
             "sendLib302": "0x1322871e4ab09Bc7f5717189434f97bBD9546e95"
         },
         {
-            "RPC": "https://polygon-rpc.com",
+            "RPC": "https://polygon-bor-rpc.publicnode.com",
             "chainid": 137,
             "delegate": "0xDbf59edA454679bB157b3B048Ba54C4D762b559E",
             "dvnHorizen": "0x25e0e650a78e6304a3983fc4b7ffc6544b1beea6",
@@ -339,7 +339,7 @@
             "sendLib302": "0x9BbEb2B2184B9313Cf5ed4a4DDFEa2ef62a2a03B"
         },
         {
-            "RPC": "https://rpc.hyperliquid.xyz/evm",
+            "RPC": "https://hyperliquid.drpc.org",
             "chainid": 999,
             "delegate": "0x738ee62157f127C879Ff5c4B7102Eb0d166C7a6d",
             "dvnHorizen": "0x0000000000000000000000000000000000000000",

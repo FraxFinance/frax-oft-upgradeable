@@ -96,7 +96,16 @@
         "uris": [
             "https://evm-rpc.sei-apis.com",
             "https://sei.drpc.org",
-            "https://node.histori.xyz/sei-mainnet/8ry9f6t9dct1se2hlagxnd9n2a"
+            "https://node.histori.xyz/sei-mainnet/8ry9f6t9dct1se2hlagxnd9n2a",
+            "https://sei-public.nodies.app",
+            "https://sei-evm-rpc.stakeme.pro",
+            "https://sei.api.pocket.network",
+            "https://rpc.swiftnodes.io/rpc/sei",
+            "https://sei.therpc.io",
+            "https://evm-rpc-sei.stingray.plus",
+            "https://sei-evm-rpc.publicnode.com",
+            "https://seievm-rpc.polkachu.com",
+            "https://jsonrpc.lavenderfive.com:443/sei"
         ],
         "quorum": 2
     },

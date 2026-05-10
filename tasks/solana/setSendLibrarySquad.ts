@@ -25,6 +25,9 @@ interface Args {
     squadsAuthority: string
 }
 
+// LayerZero Blocked Lib Program 2XrYqmhBMPJgDsb4SVbjV1PnJBprurd5bzRCkHwiFCJB
+// LayerZero ULN302 7a4WjyR8VZ7yZz5XJAKm39BUGn5iT9CKcv2pmG9tdXVH 
+
 // Define a Hardhat task for setting send library for solana oft
 task('lz:oft:solana:setsendlibrary', 'set send library for solana oft')
     .addParam('fromEid', 'The source endpoint ID', undefined, devtoolsTypes.eid)
@@ -79,12 +82,14 @@ task('lz:oft:solana:setsendlibrary', 'set send library for solana oft')
         await txBuilder.setLatestBlockhash(umi)
         const serializedTx = await txBuilder.buildWithLatestBlockhash(umi)
         const transactionDataHex = Buffer.from(serializedTx.serializedMessage).toString("hex")
-        const versionedMessage = VersionedMessage.deserialize(Buffer.from(transactionDataHex, 'hex'))
+        const versionedMessage = VersionedMessage.deserialize(
+            new Uint8Array(Buffer.from(transactionDataHex, 'hex'))
+        )
 
         const tx = new VersionedTransaction(versionedMessage);
 
         console.log('BASE58: \n')
-        console.log(bs58.encode(Buffer.from(tx.serialize())))
+        console.log(bs58.encode(new Uint8Array(tx.serialize())))
         console.log('\nBASE64: \n')
         console.log(Buffer.from(tx.serialize()).toString("base64"));
     })

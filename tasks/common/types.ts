@@ -5,7 +5,7 @@ import { CLIArgumentType } from 'hardhat/types'
 export const keyPair: CLIArgumentType<Keypair> = {
     name: 'keyPair',
     parse(name: string, value: string) {
-        return Keypair.fromSecretKey(decode(value))
+        return Keypair.fromSecretKey(Uint8Array.from(decode(value)))
     },
     validate() {},
 }

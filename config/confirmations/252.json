@@ -4,7 +4,7 @@
         "sendConfirmations": 5
     },
     "10": {
-        "receiveConfirmations": 20,
+        "receiveConfirmations": 24,
         "sendConfirmations": 5
     },
     "56": {
@@ -16,7 +16,7 @@
         "sendConfirmations": 5
     },
     "130": {
-        "receiveConfirmations": 20,
+        "receiveConfirmations": 72,
         "sendConfirmations": 5
     },
     "137": {
@@ -40,7 +40,7 @@
         "sendConfirmations": 5
     },
     "480": {
-        "receiveConfirmations": 20,
+        "receiveConfirmations": 60,
         "sendConfirmations": 5
     },
     "988": {
@@ -76,7 +76,7 @@
         "sendConfirmations": 5
     },
     "34443": {
-        "receiveConfirmations": 5,
+        "receiveConfirmations": 36,
         "sendConfirmations": 5
     },
     "42161": {
@@ -88,7 +88,7 @@
         "sendConfirmations": 5
     },
     "57073": {
-        "receiveConfirmations": 20,
+        "receiveConfirmations": 60,
         "sendConfirmations": 5
     },
     "59144": {
@@ -112,7 +112,7 @@
         "sendConfirmations": 5
     },
     "747474": {
-        "receiveConfirmations": 20,
+        "receiveConfirmations": 60,
         "sendConfirmations": 5
     },
     "22222222": {

@@ -63,7 +63,7 @@
             "sendLib302": "0x2367325334447C5E1E0f1b3a6fB947b262F58312"
         },
         {
-            "RPC": "https://evm-rpc.sei-apis.com",
+            "RPC": "https://sei-evm-rpc.publicnode.com",
             "chainid": 1329,
             "delegate": "0x0357D02fc95320b990322d3ff69204c3D251171b",
             "dvnHorizen": "0x87048402c32632B7c4d0A892d82bC1160E8B2393",
@@ -255,7 +255,7 @@
             "sendLib302": "0x32042142DD551b4EbE17B6FEd53131dd4b4eEa06"
         },
         {
-            "RPC": "https://worldchain-mainnet.g.alchemy.com/public",
+            "RPC": "https://worldchain.drpc.org",
             "chainid": 480,
             "delegate": "0xf57d47c3EA11c12253dBc0BeAf097d5c206e8773",
             "dvnHorizen": "0x95729ea44326f8add8a9b1d987279dbdc1dd3dff",
@@ -267,7 +267,7 @@
             "sendLib302": "0xC39161c743D0307EB9BCc9FEF03eeb9Dc4802de7"
         },
         {
-            "RPC": "https://unichain-rpc.publicnode.com",
+            "RPC": "https://unichain.drpc.org",
             "chainid": 130,
             "delegate": "0x6f8FDdfD4F6a1456BA5632C919bEF74b64DD032D",
             "dvnHorizen": "0xc6a6324932b399d6a673b7ed0af671f28033e046",
@@ -279,7 +279,7 @@
             "sendLib302": "0xC39161c743D0307EB9BCc9FEF03eeb9Dc4802de7"
         },
         {
-            "RPC": "https://rpc.plume.org",
+            "RPC": "https://98866.rpc.thirdweb.com",
             "chainid": 98866,
             "delegate": "0x77dDd3EC570EEAf2c513de3c833c5E82A721978B",
             "dvnHorizen": "0x0000000000000000000000000000000000000000",

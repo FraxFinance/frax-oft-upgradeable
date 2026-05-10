@@ -96,14 +96,14 @@ export async function sendSolana({
 
     // 7️⃣ Quote (use our overridden `programId`)
     logger.info('Quoting the native gas cost for the send transaction...')
-    const recipient = addressToBytes32(to)
+    const recipient = new Uint8Array(addressToBytes32(to))
     
     // Convert hex strings to proper byte arrays
-    const optionsBuffer = extraOptions 
-        ? Buffer.from(extraOptions.startsWith('0x') ? extraOptions.slice(2) : extraOptions, 'hex')
-        : Buffer.from('')
-    const composeMsgBuffer = composeMsg 
-        ? Buffer.from(composeMsg.startsWith('0x') ? composeMsg.slice(2) : composeMsg, 'hex')
+    const optionsBuffer = extraOptions
+        ? new Uint8Array(Buffer.from(extraOptions.startsWith('0x') ? extraOptions.slice(2) : extraOptions, 'hex'))
+        : new Uint8Array()
+    const composeMsgBuffer = composeMsg
+        ? new Uint8Array(Buffer.from(composeMsg.startsWith('0x') ? composeMsg.slice(2) : composeMsg, 'hex'))
         : undefined
     
     const { nativeFee } = await oft.quote(
@@ -115,7 +115,7 @@ export async function sendSolana({
         },
         {
             payInLzToken: false,
-            to: Buffer.from(recipient),
+            to: recipient,
             dstEid: dstEid,
             amountLd: amountUnits,
             minAmountLd: minAmount ? parseDecimalToUnits(minAmount, decimals) : amountUnits,
@@ -138,7 +138,7 @@ export async function sendSolana({
             tokenSource: tokenAccount[0],
         },
         {
-            to: Buffer.from(recipient),
+            to: recipient,
             dstEid: dstEid,
             amountLd: amountUnits,
             minAmountLd: minAmount ? parseDecimalToUnits(minAmount, decimals) : amountUnits,

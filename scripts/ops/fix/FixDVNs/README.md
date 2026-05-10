@@ -16,6 +16,24 @@ ZK source-chain batches for Abstract and zkSync are generated manually because t
 node scripts/ops/fix/FixDVNs/generate-zk-manual-batches.js
 ```
 
+Generate the full Canary + Nethermind Safe JSON set with:
+
+```bash
+bash scripts/ops/fix/FixDVNs/run-op-confirmation-msigs.sh
+```
+
+To remove stale generated JSON first and regenerate from scratch:
+
+```bash
+bash scripts/ops/fix/FixDVNs/run-op-confirmation-msigs.sh fresh
+```
+
+If an RPC rate limit interrupts a run, resume from a route with:
+
+```bash
+START_ROUTE=1329-252 bash scripts/ops/fix/FixDVNs/run-op-confirmation-msigs.sh
+```
+
 Run the relevant scripts in order:
 
 ```bash

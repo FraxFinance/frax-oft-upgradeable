@@ -52,10 +52,10 @@ This repository contains all of the contracts and deployment code used to manage
   - [`Katana`](https://app.safe.global/settings/setup?safe=katana:0x19A90b0476cdc8EC1239266663CA820175B9B527)
   - [`Aurora`](https://app.safe.global/home?safe=aurora:0x73F365d34b81E731825a094c2E722A08574335cd)
   - [`Scroll`](https://app.safe.global/home?safe=scr:0x73F365d34b81E731825a094c2E722A08574335cd)
-  - [`HyperEVM`](https://safe.onchainden.com/home?safe=hyperevm:0x738ee62157f127C879Ff5c4B7102Eb0d166C7a6d)
+  - [`HyperEVM`](https://app.safe.global/home?safe=hyper-evm:0x738ee62157f127C879Ff5c4B7102Eb0d166C7a6d)
   - [`Stable`](https://app.safe.global/home?safe=stable:0x0C46f54BF9EF8fd58e2D294b8cEA488204EcB3D8)
   - [`Monad`](https://app.safe.global/home?safe=monad:0x47FF5bBAB981Ff022743AA4281D4d6Dd7Fb1a4D0)
-  - [`Tempo`](https://app.test.safe.protofire.io/settings/setup?safe=tempo:0x1Ba19a54a01AE967f5E3895764Caaa6919FD2bEe)
+  - [`Tempo`](https://app.safe.global/home?safe=tempo:0x1Ba19a54a01AE967f5E3895764Caaa6919FD2bEe)
   - [`Somnia`](https://safe.somnia.network/home?safe=somnia:0x9527e19F55d1afCE9F1e9Edcea79552bF41983F9)
 
 ### Proxy (upgradeable) OFTs
@@ -256,4 +256,4 @@ Frax operates a lightweight LZ stack on testnets, replicating the dual-lockbox a
 - `source .env && forge script scripts/DeployFraxOFTProtocol.s.sol --rpc-url $RPC_URL --broadcast`
 - Manually verify each contract on the deployed chain (do not need to verify ImplementationMock)
   - Use `contracts/flat`, Solidity version 0.8.22, Shanghai compiler, 200 optimizer runs
-- Submit each newly crafted json to the respective `DESTINATION_CHAIN_ID` msig. 
+- Submit each newly crafted json to the respective `DESTINATION_CHAIN_ID` msig.

@@ -49,8 +49,10 @@ contract SendFraxOFTTempoToFraxtal is SendFraxOFTFraxtalHub {
 
     /// @dev frxUSD on Tempo is a 6-decimal TIP20 — scale down from 18 decimals.
     ///      Returns a NEW struct to avoid mutating the original (memory structs are pass-by-reference).
+    ///      NOTE: decimals() hardcoded to 6 because Tempo TIP20 tokens are precompiles that
+    ///      forge's local EVM cannot execute (OpcodeNotFound during simulation).
     function _getsendParamsForfrxUSD(SendParam memory _sendParam) internal view override returns (SendParam memory) {
-        uint256 scaleFactor = 10 ** (18 - IERC20Metadata(IOFT(frxUsdOft).token()).decimals());
+        uint256 scaleFactor = 10 ** (18 - 6);
         return SendParam({
             dstEid: _sendParam.dstEid,
             to: _sendParam.to,

@@ -181,7 +181,7 @@ task('lz:oft:solana:setauthority', 'Create a new Mint Authority SPL multisig and
                         isSigner: key.isSigner,
                         isWritable: key.isWritable,
                     })) as unknown as AccountMeta[],
-                    data: ix.data,
+                    data: new Uint8Array(ix.data),
                 }
                 let txBuilder = transactionBuilder().add({
                     instruction: umiInstruction,

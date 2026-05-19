@@ -25,6 +25,9 @@ interface Args {
     squadsAuthority: string
 }
 
+// LayerZero Blocked Lib Program 2XrYqmhBMPJgDsb4SVbjV1PnJBprurd5bzRCkHwiFCJB
+// LayerZero ULN302 7a4WjyR8VZ7yZz5XJAKm39BUGn5iT9CKcv2pmG9tdXVH 
+
 // Define a Hardhat task for setting send library for solana oft
 task('lz:oft:solana:setsendlibrary', 'set send library for solana oft')
     .addParam('fromEid', 'The source endpoint ID', undefined, devtoolsTypes.eid)
@@ -50,6 +53,15 @@ task('lz:oft:solana:setsendlibrary', 'set send library for solana oft')
         const mint = publicKey(solanaDeployment.mint)
         const tokenProgramId = tokenProgramStr ? publicKey(tokenProgramStr) : fromWeb3JsPublicKey(TOKEN_PROGRAM_ID)
 
+        console.log({
+            fromEid,
+            toEid,
+            library,
+            squadsAuthority: squadsAuthorityStr,
+            oftProgramId: oftProgramId.toString(),
+            oftStore: solanaDeployment.oftStore,
+        })
+
         const tokenAccount = findAssociatedTokenPda(umi, {
             mint,
             owner: squadsSigner.publicKey,
@@ -71,20 +83,30 @@ task('lz:oft:solana:setsendlibrary', 'set send library for solana oft')
                 sendLibraryProgram: publicKey(library),
                 remoteEid: toEid
             },
-            oftProgramId
         )
 
+        console.log({
+            ixProgramId: setSetLibraryIX.instruction.programId.toString(),
+            keys: setSetLibraryIX.instruction.keys.map((k) => ({
+                pubkey: k.pubkey.toString(),
+                isSigner: k.isSigner,
+                isWritable: k.isWritable,
+            })),
+            dataHex: Buffer.from(setSetLibraryIX.instruction.data).toString('hex'),
+        })
         let txBuilder = transactionBuilder().add([setSetLibraryIX])
         txBuilder.setFeePayer(squadsSigner)
         await txBuilder.setLatestBlockhash(umi)
         const serializedTx = await txBuilder.buildWithLatestBlockhash(umi)
         const transactionDataHex = Buffer.from(serializedTx.serializedMessage).toString("hex")
-        const versionedMessage = VersionedMessage.deserialize(Buffer.from(transactionDataHex, 'hex'))
+        const versionedMessage = VersionedMessage.deserialize(
+            new Uint8Array(Buffer.from(transactionDataHex, 'hex'))
+        )
 
         const tx = new VersionedTransaction(versionedMessage);
 
         console.log('BASE58: \n')
-        console.log(bs58.encode(Buffer.from(tx.serialize())))
+        console.log(bs58.encode(new Uint8Array(tx.serialize())))
         console.log('\nBASE64: \n')
         console.log(Buffer.from(tx.serialize()).toString("base64"));
     })

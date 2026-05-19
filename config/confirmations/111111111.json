@@ -1,0 +1,10 @@
+{
+    "1": {
+        "receiveConfirmations": 15,
+        "sendConfirmations": 32
+    },
+    "252": {
+        "receiveConfirmations": 5,
+        "sendConfirmations": 32
+    }
+}

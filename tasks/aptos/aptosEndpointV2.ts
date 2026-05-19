@@ -234,6 +234,7 @@ export class AptosEndpointV2 implements IEndpointV2 {
     async getUlnConfig(_oapp: OmniAddress, _uln: OmniAddress, _eid: EndpointId, _type: Uln302ConfigType) {
         return {
             confirmations: BigInt(0),
+            requiredDVNCount: 0,
             requiredDVNs: [],
             optionalDVNs: [],
             optionalDVNThreshold: 0,
@@ -243,6 +244,7 @@ export class AptosEndpointV2 implements IEndpointV2 {
     async getAppUlnConfig(_oapp: OmniAddress, _uln: OmniAddress, _eid: EndpointId, _type: Uln302ConfigType) {
         return {
             confirmations: BigInt(0),
+            requiredDVNCount: 0,
             requiredDVNs: [],
             optionalDVNs: [],
             optionalDVNThreshold: 0,

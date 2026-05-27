@@ -3,11 +3,16 @@ const path = require("path");
 const { ethers } = require("ethers");
 
 const ROOT = path.resolve(__dirname, "../../../..");
-const OUTPUT_DIR = path.join(__dirname, "generated/canary-nethermind");
+const DEFAULT_OUTPUT_DIR = path.join(__dirname, "generated/canary-nethermind");
+const OUTPUT_DIR = process.env.FIX_DVNS_GENERATED_DIR
+  ? path.resolve(process.cwd(), process.env.FIX_DVNS_GENERATED_DIR)
+  : DEFAULT_OUTPUT_DIR;
+const SET_CONFIG_ONLY = process.env.FIX_DVNS_SET_CONFIG_ONLY === "true";
 const FRAXTAL_CHAIN_ID = 252;
 const FRAXTAL_EID = 30255;
 const CONFIG_TYPE_ULN = 2;
 const CREATED_AT = Date.parse("2026-05-06T00:00:00.000Z");
+const NIL_DVN_COUNT = 255;
 
 const ZERO_ADDRESS = "0x0000000000000000000000000000000000000000";
 const DVN_KEYS = ["bcwGroup", "canary", "frax", "horizen", "lz", "nethermind", "stargate"];
@@ -85,7 +90,7 @@ function craftDvnStack(srcChainId, dstChainId) {
 function ulnConfig(requiredDVNs, confirmations) {
   return coder.encode(
     ["tuple(uint64,uint8,uint8,uint8,address[],address[])"],
-    [[confirmations, requiredDVNs.length, 0, 0, requiredDVNs, []]]
+    [[confirmations, requiredDVNs.length, NIL_DVN_COUNT, 0, requiredDVNs, []]]
   );
 }
 
@@ -138,7 +143,11 @@ function setConfigTransactions(chain) {
 }
 
 for (const chain of ZK_CHAINS) {
-  writeBatch("1b_SetBlockSendLibZK", chain.chainId, setSendLibraryTransactions(chain, chain.blockedLibrary));
+  if (!SET_CONFIG_ONLY) {
+    writeBatch("1b_SetBlockSendLibZK", chain.chainId, setSendLibraryTransactions(chain, chain.blockedLibrary));
+  }
   writeBatch("2b_FixDVNsZK", chain.chainId, setConfigTransactions(chain));
-  writeBatch("3b_SetSendLibZK", chain.chainId, setSendLibraryTransactions(chain, chain.sendLib302));
+  if (!SET_CONFIG_ONLY) {
+    writeBatch("3b_SetSendLibZK", chain.chainId, setSendLibraryTransactions(chain, chain.sendLib302));
+  }
 }

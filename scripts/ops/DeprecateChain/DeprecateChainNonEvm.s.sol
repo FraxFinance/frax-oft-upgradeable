@@ -6,17 +6,18 @@ import { IMessageLib } from "@fraxfinance/layerzero-v2-upgradeable/protocol/cont
 import { Constant } from "@fraxfinance/layerzero-v2-upgradeable/messagelib/test/util/Constant.sol";
 import { UlnConfig } from "@fraxfinance/layerzero-v2-upgradeable/messagelib/contracts/uln/UlnBase.sol";
 
-/// @notice Disconnects Fraxtal and the current broadcast chain bidirectionally.
-///         - On broadcast chain: resets libs/config for Fraxtal path and sets Fraxtal peer to address(0).
-///         - On Fraxtal: resets libs/config for broadcast chain path and sets broadcast peer to address(0).
+/// @notice Disconnects Fraxtal from non-EVM destinations only (Aptos + Movement).
+///         Generates Fraxtal-side Safe JSONs for each token and non-EVM destination EID.
 ///
-/// forge script scripts/ops/DeprecateChain/DeprecateChain.s.sol --rpc-url <broadcast-chain-rpc> --ffi
-contract DeprecateChain is DeployFraxOFTProtocol {
+/// forge script scripts/ops/DeprecateChain/DeprecateChainNonEvm.s.sol --rpc-url https://rpc.frax.com --ffi
+contract DeprecateChainNonEvm is DeployFraxOFTProtocol {
     using Strings for uint256;
     using stdJson for string;
 
+    uint32 public constant APTOS_EID = 30108;
+    uint32 public constant MOVEMENT_EID = 30325;
+
     L0Config public fraxtalConfig;
-    L0Config public peerConfig;
 
     // Current token being processed for per-token JSON generation
     address public currentOft;
@@ -32,10 +33,8 @@ contract DeprecateChain is DeployFraxOFTProtocol {
 
         return string.concat(
             base,
-            "Deprecate-",
-            simulateConfig.chainid.toString(),
-            "-",
-            peerConfig.chainid.toString(),
+            "Deprecate-252-",
+            uint256(currentDstEid).toString(),
             "-",
             tokenPart,
             ".json"
@@ -63,23 +62,19 @@ contract DeprecateChain is DeployFraxOFTProtocol {
     }
 
     function run() public override {
-        require(broadcastConfig.chainid != 252, "broadcast chain cannot be Fraxtal");
-
-        address[] memory broadcastOfts = _getChainPeers(broadcastConfig.chainid);
-        for (uint256 o = 0; o < broadcastOfts.length; o++) {
-            _deprecatePairOnToken({
-                _simulateConfig: broadcastConfig,
-                _peer: fraxtalConfig,
-                _tokenIndex: o
-            });
-        }
-
         address[] memory fraxtalOfts = _getChainPeers(fraxtalConfig.chainid);
+
         for (uint256 o = 0; o < fraxtalOfts.length; o++) {
-            _deprecatePairOnToken({
-                _simulateConfig: fraxtalConfig,
-                _peer: broadcastConfig,
-                _tokenIndex: o
+            _deprecateFraxtalTokenToEid({
+                _oft: fraxtalOfts[o],
+                _tokenIndex: o,
+                _dstEid: APTOS_EID
+            });
+
+            _deprecateFraxtalTokenToEid({
+                _oft: fraxtalOfts[o],
+                _tokenIndex: o,
+                _dstEid: MOVEMENT_EID
             });
         }
     }
@@ -102,29 +97,23 @@ contract DeprecateChain is DeployFraxOFTProtocol {
         );
     }
 
-    /// @dev Simulates a single source chain and disconnects all OFTs from `_peer`.
-    function _deprecatePairOnToken(
-        L0Config memory _simulateConfig,
-        L0Config memory _peer,
-        uint256 _tokenIndex
-    ) internal simulateAndWriteTxs(_simulateConfig) {
-        require(connectedOfts.length == NUM_OFTS, "Missing connected OFTs");
-        require(_tokenIndex < connectedOfts.length, "token index out of bounds");
-
-        peerConfig = _peer;
-        currentDstEid = uint32(_peer.eid);
-
+    function _deprecateFraxtalTokenToEid(
+        address _oft,
+        uint256 _tokenIndex,
+        uint32 _dstEid
+    ) internal simulateAndWriteTxs(fraxtalConfig) {
+        currentDstEid = _dstEid;
         currentTokenIndex = _tokenIndex;
-        currentOft = connectedOfts[_tokenIndex];
-        _requireNonZeroCurrentOft(_tokenIndex, "deprecate");
+        currentOft = _oft;
+        _requireNonZeroCurrentOft(_tokenIndex, "non-evm-deprecate");
 
         _resetPathToEndpointDefaults({
-            _connectedConfig: _simulateConfig,
+            _connectedConfig: fraxtalConfig,
             _connectedOft: currentOft,
             _eid: currentDstEid
         });
         _forceOverwriteUlnToDefaultParams({
-            _connectedConfig: _simulateConfig,
+            _connectedConfig: fraxtalConfig,
             _connectedOft: currentOft,
             _eid: currentDstEid
         });

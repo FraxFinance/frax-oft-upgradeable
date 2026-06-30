@@ -3,14 +3,15 @@ pragma solidity ^0.8.22;
 
 import { OFTAdapterUpgradeable } from "@fraxfinance/layerzero-v2-upgradeable/oapp/contracts/oft/OFTAdapterUpgradeable.sol";
 import { SupplyTrackingModule } from "contracts/modules/SupplyTrackingModule.sol";
+import { RateLimiterModule } from "contracts/modules/RateLimiterModule.sol";
 import { TempoAltTokenBase } from "contracts/base/TempoAltTokenBase.sol";
 import { ITIP20 } from "@tempo/interfaces/ITIP20.sol";
 import { MessagingFee, MessagingReceipt } from "@layerzerolabs/lz-evm-protocol-v2/contracts/interfaces/ILayerZeroEndpointV2.sol";
-import { IOFT, SendParam, OFTReceipt } from "@fraxfinance/layerzero-v2-upgradeable/oapp/contracts/oft/interfaces/IOFT.sol";
+import { IOFT, SendParam, OFTLimit, OFTFeeDetail, OFTReceipt } from "@fraxfinance/layerzero-v2-upgradeable/oapp/contracts/oft/interfaces/IOFT.sol";
 import { IERC20 } from "@openzeppelin/contracts/token/ERC20/IERC20.sol";
 import { SafeERC20 } from "@openzeppelin/contracts/token/ERC20/utils/SafeERC20.sol";
 
-contract FraxOFTMintableAdapterUpgradeableTIP20 is OFTAdapterUpgradeable, SupplyTrackingModule, TempoAltTokenBase {
+contract FraxOFTMintableAdapterUpgradeableTIP20 is OFTAdapterUpgradeable, SupplyTrackingModule, TempoAltTokenBase, RateLimiterModule {
     /// @notice Emitted when ERC20 tokens are recovered
     event RecoveredERC20(address indexed token, uint256 amount);
 
@@ -47,6 +48,28 @@ contract FraxOFTMintableAdapterUpgradeableTIP20 is OFTAdapterUpgradeable, Supply
         _setInitialTotalSupply(_eid, _amount);
     }
 
+    function quoteOFT(
+        SendParam calldata _sendParam
+    )
+        external
+        view
+        override
+        returns (OFTLimit memory oftLimit, OFTFeeDetail[] memory oftFeeDetails, OFTReceipt memory oftReceipt)
+    {
+        uint256 minAmountLD = 0;
+        uint256 maxAmountLD = _removeDust(_rateLimitedMaxAmountLD(_sendParam.dstEid));
+        oftLimit = OFTLimit(minAmountLD, maxAmountLD);
+
+        oftFeeDetails = new OFTFeeDetail[](0);
+
+        (uint256 amountSentLD, uint256 amountReceivedLD) = _debitView(
+            _sendParam.amountLD,
+            _sendParam.minAmountLD,
+            _sendParam.dstEid
+        );
+        oftReceipt = OFTReceipt(amountSentLD, amountReceivedLD);
+    }
+
     /// @inheritdoc IOFT
     /// @dev Overrides send to prevent msg.value being sent (EndpointV2Alt uses ERC20 for gas)
     function send(
@@ -81,6 +104,7 @@ contract FraxOFTMintableAdapterUpgradeableTIP20 is OFTAdapterUpgradeable, Supply
         uint32 _dstEid
     ) internal override returns (uint256 amountSentLD, uint256 amountReceivedLD) {
         (amountSentLD, amountReceivedLD) = _debitView(_amountLD, _minAmountLD, _dstEid);
+        _consumeOutboundRateLimit(_dstEid, amountSentLD);
 
         _addToTotalTransferTo(_dstEid, amountSentLD);
 
@@ -96,6 +120,7 @@ contract FraxOFTMintableAdapterUpgradeableTIP20 is OFTAdapterUpgradeable, Supply
         uint256 _amountLD,
         uint32 _srcEid
     ) internal override returns (uint256 amountReceivedLD) {
+        _consumeInboundRateLimit(_srcEid, _amountLD);
         _addToTotalTransferFrom(_srcEid, _amountLD);
 
         ITIP20(address(innerToken)).mint(_to, _amountLD);

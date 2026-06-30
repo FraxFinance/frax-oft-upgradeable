@@ -4,13 +4,14 @@ pragma solidity ^0.8.19;
 import "../BaseL0Script.sol";
 
 import { SetDVNs } from "scripts/DeployFraxOFTProtocol/inherited/SetDVNs.s.sol";
+import { SetRateLimits } from "scripts/DeployFraxOFTProtocol/inherited/SetRateLimits.s.sol";
 
 /*
 TODO
 - Deployment handling on non-pre-deterministic chains
 */
 
-contract DeployFraxOFTProtocol is SetDVNs, BaseL0Script {
+contract DeployFraxOFTProtocol is SetDVNs, SetRateLimits, BaseL0Script {
     using OptionsBuilder for bytes;
     using stdJson for string;
     using Strings for uint256;
@@ -74,6 +75,11 @@ contract DeployFraxOFTProtocol is SetDVNs, BaseL0Script {
             _configs: broadcastConfigArray 
         });
 
+        setRateLimits({
+            _connectedOfts: connectedOfts,
+            _configs: broadcastConfigArray
+        });
+
         setDVNs({
             _connectedConfig: _connectedConfig,
             _connectedOfts: connectedOfts,
@@ -91,6 +97,11 @@ contract DeployFraxOFTProtocol is SetDVNs, BaseL0Script {
         /// @dev set enforced options / peers separately
         setupEvms();
         setupNonEvms();
+
+        setRateLimits({
+            _connectedOfts: proxyOfts,
+            _configs: allConfigs
+        });
 
         /// @dev configures legacy configs as well
         setDVNs({

@@ -34,6 +34,121 @@ dotenv.config();
 const bytes32Zero =
     "0x0000000000000000000000000000000000000000000000000000000000000000";
 
+const RATE_LIMITER_ABI = [
+    {
+        inputs: [],
+        name: "rateLimitGlobalConfig",
+        outputs: [
+            {
+                components: [{ internalType: "bool", name: "isGloballyDisabled", type: "bool" }],
+                internalType: "struct RateLimiterModule.RateLimitGlobalConfig",
+                name: "config",
+                type: "tuple",
+            },
+        ],
+        stateMutability: "view",
+        type: "function",
+    },
+    {
+        inputs: [],
+        name: "defaultRateLimitConfig",
+        outputs: [
+            {
+                components: [
+                    { internalType: "bool", name: "overrideDefaultConfig", type: "bool" },
+                    { internalType: "bool", name: "outboundEnabled", type: "bool" },
+                    { internalType: "bool", name: "inboundEnabled", type: "bool" },
+                    { internalType: "uint256", name: "outboundLimit", type: "uint256" },
+                    { internalType: "uint256", name: "inboundLimit", type: "uint256" },
+                    { internalType: "uint32", name: "outboundWindow", type: "uint32" },
+                    { internalType: "uint32", name: "inboundWindow", type: "uint32" },
+                ],
+                internalType: "struct RateLimiterModule.RateLimitConfig",
+                name: "config",
+                type: "tuple",
+            },
+        ],
+        stateMutability: "view",
+        type: "function",
+    },
+    {
+        inputs: [{ internalType: "uint32", name: "_eid", type: "uint32" }],
+        name: "storedRateLimitConfig",
+        outputs: [
+            {
+                components: [
+                    { internalType: "bool", name: "overrideDefaultConfig", type: "bool" },
+                    { internalType: "bool", name: "outboundEnabled", type: "bool" },
+                    { internalType: "bool", name: "inboundEnabled", type: "bool" },
+                    { internalType: "uint256", name: "outboundLimit", type: "uint256" },
+                    { internalType: "uint256", name: "inboundLimit", type: "uint256" },
+                    { internalType: "uint32", name: "outboundWindow", type: "uint32" },
+                    { internalType: "uint32", name: "inboundWindow", type: "uint32" },
+                ],
+                internalType: "struct RateLimiterModule.RateLimitConfig",
+                name: "config",
+                type: "tuple",
+            },
+        ],
+        stateMutability: "view",
+        type: "function",
+    },
+    {
+        inputs: [{ internalType: "uint32", name: "_eid", type: "uint32" }],
+        name: "rateLimitConfig",
+        outputs: [
+            {
+                components: [
+                    { internalType: "bool", name: "overrideDefaultConfig", type: "bool" },
+                    { internalType: "bool", name: "outboundEnabled", type: "bool" },
+                    { internalType: "bool", name: "inboundEnabled", type: "bool" },
+                    { internalType: "uint256", name: "outboundLimit", type: "uint256" },
+                    { internalType: "uint256", name: "inboundLimit", type: "uint256" },
+                    { internalType: "uint32", name: "outboundWindow", type: "uint32" },
+                    { internalType: "uint32", name: "inboundWindow", type: "uint32" },
+                ],
+                internalType: "struct RateLimiterModule.RateLimitConfig",
+                name: "config",
+                type: "tuple",
+            },
+        ],
+        stateMutability: "view",
+        type: "function",
+    },
+    {
+        inputs: [{ internalType: "uint32", name: "_eid", type: "uint32" }],
+        name: "rateLimitState",
+        outputs: [
+            {
+                components: [
+                    { internalType: "uint256", name: "outboundUsage", type: "uint256" },
+                    { internalType: "uint256", name: "inboundUsage", type: "uint256" },
+                    { internalType: "uint40", name: "lastUpdated", type: "uint40" },
+                ],
+                internalType: "struct RateLimiterModule.RateLimitState",
+                name: "state",
+                type: "tuple",
+            },
+        ],
+        stateMutability: "view",
+        type: "function",
+    },
+    {
+        inputs: [{ internalType: "uint32", name: "_eid", type: "uint32" }],
+        name: "outboundRateLimitAvailable",
+        outputs: [{ internalType: "uint256", name: "availableLD", type: "uint256" }],
+        stateMutability: "view",
+        type: "function",
+    },
+    {
+        inputs: [{ internalType: "uint32", name: "_eid", type: "uint32" }],
+        name: "inboundRateLimitAvailable",
+        outputs: [{ internalType: "uint256", name: "availableLD", type: "uint256" }],
+        stateMutability: "view",
+        type: "function",
+    },
+] as const;
+
 function decodeLzReceiveOption(encodedOption: Hex) {
     const optionBytes = hexToBytes(encodedOption);
     const length = optionBytes.length;
@@ -109,6 +224,26 @@ async function main() {
         executorAddress: string
     }
 
+    type RateLimitGlobalConfigType = {
+        isGloballyDisabled: boolean
+    }
+
+    type RateLimitConfigType = {
+        overrideDefaultConfig: boolean
+        outboundEnabled: boolean
+        inboundEnabled: boolean
+        outboundLimit: string
+        inboundLimit: string
+        outboundWindow: number
+        inboundWindow: number
+    }
+
+    type RateLimitStateType = {
+        outboundUsage: string
+        inboundUsage: string
+        lastUpdated: number
+    }
+
     type OFTInfo = {
         peerAddress: string;
         peerAddressBytes32: string;
@@ -132,7 +267,30 @@ async function main() {
         receiveLibraryTimeOut: ReceiveLibraryTimeOutInfo;
         executorConfig: ExecutorConfigType;
         defaultExecutorConfig: ExecutorConfigType;
+        rateLimitGlobalConfig?: RateLimitGlobalConfigType;
+        defaultRateLimitConfig?: RateLimitConfigType;
+        storedRateLimitConfig?: RateLimitConfigType;
+        effectiveRateLimitConfig?: RateLimitConfigType;
+        rateLimitState?: RateLimitStateType;
+        outboundRateLimitAvailable?: string;
+        inboundRateLimitAvailable?: string;
     }
+
+    const normalizeRateLimitConfig = (config: any): RateLimitConfigType => ({
+        overrideDefaultConfig: config.overrideDefaultConfig,
+        outboundEnabled: config.outboundEnabled,
+        inboundEnabled: config.inboundEnabled,
+        outboundLimit: config.outboundLimit.toString(),
+        inboundLimit: config.inboundLimit.toString(),
+        outboundWindow: Number(config.outboundWindow),
+        inboundWindow: Number(config.inboundWindow),
+    });
+
+    const normalizeRateLimitState = (state: any): RateLimitStateType => ({
+        outboundUsage: state.outboundUsage.toString(),
+        inboundUsage: state.inboundUsage.toString(),
+        lastUpdated: Number(state.lastUpdated),
+    });
 
     const chains: Record<string, ChainInfo> = {
         ethereum: {
@@ -540,6 +698,180 @@ async function main() {
                         ofts[oAppName][srcChain][destChainName].enforcedOptions.gas = opt.gas.toString()
                         ofts[oAppName][srcChain][destChainName].enforcedOptions.value = opt.value.toString()
                     }
+                }
+            }
+
+            const rateLimitContract = {
+                address: oApp,
+                abi: RATE_LIMITER_ABI,
+            } as const;
+
+            if (srcChain !== "ink") {
+                contractCalls = [
+                    {
+                        ...rateLimitContract,
+                        functionName: "rateLimitGlobalConfig",
+                    },
+                    {
+                        ...rateLimitContract,
+                        functionName: "defaultRateLimitConfig",
+                    },
+                ];
+
+                Object.keys(ofts[oAppName][srcChain]).forEach((destChainName) => {
+                    contractCalls.push({
+                        ...rateLimitContract,
+                        functionName: "storedRateLimitConfig",
+                        args: [chains[destChainName].peerId],
+                    });
+                    contractCalls.push({
+                        ...rateLimitContract,
+                        functionName: "rateLimitConfig",
+                        args: [chains[destChainName].peerId],
+                    });
+                    contractCalls.push({
+                        ...rateLimitContract,
+                        functionName: "rateLimitState",
+                        args: [chains[destChainName].peerId],
+                    });
+                    contractCalls.push({
+                        ...rateLimitContract,
+                        functionName: "outboundRateLimitAvailable",
+                        args: [chains[destChainName].peerId],
+                    });
+                    contractCalls.push({
+                        ...rateLimitContract,
+                        functionName: "inboundRateLimitAvailable",
+                        args: [chains[destChainName].peerId],
+                    });
+                });
+
+                const rateLimitInfo = await chains[srcChain].client.multicall({
+                    contracts: contractCalls,
+                });
+
+                const sharedGlobalConfig = rateLimitInfo[0]?.status === "success"
+                    ? {
+                        isGloballyDisabled: rateLimitInfo[0].result.isGloballyDisabled,
+                    }
+                    : undefined;
+                const sharedDefaultConfig = rateLimitInfo[1]?.status === "success"
+                    ? normalizeRateLimitConfig(rateLimitInfo[1].result)
+                    : undefined;
+
+                Object.keys(ofts[oAppName][srcChain]).forEach((destChainName, index) => {
+                    if (sharedGlobalConfig) {
+                        ofts[oAppName][srcChain][destChainName].rateLimitGlobalConfig = sharedGlobalConfig;
+                    }
+                    if (sharedDefaultConfig) {
+                        ofts[oAppName][srcChain][destChainName].defaultRateLimitConfig = sharedDefaultConfig;
+                    }
+
+                    const resultOffset = 2 + (index * 5);
+                    const storedConfig = rateLimitInfo[resultOffset];
+                    const effectiveConfig = rateLimitInfo[resultOffset + 1];
+                    const rateLimitState = rateLimitInfo[resultOffset + 2];
+                    const outboundAvailable = rateLimitInfo[resultOffset + 3];
+                    const inboundAvailable = rateLimitInfo[resultOffset + 4];
+
+                    if (storedConfig?.status === "success") {
+                        ofts[oAppName][srcChain][destChainName].storedRateLimitConfig =
+                            normalizeRateLimitConfig(storedConfig.result);
+                    }
+                    if (effectiveConfig?.status === "success") {
+                        ofts[oAppName][srcChain][destChainName].effectiveRateLimitConfig =
+                            normalizeRateLimitConfig(effectiveConfig.result);
+                    }
+                    if (rateLimitState?.status === "success") {
+                        ofts[oAppName][srcChain][destChainName].rateLimitState =
+                            normalizeRateLimitState(rateLimitState.result);
+                    }
+                    if (outboundAvailable?.status === "success") {
+                        ofts[oAppName][srcChain][destChainName].outboundRateLimitAvailable =
+                            outboundAvailable.result.toString();
+                    }
+                    if (inboundAvailable?.status === "success") {
+                        ofts[oAppName][srcChain][destChainName].inboundRateLimitAvailable =
+                            inboundAvailable.result.toString();
+                    }
+                });
+            } else {
+                let sharedGlobalConfig: RateLimitGlobalConfigType | undefined;
+                let sharedDefaultConfig: RateLimitConfigType | undefined;
+
+                try {
+                    const oftres = await chains[srcChain].client.readContract({
+                        ...rateLimitContract,
+                        functionName: "rateLimitGlobalConfig",
+                    });
+                    sharedGlobalConfig = {
+                        isGloballyDisabled: oftres.isGloballyDisabled,
+                    };
+                } catch {}
+
+                try {
+                    const oftres = await chains[srcChain].client.readContract({
+                        ...rateLimitContract,
+                        functionName: "defaultRateLimitConfig",
+                    });
+                    sharedDefaultConfig = normalizeRateLimitConfig(oftres);
+                } catch {}
+
+                for (const destChainName of Object.keys(ofts[oAppName][srcChain])) {
+                    if (sharedGlobalConfig) {
+                        ofts[oAppName][srcChain][destChainName].rateLimitGlobalConfig = sharedGlobalConfig;
+                    }
+                    if (sharedDefaultConfig) {
+                        ofts[oAppName][srcChain][destChainName].defaultRateLimitConfig = sharedDefaultConfig;
+                    }
+
+                    try {
+                        const oftres = await chains[srcChain].client.readContract({
+                            ...rateLimitContract,
+                            functionName: "storedRateLimitConfig",
+                            args: [chains[destChainName].peerId],
+                        });
+                        ofts[oAppName][srcChain][destChainName].storedRateLimitConfig =
+                            normalizeRateLimitConfig(oftres);
+                    } catch {}
+
+                    try {
+                        const oftres = await chains[srcChain].client.readContract({
+                            ...rateLimitContract,
+                            functionName: "rateLimitConfig",
+                            args: [chains[destChainName].peerId],
+                        });
+                        ofts[oAppName][srcChain][destChainName].effectiveRateLimitConfig =
+                            normalizeRateLimitConfig(oftres);
+                    } catch {}
+
+                    try {
+                        const oftres = await chains[srcChain].client.readContract({
+                            ...rateLimitContract,
+                            functionName: "rateLimitState",
+                            args: [chains[destChainName].peerId],
+                        });
+                        ofts[oAppName][srcChain][destChainName].rateLimitState =
+                            normalizeRateLimitState(oftres);
+                    } catch {}
+
+                    try {
+                        const oftres = await chains[srcChain].client.readContract({
+                            ...rateLimitContract,
+                            functionName: "outboundRateLimitAvailable",
+                            args: [chains[destChainName].peerId],
+                        });
+                        ofts[oAppName][srcChain][destChainName].outboundRateLimitAvailable = oftres.toString();
+                    } catch {}
+
+                    try {
+                        const oftres = await chains[srcChain].client.readContract({
+                            ...rateLimitContract,
+                            functionName: "inboundRateLimitAvailable",
+                            args: [chains[destChainName].peerId],
+                        });
+                        ofts[oAppName][srcChain][destChainName].inboundRateLimitAvailable = oftres.toString();
+                    } catch {}
                 }
             }
 

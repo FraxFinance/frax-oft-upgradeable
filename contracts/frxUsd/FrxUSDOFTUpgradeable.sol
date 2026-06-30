@@ -6,10 +6,11 @@ import { FreezeThawModule } from "contracts/modules/FreezeThawModule.sol";
 import { PauseModule } from "contracts/modules/PauseModule.sol";
 import { EIP3009Module } from "contracts/modules/EIP3009Module.sol";
 import { PermitModule } from "contracts/modules/PermitModule.sol";
-import { SendParam } from "@fraxfinance/layerzero-v2-upgradeable/oapp/contracts/oft/interfaces/IOFT.sol";
+import { RateLimiterModule } from "contracts/modules/RateLimiterModule.sol";
+import { SendParam, OFTLimit, OFTFeeDetail, OFTReceipt } from "@fraxfinance/layerzero-v2-upgradeable/oapp/contracts/oft/interfaces/IOFT.sol";
 import { ERC20Upgradeable } from "@openzeppelin/contracts-upgradeable/token/ERC20/ERC20Upgradeable.sol";
 
-contract FrxUSDOFTUpgradeable is OFTUpgradeable, EIP3009Module, PermitModule, FreezeThawModule, PauseModule {
+contract FrxUSDOFTUpgradeable is OFTUpgradeable, EIP3009Module, PermitModule, FreezeThawModule, PauseModule, RateLimiterModule {
     constructor(address _lzEndpoint) OFTUpgradeable(_lzEndpoint) {
         _disableInitializers();
     }
@@ -164,9 +165,51 @@ contract FrxUSDOFTUpgradeable is OFTUpgradeable, EIP3009Module, PermitModule, Fr
         return _buildMsgAndOptions(_sendParam, _amountLD);
     }
 
+    function quoteOFT(
+        SendParam calldata _sendParam
+    )
+        external
+        view
+        override
+        returns (OFTLimit memory oftLimit, OFTFeeDetail[] memory oftFeeDetails, OFTReceipt memory oftReceipt)
+    {
+        uint256 minAmountLD = 0;
+        uint256 maxAmountLD = _removeDust(_rateLimitedMaxAmountLD(_sendParam.dstEid));
+        oftLimit = OFTLimit(minAmountLD, maxAmountLD);
+
+        oftFeeDetails = new OFTFeeDetail[](0);
+
+        (uint256 amountSentLD, uint256 amountReceivedLD) = _debitView(
+            _sendParam.amountLD,
+            _sendParam.minAmountLD,
+            _sendParam.dstEid
+        );
+        oftReceipt = OFTReceipt(amountSentLD, amountReceivedLD);
+    }
+
     //==============================================================================
     // Overrides
     //==============================================================================
+
+    function _debit(
+        uint256 _amountLD,
+        uint256 _minAmountLD,
+        uint32 _dstEid
+    ) internal override returns (uint256 amountSentLD, uint256 amountReceivedLD) {
+        (amountSentLD, amountReceivedLD) = _debitView(_amountLD, _minAmountLD, _dstEid);
+        _consumeOutboundRateLimit(_dstEid, amountSentLD);
+        _burn(msg.sender, amountSentLD);
+    }
+
+    function _credit(
+        address _to,
+        uint256 _amountLD,
+        uint32 _srcEid
+    ) internal override returns (uint256 amountReceivedLD) {
+        _consumeInboundRateLimit(_srcEid, _amountLD);
+        _mint(_to, _amountLD);
+        return _amountLD;
+    }
 
     /// @dev supports EIP3009
     function _transfer(address from, address to, uint256 amount) internal override(EIP3009Module, ERC20Upgradeable) {

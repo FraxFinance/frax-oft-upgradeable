@@ -2,14 +2,16 @@
 pragma solidity ^0.8.22;
 
 import { OFTAdapterUpgradeable } from "@fraxfinance/layerzero-v2-upgradeable/oapp/contracts/oft/OFTAdapterUpgradeable.sol";
+import { SendParam, OFTLimit, OFTFeeDetail, OFTReceipt } from "@fraxfinance/layerzero-v2-upgradeable/oapp/contracts/oft/interfaces/IOFT.sol";
 import { SupplyTrackingModule } from "./modules/SupplyTrackingModule.sol";
+import { RateLimiterModule } from "./modules/RateLimiterModule.sol";
 
 interface IERC20PermitPermissionedOptiMintable {
     function minter_burn_from(address, uint256) external;
     function minter_mint(address, uint256) external;
 }
 
-contract FraxOFTMintableAdapterUpgradeable is OFTAdapterUpgradeable, SupplyTrackingModule {
+contract FraxOFTMintableAdapterUpgradeable is OFTAdapterUpgradeable, SupplyTrackingModule, RateLimiterModule {
     constructor(
         address _token,
         address _lzEndpoint
@@ -36,6 +38,28 @@ contract FraxOFTMintableAdapterUpgradeable is OFTAdapterUpgradeable, SupplyTrack
         _setInitialTotalSupply(_eid, _amount);
     }
 
+    function quoteOFT(
+        SendParam calldata _sendParam
+    )
+        external
+        view
+        override
+        returns (OFTLimit memory oftLimit, OFTFeeDetail[] memory oftFeeDetails, OFTReceipt memory oftReceipt)
+    {
+        uint256 minAmountLD = 0;
+        uint256 maxAmountLD = _removeDust(_rateLimitedMaxAmountLD(_sendParam.dstEid));
+        oftLimit = OFTLimit(minAmountLD, maxAmountLD);
+
+        oftFeeDetails = new OFTFeeDetail[](0);
+
+        (uint256 amountSentLD, uint256 amountReceivedLD) = _debitView(
+            _sendParam.amountLD,
+            _sendParam.minAmountLD,
+            _sendParam.dstEid
+        );
+        oftReceipt = OFTReceipt(amountSentLD, amountReceivedLD);
+    }
+
     /// @dev overrides OFTAdapterUpgradeable.sol to burn the tokens from the sender/track supply
     /// @dev added in v1.1.0
     function _debit(
@@ -44,6 +68,7 @@ contract FraxOFTMintableAdapterUpgradeable is OFTAdapterUpgradeable, SupplyTrack
         uint32 _dstEid
     ) internal override returns (uint256 amountSentLD, uint256 amountReceivedLD) {
         (amountSentLD, amountReceivedLD) = _debitView(_amountLD, _minAmountLD, _dstEid);
+        _consumeOutboundRateLimit(_dstEid, amountSentLD);
 
         _addToTotalTransferTo(_dstEid, amountSentLD);
 
@@ -57,6 +82,7 @@ contract FraxOFTMintableAdapterUpgradeable is OFTAdapterUpgradeable, SupplyTrack
         uint256 _amountLD,
         uint32 _srcEid
     ) internal override returns (uint256 amountReceivedLD) {
+        _consumeInboundRateLimit(_srcEid, _amountLD);
 
         _addToTotalTransferFrom(_srcEid, _amountLD);
 

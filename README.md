@@ -7,6 +7,9 @@ This repository contains all of the contracts and deployment code used to manage
 - `ProxyAdmin`
   - `Mode`, `Sei`, `Fraxtal`, `X-Layer`, `Ink`, `Sonic`, `Arbitrum`, `Optimism`, `Polygon`, `Avalanche`, `BSC`, `Polygon zkEvm`, `Blast`, `Berachain`, `Worldchain`, `Unichain`, `Plume`, `Katana`, `Aurora`, `Stable`
     - `0x223a681fc5c5522c85c96157c0efa18cd6c5405c`
+  - `Ethereum`
+    - `0x223a681fc5c5522c85c96157c0efa18cd6c5405c`
+    - Owner: `0xb898Ad2976b4d8f2E21521C9db16b7497825E503` (Compound-style Timelock)
   - `Base`
     - `0xF59C41A57AB4565AF7424F64981523DfD7A453c5`
   - `Linea`

@@ -6,20 +6,22 @@ abstract contract RateLimiterModule {
         bool isGloballyDisabled;
     }
 
+    /// @dev packed into 2 storage slots: (bools + windows + outboundLimit) | (inboundLimit)
     struct RateLimitConfig {
         bool overrideDefaultConfig;
         bool outboundEnabled;
         bool inboundEnabled;
-        uint256 outboundLimit;
-        uint256 inboundLimit;
         uint32 outboundWindow;
         uint32 inboundWindow;
+        uint112 outboundLimit;
+        uint112 inboundLimit;
     }
 
+    /// @dev packed into a single storage slot; usage never exceeds the uint112 limit
     struct RateLimitState {
-        uint256 outboundUsage;
-        uint256 inboundUsage;
-        uint40 lastUpdated;
+        uint112 outboundUsage;
+        uint112 inboundUsage;
+        uint32 lastUpdated;
     }
 
     struct SetRateLimitConfigParam {
@@ -41,7 +43,7 @@ abstract contract RateLimiterModule {
 
     /// @dev keccak256(abi.encode(uint256(keccak256("frax.storage.RateLimiterModule")) - 1)) & ~bytes32(uint256(0xff))
     bytes32 private constant RateLimiterStorageLocation =
-        0xbc2f4e0019400f86d65d92ee20d8164c6b63b661679e24c1985de9d3497f1b00;
+        0xf02f50e1c246a23e457c592e128a403f9c1cc60baa3a1ad2dc69bb4a5a51be00;
 
     event RateLimitGlobalConfigSet(bool isGloballyDisabled);
     event DefaultRateLimitConfigSet(
@@ -66,13 +68,13 @@ abstract contract RateLimiterModule {
         uint32 indexed eid,
         uint256 outboundUsage,
         uint256 inboundUsage,
-        uint40 lastUpdated
+        uint32 lastUpdated
     );
     event RateLimitCheckpointed(
         uint32 indexed eid,
         uint256 outboundUsage,
         uint256 inboundUsage,
-        uint40 lastUpdated
+        uint32 lastUpdated
     );
     event RateLimitConsumed(
         uint32 indexed eid,
@@ -85,18 +87,11 @@ abstract contract RateLimiterModule {
     error RateLimitExceeded(uint32 eid, bool isOutbound, uint256 amountLD, uint256 availableLD);
     error InvalidRateLimitConfig();
     error InvalidRateLimitState();
-    error RateLimitManagerOnly();
-    error OwnerUnavailable();
 
     function _getRateLimiterStorage() private pure returns (RateLimiterStorage storage $) {
         assembly {
             $.slot := RateLimiterStorageLocation
         }
-    }
-
-    modifier onlyRateLimitManager() {
-        if (msg.sender != _rateLimitOwner()) revert RateLimitManagerOnly();
-        _;
     }
 
     function rateLimitGlobalConfig() public view returns (RateLimitGlobalConfig memory config) {
@@ -136,13 +131,13 @@ abstract contract RateLimiterModule {
         return _inboundRateLimitAvailable(_eid);
     }
 
-    function setRateLimitGlobalConfig(RateLimitGlobalConfig calldata _globalConfig) external onlyRateLimitManager {
+    function _setRateLimitGlobalConfig(RateLimitGlobalConfig calldata _globalConfig) internal {
         RateLimiterStorage storage $ = _getRateLimiterStorage();
         $.globalConfig = _globalConfig;
         emit RateLimitGlobalConfigSet(_globalConfig.isGloballyDisabled);
     }
 
-    function setDefaultRateLimitConfig(RateLimitConfig calldata _defaultConfig) external onlyRateLimitManager {
+    function _setDefaultRateLimitConfig(RateLimitConfig calldata _defaultConfig) internal {
         _validateRateLimitConfig(_defaultConfig);
 
         RateLimiterStorage storage $ = _getRateLimiterStorage();
@@ -158,7 +153,7 @@ abstract contract RateLimiterModule {
         );
     }
 
-    function setRateLimitConfigs(SetRateLimitConfigParam[] calldata _params) external onlyRateLimitManager {
+    function _setRateLimitConfigs(SetRateLimitConfigParam[] calldata _params) internal {
         RateLimiterStorage storage $ = _getRateLimiterStorage();
 
         uint256 length = _params.length;
@@ -181,7 +176,7 @@ abstract contract RateLimiterModule {
         }
     }
 
-    function setRateLimitStates(SetRateLimitStateParam[] calldata _params) external onlyRateLimitManager {
+    function _setRateLimitStates(SetRateLimitStateParam[] calldata _params) internal {
         RateLimiterStorage storage $ = _getRateLimiterStorage();
 
         uint256 length = _params.length;
@@ -198,7 +193,7 @@ abstract contract RateLimiterModule {
         }
     }
 
-    function checkpointRateLimits(uint32[] calldata _eids) external onlyRateLimitManager {
+    function _checkpointRateLimits(uint32[] calldata _eids) internal {
         uint256 length = _eids.length;
         for (uint256 i; i < length; ++i) {
             _checkpointRateLimit(_eids[i], _effectiveRateLimitConfig(_eids[i]));
@@ -241,10 +236,9 @@ abstract contract RateLimiterModule {
 
     function _effectiveRateLimitConfig(uint32 _eid) internal view returns (RateLimitConfig memory config) {
         RateLimiterStorage storage $ = _getRateLimiterStorage();
-        config = $.configs[_eid];
-        if (!config.overrideDefaultConfig) {
-            config = $.defaultConfig;
-        }
+        RateLimitConfig storage stored = $.configs[_eid];
+        // peek the flag before copying so the common (default) case skips the per-eid struct copy
+        config = stored.overrideDefaultConfig ? stored : $.defaultConfig;
     }
 
     function _currentRateLimitState(
@@ -254,16 +248,19 @@ abstract contract RateLimiterModule {
         RateLimiterStorage storage $ = _getRateLimiterStorage();
         state = $.states[_eid];
 
-        uint40 currentTimestamp = uint40(block.timestamp);
-        uint40 lastUpdated = state.lastUpdated;
+        uint32 currentTimestamp = uint32(block.timestamp);
+        uint32 lastUpdated = state.lastUpdated;
         if (lastUpdated == 0 || lastUpdated >= currentTimestamp) {
             state.lastUpdated = currentTimestamp;
             return state;
         }
 
         uint256 elapsed = currentTimestamp - lastUpdated;
-        state.outboundUsage = _decayUsage(state.outboundUsage, _config.outboundLimit, _config.outboundWindow, elapsed);
-        state.inboundUsage = _decayUsage(state.inboundUsage, _config.inboundLimit, _config.inboundWindow, elapsed);
+        // safe downcasts: decayed usage never exceeds the stored uint112 usage
+        state.outboundUsage =
+            uint112(_decayUsage(state.outboundUsage, _config.outboundLimit, _config.outboundWindow, elapsed));
+        state.inboundUsage =
+            uint112(_decayUsage(state.inboundUsage, _config.inboundLimit, _config.inboundWindow, elapsed));
         state.lastUpdated = currentTimestamp;
     }
 
@@ -297,10 +294,11 @@ abstract contract RateLimiterModule {
         uint256 available = usage >= limit ? 0 : limit - usage;
         if (_amountLD > available) revert RateLimitExceeded(_eid, _isOutbound, _amountLD, available);
 
+        // safe downcasts: usage + _amountLD <= limit <= type(uint112).max (checked above)
         if (_isOutbound) {
-            currentState.outboundUsage = usage + _amountLD;
+            currentState.outboundUsage = uint112(usage + _amountLD);
         } else {
-            currentState.inboundUsage = usage + _amountLD;
+            currentState.inboundUsage = uint112(usage + _amountLD);
         }
 
         $.states[_eid] = currentState;
@@ -343,21 +341,16 @@ abstract contract RateLimiterModule {
             return 0;
         }
 
+        // cannot overflow: _limit <= type(uint112).max and _elapsed < _window <= type(uint32).max
         uint256 replenished = (_limit * _elapsed) / _window;
         return replenished >= _usage ? 0 : _usage - replenished;
     }
 
     function _rateLimitedMaxAmountLD(uint32 _dstEid) internal view returns (uint256 maxAmountLD) {
-        return _min(_outboundRateLimitAvailable(_dstEid), uint256(type(uint64).max));
+        return _min(_outboundRateLimitAvailable(_dstEid), uint256(type(uint64).max)*1E12);
     }
 
     function _min(uint256 _a, uint256 _b) internal pure returns (uint256) {
         return _a < _b ? _a : _b;
-    }
-
-    function _rateLimitOwner() internal view returns (address ownerAddress) {
-        (bool success, bytes memory data) = address(this).staticcall(abi.encodeWithSignature("owner()"));
-        if (!success || data.length < 32) revert OwnerUnavailable();
-        ownerAddress = abi.decode(data, (address));
     }
 }

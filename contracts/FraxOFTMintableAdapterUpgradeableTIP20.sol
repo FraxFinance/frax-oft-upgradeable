@@ -48,6 +48,36 @@ contract FraxOFTMintableAdapterUpgradeableTIP20 is OFTAdapterUpgradeable, Supply
         _setInitialTotalSupply(_eid, _amount);
     }
 
+    /// @notice Set whether negative supply is allowed for a given chain ID
+    /// @dev added in v1.2.0
+    function setAllowNegativeSupply(uint32 _eid, bool _allow) external onlyOwner {
+        _setAllowNegativeSupply(_eid, _allow);
+    }    
+
+    //==============================================================================
+    // Rate limit admin
+    //==============================================================================
+
+    function setRateLimitGlobalConfig(RateLimitGlobalConfig calldata _globalConfig) external onlyOwner {
+        _setRateLimitGlobalConfig(_globalConfig);
+    }
+
+    function setDefaultRateLimitConfig(RateLimitConfig calldata _defaultConfig) external onlyOwner {
+        _setDefaultRateLimitConfig(_defaultConfig);
+    }
+
+    function setRateLimitConfigs(SetRateLimitConfigParam[] calldata _params) external onlyOwner {
+        _setRateLimitConfigs(_params);
+    }
+
+    function setRateLimitStates(SetRateLimitStateParam[] calldata _params) external onlyOwner {
+        _setRateLimitStates(_params);
+    }
+
+    function checkpointRateLimits(uint32[] calldata _eids) external onlyOwner {
+        _checkpointRateLimits(_eids);
+    }
+
     function quoteOFT(
         SendParam calldata _sendParam
     )

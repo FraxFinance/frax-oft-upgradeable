@@ -14,10 +14,10 @@ interface IRateLimitedOFT {
         bool overrideDefaultConfig;
         bool outboundEnabled;
         bool inboundEnabled;
-        uint256 outboundLimit;
-        uint256 inboundLimit;
         uint32 outboundWindow;
         uint32 inboundWindow;
+        uint112 outboundLimit;
+        uint112 inboundLimit;
     }
 
     struct SetRateLimitConfigParam {

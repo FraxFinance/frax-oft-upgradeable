@@ -230,9 +230,9 @@ contract RateLimiterModuleTest is Test {
     }
 
     function _config(
-        uint256 _outboundLimit,
+        uint112 _outboundLimit,
         uint32 _outboundWindow,
-        uint256 _inboundLimit,
+        uint112 _inboundLimit,
         uint32 _inboundWindow
     ) internal pure returns (RateLimiterModule.RateLimitConfig memory config) {
         config = RateLimiterModule.RateLimitConfig({

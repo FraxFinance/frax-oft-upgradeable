@@ -165,6 +165,30 @@ contract FrxUSDOFTUpgradeable is OFTUpgradeable, EIP3009Module, PermitModule, Fr
         return _buildMsgAndOptions(_sendParam, _amountLD);
     }
 
+    //==============================================================================
+    // Rate limit admin
+    //==============================================================================
+
+    function setRateLimitGlobalConfig(RateLimitGlobalConfig calldata _globalConfig) external onlyOwner {
+        _setRateLimitGlobalConfig(_globalConfig);
+    }
+
+    function setDefaultRateLimitConfig(RateLimitConfig calldata _defaultConfig) external onlyOwner {
+        _setDefaultRateLimitConfig(_defaultConfig);
+    }
+
+    function setRateLimitConfigs(SetRateLimitConfigParam[] calldata _params) external onlyOwner {
+        _setRateLimitConfigs(_params);
+    }
+
+    function setRateLimitStates(SetRateLimitStateParam[] calldata _params) external onlyOwner {
+        _setRateLimitStates(_params);
+    }
+
+    function checkpointRateLimits(uint32[] calldata _eids) external onlyOwner {
+        _checkpointRateLimits(_eids);
+    }
+
     function quoteOFT(
         SendParam calldata _sendParam
     )

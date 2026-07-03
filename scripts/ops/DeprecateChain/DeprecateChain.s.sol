@@ -44,6 +44,9 @@ interface IUlnAppConfigLike {
 ///         Files are written to:
 ///           scripts/ops/DeprecateChain/txs/deprecate-<broadcastChainId>/Deprecate-<src>-<dst>-<TOKEN>.json
 ///         where <src> is the chain that executes the tx and <dst> is the other side.
+///         If an OApp owner-scoped tx must be executed by an owner that differs from the
+///         endpoint delegate, that tx is split into:
+///           Deprecate-<src>-<dst>-<TOKEN>-owner-<owner>.json
 ///
 ///         Iteration behavior:
 ///           - EVM peers (Proxy configs): generate both directions (deprecate->peer and peer->deprecate)
@@ -79,6 +82,9 @@ contract DeprecateChain is DeployFraxOFTProtocol {
     address public currentOft;
     uint256 public currentTokenIndex;
 
+    SerializedTx[] public ownerScopedSerializedTxs;
+    address public ownerScopedTxOwner;
+
     function filename() public view override returns (string memory) {
         string memory root = vm.projectRoot();
         string memory base =
@@ -93,6 +99,26 @@ contract DeprecateChain is DeployFraxOFTProtocol {
             peerConfig.chainid.toString(),
             "-",
             tokenPart,
+            ".json"
+        );
+    }
+
+    function ownerFilename(address _owner) public view returns (string memory) {
+        string memory root = vm.projectRoot();
+        string memory base =
+            string.concat(root, "/scripts/ops/DeprecateChain/txs/deprecate-", deprecateChainId.toString(), "/");
+        string memory tokenPart = _tokenNameForIndex(currentTokenIndex);
+
+        return string.concat(
+            base,
+            "Deprecate-",
+            simulateConfig.chainid.toString(),
+            "-",
+            peerConfig.chainid.toString(),
+            "-",
+            tokenPart,
+            "-owner-",
+            Strings.toHexString(_owner),
             ".json"
         );
     }
@@ -155,6 +181,28 @@ contract DeprecateChain is DeployFraxOFTProtocol {
     // -------------------------------------------------------------------------
     // Internal helpers
     // -------------------------------------------------------------------------
+
+    modifier simulateAndWriteTxs(L0Config memory _simulateConfig) override {
+        delete enforcedOptionParams;
+        delete serializedTxs;
+        delete ownerScopedSerializedTxs;
+        ownerScopedTxOwner = address(0);
+
+        simulateConfig = _simulateConfig;
+        _populateConnectedOfts();
+
+        vm.createSelectFork(_simulateConfig.RPC);
+        vm.startPrank(_simulateConfig.delegate);
+        _;
+        vm.stopPrank();
+
+        if (serializedTxs.length > 0) {
+            new SafeTxUtil().writeTxs(serializedTxs, filename());
+        }
+        if (ownerScopedSerializedTxs.length > 0) {
+            new SafeTxUtil().writeTxs(ownerScopedSerializedTxs, ownerFilename(ownerScopedTxOwner));
+        }
+    }
 
     /// @dev Simulates a single source chain and disconnects one OFT path from `_peer`.
     function _deprecatePairOnToken(L0Config memory _simulateConfig, L0Config memory _peer, uint256 _tokenIndex)
@@ -219,10 +267,13 @@ contract DeprecateChain is DeployFraxOFTProtocol {
         }
 
         bytes memory data = abi.encodeCall(IOAppOptionsType3.setEnforcedOptions, (params));
+        bool ownerScoped;
         if (!_bypassChainCalls()) {
-            _simulateOwnerScopedCall(_oft, data, "setEnforcedOptions(clear)");
+            ownerScoped = _simulateOwnerScopedCall(_oft, data, "setEnforcedOptions(clear)");
         }
-        pushSerializedTx({_name: "setEnforcedOptions", _to: _oft, _value: 0, _data: data});
+        _pushCallerScopedSerializedTx({
+            _ownerScoped: ownerScoped, _name: "setEnforcedOptions", _to: _oft, _value: 0, _data: data
+        });
     }
 
     function _bytesEq(bytes memory _a, bytes memory _b) internal pure returns (bool) {
@@ -396,10 +447,11 @@ contract DeprecateChain is DeployFraxOFTProtocol {
 
     function _clearPeer(address _oft, uint32 _eid) internal {
         bytes memory data = abi.encodeCall(IOAppCore.setPeer, (_eid, bytes32(0)));
+        bool ownerScoped;
         if (!_bypassChainCalls()) {
-            _simulateOwnerScopedCall(_oft, data, "setPeer");
+            ownerScoped = _simulateOwnerScopedCall(_oft, data, "setPeer");
         }
-        pushSerializedTx({_name: "setPeer", _to: _oft, _value: 0, _data: data});
+        _pushCallerScopedSerializedTx({_ownerScoped: ownerScoped, _name: "setPeer", _to: _oft, _value: 0, _data: data});
     }
 
     function _hasNonSendWiringEvidence(L0Config memory _connectedConfig, address _connectedOft, uint32 _eid)
@@ -487,9 +539,23 @@ contract DeprecateChain is DeployFraxOFTProtocol {
     ///      the OApp owner. For most chains owner == delegate so the delegate call succeeds. For
     ///      paths like Ethereum FRXUSD lockbox where they differ, fall back to owner and restore
     ///      the delegate prank afterwards.
-    function _simulateOwnerScopedCall(address _oft, bytes memory _data, string memory _label) internal {
+    function _pushCallerScopedSerializedTx(
+        bool _ownerScoped,
+        string memory _name,
+        address _to,
+        uint256 _value,
+        bytes memory _data
+    ) internal {
+        if (_ownerScoped) {
+            ownerScopedSerializedTxs.push(SerializedTx({name: _name, to: _to, value: _value, data: _data}));
+        } else {
+            pushSerializedTx({_name: _name, _to: _to, _value: _value, _data: _data});
+        }
+    }
+
+    function _simulateOwnerScopedCall(address _oft, bytes memory _data, string memory _label) internal returns (bool) {
         (bool ok,) = _oft.call(_data);
-        if (ok) return;
+        if (ok) return false;
 
         vm.stopPrank();
         address owner_;
@@ -499,11 +565,18 @@ contract DeprecateChain is DeployFraxOFTProtocol {
             owner_ = address(0);
         }
         require(owner_ != address(0), string.concat(_label, ": owner() unavailable"));
+        if (ownerScopedTxOwner == address(0)) {
+            ownerScopedTxOwner = owner_;
+        } else {
+            require(ownerScopedTxOwner == owner_, "mixed owner-scoped tx owners");
+        }
 
         vm.startPrank(owner_);
         _safeCall(_oft, _data, string.concat(_label, "(owner)"));
         vm.stopPrank();
         vm.startPrank(simulateConfig.delegate);
+
+        return owner_ != simulateConfig.delegate;
     }
 
     function _bypassChainCalls() internal view returns (bool) {

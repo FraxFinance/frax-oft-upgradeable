@@ -10,17 +10,16 @@ DEPRECATE_CHAIN_ID="${DEPRECATE_CHAIN_ID:-}"
 SKIP_DEPRECATE_CHAIN_SIM="${SKIP_DEPRECATE_CHAIN_SIM:-}"
 TARGET_CHAIN_IDS="${TARGET_CHAIN_IDS:-}"
 EXCLUDE_CHAIN_IDS="${EXCLUDE_CHAIN_IDS:-}"
-KEEP_EXISTING="${KEEP_EXISTING:-false}"
+KEEP_EXISTING="${KEEP_EXISTING:-true}"
+CLEAN_EXISTING="${CLEAN_EXISTING:-false}"
 
 OUT_DIR_ROOT="scripts/ops/DeprecateChain/txs"
-SESSION_FILES_MANIFEST="${SESSION_FILES_MANIFEST:-${OUT_DIR_ROOT}/.generated-this-session.txt}"
-FAILURES_MANIFEST="${FAILURES_MANIFEST:-${OUT_DIR_ROOT}/.failed-target-chain-ids.txt}"
 
 usage() {
   echo "Usage: DEPRECATE_CHAIN_ID=<chainid> [SKIP_DEPRECATE_CHAIN_SIM=<true|1|chainid>] [TARGET_CHAIN_IDS=comma,separated] [EXCLUDE_CHAIN_IDS=comma,separated] $0"
   echo
   echo "Iterates TARGET_CHAIN_ID for DeprecateChain.s.sol and continues on failures."
-  echo "Failures are printed to console and also written to ${FAILURES_MANIFEST}."
+  echo "Failures are printed to console."
   echo
   echo "Environment:"
   echo "  DEPRECATE_CHAIN_ID          Required. Deprecate source chain id."
@@ -28,9 +27,9 @@ usage() {
   echo "  TARGET_CHAIN_IDS            Optional comma-separated override list."
   echo "                             Default: all Proxy peers except DEPRECATE_CHAIN_ID, plus all Non-EVM chain ids."
   echo "  EXCLUDE_CHAIN_IDS           Optional comma-separated chain ids to skip from the resolved targets."
-  echo "  KEEP_EXISTING               Optional true/1 to keep prior generated JSONs for this deprecate chain."
-  echo "  SESSION_FILES_MANIFEST      Optional output file list path."
-  echo "  FAILURES_MANIFEST           Optional failed target chain id list path."
+  echo "  KEEP_EXISTING               Optional false/0 to delete prior generated JSONs for this deprecate chain."
+  echo "                             Defaults to true."
+  echo "  CLEAN_EXISTING              Optional true/1 alias to delete prior generated JSONs."
 }
 
 require_cmd() {
@@ -91,18 +90,19 @@ if [[ -z "${SKIP_DEPRECATE_CHAIN_SIM}" ]]; then
   SKIP_DEPRECATE_CHAIN_SIM="${DEPRECATE_CHAIN_ID}"
 fi
 
-mkdir -p "${OUT_DIR_ROOT}"
-: > "${FAILURES_MANIFEST}"
-
-marker_file="$(mktemp)"
 deprecate_out_dir="${OUT_DIR_ROOT}/deprecate-${DEPRECATE_CHAIN_ID}"
 mkdir -p "${deprecate_out_dir}"
 
-case "${KEEP_EXISTING}" in
+case "${CLEAN_EXISTING}" in
   true|TRUE|1)
+    find "${deprecate_out_dir}" -maxdepth 1 -type f -name 'Deprecate-*.json' -delete
     ;;
   *)
-    find "${deprecate_out_dir}" -maxdepth 1 -type f -name 'Deprecate-*.json' -delete
+    case "${KEEP_EXISTING}" in
+      false|FALSE|0)
+        find "${deprecate_out_dir}" -maxdepth 1 -type f -name 'Deprecate-*.json' -delete
+        ;;
+    esac
     ;;
 esac
 
@@ -128,11 +128,11 @@ fi
 
 if [[ ${#targets[@]} -eq 0 ]]; then
   echo "No target chain ids resolved." >&2
-  rm -f "${marker_file}"
   exit 1
 fi
 
 failures=0
+declare -a failed_targets=()
 for target_chain_id in "${targets[@]}"; do
   echo
   echo "=== TARGET_CHAIN_ID=${target_chain_id} ==="
@@ -143,21 +143,15 @@ for target_chain_id in "${targets[@]}"; do
     echo "OK  TARGET_CHAIN_ID=${target_chain_id}"
   else
     echo "FAIL TARGET_CHAIN_ID=${target_chain_id}" >&2
-    echo "${target_chain_id}" >> "${FAILURES_MANIFEST}"
+    failed_targets+=("${target_chain_id}")
     failures=$((failures + 1))
   fi
 done
 
-find "${deprecate_out_dir}" -maxdepth 1 -type f -name 'Deprecate-*.json' -newer "${marker_file}" | sort > "${SESSION_FILES_MANIFEST}" || true
-rm -f "${marker_file}"
-
 echo
-echo "Session manifest: ${SESSION_FILES_MANIFEST}"
-echo "Failure manifest: ${FAILURES_MANIFEST}"
-
-if [[ -s "${FAILURES_MANIFEST}" ]]; then
+if [[ ${failures} -gt 0 ]]; then
   echo "Failed TARGET_CHAIN_ID values:"
-  cat "${FAILURES_MANIFEST}"
+  printf '%s\n' "${failed_targets[@]}"
   exit 1
 fi
 

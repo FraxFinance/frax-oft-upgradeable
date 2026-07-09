@@ -47,6 +47,10 @@ interface MasterArgs {
 
     /** Solana Squads mode: OFT shared decimals, usually 6 */
     sharedDecimals?: number
+
+    lookupTable?: string
+
+    nativeFeeBufferBps?: number
 }
 
 task('lz:oft:send', 'Sends OFT tokens cross‐chain from any supported chain')
@@ -101,6 +105,18 @@ task('lz:oft:send', 'Sends OFT tokens cross‐chain from any supported chain')
         6,
         types.int
     )
+    .addOptionalParam(
+        'lookupTable',
+        'Solana Squads mode: custom address lookup table override',
+        '81RH2qyoGvDwgbyACr3ofi8f5vBnPMRuC3eyWhin4v3P',
+        types.string
+    )
+    .addOptionalParam(
+    'nativeFeeBufferBps',
+    'Solana Squads mode: native LZ fee buffer in bps. 500 = 5%',
+    500,
+    types.int
+)
     .setAction(async (args: MasterArgs, hre: HardhatRuntimeEnvironment) => {
         const chainType = endpointIdToChainType(args.srcEid)
 
@@ -119,8 +135,7 @@ task('lz:oft:send', 'Sends OFT tokens cross‐chain from any supported chain')
         if (args.oftAddress || args.oftProgramId) {
             DebugLogger.printWarning(
                 KnownWarnings.USING_OVERRIDE_OFT,
-                `For network: ${endpointIdToNetwork(args.srcEid)}, OFT: ${
-                    args.oftAddress + (args.oftProgramId ? `, OFT program: ${args.oftProgramId}` : '')
+                `For network: ${endpointIdToNetwork(args.srcEid)}, OFT: ${args.oftAddress + (args.oftProgramId ? `, OFT program: ${args.oftProgramId}` : '')
                 }`
             )
         }

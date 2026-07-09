@@ -13,11 +13,12 @@ import { types as devtoolsTypes } from '@layerzerolabs/devtools-evm-hardhat'
 import { EndpointId, endpointIdToNetwork } from '@layerzerolabs/lz-definitions'
 import { addressToBytes32 } from '@layerzerolabs/lz-v2-utilities'
 import { oft } from '@layerzerolabs/oft-v2-solana-sdk'
+import { toWeb3JsInstruction } from '@metaplex-foundation/umi-web3js-adapters'
+import { fetchAddressLookupTable } from '@metaplex-foundation/mpl-toolbox'
+import { AddressLookupTableInput, PublicKey as UmiPublicKey, Umi } from '@metaplex-foundation/umi'
 
 import { parseDecimalToUnits, silenceSolana429 } from './utils'
 import {
-    TransactionType,
-    addComputeUnitInstructions,
     getAddressLookupTable,
     getSolanaDeployment,
 } from './index'
@@ -36,8 +37,9 @@ export interface SolanaSquadArgs {
     oftAddress?: string
     oftProgramId?: string
     tokenProgram?: string
-    computeUnitPriceScaleFactor?: number
     sharedDecimals?: number
+    lookupTable?: string
+    nativeFeeBufferBps?: number
 }
 
 export interface SolanaSquadResult {
@@ -52,6 +54,34 @@ function fmt(raw: bigint | string | number, decimals: number): string {
     const whole = x.length > decimals ? x.slice(0, x.length - decimals) : '0'
     const frac = x.length > decimals ? x.slice(x.length - decimals) : x.padStart(decimals, '0')
     return `${neg ? '-' : ''}${whole}.${frac}`.replace(/\.?0+$/, '')
+}
+
+async function getCustomAddressLookupTable(
+    umi: Umi,
+    lookupTableAddressStr: string
+): Promise<{
+    lookupTableAddress: UmiPublicKey
+    addressLookupTableInput: AddressLookupTableInput
+}> {
+    const lookupTableAddress = publicKey(lookupTableAddressStr)
+    const addressLookupTableInput = await fetchAddressLookupTable(umi, lookupTableAddress)
+
+    return {
+        lookupTableAddress,
+        addressLookupTableInput,
+    }
+}
+
+function applyNativeFeeBuffer(nativeFee: bigint | { toString(): string }, bufferBps: number): bigint {
+    if (bufferBps < 0 || bufferBps > 10_000) {
+        throw new Error(`nativeFeeBufferBps must be between 0 and 10000. Got ${bufferBps}`)
+    }
+
+    const fee = BigInt(nativeFee.toString())
+    const multiplierBps = 10_000n + BigInt(Math.floor(bufferBps))
+
+    // Round up so we never under-buffer due to integer division.
+    return (fee * multiplierBps + 9_999n) / 10_000n
 }
 
 function removeOftDust(
@@ -94,8 +124,9 @@ export async function sendSolanaSquad({
     oftAddress,
     oftProgramId,
     tokenProgram: tokenProgramStr,
-    computeUnitPriceScaleFactor = 4,
     sharedDecimals = 6,
+    lookupTable: lookupTableStr,
+    nativeFeeBufferBps = 500,
 }: SolanaSquadArgs): Promise<SolanaSquadResult> {
     const connectionFactory = createSolanaConnectionFactory()
     const connection = await connectionFactory(srcEid)
@@ -191,9 +222,10 @@ export async function sendSolanaSquad({
         ? new Uint8Array(Buffer.from(composeMsg.startsWith('0x') ? composeMsg.slice(2) : composeMsg, 'hex'))
         : undefined
 
-    const lookupTable = await getAddressLookupTable(connection, umi, srcEid)
+    const lookupTable = lookupTableStr
+        ? await getCustomAddressLookupTable(umi, lookupTableStr)
+        : await getAddressLookupTable(connection, umi, srcEid)
 
-    console.log('RPC:', connection.rpcEndpoint)
     console.log('Squads multisig:', msig)
     console.log('Sender / vault / fee payer:', senderPk.toBase58())
     console.log('Source eid:', srcEid, endpointIdToNetwork(srcEid))
@@ -212,7 +244,7 @@ export async function sendSolanaSquad({
     console.log('Bridge amount raw:', amountUnits.toString(), 'formatted:', fmt(amountUnits, decimals))
     console.log('OFT dust left raw:', dustRaw.toString(), 'formatted:', fmt(dustRaw, decimals))
     console.log('Min amount raw:', minAmountUnits.toString(), 'formatted:', fmt(minAmountUnits, decimals))
-
+    console.log('Address lookup table:', lookupTable.lookupTableAddress.toString())
     console.log('\nQuoting native LZ fee...')
 
     const { nativeFee } = await oft.quote(
@@ -236,7 +268,16 @@ export async function sendSolanaSquad({
         lookupTable.lookupTableAddress
     )
 
-    console.log('Native fee lamports:', nativeFee.toString(), 'SOL:', fmt(nativeFee.toString(), 9))
+    const bufferedNativeFee = applyNativeFeeBuffer(nativeFee, nativeFeeBufferBps)
+
+    console.log('Quoted native fee lamports:', nativeFee.toString(), 'SOL:', fmt(nativeFee.toString(), 9))
+    console.log(
+        'Buffered native fee lamports:',
+        bufferedNativeFee.toString(),
+        'SOL:',
+        fmt(bufferedNativeFee.toString(), 9),
+        `buffer=${nativeFeeBufferBps / 100}%`
+    )
 
     const ix = await oft.send(
         umi.rpc,
@@ -253,7 +294,7 @@ export async function sendSolanaSquad({
             minAmountLd: minAmountUnits,
             options: optionsBuffer,
             composeMsg: composeMsgBuffer,
-            nativeFee,
+            nativeFee: bufferedNativeFee,
         },
         {
             oft: programId,
@@ -261,17 +302,25 @@ export async function sendSolanaSquad({
         }
     )
 
-    let txBuilder = transactionBuilder().add([ix])
+    const web3Ix = toWeb3JsInstruction((ix as any).instruction)
 
-    txBuilder = await addComputeUnitInstructions(
-        connection,
-        umi,
-        srcEid,
-        txBuilder,
-        squadsSigner as any,
-        computeUnitPriceScaleFactor,
-        TransactionType.SendOFT
-    )
+    const suggestedAltAccounts = Array.from(
+        new Set([
+            web3Ix.programId.toBase58(),
+            ...web3Ix.keys.map((key) => key.pubkey.toBase58()),
+        ])
+    ).filter((account) => account !== senderPk.toBase58())
+
+    console.log('\nSuggested custom ALT accounts:')
+    for (const account of suggestedAltAccounts) {
+        console.log(account)
+    }
+
+    const uniqueAddressLookupTables = [lookupTable.addressLookupTableInput]
+
+    let txBuilder = transactionBuilder()
+        .setAddressLookupTables(uniqueAddressLookupTables)
+        .add([ix])
 
     txBuilder.setFeePayer(squadsSigner)
     await txBuilder.setLatestBlockhash(umi)
@@ -321,8 +370,14 @@ task('sendSolanaSquad', 'Build unsigned Solana OFT send tx for Squads')
     .addOptionalParam('oftAddress', 'Override source OFT store PDA. Defaults to deployment file', undefined, devtoolsTypes.string)
     .addOptionalParam('oftProgramId', 'Override Solana OFT program ID. Defaults to deployment file', undefined, devtoolsTypes.string)
     .addOptionalParam('tokenProgram', 'Solana token program override', undefined, devtoolsTypes.string)
-    .addOptionalParam('computeUnitPriceScaleFactor', 'Compute unit price scale factor', 4, devtoolsTypes.float)
     .addOptionalParam('sharedDecimals', 'OFT shared decimals, usually 6', 6, devtoolsTypes.int)
+    .addOptionalParam('lookupTable', 'Custom address lookup table override', undefined, devtoolsTypes.string)
+    .addOptionalParam(
+        'nativeFeeBufferBps',
+        'Solana Squads mode: native LZ fee buffer in bps. 500 = 5%',
+        500,
+        devtoolsTypes.int
+    )
     .setAction(async (args: SolanaSquadArgs) => {
         await sendSolanaSquad(args)
     })

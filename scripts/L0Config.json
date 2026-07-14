@@ -37,7 +37,7 @@
             "sendLib302": "0xc1B621b18187F74c8F6D52a6F709Dd2780C09821"
         },
         {
-            "RPC": "https://mainnet.base.org",
+            "RPC": "https://base-rpc.publicnode.com",
             "chainid": 8453,
             "delegate": "0xCBfd4Ef00a8cf91Fd1e1Fe97dC05910772c15E53",
             "dvnHorizen": "0x9e059a54699a285714207b43B055483E78FAac25",
@@ -135,7 +135,7 @@
             "sendLib302": "0x975bcD720be66659e3EB3C0e4F1866a3020E493A"
         },
         {
-            "RPC": "https://mainnet.optimism.io",
+            "RPC": "https://rpc.nodeflare.app/op/public",
             "chainid": 10,
             "delegate": "0x419e672d625f998dd07a7ecf2E06B896F8717cb2",
             "dvnHorizen": "0x9e930731cb4a6bf7ecc11f695a295c60bdd212eb",
@@ -147,7 +147,7 @@
             "sendLib302": "0x1322871e4ab09Bc7f5717189434f97bBD9546e95"
         },
         {
-            "RPC": "https://polygon-bor-rpc.publicnode.com",
+            "RPC": "https://polygon.gateway.tenderly.co",
             "chainid": 137,
             "delegate": "0xDbf59edA454679bB157b3B048Ba54C4D762b559E",
             "dvnHorizen": "0x25e0e650a78e6304a3983fc4b7ffc6544b1beea6",
@@ -159,7 +159,7 @@
             "sendLib302": "0x6c26c61a97006888ea9E4FA36584c7df57Cd9dA3"
         },
         {
-            "RPC": "https://api.avax.network/ext/bc/C/rpc",
+            "RPC": "https://api.zan.top/avax-mainnet/ext/bc/C/rpc",
             "chainid": 43114,
             "delegate": "0xBF1fF4D8B05F0871ca3f49e49fF1cA8AeeBD3b4b",
             "dvnHorizen": "0x07c05eab7716acb6f83ebf6268f8eecda8892ba1",
@@ -231,7 +231,7 @@
             "sendLib302": "0xB5320B0B3a13cC860893E2Bd79FCd7e13484Dda2"
         },
         {
-            "RPC": "https://rpc.berachain.com",
+            "RPC": "https://berachain.drpc.org",
             "chainid": 80094,
             "delegate": "0x436b303dAf4b95e94ad86cA3821d5E50eB0De3aA",
             "dvnHorizen": "0xecbaa45c33ce6fa284995e5f8314f5bc7f1c2008",
@@ -411,7 +411,7 @@
             "sendLib302": "0x166CAb679EBDB0853055522D3B523621b94029a1"
         },
         {
-            "RPC": "https://mainnet.era.zksync.io",
+            "RPC": "https://rpc.ankr.com/zksync_era",
             "chainid": 324,
             "delegate": "0x66716ae60898dD4479B52aC4d92ef16C1821f420",
             "dvnHorizen": "0x1253e268bc04bb43cb96d2f7ee858b8a1433cf6d",

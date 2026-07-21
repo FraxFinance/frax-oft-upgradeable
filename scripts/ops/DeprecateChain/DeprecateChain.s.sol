@@ -43,7 +43,8 @@ interface IUlnAppConfigLike {
 ///
 ///         Files are written to:
 ///           scripts/ops/DeprecateChain/txs/deprecate-<broadcastChainId>/Deprecate-<src>-<dst>-<TOKEN>.json
-///         where <src> is the chain that executes the tx and <dst> is the other side.
+///         where <src> is the chain that executes the tx and <dst> is the other side's
+///         chain id for EVM or LayerZero EID for non-EVM.
 ///         If an OApp owner-scoped tx must be executed by an owner that differs from the
 ///         endpoint delegate, that tx is split into:
 ///           Deprecate-<src>-<dst>-<TOKEN>-owner-<owner>.json
@@ -62,8 +63,9 @@ interface IUlnAppConfigLike {
 ///                    Skip simulating txs on the deprecate chain itself; only simulate on
 ///                    the other chains targeting the deprecate chain. Useful when deprecate
 ///                    chain RPC is unavailable.
-///   TARGET_CHAIN_ID  When set, only generate JSONs for this one peer chain id (both directions),
-///                    instead of iterating all proxy chains.
+///   TARGET_CHAIN_ID  When set, only generate JSONs for this one peer/execution chain id.
+///                    EVM pairs generate both directions; non-EVM deprecation generates
+///                    only the EVM execution-chain side.
 contract DeprecateChain is DeployFraxOFTProtocol {
     using Strings for uint256;
     using stdJson for string;
@@ -75,6 +77,7 @@ contract DeprecateChain is DeployFraxOFTProtocol {
     ///      a given file targets.
     uint256 public deprecateChainId;
     L0Config public deprecateConfig;
+    bool public deprecateChainIsNonEvm;
 
     L0Config public peerConfig;
 
@@ -90,16 +93,10 @@ contract DeprecateChain is DeployFraxOFTProtocol {
         string memory base =
             string.concat(root, "/scripts/ops/DeprecateChain/txs/deprecate-", deprecateChainId.toString(), "/");
         string memory tokenPart = _tokenNameForIndex(currentTokenIndex);
+        uint256 outputPeerId = _outputPeerId();
 
         return string.concat(
-            base,
-            "Deprecate-",
-            simulateConfig.chainid.toString(),
-            "-",
-            peerConfig.chainid.toString(),
-            "-",
-            tokenPart,
-            ".json"
+            base, "Deprecate-", simulateConfig.chainid.toString(), "-", outputPeerId.toString(), "-", tokenPart, ".json"
         );
     }
 
@@ -108,13 +105,14 @@ contract DeprecateChain is DeployFraxOFTProtocol {
         string memory base =
             string.concat(root, "/scripts/ops/DeprecateChain/txs/deprecate-", deprecateChainId.toString(), "/");
         string memory tokenPart = _tokenNameForIndex(currentTokenIndex);
+        uint256 outputPeerId = _outputPeerId();
 
         return string.concat(
             base,
             "Deprecate-",
             simulateConfig.chainid.toString(),
             "-",
-            peerConfig.chainid.toString(),
+            outputPeerId.toString(),
             "-",
             tokenPart,
             "-owner-",
@@ -133,10 +131,21 @@ contract DeprecateChain is DeployFraxOFTProtocol {
         revert("unknown token index");
     }
 
+    /// @dev Non-EVM chain ids are JSON-only placeholders. Use the real LayerZero
+    ///      EID in filenames so generated batches retain the existing convention.
+    function _outputPeerId() internal view returns (uint256) {
+        for (uint256 i = 0; i < nonEvmConfigs.length; i++) {
+            if (nonEvmConfigs[i].chainid == peerConfig.chainid && nonEvmConfigs[i].eid == peerConfig.eid) {
+                return peerConfig.eid;
+            }
+        }
+        return peerConfig.chainid;
+    }
+
     function setUp() public override {
         super.setUp();
         deprecateChainId = vm.envOr("DEPRECATE_CHAIN_ID", broadcastConfig.chainid);
-        deprecateConfig = _getProxyConfigByChainId(deprecateChainId);
+        (deprecateConfig, deprecateChainIsNonEvm) = _getDeprecateConfigByChainId(deprecateChainId);
     }
 
     function run() public override {
@@ -145,7 +154,9 @@ contract DeprecateChain is DeployFraxOFTProtocol {
             string.concat(vm.projectRoot(), "/scripts/ops/DeprecateChain/txs/deprecate-", deprecateChainId.toString());
         vm.createDir(outDir, true);
 
-        bool skipDeprecateChainSimulation = _skipDeprecateChainSimulation();
+        // Placeholder chain ids in L0Config identify non-EVM destinations but cannot
+        // be forked. For those destinations, only generate the EVM-side cleanup.
+        bool skipDeprecateChainSimulation = deprecateChainIsNonEvm || _skipDeprecateChainSimulation();
         uint256 targetChainId = vm.envOr("TARGET_CHAIN_ID", uint256(0));
 
         // EVM peers: generate both directions.
@@ -155,14 +166,10 @@ contract DeprecateChain is DeployFraxOFTProtocol {
             if (targetChainId != 0 && currentPeer.chainid != targetChainId) continue;
 
             if (!skipDeprecateChainSimulation) {
-                for (uint256 o = 0; o < NUM_OFTS; o++) {
-                    _deprecatePairOnToken({_simulateConfig: deprecateConfig, _peer: currentPeer, _tokenIndex: o});
-                }
+                _deprecatePair({_simulateConfig: deprecateConfig, _peer: currentPeer});
             }
 
-            for (uint256 o = 0; o < NUM_OFTS; o++) {
-                _deprecatePairOnToken({_simulateConfig: currentPeer, _peer: deprecateConfig, _tokenIndex: o});
-            }
+            _deprecatePair({_simulateConfig: currentPeer, _peer: deprecateConfig});
         }
 
         // non-EVM peers: generate only EVM-side (deprecate -> non-EVM) batches.
@@ -171,9 +178,7 @@ contract DeprecateChain is DeployFraxOFTProtocol {
             if (targetChainId != 0 && nonEvmPeer.chainid != targetChainId) continue;
 
             if (!skipDeprecateChainSimulation) {
-                for (uint256 o = 0; o < NUM_OFTS; o++) {
-                    _deprecatePairOnToken({_simulateConfig: deprecateConfig, _peer: nonEvmPeer, _tokenIndex: o});
-                }
+                _deprecatePair({_simulateConfig: deprecateConfig, _peer: nonEvmPeer});
             }
         }
     }
@@ -183,10 +188,7 @@ contract DeprecateChain is DeployFraxOFTProtocol {
     // -------------------------------------------------------------------------
 
     modifier simulateAndWriteTxs(L0Config memory _simulateConfig) override {
-        delete enforcedOptionParams;
-        delete serializedTxs;
-        delete ownerScopedSerializedTxs;
-        ownerScopedTxOwner = address(0);
+        _resetSerializedState();
 
         simulateConfig = _simulateConfig;
         _populateConnectedOfts();
@@ -196,6 +198,40 @@ contract DeprecateChain is DeployFraxOFTProtocol {
         _;
         vm.stopPrank();
 
+        _writeCurrentTokenTxs();
+    }
+
+    /// @dev Creates one source-chain fork for the pair, then processes every OFT on it.
+    ///      Previously each token recreated the same fork, multiplying RPC setup cost by NUM_OFTS.
+    function _deprecatePair(L0Config memory _simulateConfig, L0Config memory _peer)
+        public
+        simulateAndWriteTxs(_simulateConfig)
+    {
+        require(connectedOfts.length == NUM_OFTS, "Missing connected OFTs");
+        peerConfig = _peer;
+
+        for (uint256 o = 0; o < NUM_OFTS; o++) {
+            _resetSerializedState();
+            _deprecateToken(_simulateConfig, _peer, o);
+
+            // Match the original write context: SafeTxUtil runs outside the delegate prank.
+            vm.stopPrank();
+            _writeCurrentTokenTxs();
+            vm.startPrank(_simulateConfig.delegate);
+        }
+
+        // Prevent the modifier's compatibility write from duplicating the final token file.
+        _resetSerializedState();
+    }
+
+    function _resetSerializedState() internal {
+        delete enforcedOptionParams;
+        delete serializedTxs;
+        delete ownerScopedSerializedTxs;
+        ownerScopedTxOwner = address(0);
+    }
+
+    function _writeCurrentTokenTxs() internal {
         if (serializedTxs.length > 0) {
             new SafeTxUtil().writeTxs(serializedTxs, filename());
         }
@@ -204,16 +240,10 @@ contract DeprecateChain is DeployFraxOFTProtocol {
         }
     }
 
-    /// @dev Simulates a single source chain and disconnects one OFT path from `_peer`.
-    function _deprecatePairOnToken(L0Config memory _simulateConfig, L0Config memory _peer, uint256 _tokenIndex)
-        public
-        simulateAndWriteTxs(_simulateConfig)
-    {
-        // connectedOFTs are populated via simulateAndWriteTxs- this is a sanity check
-        require(connectedOfts.length == NUM_OFTS, "Missing connected OFTs");
+    /// @dev Disconnects one OFT path using the source-chain fork prepared by `_deprecatePair`.
+    function _deprecateToken(L0Config memory _simulateConfig, L0Config memory _peer, uint256 _tokenIndex) internal {
         require(_tokenIndex < connectedOfts.length, "token index out of bounds");
 
-        peerConfig = _peer;
         uint32 dstEid = uint32(_peer.eid);
 
         currentTokenIndex = _tokenIndex;
@@ -526,9 +556,21 @@ contract DeprecateChain is DeployFraxOFTProtocol {
         for (uint256 i = 0; i < nonEvmConfigs.length; i++) {
             if (nonEvmConfigs[i].chainid != _peer.chainid) continue;
             if (nonEvmConfigs[i].eid != _peer.eid) continue;
-            if (i >= nonEvmPeersArrays.length) return (true, bytes32(0));
-            if (_tokenIndex >= nonEvmPeersArrays[i].length) return (true, bytes32(0));
-            return (true, nonEvmPeersArrays[i][_tokenIndex]);
+
+            // NonEvmPeers.json has one Solana array and one shared Move array.
+            // Movement and Aptos deliberately use the same OFT object ids.
+            uint256 peerArrayIndex;
+            if (_peer.eid == 30168) {
+                peerArrayIndex = 0;
+            } else if (_peer.eid == 30325 || _peer.eid == 30108) {
+                peerArrayIndex = 1;
+            } else {
+                return (true, bytes32(0));
+            }
+
+            if (peerArrayIndex >= nonEvmPeersArrays.length) return (true, bytes32(0));
+            if (_tokenIndex >= nonEvmPeersArrays[peerArrayIndex].length) return (true, bytes32(0));
+            return (true, nonEvmPeersArrays[peerArrayIndex][_tokenIndex]);
         }
 
         return (false, bytes32(0));
@@ -596,12 +638,17 @@ contract DeprecateChain is DeployFraxOFTProtocol {
         return h == keccak256(bytes(deprecateChainId.toString()));
     }
 
-    function _getProxyConfigByChainId(uint256 _chainId) internal view returns (L0Config memory) {
+    function _getDeprecateConfigByChainId(uint256 _chainId) internal view returns (L0Config memory, bool) {
         for (uint256 i = 0; i < proxyConfigs.length; i++) {
             if (proxyConfigs[i].chainid == _chainId) {
-                return proxyConfigs[i];
+                return (proxyConfigs[i], false);
             }
         }
-        revert("deprecate chain not found in proxyConfigs");
+        for (uint256 i = 0; i < nonEvmConfigs.length; i++) {
+            if (nonEvmConfigs[i].chainid == _chainId) {
+                return (nonEvmConfigs[i], true);
+            }
+        }
+        revert("deprecate chain not found in Proxy or Non-EVM configs");
     }
 }

@@ -41,8 +41,11 @@ interface TokenConfig {
 }
 
 interface AptosPayload {
+    contract_address: string
+    module_name: string
+    function_name: string
     function_id: string
-    args: Array<{ type: string; value: unknown }>
+    args: Array<{ name: string; type: string; value: unknown }>
     type_args: unknown[]
 }
 
@@ -173,7 +176,14 @@ function boolFromView(value: unknown): boolean {
 }
 
 function payload(oapp: string, action: string, args: AptosPayload['args']): AptosPayload {
-    return { function_id: `${oapp}::oapp_core::${action}`, args, type_args: [] }
+    return {
+        contract_address: oapp,
+        module_name: 'oapp_core',
+        function_name: action,
+        function_id: `${oapp}::oapp_core::${action}`,
+        args,
+        type_args: [],
+    }
 }
 
 function writeRouteBundle(args: Args, target: ChainConfig, token: TokenConfig, txs: Array<[string, AptosPayload]>) {
@@ -246,28 +256,28 @@ async function buildTokenTarget(args: Args, target: ChainConfig, token: TokenCon
     txs.push([
         'set-send-uln-default',
         payload(token.address, 'set_config', [
-            { type: 'address', value: APTOS_ULN_302 },
-            { type: 'u32', value: target.eid },
-            { type: 'u32', value: 2 },
-            { type: 'u8', value: Array.from(DEFAULT_ULN_CONFIG) },
+            { name: 'msglib', type: 'address', value: APTOS_ULN_302 },
+            { name: 'eid', type: 'u32', value: target.eid },
+            { name: 'config_type', type: 'u32', value: 2 },
+            { name: 'config', type: 'vector<u8>', value: Array.from(DEFAULT_ULN_CONFIG) },
         ]),
     ])
     txs.push([
         'set-executor-default',
         payload(token.address, 'set_config', [
-            { type: 'address', value: APTOS_ULN_302 },
-            { type: 'u32', value: target.eid },
-            { type: 'u32', value: 1 },
-            { type: 'u8', value: Array.from(DEFAULT_EXECUTOR_CONFIG) },
+            { name: 'msglib', type: 'address', value: APTOS_ULN_302 },
+            { name: 'eid', type: 'u32', value: target.eid },
+            { name: 'config_type', type: 'u32', value: 1 },
+            { name: 'config', type: 'vector<u8>', value: Array.from(DEFAULT_EXECUTOR_CONFIG) },
         ]),
     ])
     txs.push([
         'set-receive-uln-default',
         payload(token.address, 'set_config', [
-            { type: 'address', value: APTOS_ULN_302 },
-            { type: 'u32', value: target.eid },
-            { type: 'u32', value: 3 },
-            { type: 'u8', value: Array.from(DEFAULT_ULN_CONFIG) },
+            { name: 'msglib', type: 'address', value: APTOS_ULN_302 },
+            { name: 'eid', type: 'u32', value: target.eid },
+            { name: 'config_type', type: 'u32', value: 3 },
+            { name: 'config', type: 'vector<u8>', value: Array.from(DEFAULT_ULN_CONFIG) },
         ]),
     ])
 
@@ -275,8 +285,8 @@ async function buildTokenTarget(args: Args, target: ChainConfig, token: TokenCon
         txs.push([
             'set-send-library-blocked',
             payload(token.address, 'set_send_library', [
-                { type: 'u32', value: target.eid },
-                { type: 'address', value: APTOS_BLOCKED_MESSAGE_LIB },
+                { name: 'remote_eid', type: 'u32', value: target.eid },
+                { name: 'msglib', type: 'address', value: APTOS_BLOCKED_MESSAGE_LIB },
             ]),
         ])
     }
@@ -284,9 +294,9 @@ async function buildTokenTarget(args: Args, target: ChainConfig, token: TokenCon
         txs.push([
             'set-receive-library-default',
             payload(token.address, 'set_receive_library', [
-                { type: 'u32', value: target.eid },
-                { type: 'address', value: ZERO_ADDRESS },
-                { type: 'u64', value: '0' },
+                { name: 'remote_eid', type: 'u32', value: target.eid },
+                { name: 'msglib', type: 'address', value: ZERO_ADDRESS },
+                { name: 'grace_period', type: 'u64', value: '0' },
             ]),
         ])
     }
@@ -294,9 +304,9 @@ async function buildTokenTarget(args: Args, target: ChainConfig, token: TokenCon
         txs.push([
             'clear-enforced-options-1',
             payload(token.address, 'set_enforced_options', [
-                { type: 'u32', value: target.eid },
-                { type: 'u16', value: 1 },
-                { type: 'u8', value: Array.from(EMPTY_OPTIONS) },
+                { name: 'eid', type: 'u32', value: target.eid },
+                { name: 'msg_type', type: 'u16', value: 1 },
+                { name: 'enforced_options', type: 'vector<u8>', value: Array.from(EMPTY_OPTIONS) },
             ]),
         ])
     }
@@ -304,14 +314,17 @@ async function buildTokenTarget(args: Args, target: ChainConfig, token: TokenCon
         txs.push([
             'clear-enforced-options-2',
             payload(token.address, 'set_enforced_options', [
-                { type: 'u32', value: target.eid },
-                { type: 'u16', value: 2 },
-                { type: 'u8', value: Array.from(EMPTY_OPTIONS) },
+                { name: 'eid', type: 'u32', value: target.eid },
+                { name: 'msg_type', type: 'u16', value: 2 },
+                { name: 'enforced_options', type: 'vector<u8>', value: Array.from(EMPTY_OPTIONS) },
             ]),
         ])
     }
     if (hasPeer) {
-        txs.push(['remove-peer', payload(token.address, 'remove_peer', [{ type: 'u32', value: target.eid }])])
+        txs.push([
+            'remove-peer',
+            payload(token.address, 'remove_peer', [{ name: 'eid', type: 'u32', value: target.eid }]),
+        ])
     }
 
     writeRouteBundle(args, target, token, txs)

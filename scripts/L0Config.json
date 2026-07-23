@@ -135,7 +135,7 @@
             "sendLib302": "0x975bcD720be66659e3EB3C0e4F1866a3020E493A"
         },
         {
-            "RPC": "https://rpc.nodeflare.app/op/public",
+            "RPC": "https://optimism.gateway.tenderly.co",
             "chainid": 10,
             "delegate": "0x419e672d625f998dd07a7ecf2E06B896F8717cb2",
             "dvnHorizen": "0x9e930731cb4a6bf7ecc11f695a295c60bdd212eb",
@@ -279,7 +279,7 @@
             "sendLib302": "0xC39161c743D0307EB9BCc9FEF03eeb9Dc4802de7"
         },
         {
-            "RPC": "https://98866.rpc.thirdweb.com",
+            "RPC": "https://rpc.plume.org",
             "chainid": 98866,
             "delegate": "0x77dDd3EC570EEAf2c513de3c833c5E82A721978B",
             "dvnHorizen": "0x0000000000000000000000000000000000000000",

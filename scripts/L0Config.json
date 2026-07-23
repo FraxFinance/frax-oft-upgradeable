@@ -279,7 +279,7 @@
             "sendLib302": "0xC39161c743D0307EB9BCc9FEF03eeb9Dc4802de7"
         },
         {
-            "RPC": "https://98866.rpc.thirdweb.com",
+            "RPC": "https://rpc.plume.org",
             "chainid": 98866,
             "delegate": "0x77dDd3EC570EEAf2c513de3c833c5E82A721978B",
             "dvnHorizen": "0x0000000000000000000000000000000000000000",

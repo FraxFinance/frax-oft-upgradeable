@@ -6,6 +6,15 @@ struct L0Config {
     string RPC;
     uint256 chainid;
     address delegate;
+    /// @dev On mainnet entries this is genuinely the Horizen DVN. On the Testnet
+    ///      entries it is an alias for the *Frax* DVN — the scripts that read it
+    ///      (scripts/ops/FraxDVNTest/testnet, scripts/ops/testnet) treat it as
+    ///      "the second required DVN alongside dvnL0", and on testnet that is
+    ///      Frax. Populating it with a real Horizen address on a testnet chain
+    ///      would evict the Frax DVN from a live 2-of-2 lane, so keep the
+    ///      Testnet block's values in sync with config/dvn/<chainid>.json's
+    ///      "frax" key. The field name cannot be split without regenerating
+    ///      every L0Config.json entry, since parseJson decodes alphabetically.
     address dvnHorizen;
     address dvnL0;
     uint256 eid;
@@ -116,12 +125,26 @@ contract L0Constants {
     address[] public expectedTestnetProxyOfts;
     address[] public ethSepoliaLockboxes;
     address[] public arbitrumSepoliaOfts;
+    address[] public optimismSepoliaOfts;
     address[] public fraxtalTestnetLockboxes;
 
     address public ethSepoliaFrxUsdLockbox = 0x29a5134D3B22F47AD52e0A22A63247363e9F35c2;
 
     address public arbitrumSepoliaFrxUsdOft = 0x0768C16445B41137F98Ab68CA545C0afD65A7513;
 
+    /// @dev This address is byte-identical to `proxyFraxOft` above, purely by coincidence of
+    ///      CREATE2 deployment across two different chains.  It is safe as an array *element*
+    ///      (peer lookups only ever return it), but `tokenIndex()` checks `proxyFraxOft` before
+    ///      `proxyFrxUsdOft`, so assigning it to the `frxUsdOft` state variable would classify
+    ///      it as Token.WFRAX and revert `getTestnetPeerFromArray`.  Do not do that.
+    address public optimismSepoliaFrxUsdOft = 0x64445f0aecC51E94aD52d8AC56b7190e764E561a;
+
+    /// @dev STRANDED.  This lockbox lives on the retired chainid-2522 Fraxtal testnet.  That
+    ///      chain was reset and the RPCs now serve chainid 2523, where this address -- along
+    ///      with EndpointV2, SendUln302, ReceiveUln302 and the Frax DVN -- has no code.
+    ///      Retained so `fraxtalTestnetLockboxes` stays non-empty for the chainid-2522 branches
+    ///      in BaseL0Script and DeployFraxOFTProtocol.  Must not be used until LayerZero
+    ///      redeploys V2 on the new Fraxtal testnet.
     address public fraxtalTestnetFrxUsdLockbox = 0x7C9DF6704Ec6E18c5E656A2db542c23ab73CB24d;
 
     constructor() {
@@ -207,7 +230,14 @@ contract L0Constants {
 
         arbitrumSepoliaOfts.push(arbitrumSepoliaFrxUsdOft);
 
+        optimismSepoliaOfts.push(optimismSepoliaFrxUsdOft);
+
         fraxtalTestnetLockboxes.push(fraxtalTestnetFrxUsdLockbox);
+
+        // Testnet arrays are deliberately NOT passed to _registerChain().  Both readers of
+        // chainPeerAddresses gate on `.length == NUM_OFTS`, so a single-token testnet array
+        // would register but never resolve.  Testnet peers are wired through the explicit
+        // chainid branches in _validateAndPopulateTestnetOfts() and determinePeer() instead.
 
         // ── Chain peer registry ──────────────────────────────────────
         // To add a new chain: register it here and add its L0Config to

@@ -356,6 +356,8 @@ contract DeployFraxOFTProtocol is SetDVNs, BaseL0Script {
             peer = getTestnetPeerFromArray({ _oft: _oft, _oftArray: ethSepoliaLockboxes });
         } else if (_chainid == 421614) {
             peer = getTestnetPeerFromArray({ _oft: _oft, _oftArray: arbitrumSepoliaOfts });
+        } else if (_chainid == 11155420) {
+            peer = getTestnetPeerFromArray({ _oft: _oft, _oftArray: optimismSepoliaOfts });
         } else if (_chainid == 2522) {
             peer = getTestnetPeerFromArray({ _oft: _oft, _oftArray: fraxtalTestnetLockboxes });
         } else if (chainPeerAddresses[_chainid].length == NUM_OFTS) {

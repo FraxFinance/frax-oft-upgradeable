@@ -29,22 +29,36 @@ contract DeprecateChain is DeprecateOFTBase {
     ///      a given file targets.
     uint256 public deprecateChainId;
     L0Config public deprecateConfig;
+    bool public deprecateChainIsNonEvm;
 
     function outputDir() public view override returns (string memory) {
         string memory root = vm.projectRoot();
         return string.concat(root, "/scripts/ops/DeprecateChain/txs/deprecate-", deprecateChainId.toString(), "/");
     }
 
+    /// @dev Non-EVM chain ids are JSON-only placeholders. Use the real LayerZero
+    ///      EID in filenames so generated batches retain the existing convention.
+    function _outputPeerId() internal view returns (uint256) {
+        for (uint256 i = 0; i < nonEvmConfigs.length; i++) {
+            if (nonEvmConfigs[i].chainid == peerConfig.chainid && nonEvmConfigs[i].eid == peerConfig.eid) {
+                return peerConfig.eid;
+            }
+        }
+        return peerConfig.chainid;
+    }
+
     function setUp() public override {
         super.setUp();
         deprecateChainId = vm.envOr("DEPRECATE_CHAIN_ID", broadcastConfig.chainid);
-        deprecateConfig = _getProxyConfigByChainId(deprecateChainId);
+        (deprecateConfig, deprecateChainIsNonEvm) = _getDeprecateConfigByChainId(deprecateChainId);
     }
 
     function run() public override {
         vm.createDir(outputDir(), true);
 
-        bool skipDeprecateChainSimulation = _skipDeprecateChainSimulation();
+        // Placeholder chain ids in L0Config identify non-EVM destinations but cannot
+        // be forked. For those destinations, only generate the EVM-side cleanup.
+        bool skipDeprecateChainSimulation = deprecateChainIsNonEvm || _skipDeprecateChainSimulation();
         uint256 targetChainId = vm.envOr("TARGET_CHAIN_ID", uint256(0));
 
         for (uint256 i = 0; i < proxyConfigs.length; i++) {
@@ -53,14 +67,10 @@ contract DeprecateChain is DeprecateOFTBase {
             if (targetChainId != 0 && currentPeer.chainid != targetChainId) continue;
 
             if (!skipDeprecateChainSimulation) {
-                for (uint256 o = 0; o < NUM_OFTS; o++) {
-                    _deprecatePairOnToken({_simulateConfig: deprecateConfig, _peer: currentPeer, _tokenIndex: o});
-                }
+                _deprecatePair({_simulateConfig: deprecateConfig, _peer: currentPeer});
             }
 
-            for (uint256 o = 0; o < NUM_OFTS; o++) {
-                _deprecatePairOnToken({_simulateConfig: currentPeer, _peer: deprecateConfig, _tokenIndex: o});
-            }
+            _deprecatePair({_simulateConfig: currentPeer, _peer: deprecateConfig});
         }
 
         for (uint256 i = 0; i < nonEvmConfigs.length; i++) {
@@ -68,9 +78,7 @@ contract DeprecateChain is DeprecateOFTBase {
             if (targetChainId != 0 && nonEvmPeer.chainid != targetChainId) continue;
 
             if (!skipDeprecateChainSimulation) {
-                for (uint256 o = 0; o < NUM_OFTS; o++) {
-                    _deprecatePairOnToken({_simulateConfig: deprecateConfig, _peer: nonEvmPeer, _tokenIndex: o});
-                }
+                _deprecatePair({_simulateConfig: deprecateConfig, _peer: nonEvmPeer});
             }
         }
     }
@@ -87,12 +95,17 @@ contract DeprecateChain is DeprecateOFTBase {
         return h == keccak256(bytes(deprecateChainId.toString()));
     }
 
-    function _getProxyConfigByChainId(uint256 _chainId) internal view returns (L0Config memory) {
+    function _getDeprecateConfigByChainId(uint256 _chainId) internal view returns (L0Config memory, bool) {
         for (uint256 i = 0; i < proxyConfigs.length; i++) {
             if (proxyConfigs[i].chainid == _chainId) {
-                return proxyConfigs[i];
+                return (proxyConfigs[i], false);
             }
         }
-        revert("deprecate chain not found in proxyConfigs");
+        for (uint256 i = 0; i < nonEvmConfigs.length; i++) {
+            if (nonEvmConfigs[i].chainid == _chainId) {
+                return (nonEvmConfigs[i], true);
+            }
+        }
+        revert("deprecate chain not found in Proxy or Non-EVM configs");
     }
 }

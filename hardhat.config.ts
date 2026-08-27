@@ -184,7 +184,21 @@ const config: HardhatUserConfig = {
         },
         sepolia: {
             eid: EndpointId.SEPOLIA_V2_TESTNET,
-            url: process.env.RPC_URL_SEPOLIA || 'https://rpc.sepolia.org/',
+            url: process.env.RPC_URL_SEPOLIA || 'https://ethereum-sepolia-rpc.publicnode.com',
+            accounts,
+        },
+        // The two frxUSD spokes on the testnet mesh. `lz:oft:send` resolves an HRE
+        // from the SOURCE eid, so without these entries the task can only send
+        // from Sepolia — arbsep -> sepolia and optsep -> sepolia both fail before
+        // they reach the OFT.
+        "arbitrum-sepolia": {
+            eid: EndpointId.ARBSEP_V2_TESTNET,
+            url: process.env.RPC_URL_ARBSEP || 'https://arbitrum-sepolia.gateway.tenderly.co',
+            accounts,
+        },
+        "optimism-sepolia": {
+            eid: EndpointId.OPTSEP_V2_TESTNET,
+            url: process.env.RPC_URL_OPTSEP || 'https://optimism-sepolia.gateway.tenderly.co',
             accounts,
         },
         fuji: {

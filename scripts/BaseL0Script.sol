@@ -182,6 +182,8 @@ contract BaseL0Script is L0Constants, Script {
             connectedOfts[0] = ethSepoliaLockboxes[0];
         } else if (simulateConfig.chainid == 421614) {
             connectedOfts[0] = arbitrumSepoliaOfts[0];
+        } else if (simulateConfig.chainid == 11155420) {
+            connectedOfts[0] = optimismSepoliaOfts[0];
         } else if (simulateConfig.chainid == 2522) {
             connectedOfts[0] = fraxtalTestnetLockboxes[0];
         } else {

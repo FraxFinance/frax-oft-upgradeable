@@ -1,0 +1,26 @@
+{
+    "421614": {
+        "receiveConfirmations": 5,
+        "sendConfirmations": 2
+    },
+    "2522": {
+        "receiveConfirmations": 5,
+        "sendConfirmations": 2
+    },
+    "97": {
+        "receiveConfirmations": 5,
+        "sendConfirmations": 2
+    },
+    "11155420": {
+        "receiveConfirmations": 1,
+        "sendConfirmations": 2
+    },
+    "80002": {
+        "receiveConfirmations": 5,
+        "sendConfirmations": 2
+    },
+    "42431": {
+        "receiveConfirmations": 1,
+        "sendConfirmations": 1
+    }
+}

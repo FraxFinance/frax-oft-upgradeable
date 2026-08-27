@@ -227,15 +227,4 @@ contract SafeTxUtil is Script {
         console.log("SAFE_TX_JSON_END");
     }
 
-    function _bytesToHex(bytes memory _data) internal pure returns (string memory) {
-        bytes memory alphabet = "0123456789abcdef";
-        bytes memory out = new bytes(2 + _data.length * 2);
-        out[0] = "0";
-        out[1] = "x";
-        for (uint256 i = 0; i < _data.length; i++) {
-            out[2 + i * 2] = alphabet[uint8(_data[i] >> 4)];
-            out[3 + i * 2] = alphabet[uint8(_data[i] & 0x0f)];
-        }
-        return string(out);
-    }
 }

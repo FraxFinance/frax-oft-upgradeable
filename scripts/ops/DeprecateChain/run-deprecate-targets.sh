@@ -4,7 +4,7 @@ set -euo pipefail
 cd "$(git rev-parse --show-toplevel)"
 
 SCRIPT_PATH="scripts/ops/DeprecateChain/DeprecateChain.s.sol"
-APTOS_SCRIPT_PATH="scripts/ops/DeprecateChain/generate-aptos-side.ts"
+MOVE_SCRIPT_PATH="scripts/ops/DeprecateChain/generate-move-side.ts"
 CONFIG_PATH="scripts/L0Config.json"
 
 DEPRECATE_CHAIN_ID="${DEPRECATE_CHAIN_ID:-}"
@@ -13,7 +13,7 @@ TARGET_CHAIN_IDS="${TARGET_CHAIN_IDS:-}"
 EXCLUDE_CHAIN_IDS="${EXCLUDE_CHAIN_IDS:-}"
 KEEP_EXISTING="${KEEP_EXISTING:-true}"
 CLEAN_EXISTING="${CLEAN_EXISTING:-false}"
-SKIP_APTOS_SIDE="${SKIP_APTOS_SIDE:-false}"
+SKIP_MOVE_SIDE="${SKIP_MOVE_SIDE:-${SKIP_APTOS_SIDE:-false}}"
 
 OUT_DIR_ROOT="scripts/ops/DeprecateChain/txs"
 
@@ -33,7 +33,8 @@ usage() {
   echo "  KEEP_EXISTING               Optional false/0 to delete prior generated JSONs for this deprecate chain."
   echo "                             Defaults to true."
   echo "  CLEAN_EXISTING              Optional true/1 alias to delete prior generated JSONs."
-  echo "  SKIP_APTOS_SIDE             Optional true/1 to skip Aptos-side payload generation."
+  echo "  SKIP_MOVE_SIDE              Optional true/1 to skip Aptos/Movement-side payload generation."
+  echo "                             SKIP_APTOS_SIDE remains supported as a legacy alias."
 }
 
 require_cmd() {
@@ -181,7 +182,7 @@ deprecate_out_dir="${OUT_DIR_ROOT}/deprecate-${DEPRECATE_CHAIN_ID}"
 mkdir -p "${deprecate_out_dir}"
 
 if [[ "${CLEAN_EXISTING}" =~ ^(true|TRUE|1)$ || "${KEEP_EXISTING}" =~ ^(false|FALSE|0)$ ]]; then
-  find "${deprecate_out_dir}" -type f \( -name 'Deprecate-*.json' -o -name 'DeprecateAptos-*.json' \) -delete
+  find "${deprecate_out_dir}" -type f \( -name 'Deprecate-*.json' -o -name 'DeprecateAptos-*.json' -o -name 'DeprecateMovement-*.json' \) -delete
 fi
 
 failures=0
@@ -201,11 +202,11 @@ for target_chain_id in "${targets[@]}"; do
     echo "Using forge --zksync for ZKsync-family chain ${target_chain_id}."
   else
     current_forge_args=("${forge_args[@]}")
-    current_foundry_src="${FOUNDRY_SRC:-scripts}"
+    current_foundry_src="${FOUNDRY_SRC:-${zksync_source_dir}}"
   fi
 
-  # A full-project zksolc build is unnecessarily large for this runner and can
-  # exhaust the compiler process. Imports outside FOUNDRY_SRC remain included.
+  # Full-project source discovery is unnecessarily large for this runner and can
+  # exhaust or stall the compiler. Imports outside FOUNDRY_SRC remain included.
   if FOUNDRY_SRC="${current_foundry_src}" \
      DEPRECATE_CHAIN_ID="${DEPRECATE_CHAIN_ID}" \
      SKIP_DEPRECATE_CHAIN_SIM="${SKIP_DEPRECATE_CHAIN_SIM}" \
@@ -219,15 +220,17 @@ for target_chain_id in "${targets[@]}"; do
   fi
 done
 
-aptos_side_failed=0
-if [[ "${DEPRECATE_CHAIN_ID}" == "33333333" && ! "${SKIP_APTOS_SIDE}" =~ ^(true|TRUE|1)$ ]]; then
+move_side_failed=0
+if [[ "${DEPRECATE_CHAIN_ID}" =~ ^(22222222|33333333)$ && ! "${SKIP_MOVE_SIDE}" =~ ^(true|TRUE|1)$ ]]; then
   require_cmd pnpm
   target_csv="$(IFS=,; echo "${targets[*]}")"
   echo
-  echo "=== APTOS-SIDE DEPRECATION ==="
-  if ! pnpm exec ts-node "${APTOS_SCRIPT_PATH}" --target-chain-ids "${target_csv}"; then
-    echo "FAIL Aptos-side deprecation payload generation" >&2
-    aptos_side_failed=1
+  echo "=== MOVE-SIDE DEPRECATION (${DEPRECATE_CHAIN_ID}) ==="
+  if ! pnpm exec ts-node "${MOVE_SCRIPT_PATH}" \
+      --source-chain-id "${DEPRECATE_CHAIN_ID}" \
+      --target-chain-ids "${target_csv}"; then
+    echo "FAIL Move-side deprecation payload generation for ${DEPRECATE_CHAIN_ID}" >&2
+    move_side_failed=1
   fi
 fi
 
@@ -236,7 +239,7 @@ if [[ ${failures} -gt 0 ]]; then
   echo "Failed TARGET_CHAIN_ID values:"
   printf '%s\n' "${failed_targets[@]}"
 fi
-if [[ ${failures} -gt 0 || ${aptos_side_failed} -ne 0 ]]; then
+if [[ ${failures} -gt 0 || ${move_side_failed} -ne 0 ]]; then
   exit 1
 fi
 

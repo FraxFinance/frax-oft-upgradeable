@@ -233,10 +233,16 @@ contract DeprecateChain is DeployFraxOFTProtocol {
 
     function _writeCurrentTokenTxs() internal {
         if (serializedTxs.length > 0) {
-            new SafeTxUtil().writeTxs(serializedTxs, filename());
+            try new SafeTxUtil().writeTxs(serializedTxs, filename()) {} catch {
+                // forge --zksync: vm.serialize* / vm.writeJson revert, so no file is written.
+                // Print the JSON to the console so the operator can save it manually.
+                new SafeTxUtil().logTxsJson(serializedTxs, filename());
+            }
         }
         if (ownerScopedSerializedTxs.length > 0) {
-            new SafeTxUtil().writeTxs(ownerScopedSerializedTxs, ownerFilename(ownerScopedTxOwner));
+            try new SafeTxUtil().writeTxs(ownerScopedSerializedTxs, ownerFilename(ownerScopedTxOwner)) {} catch {
+                new SafeTxUtil().logTxsJson(ownerScopedSerializedTxs, ownerFilename(ownerScopedTxOwner));
+            }
         }
     }
 

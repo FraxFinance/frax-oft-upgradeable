@@ -1,72 +1,111 @@
+// SPDX-License-Identifier: ISC
 pragma solidity ^0.8.0;
 
-import "scripts/DeployFraxOFTProtocol/DeployFraxOFTProtocol.s.sol";
+import "./DeprecateOFTBase.s.sol";
 
-
-// Set peers to address(0) on fraxtal and broadcasted chain
-contract DeprecateChain is DeployFraxOFTProtocol {
+/// @notice Disconnects the broadcast chain from every other proxy chain bidirectionally.
+///
+///         Iteration behavior:
+///           - EVM peers (Proxy configs): generate both directions (deprecate->peer and peer->deprecate)
+///           - non-EVM peers: generate only deprecate->nonEVM from the EVM side
+///             (non-EVM-side disconnect txs must be generated separately with chain-specific tooling)
+///
+/// Usage:
+///   forge script scripts/ops/DeprecateChain/DeprecateChain.s.sol --ffi [--rpc-url <healthy-rpc>]
+///
+/// Optional env var:
+///   DEPRECATE_CHAIN_ID Override the deprecate target chain id (defaults to broadcast chain id).
+///   SKIP_DEPRECATE_CHAIN_SIM=<true|1|chainId>
+///                    Skip simulating txs on the deprecate chain itself; only simulate on
+///                    the other chains targeting the deprecate chain. Useful when deprecate
+///                    chain RPC is unavailable.
+///   TARGET_CHAIN_ID  When set, only generate JSONs for this one peer chain id (both directions),
+///                    instead of iterating all proxy chains.
+contract DeprecateChain is DeprecateOFTBase {
     using Strings for uint256;
-    using stdJson for string;
 
-    L0Config public fraxtalConfig;
-    L0Config public peerConfig;
+    /// @dev The chain we are deprecating (defaults to broadcast chain; can be overridden by env).
+    ///      All output files live in deprecate-<deprecateChainId>/ regardless of which side
+    ///      a given file targets.
+    uint256 public deprecateChainId;
+    L0Config public deprecateConfig;
+    bool public deprecateChainIsNonEvm;
+
+    function outputDir() public view override returns (string memory) {
+        string memory root = vm.projectRoot();
+        return string.concat(root, "/scripts/ops/DeprecateChain/txs/deprecate-", deprecateChainId.toString(), "/");
+    }
+
+    /// @dev Non-EVM chain ids are JSON-only placeholders. Use the real LayerZero
+    ///      EID in filenames so generated batches retain the existing convention.
+    function _outputPeerId() internal view returns (uint256) {
+        for (uint256 i = 0; i < nonEvmConfigs.length; i++) {
+            if (nonEvmConfigs[i].chainid == peerConfig.chainid && nonEvmConfigs[i].eid == peerConfig.eid) {
+                return peerConfig.eid;
+            }
+        }
+        return peerConfig.chainid;
+    }
 
     function setUp() public override {
         super.setUp();
-        
+        deprecateChainId = vm.envOr("DEPRECATE_CHAIN_ID", broadcastConfig.chainid);
+        (deprecateConfig, deprecateChainIsNonEvm) = _getDeprecateConfigByChainId(deprecateChainId);
+    }
+
+    function run() public override {
+        vm.createDir(outputDir(), true);
+
+        // Placeholder chain ids in L0Config identify non-EVM destinations but cannot
+        // be forked. For those destinations, only generate the EVM-side cleanup.
+        bool skipDeprecateChainSimulation = deprecateChainIsNonEvm || _skipDeprecateChainSimulation();
+        uint256 targetChainId = vm.envOr("TARGET_CHAIN_ID", uint256(0));
+
         for (uint256 i = 0; i < proxyConfigs.length; i++) {
-            if (proxyConfigs[i].chainid == 252) {
-                fraxtalConfig = proxyConfigs[i];
-                break;
+            L0Config memory currentPeer = proxyConfigs[i];
+            if (currentPeer.chainid == deprecateChainId) continue;
+            if (targetChainId != 0 && currentPeer.chainid != targetChainId) continue;
+
+            if (!skipDeprecateChainSimulation) {
+                _deprecatePair({_simulateConfig: deprecateConfig, _peer: currentPeer});
+            }
+
+            _deprecatePair({_simulateConfig: currentPeer, _peer: deprecateConfig});
+        }
+
+        for (uint256 i = 0; i < nonEvmConfigs.length; i++) {
+            L0Config memory nonEvmPeer = nonEvmConfigs[i];
+            if (targetChainId != 0 && nonEvmPeer.chainid != targetChainId) continue;
+
+            if (!skipDeprecateChainSimulation) {
+                _deprecatePair({_simulateConfig: deprecateConfig, _peer: nonEvmPeer});
             }
         }
     }
 
-    // Write filename like: `Deprecate-{BroadcastedChainId}-{PeerChainId}.json`.  Meaning, submit 
-    // the crafted json to the broadcasted chain
-    function filename() public view override returns (string memory) {
-        string memory root = vm.projectRoot();
-        string memory name = string.concat(
-            root,
-            "/scripts/ops/DeprecateChain/txs/Deprecate-",
-            simulateConfig.chainid.toString(),
-            "-",
-            peerConfig.chainid.toString(),
-            ".json"
-        );
-        return name;
-    }
+    function _skipDeprecateChainSimulation() internal view returns (bool) {
+        string memory raw = vm.envOr("SKIP_DEPRECATE_CHAIN_SIM", string(""));
+        if (bytes(raw).length == 0) return false;
 
-    function run() public override {    
-        // we start with simulating the broadcast config and resetting the fraxtal peer
-        setEvmPeers({
-            _simulateConfig: broadcastConfig,
-            _peerConfig: fraxtalConfig
-        });
-
-        // then we simulate fraxtal and reset the broadcasted chain peer
-        setEvmPeers({
-            _simulateConfig: fraxtalConfig,
-            _peerConfig: broadcastConfig
-        });
-    }
-
-    function setEvmPeers(
-        L0Config memory _simulateConfig,
-        L0Config memory _peerConfig
-    ) public simulateAndWriteTxs(_simulateConfig) {
-        // connectedOFTs are populated via simulateAndWriteTxs- this is a sanity check
-        require(connectedOfts.length == 6, "Missing connected OFTs");
-
-        peerConfig = _peerConfig;
-
-        // For each OFT
-        for (uint256 o=0; o<connectedOfts.length; o++) {
-            setPeer({
-                _config: _peerConfig,
-                _connectedOft: connectedOfts[o],
-                _peerOftAsBytes32: addressToBytes32(address(0))
-            });
+        bytes32 h = keccak256(bytes(raw));
+        if (h == keccak256("1") || h == keccak256("true") || h == keccak256("TRUE")) {
+            return true;
         }
+
+        return h == keccak256(bytes(deprecateChainId.toString()));
+    }
+
+    function _getDeprecateConfigByChainId(uint256 _chainId) internal view returns (L0Config memory, bool) {
+        for (uint256 i = 0; i < proxyConfigs.length; i++) {
+            if (proxyConfigs[i].chainid == _chainId) {
+                return (proxyConfigs[i], false);
+            }
+        }
+        for (uint256 i = 0; i < nonEvmConfigs.length; i++) {
+            if (nonEvmConfigs[i].chainid == _chainId) {
+                return (nonEvmConfigs[i], true);
+            }
+        }
+        revert("deprecate chain not found in Proxy or Non-EVM configs");
     }
 }

@@ -8,7 +8,7 @@ import { L0Config } from "scripts/L0Constants.sol";
 import { Strings } from "@openzeppelin/contracts/utils/Strings.sol";
 import { Arrays } from "@openzeppelin-5/contracts/utils/Arrays.sol";
 
-import { SetConfigParam, IMessageLibManager} from "@fraxfinance/layerzero-v2-upgradeable/protocol/contracts/interfaces/IMessageLibManager.sol";
+import { SetConfigParam, IMessageLibManager } from "@fraxfinance/layerzero-v2-upgradeable/protocol/contracts/interfaces/IMessageLibManager.sol";
 import { Constant } from "@fraxfinance/layerzero-v2-upgradeable/messagelib/test/util/Constant.sol";
 import { UlnConfig } from "@fraxfinance/layerzero-v2-upgradeable/messagelib/contracts/uln/UlnBase.sol";
 
@@ -19,10 +19,13 @@ contract SetDVNs is BaseInherited, Script {
     using Strings for uint256;
     using stdJson for string;
 
+    uint8 internal constant NIL_DVN_COUNT = type(uint8).max;
+
     address[] public dvnStackTemp;
 
     struct DvnStack {
         address bcwGroup;
+        address canary;
         address frax;
         address horizen;
         address lz;
@@ -30,13 +33,18 @@ contract SetDVNs is BaseInherited, Script {
         address stargate;
     }
 
+    struct ConfirmationConfig {
+        uint64 receiveConfirmations;
+        uint64 sendConfirmations;
+    }
+
     function setDVNs(
         L0Config memory _connectedConfig,
         address[] memory _connectedOfts,
         L0Config[] memory _configs
     ) public virtual {
-        for (uint256 o=0; o<_connectedOfts.length; o++) {
-            for (uint256 c=0; c<_configs.length; c++) {
+        for (uint256 o = 0; o < _connectedOfts.length; o++) {
+            for (uint256 c = 0; c < _configs.length; c++) {
                 // Skip if setting config to self
                 if (_connectedConfig.chainid == _configs[c].chainid) continue;
                 setConfigs({
@@ -66,7 +74,7 @@ contract SetDVNs is BaseInherited, Script {
             _oft: _connectedOft
         });
     }
-    
+
     function setConfig(
         L0Config memory _srcConfig,
         L0Config memory _dstConfig,
@@ -88,13 +96,24 @@ contract SetDVNs is BaseInherited, Script {
             _dstChainId: _dstConfig.chainid
         });
 
-        // Determine if we are working with a different array of DVNs than what is currently configured
-        // Do nothing if the stack is the same as before
-        if (arraysAreEqual(currentUlnConfig.requiredDVNs, desiredDVNs)) return;
+        uint64 desiredConfirmations = getConfirmations({ _srcConfig: _srcConfig, _dstConfig: _dstConfig, _lib: _lib });
+
+        // Determine if we are working with a different ULN config than what is currently configured
+        // Do nothing if the stack, confirmations, and disabled optional DVNs are the same as before
+        if (
+            currentUlnConfig.confirmations == desiredConfirmations &&
+            currentUlnConfig.optionalDVNCount == NIL_DVN_COUNT &&
+            currentUlnConfig.optionalDVNThreshold == 0 &&
+            currentUlnConfig.optionalDVNs.length == 0 &&
+            arraysAreEqual(currentUlnConfig.requiredDVNs, desiredDVNs)
+        ) return;
 
         // generate the config
         UlnConfig memory desiredUlnConfig;
+        desiredUlnConfig.confirmations = desiredConfirmations;
         desiredUlnConfig.requiredDVNCount = uint8(desiredDVNs.length);
+        desiredUlnConfig.optionalDVNCount = NIL_DVN_COUNT;
+        desiredUlnConfig.optionalDVNThreshold = 0;
         desiredUlnConfig.requiredDVNs = desiredDVNs;
 
         SetConfigParam[] memory setConfigParamArray = new SetConfigParam[](1);
@@ -105,29 +124,39 @@ contract SetDVNs is BaseInherited, Script {
         });
 
         // generate data and call
-        bytes memory data = abi.encodeCall(
-            IMessageLibManager.setConfig,
-            (
-                _oft,
-                _lib,
-                setConfigParamArray
-            )
-        );
+        bytes memory data = abi.encodeCall(IMessageLibManager.setConfig, (_oft, _lib, setConfigParamArray));
         (bool success, ) = _srcConfig.endpoint.call(data);
         require(success, "Unable to setConfig");
-        pushSerializedTx({
-            _name: "setConfig",
-            _to: _srcConfig.endpoint,
-            _value: 0,
-            _data: data
-        });
+        pushSerializedTx({ _name: "setConfig", _to: _srcConfig.endpoint, _value: 0, _data: data });
     }
 
-    function arraysAreEqual(address[] memory _dvnStackA, address[] memory _dvnStackB) public pure virtual returns (bool) {
+    function getConfirmations(
+        L0Config memory _srcConfig,
+        L0Config memory _dstConfig,
+        address _lib
+    ) public view returns (uint64 confirmations) {
+        string memory root = vm.projectRoot();
+        root = string.concat(root, "/config/confirmations/");
+        string memory name = string.concat(_srcConfig.chainid.toString(), ".json");
+        string memory path = string.concat(root, name);
+
+        string memory jsonFile = vm.readFile(path);
+        string memory key = string.concat(".", _dstConfig.chainid.toString());
+        ConfirmationConfig memory confirmationConfig = abi.decode(jsonFile.parseRaw(key), (ConfirmationConfig));
+
+        if (_lib == _srcConfig.sendLib302) return confirmationConfig.sendConfirmations;
+        if (_lib == _srcConfig.receiveLib302) return confirmationConfig.receiveConfirmations;
+        revert("Unknown ULN lib");
+    }
+
+    function arraysAreEqual(
+        address[] memory _dvnStackA,
+        address[] memory _dvnStackB
+    ) public pure virtual returns (bool) {
         if (_dvnStackA.length != _dvnStackB.length) {
             return false;
         } else {
-            for (uint256 i=0; i<_dvnStackA.length; i++) {
+            for (uint256 i = 0; i < _dvnStackA.length; i++) {
                 if (_dvnStackA[i] != _dvnStackB[i]) {
                     return false;
                 }
@@ -136,19 +165,13 @@ contract SetDVNs is BaseInherited, Script {
         return true;
     }
 
-    // Returns the ascending-sorted DVN stack of the connected chain 
+    // Returns the ascending-sorted DVN stack of the connected chain
     function craftDvnStack(
         uint256 _srcChainId,
         uint256 _dstChainId
     ) public virtual returns (address[] memory desiredDVNs) {
-        DvnStack memory srcDVNs = getDvnStack({
-            _srcChainId: _srcChainId,
-            _dstChainId: _dstChainId
-        });
-        DvnStack memory dstDVNs = getDvnStack({
-            _srcChainId: _dstChainId,
-            _dstChainId: _srcChainId
-        });
+        DvnStack memory srcDVNs = getDvnStack({ _srcChainId: _srcChainId, _dstChainId: _dstChainId });
+        DvnStack memory dstDVNs = getDvnStack({ _srcChainId: _dstChainId, _dstChainId: _srcChainId });
 
         // start with a fresh array
         delete dvnStackTemp;
@@ -160,6 +183,14 @@ contract SetDVNs is BaseInherited, Script {
                 incorrectDvnMatchMsg("bcwGroup", _srcChainId, _dstChainId)
             );
             dvnStackTemp.push(srcDVNs.bcwGroup);
+        }
+
+        if (srcDVNs.canary != address(0) || dstDVNs.canary != address(0)) {
+            require(
+                srcDVNs.canary != address(0) && dstDVNs.canary != address(0),
+                incorrectDvnMatchMsg("canary", _srcChainId, _dstChainId)
+            );
+            dvnStackTemp.push(srcDVNs.canary);
         }
 
         if (srcDVNs.frax != address(0) || dstDVNs.frax != address(0)) {
@@ -204,13 +235,17 @@ contract SetDVNs is BaseInherited, Script {
 
         // populate the output array and sort ascending
         desiredDVNs = new address[](dvnStackTemp.length);
-        for (uint256 i=0; i<dvnStackTemp.length; i++) {
+        for (uint256 i = 0; i < dvnStackTemp.length; i++) {
             desiredDVNs[i] = dvnStackTemp[i];
         }
         desiredDVNs = Arrays.sort(desiredDVNs);
     }
 
-    function incorrectDvnMatchMsg(string memory dvnName, uint256 chainId1, uint256 chainId2) public pure virtual returns (string memory) {
+    function incorrectDvnMatchMsg(
+        string memory dvnName,
+        uint256 chainId1,
+        uint256 chainId2
+    ) public pure virtual returns (string memory) {
         string memory message = string.concat("DVN Stack misconfigured: ", chainId1.toString());
         message = string.concat(message, " <> ");
         message = string.concat(message, chainId2.toString());
@@ -219,15 +254,18 @@ contract SetDVNs is BaseInherited, Script {
         return message;
     }
 
-    function getDvnStack(uint256 _srcChainId, uint256 _dstChainId) public virtual view returns (DvnStack memory dvnStack) {
-        require(_srcChainId != _dstChainId, "_srcChainId == _dstChainId");  // cannot set dvn options to self
-        
+    function getDvnStack(
+        uint256 _srcChainId,
+        uint256 _dstChainId
+    ) public view virtual returns (DvnStack memory dvnStack) {
+        require(_srcChainId != _dstChainId, "_srcChainId == _dstChainId"); // cannot set dvn options to self
+
         // craft path
         string memory root = vm.projectRoot();
         root = string.concat(root, "/config/dvn/");
         string memory name = string.concat(_srcChainId.toString(), ".json");
         string memory path = string.concat(root, name);
-        
+
         // load json
         string memory jsonFile = vm.readFile(path);
 

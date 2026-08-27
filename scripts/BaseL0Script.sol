@@ -305,12 +305,14 @@ contract BaseL0Script is L0Constants, Script {
     ///         Works for both the deterministic proxy addresses and the deployment-time
     ///         OFT state variables (wfraxOft, frxUsdOft, etc.).
     function tokenIndex(address _oft) public view returns (uint256) {
-        if (_oft == wfraxOft   || _oft == proxyFraxOft)   return uint256(Token.WFRAX);
-        if (_oft == sfrxUsdOft || _oft == proxySFrxUsdOft) return uint256(Token.SFRXUSD);
-        if (_oft == sfrxEthOft || _oft == proxySFrxEthOft) return uint256(Token.SFRXETH);
-        if (_oft == frxUsdOft  || _oft == proxyFrxUsdOft)  return uint256(Token.FRXUSD);
-        if (_oft == frxEthOft  || _oft == proxyFrxEthOft)  return uint256(Token.FRXETH);
-        if (_oft == fpiOft     || _oft == proxyFpiOft)     return uint256(Token.FPI);
+        require(_oft != address(0), "tokenIndex: OFT is zero address");
+
+        if (_oft == proxyFraxOft   || (wfraxOft != address(0) && _oft == wfraxOft)) return uint256(Token.WFRAX);
+        if (_oft == proxySFrxUsdOft || (sfrxUsdOft != address(0) && _oft == sfrxUsdOft)) return uint256(Token.SFRXUSD);
+        if (_oft == proxySFrxEthOft || (sfrxEthOft != address(0) && _oft == sfrxEthOft)) return uint256(Token.SFRXETH);
+        if (_oft == proxyFrxUsdOft  || (frxUsdOft != address(0) && _oft == frxUsdOft)) return uint256(Token.FRXUSD);
+        if (_oft == proxyFrxEthOft  || (frxEthOft != address(0) && _oft == frxEthOft)) return uint256(Token.FRXETH);
+        if (_oft == proxyFpiOft     || (fpiOft != address(0) && _oft == fpiOft)) return uint256(Token.FPI);
         revert(string.concat("tokenIndex: unknown OFT ", Strings.toHexString(_oft)));
     }
 

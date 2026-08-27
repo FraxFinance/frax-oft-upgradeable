@@ -7,6 +7,9 @@ This repository contains all of the contracts and deployment code used to manage
 - `ProxyAdmin`
   - `Mode`, `Sei`, `Fraxtal`, `X-Layer`, `Ink`, `Sonic`, `Arbitrum`, `Optimism`, `Polygon`, `Avalanche`, `BSC`, `Polygon zkEvm`, `Blast`, `Berachain`, `Worldchain`, `Unichain`, `Plume`, `Katana`, `Aurora`, `Stable`
     - `0x223a681fc5c5522c85c96157c0efa18cd6c5405c`
+  - `Ethereum`
+    - `0x223a681fc5c5522c85c96157c0efa18cd6c5405c`
+    - Owner: `0xb898Ad2976b4d8f2E21521C9db16b7497825E503` (Compound-style Timelock)
   - `Base`
     - `0xF59C41A57AB4565AF7424F64981523DfD7A453c5`
   - `Linea`
@@ -24,7 +27,8 @@ This repository contains all of the contracts and deployment code used to manage
   - `Ethereum`
     - [OFT Admin](https://app.safe.global/home?safe=eth:0xB1748C79709f4Ba2Dd82834B8c82D4a505003f27)
     - [Hop Admin](https://app.safe.global/home?safe=eth:0x6cCF3F2Ca29591F90ADB403D67E4dcB49cEcC634)
-  - [`Blast`](https://console.brahma.fi/account/0x33a133020b2c2cd41a24f74033b11ec2fc0bf97a)
+    - [frxUSD Upgrade Admin](https://app.safe.global/home?safe=eth:0xffffff4f3bac444b2c0ecf2a1840d018be783937)
+  - [`Blast`](https://app.safe.protofire.io/home?safe=blastmainnet:0x33A133020b2C2CD41a24F74033B11EC2fC0bF97a)
   - [`Metis`](https://metissafe.tech/home?safe=metis-andromeda:0xF4A4F32732F9B2fB84Ee28c58616946F3bF80F7d)
   - [`Base`](https://app.safe.global/home?safe=base:0xCBfd4Ef00a8cf91Fd1e1Fe97dC05910772c15E53)
   - [`Mode`](https://safe.optimism.io/home?safe=mode:0x6336CFA6eDBeC2A459d869031DB77fC2770Eaa66)
@@ -52,10 +56,10 @@ This repository contains all of the contracts and deployment code used to manage
   - [`Katana`](https://app.safe.global/settings/setup?safe=katana:0x19A90b0476cdc8EC1239266663CA820175B9B527)
   - [`Aurora`](https://app.safe.global/home?safe=aurora:0x73F365d34b81E731825a094c2E722A08574335cd)
   - [`Scroll`](https://app.safe.global/home?safe=scr:0x73F365d34b81E731825a094c2E722A08574335cd)
-  - [`HyperEVM`](https://safe.onchainden.com/home?safe=hyperevm:0x738ee62157f127C879Ff5c4B7102Eb0d166C7a6d)
+  - [`HyperEVM`](https://app.safe.global/home?safe=hyper-evm:0x738ee62157f127C879Ff5c4B7102Eb0d166C7a6d)
   - [`Stable`](https://app.safe.global/home?safe=stable:0x0C46f54BF9EF8fd58e2D294b8cEA488204EcB3D8)
   - [`Monad`](https://app.safe.global/home?safe=monad:0x47FF5bBAB981Ff022743AA4281D4d6Dd7Fb1a4D0)
-  - [`Tempo`](https://app.test.safe.protofire.io/settings/setup?safe=tempo:0x1Ba19a54a01AE967f5E3895764Caaa6919FD2bEe)
+  - [`Tempo`](https://app.safe.global/home?safe=tempo:0x1Ba19a54a01AE967f5E3895764Caaa6919FD2bEe)
   - [`Somnia`](https://safe.somnia.network/home?safe=somnia:0x9527e19F55d1afCE9F1e9Edcea79552bF41983F9)
 
 ### Proxy (upgradeable) OFTs
@@ -256,4 +260,4 @@ Frax operates a lightweight LZ stack on testnets, replicating the dual-lockbox a
 - `source .env && forge script scripts/DeployFraxOFTProtocol.s.sol --rpc-url $RPC_URL --broadcast`
 - Manually verify each contract on the deployed chain (do not need to verify ImplementationMock)
   - Use `contracts/flat`, Solidity version 0.8.22, Shanghai compiler, 200 optimizer runs
-- Submit each newly crafted json to the respective `DESTINATION_CHAIN_ID` msig. 
+- Submit each newly crafted json to the respective `DESTINATION_CHAIN_ID` msig.

@@ -173,6 +173,7 @@
     "@ethersproject/hash": "^5.8.0",
     "@openzeppelin-5/contracts": "npm:@openzeppelin/contracts@^5.4.0",
     "@openzeppelin-5/contracts-upgradeable": "npm:@openzeppelin/contracts-upgradeable@^5.4.0",
+    "@pump-fun/pump-swap-sdk": "^1.18.0",
     "solady": "^0.1.24",
     "viem": "^2.33.1"
   }

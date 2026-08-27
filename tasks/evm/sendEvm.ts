@@ -1,5 +1,5 @@
 import bs58 from 'bs58'
-import { BigNumber, ContractTransaction } from 'ethers'
+import { BigNumber, ContractTransaction, Signer } from 'ethers'
 import { parseUnits } from 'ethers/lib/utils'
 import { HardhatRuntimeEnvironment } from 'hardhat/types'
 
@@ -13,6 +13,8 @@ import { SendResult } from '../common/types'
 import { DebugLogger, KnownErrors } from '../common/utils'
 import { getLayerZeroScanLink } from '../solana'
 const logger = createLogger()
+
+type NamedSigner = Signer & { address: string }
 
 export interface EvmArgs {
     srcEid: number
@@ -44,15 +46,22 @@ export async function sendEvm(
         )
         throw error
     }
-    const signer = await srcEidHre.ethers.getNamedSigner('deployer')
+    const ethersWithNamedSigner = srcEidHre.ethers as typeof srcEidHre.ethers & {
+        getNamedSigner(name: string): Promise<NamedSigner>
+    }
+    const signer = await ethersWithNamedSigner.getNamedSigner('deployer')
 
     // 1️⃣ resolve the OFT wrapper address
     let wrapperAddress: string
     if (oftAddress) {
         wrapperAddress = oftAddress
     } else {
-        const { contracts } = typeof layerzeroConfig === 'function' ? await layerzeroConfig() : layerzeroConfig
-        const wrapper = contracts.find((c) => c.contract.eid === srcEid)
+        const maybeLayerZeroConfig = layerzeroConfig as unknown as
+            | typeof layerzeroConfig
+            | (() => Promise<typeof layerzeroConfig> | typeof layerzeroConfig)
+        const { contracts } =
+            typeof maybeLayerZeroConfig === 'function' ? await maybeLayerZeroConfig() : maybeLayerZeroConfig
+        const wrapper = contracts.find((c: (typeof contracts)[number]) => c.contract.eid === srcEid)
         if (!wrapper) throw new Error(`No config for EID ${srcEid}`)
         wrapperAddress = wrapper.contract.contractName
             ? (await srcEidHre.deployments.get(wrapper.contract.contractName)).address

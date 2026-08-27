@@ -12,55 +12,34 @@ contract FixDVNs is FixDVNsInherited {
     using Strings for uint256;
 
     function filename() public view override returns (string memory) {
-        string memory root = vm.projectRoot();
-        root = string.concat(root, "/scripts/ops/fix/FixDVNs/txs/");
-        string memory name = string.concat((block.timestamp).toString(), "-2a_FixDVNsEVM-");
-        name = string.concat(name, simulateConfig.chainid.toString());
-        name = string.concat(name, ".json");
-
-        return string.concat(root, name);
+        return filenameForStep("2b_FixDVNsZK");
     }
 
     function run() public override {
-        chainIds = [324, 2741]; // zksync and abstract
-
-        for (uint256 i=0; i<expectedProxyOfts.length; i++) {
+        for (uint256 i = 0; i < expectedProxyOfts.length; i++) {
             proxyOfts.push(expectedProxyOfts[i]);
         }
 
-
-        for (uint256 i=0; i<proxyConfigs.length; i++) {
-            for (uint256 j=0; j<chainIds.length; j++) {
-                if (proxyConfigs[i].chainid == chainIds[j]) {
-                    fixDVNs(proxyConfigs[i]);
-                }
-            }
+        for (uint256 i = 0; i < proxyConfigs.length; i++) {
+            if (!isZkChain(proxyConfigs[i].chainid)) continue;
+            if (!matchesSource(proxyConfigs[i])) continue;
+            fixDVNs(proxyConfigs[i]);
         }
     }
 
     function fixDVNs(L0Config memory _config) public simulateAndWriteTxs(_config) {
         // loop through proxy configs, find the proxy config with the given chainID
-        for (uint256 i=0; i<proxyConfigs.length; i++) {
-            for (uint256 j=0; j<chainIds.length; j++) {
-                if (
-                    proxyConfigs[i].chainid != chainIds[j]
-                    || proxyConfigs[i].chainid == _config.chainid
-                ) continue;
+        for (uint256 i = 0; i < proxyConfigs.length; i++) {
+            if (!matchesEvmDestination(_config, proxyConfigs[i])) continue;
 
-                // skip if peer is not set for one OFT, which means all OFTs
-                if (!hasPeer(connectedOfts[0], proxyConfigs[i])) {
-                    continue;
-                }
-
-                L0Config[] memory tempConfigs = new L0Config[](1);
-                tempConfigs[0] = proxyConfigs[i];
-                // if (tempConfigs[0].chainid != 252) continue; // Note : uncomment and modify chain id to which wiring should be done
-                setDVNs({
-                    _connectedConfig: _config,
-                    _connectedOfts: connectedOfts,
-                    _configs: tempConfigs
-                });
+            // skip if peer is not set for one OFT, which means all OFTs
+            if (!hasPeer(connectedOfts[0], proxyConfigs[i])) {
+                continue;
             }
+
+            L0Config[] memory tempConfigs = new L0Config[](1);
+            tempConfigs[0] = proxyConfigs[i];
+            setDVNs({_connectedConfig: _config, _connectedOfts: connectedOfts, _configs: tempConfigs});
         }
     }
 

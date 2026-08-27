@@ -68,12 +68,9 @@ task('lz:oft:solana:retry-payload', 'Retry a stored payload on Solana')
                     nonce: nonce.toString(),
                     srcEid,
                     sender: makeBytes32(sender),
-                    dstEid,
                     receiver,
-                    payload: '', // unused;  just added to satisfy typing
                     guid,
                     message: payload, // referred to as "payload" in scan-api
-                    version: 1, // unused;  just added to satisfy typing
                 },
                 Uint8Array.from([computeUnits, lamports]),
                 'confirmed'
@@ -89,7 +86,7 @@ task('lz:oft:solana:retry-payload', 'Retry a stored payload on Solana')
             tx.add(instruction)
             tx.recentBlockhash = blockhash
 
-            const keypair = Keypair.fromSecretKey(bs58.decode(process.env.SOLANA_PRIVATE_KEY))
+            const keypair = Keypair.fromSecretKey(Uint8Array.from(bs58.decode(process.env.SOLANA_PRIVATE_KEY)))
             tx.sign(keypair)
 
             const signature = await sendAndConfirmTransaction(connection, tx, [keypair], { skipPreflight: true })

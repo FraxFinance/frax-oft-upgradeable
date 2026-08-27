@@ -1,3 +1,72 @@
+# Fix DVNs
+
+This folder is reused for DVN stack updates, including the original Frax DVN rollout and the Canary + Nethermind DVN addition.
+
+The current scripts read desired stacks from `config/dvn`, read explicit effective ULN confirmations from `config/confirmations`, and write Canary + Nethermind Safe transaction JSON to `scripts/ops/fix/FixDVNs/generated/canary-nethermind/`.
+
+Route filtering follows the Fraxtal hub model: Fraxtal connects to every spoke, and the only direct spoke-to-spoke exception is Ethereum <-> Solana.
+
+Phase 2 `setConfig` batches read confirmations from `config/confirmations/<source-chain-id>.json` while replacing the required DVN stack. The JSON values are explicit so future overrides are reviewable before the Safe batch is generated.
+
+`txs/` contains historical Frax DVN artifacts. Do not use it for newly generated batches.
+
+ZK source-chain batches for Abstract and zkSync are generated manually because those zkVM chains require the Foundry zkSync toolchain and do not support the normal `vm.writeJson`/FFI transaction serialization path:
+
+```bash
+node scripts/ops/fix/FixDVNs/generate-zk-manual-batches.js
+```
+
+Generate the full Canary + Nethermind Safe JSON set with:
+
+```bash
+bash scripts/ops/fix/FixDVNs/run-op-confirmation-msigs.sh
+```
+
+To remove stale generated JSON first and regenerate from scratch:
+
+```bash
+bash scripts/ops/fix/FixDVNs/run-op-confirmation-msigs.sh fresh
+```
+
+If an RPC rate limit interrupts a run, resume from a route with:
+
+```bash
+START_ROUTE=1329-252 bash scripts/ops/fix/FixDVNs/run-op-confirmation-msigs.sh
+```
+
+Run the relevant scripts in order:
+
+```bash
+forge script scripts/ops/fix/FixDVNs/1a_SetBlockSendLibEVM.s.sol --rpc-url <rpc> --ffi
+forge script scripts/ops/fix/FixDVNs/1b_SetBlockSendLibZK.s.sol --rpc-url <rpc> --ffi
+forge script scripts/ops/fix/FixDVNs/1c_SetBlockSendLibSolana.s.sol --rpc-url <rpc> --ffi
+forge script scripts/ops/fix/FixDVNs/1d_SetBlockSendLibMovementAptos.s.sol --rpc-url <rpc> --ffi
+
+forge script scripts/ops/fix/FixDVNs/2a_FixDVNsEVM.s.sol --rpc-url <rpc> --ffi
+forge script scripts/ops/fix/FixDVNs/2b_FixDVNsZK.s.sol --rpc-url <rpc> --ffi
+forge script scripts/ops/fix/FixDVNs/2c_FixDVNsSolana.s.sol --rpc-url <rpc> --ffi
+forge script scripts/ops/fix/FixDVNs/2d_FixDVNsMovementAptos.s.sol --rpc-url <rpc> --ffi
+
+forge script scripts/ops/fix/FixDVNs/3a_SetSendLibEVM.s.sol --rpc-url <rpc> --ffi
+forge script scripts/ops/fix/FixDVNs/3b_SetSendLibZK.s.sol --rpc-url <rpc> --ffi
+forge script scripts/ops/fix/FixDVNs/3c_SetSendLibSolana.s.sol --rpc-url <rpc> --ffi
+forge script scripts/ops/fix/FixDVNs/3d_SetSendLibMovementAptos.s.sol --rpc-url <rpc> --ffi
+```
+
+Use filters for targeted batches:
+
+```bash
+SOURCE_CHAIN_ID=252 forge script scripts/ops/fix/FixDVNs/2a_FixDVNsEVM.s.sol --rpc-url <rpc> --ffi
+DST_CHAIN_ID=111111111 forge script scripts/ops/fix/FixDVNs/2c_FixDVNsSolana.s.sol --rpc-url <rpc> --ffi
+SOURCE_CHAIN_ID=252 DST_CHAIN_ID=111111111 forge script scripts/ops/fix/FixDVNs/2c_FixDVNsSolana.s.sol --rpc-url <rpc> --ffi
+```
+
+The `3*_SetSendLib*` simulations may hit `LZ_SameValue()` before the corresponding `1*_SetBlockSendLib*` transactions execute onchain. The restore transactions are intended to execute after the blocked-send-library transactions.
+
+Commit generated JSON from `generated/canary-nethermind/` when it is ready for signer review.
+
+## Frax DVN Rollout
+
 Team, the frax DVN upgrade transactions are queued. 
 
 `It will be sigged and executed in sync call tomorrow at 1PM PDT`

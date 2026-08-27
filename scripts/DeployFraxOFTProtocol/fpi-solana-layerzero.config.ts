@@ -13,7 +13,7 @@ const dvnConfigPath = "config/dvn"
 const chainIds = [
     1, 252
 ] as const;
-const dvnKeys = ['bcwGroup', 'frax', 'horizen', 'lz', 'nethermind', 'stargate'] as const;
+const dvnKeys = ['bcwGroup', 'canary', 'frax', 'horizen', 'lz', 'nethermind', 'stargate'] as const;
 
 const solanaContract: OmniPointHardhat = {
     eid: EndpointId.SOLANA_V2_MAINNET,
@@ -72,10 +72,13 @@ export default async function () {
 
         if (eid === 0) throw Error(`EID not found for chainid: ${_chainid}`)
         let OFTAddress = zeroAddress as string
+        let confirmations: number[] = []
         if (_chainid === 1) {
             OFTAddress = "0x9033BAD7aA130a2466060A2dA71fAe2219781B4b"
+            confirmations = [15, 32]
         } else if (_chainid === 252) {
             OFTAddress = "0x75c38D46001b0F8108c4136216bd2694982C20FC"
+            confirmations = [5, 32]
         } else {
             throw Error(`OFT not found for chainid: ${_chainid}`)
         }
@@ -109,6 +112,9 @@ export default async function () {
                     case "nethermind":
                         dvnName = "Nethermind"
                         break;
+                    case "canary":
+                        dvnName = "Canary"
+                        break;
                     case "stargate":
                         dvnName = "Stargate"
                         break;
@@ -131,7 +137,7 @@ export default async function () {
             evmContract, // Chain A contract
             solanaContract, // Chain B contract
             [requiredSrcDVNs, []], // [ requiredDVN[], [ optionalDVN[], threshold ] ]
-            [15, 32], // [A to B confirmations, B to A confirmations]
+            confirmations, // [A to B confirmations, B to A confirmations]
             [SOLANA_ENFORCED_OPTIONS, EVM_ENFORCED_OPTIONS], // Chain B enforcedOptions, Chain A enforcedOptions
         ])
     }

@@ -18,7 +18,7 @@ contract FraxOFTAdapterUpgradeable is OFTAdapterUpgradeable, RateLimiterModule {
     }
 
     function version() public pure returns (string memory) {
-        return "1.0.1";
+        return "1.2.0";
     }
 
     // Admin

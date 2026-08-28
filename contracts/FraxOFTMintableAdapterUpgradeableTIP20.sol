@@ -23,7 +23,7 @@ contract FraxOFTMintableAdapterUpgradeableTIP20 is OFTAdapterUpgradeable, Supply
     }
 
     function version() public pure returns (string memory) {
-        return "1.1.0";
+        return "1.2.0";
     }
 
     /// @dev This method is called specifically when deploying a new OFT

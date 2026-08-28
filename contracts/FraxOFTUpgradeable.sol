@@ -16,7 +16,7 @@ contract FraxOFTUpgradeable is OFTUpgradeable, EIP3009Module, PermitModule, Rate
     }
 
     function version() public pure returns (string memory) {
-        return "1.1.0";
+        return "1.2.0";
     }
 
     //==============================================================================
@@ -33,6 +33,12 @@ contract FraxOFTUpgradeable is OFTUpgradeable, EIP3009Module, PermitModule, Rate
 
     /// @dev This method is called specifically when upgrading an existing OFT
     function initializeV110() external reinitializer(3) {
+        __EIP712_init(name(), "1.1.0");
+    }
+
+    /// @dev This method is called specifically when upgrading an existing OFT to v1.2.0
+    ///      and re-initializes the EIP-712 domain version to 1.2.0.
+    function initializeV120() external reinitializer(4) {
         __EIP712_init(name(), version());
     }
 

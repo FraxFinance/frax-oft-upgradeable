@@ -26,6 +26,8 @@ forge script scripts/ops/V120/fraxtal/UpgradeV120Fraxtal.s.sol \
   --rpc-url "$FRAXTAL_RPC_URL" --broadcast
 ```
 
-`PK_CONFIG_DEPLOYER` must be set and funded on the target chain. Broadcasting deploys only the new implementations. Proxy upgrades are simulated and emitted under the corresponding `txs/` directory for Safe review and signing.
+Implementation deployment can broadcast either from a funded `PK_CONFIG_DEPLOYER`, or from the Google Cloud signer with Foundry's `--gcp --sender 0x54f9b12743a7deec0ea48721683cbebedc6e17bc` flow. Broadcasting deploys only the new implementations. Proxy upgrades are simulated and emitted under the corresponding `txs/` directory for Safe review and signing.
+
+If the target chain has supply-tracked mintable adapters, the script also appends the required supply-guard txs after the upgrade txs. A reviewed `scripts/ops/V120/supply/<chainid>.json` file takes precedence; otherwise the script auto-generates EVM-readable seeds from fresh peer-chain forks and writes the snapshot artifact to `scripts/ops/V120/supply/generated/<chainid>.json`. Fraxtal receives numeric `setInitialTotalSupply` seeds from peer `totalSupply()` reads; Ethereum and Tempo receive hub-facing `setAllowNegativeSupply(fraxtalEid, true)` calls.
 
 Rate limits intentionally remain disabled after the implementation upgrade. Read [RATE_LIMIT_RUNBOOK.md](../RATE_LIMIT_RUNBOOK.md) before enabling them.

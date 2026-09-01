@@ -13,8 +13,20 @@ The V120 scripts deploy rate-limited implementations, simulate each proxy upgrad
 ## Commands
 
 ```bash
-# One standard destination selected by the RPC chain ID
+# One non-Tempo destination selected by the RPC chain ID
 forge script scripts/ops/V120/destinations/UpgradeV120Destination.s.sol \
+  --rpc-url "$RPC_URL" --broadcast
+
+# Tempo destination only
+forge script scripts/ops/V120/destinations/UpgradeV120DestinationsTempo.s.sol \
+  --rpc-url "$TEMPO_RPC_URL" --broadcast
+
+# All active non-ZK destinations (excludes Ethereum, Fraxtal, Tempo)
+forge script scripts/ops/V120/destinations/UpgradeV120DestinationsEVM.s.sol \
+  --rpc-url "$RPC_URL" --broadcast
+
+# All active ZK-stack destinations
+forge script scripts/ops/V120/destinations/UpgradeV120DestinationsZK.s.sol \
   --rpc-url "$RPC_URL" --broadcast
 
 # Ethereum lockboxes/OFT

@@ -190,7 +190,10 @@ Phase‑by‑phase. Each phase names its **artifact**. This doubles as a human r
 ### Phase 1 — Simulate the upgrade (no broadcast)
 - For each profile run the matching script as a **fork simulation** (no `--broadcast`):
   ```bash
-  forge script scripts/ops/V120/destinations/UpgradeV120Destination.s.sol   --rpc-url "$RPC_URL"      # one standard destination
+  forge script scripts/ops/V120/destinations/UpgradeV120Destination.s.sol         --rpc-url "$RPC_URL"        # one non-Tempo destination
+  forge script scripts/ops/V120/destinations/UpgradeV120DestinationsTempo.s.sol   --rpc-url "$TEMPO_RPC_URL"  # Tempo destination
+  forge script scripts/ops/V120/destinations/UpgradeV120DestinationsEVM.s.sol     --rpc-url "$RPC_URL"        # all active non-ZK EVM destinations (excludes Tempo)
+  forge script scripts/ops/V120/destinations/UpgradeV120DestinationsZK.s.sol      --rpc-url "$RPC_URL"        # all active ZK-stack destinations
   forge script scripts/ops/V120/ethereum/UpgradeV120Ethereum.s.sol          --rpc-url "$ETH_RPC_URL"
   forge script scripts/ops/V120/fraxtal/UpgradeV120Fraxtal.s.sol            --rpc-url "$FRAXTAL_RPC_URL"
   ```
@@ -219,8 +222,15 @@ Phase‑by‑phase. Each phase names its **artifact**. This doubles as a human r
 ### Phase 4 — Deploy & verify implementations
 - Deploy **only** the new implementations (broadcast) with either a funded `PK_CONFIG_DEPLOYER` or the Google Cloud signer:
   ```bash
-  forge script scripts/ops/V120/<profile>.s.sol --rpc-url "$RPC" --broadcast   # + --verify where supported
-  forge script scripts/ops/V120/<profile>.s.sol --rpc-url "$RPC" --gcp --sender 0x54f9b12743a7deec0ea48721683cbebedc6e17bc --broadcast
+  forge script scripts/ops/V120/destinations/UpgradeV120Destination.s.sol         --rpc-url "$RPC"            --broadcast
+  forge script scripts/ops/V120/destinations/UpgradeV120DestinationsTempo.s.sol   --rpc-url "$TEMPO_RPC_URL"  --broadcast
+  forge script scripts/ops/V120/destinations/UpgradeV120DestinationsEVM.s.sol     --rpc-url "$RPC"            --broadcast
+  forge script scripts/ops/V120/destinations/UpgradeV120DestinationsZK.s.sol      --rpc-url "$RPC"            --broadcast
+  forge script scripts/ops/V120/ethereum/UpgradeV120Ethereum.s.sol                 --rpc-url "$ETH_RPC_URL"    --broadcast
+  forge script scripts/ops/V120/fraxtal/UpgradeV120Fraxtal.s.sol                   --rpc-url "$FRAXTAL_RPC_URL" --broadcast
+
+  # GCP signer variant
+  forge script <same-path-as-above> --rpc-url "$RPC" --gcp --sender 0x54f9b12743a7deec0ea48721683cbebedc6e17bc --broadcast
   ```
 - Explorer verify: standard EVM via `--verify --verifier etherscan --etherscan-api-key $ETHERSCAN_API_KEY`;
   **Tempo** via `scripts/verify-tempo-contracts.ts`. Record each new implementation address.

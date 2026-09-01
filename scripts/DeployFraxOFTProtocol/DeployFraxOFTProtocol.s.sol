@@ -4,13 +4,14 @@ pragma solidity ^0.8.19;
 import "../BaseL0Script.sol";
 
 import { SetDVNs } from "scripts/DeployFraxOFTProtocol/inherited/SetDVNs.s.sol";
+import { SetRateLimits } from "scripts/DeployFraxOFTProtocol/inherited/SetRateLimits.s.sol";
 
 /*
 TODO
 - Deployment handling on non-pre-deterministic chains
 */
 
-contract DeployFraxOFTProtocol is SetDVNs, BaseL0Script {
+contract DeployFraxOFTProtocol is SetDVNs, SetRateLimits, BaseL0Script {
     using OptionsBuilder for bytes;
     using stdJson for string;
     using Strings for uint256;
@@ -48,6 +49,7 @@ contract DeployFraxOFTProtocol is SetDVNs, BaseL0Script {
 
     function setupProxyDestinations() public virtual {
         for (uint256 i=0; i<proxyConfigs.length; i++) {
+            if (isDeprecatedChain(proxyConfigs[i].chainid)) continue;
             // skip if destination == source
             if (proxyConfigs[i].eid == broadcastConfig.eid) continue;
             setupDestination({
@@ -63,6 +65,7 @@ contract DeployFraxOFTProtocol is SetDVNs, BaseL0Script {
     function setupDestination(
         L0Config memory _connectedConfig
     ) public virtual simulateAndWriteTxs(_connectedConfig) {
+        require(!isDeprecatedChain(_connectedConfig.chainid), "Destination is not in the active mesh");
         setEvmEnforcedOptions({
             _connectedOfts: connectedOfts,
             _configs: broadcastConfigArray
@@ -72,6 +75,11 @@ contract DeployFraxOFTProtocol is SetDVNs, BaseL0Script {
             _connectedOfts: connectedOfts,
             _peerOfts: proxyOfts,
             _configs: broadcastConfigArray 
+        });
+
+        setRateLimits({
+            _connectedOfts: connectedOfts,
+            _configs: broadcastConfigArray
         });
 
         setDVNs({
@@ -88,37 +96,44 @@ contract DeployFraxOFTProtocol is SetDVNs, BaseL0Script {
     }
 
     function setupSource() public virtual broadcastAs(configDeployerPK) {
+        L0Config[] memory activeConfigs = getActiveAllConfigs();
         /// @dev set enforced options / peers separately
         setupEvms();
         setupNonEvms();
+
+        setRateLimits({
+            _connectedOfts: proxyOfts,
+            _configs: activeConfigs
+        });
 
         /// @dev configures legacy configs as well
         setDVNs({
             _connectedConfig: broadcastConfig,
             _connectedOfts: proxyOfts,
-            _configs: allConfigs
+            _configs: activeConfigs
         });
 
         setLibs({
             _connectedConfig: broadcastConfig,
             _connectedOfts: proxyOfts,
-            _configs: allConfigs
+            _configs: activeConfigs
         });
 
         setPriviledgedRoles();
     }
 
     function setupEvms() public virtual {
+        L0Config[] memory activeConfigs = getActiveProxyConfigs();
         setEvmEnforcedOptions({
             _connectedOfts: proxyOfts,
-            _configs: proxyConfigs
+            _configs: activeConfigs
         });
 
         /// @dev Upgradeable OFTs maintaining the same address cross-chain.
         setEvmPeers({
             _connectedOfts: proxyOfts,
             _peerOfts: expectedProxyOfts,
-            _configs: proxyConfigs
+            _configs: activeConfigs
         });
     }
 
@@ -141,7 +156,9 @@ contract DeployFraxOFTProtocol is SetDVNs, BaseL0Script {
     }
 
     function preDeployChecks() public virtual view {
+        require(!isDeprecatedChain(broadcastConfig.chainid), "Source chain is not in the active mesh");
         for (uint256 e=0; e<allConfigs.length; e++) {
+            if (isDeprecatedChain(allConfigs[e].chainid)) continue;
             uint32 eid = uint32(allConfigs[e].eid);
             require(
                 IMessageLibManager(broadcastConfig.endpoint).isSupportedEid(eid),
@@ -198,11 +215,7 @@ contract DeployFraxOFTProtocol is SetDVNs, BaseL0Script {
             _symbol: "frxETH"
         });
 
-        // Deploy FPI
-        (, fpiOft) = deployFraxOFTUpgradeableAndProxy({
-            _name: "Frax Price Index",
-            _symbol: "FPI"
-        });
+        // FPI is deprecated and no longer part of the active mesh.
     }
 
     /// @notice Deploy a FraxOFTUpgradeable behind a TransparentUpgradeableProxy.

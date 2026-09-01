@@ -15,11 +15,12 @@ struct L0Config {
     address sendLib302;
 }
 
-/// @dev Number of OFT tokens in the protocol. Used instead of magic number 6.
-uint256 constant NUM_OFTS = 6;
+/// @dev Active production OFT mesh is five tokens. FPI is fully removed from active
+///      deployment, peer registration, upgrade, and deprecation flows.
+uint256 constant NUM_OFTS = 5;
 
-/// @dev Canonical token identifiers, indexed 0..5 to match array ordering across all
-///      per-chain address arrays (proxyOfts, lockboxes, etc.).
+/// @dev Canonical token identifiers. The active mesh uses 0..4. FPI remains at index 5
+///      only so historical scripts and generated artifacts continue to compile.
 enum Token { WFRAX, SFRXUSD, SFRXETH, FRXUSD, FRXETH, FPI }
 
 contract L0Constants {
@@ -132,63 +133,56 @@ contract L0Constants {
         expectedProxyOfts.push(proxySFrxEthOft);
         expectedProxyOfts.push(proxyFrxUsdOft);
         expectedProxyOfts.push(proxyFrxEthOft);
-        expectedProxyOfts.push(proxyFpiOft);
 
         baseProxyOfts.push(baseFraxOft);
         baseProxyOfts.push(baseSFrxUsdOft);
         baseProxyOfts.push(baseSFrxEthOft);
         baseProxyOfts.push(baseFrxUsdOft);
         baseProxyOfts.push(baseFrxEthOft);
-        baseProxyOfts.push(baseFpiOft);
 
         lineaProxyOfts.push(lineaFraxOft);
         lineaProxyOfts.push(lineaSFrxUsdOft);
         lineaProxyOfts.push(lineaSFrxEthOft);
         lineaProxyOfts.push(lineaFrxUsdOft);
         lineaProxyOfts.push(lineaFrxEthOft);
-        lineaProxyOfts.push(lineaFpiOft);
 
+        // Scroll remains address-resolvable for deprecation/audit tooling, but active
+        // operations exclude it through isDeprecatedChain().
         scrollProxyOfts.push(scrollFraxOft);
         scrollProxyOfts.push(scrollSFrxUsdOft);
         scrollProxyOfts.push(scrollSFrxEthOft);
         scrollProxyOfts.push(scrollFrxUsdOft);
         scrollProxyOfts.push(scrollFrxEthOft);
-        scrollProxyOfts.push(scrollFpiOft);
 
         monadProxyOfts.push(monadFraxOft);
         monadProxyOfts.push(monadSFrxUsdOft);
         monadProxyOfts.push(monadSFrxEthOft);
         monadProxyOfts.push(monadFrxUsdOft);
         monadProxyOfts.push(monadFrxEthOft);
-        monadProxyOfts.push(monadFpiOft);
 
         zkEraProxyOfts.push(zkEraFraxOft);
         zkEraProxyOfts.push(zkEraSFrxUsdOft);
         zkEraProxyOfts.push(zkEraSFrxEthOft);
         zkEraProxyOfts.push(zkEraFrxUsdOft);
         zkEraProxyOfts.push(zkEraFrxEthOft);
-        zkEraProxyOfts.push(zkEraFpiOft);
 
         fullDeterministicProxyOfts.push(fullDeterministicFraxOft);
         fullDeterministicProxyOfts.push(fullDeterministicSFrxUsdOft);
         fullDeterministicProxyOfts.push(fullDeterministicSFrxEthOft);
         fullDeterministicProxyOfts.push(fullDeterministicFrxUsdOft);
         fullDeterministicProxyOfts.push(fullDeterministicFrxEthOft);
-        fullDeterministicProxyOfts.push(fullDeterministicFpiOft);
 
         fraxtalLockboxes.push(fraxtalFraxLockbox);
         fraxtalLockboxes.push(fraxtalSFrxUsdLockbox);
         fraxtalLockboxes.push(fraxtalSFrxEthLockbox);
         fraxtalLockboxes.push(fraxtalFrxUsdLockbox);
         fraxtalLockboxes.push(fraxtalFrxEthLockbox);
-        fraxtalLockboxes.push(fraxtalFpiLockbox);
 
         ethLockboxes.push(ethFraxOft);
         ethLockboxes.push(ethSFrxUsdLockbox);
         ethLockboxes.push(ethSFrxEthLockbox);
         ethLockboxes.push(ethFrxUsdLockbox);
         ethLockboxes.push(ethFrxEthLockbox);
-        ethLockboxes.push(ethFpiLockbox);
 
         connectedOfts = new address[](expectedProxyOfts.length);
 
@@ -229,5 +223,12 @@ contract L0Constants {
         for (uint256 i = 0; i < _peers.length; i++) {
             chainPeerAddresses[_chainid].push(_peers[i]);
         }
+    }
+
+    /// @notice Chains removed from the active OFT mesh. Their L0Config entries and
+    ///         address mappings remain available so historical deprecation batches can
+    ///         still be reproduced and audited.
+    function isDeprecatedChain(uint256 _chainid) public pure returns (bool) {
+        return _chainid == 1101 || _chainid == 34443 || _chainid == 80094 || _chainid == 534352;
     }
 }

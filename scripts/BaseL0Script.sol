@@ -169,6 +169,37 @@ contract BaseL0Script is L0Constants, Script {
         }
     }
 
+    /// @notice Return only chains that remain in the active OFT mesh. The full
+    ///         proxyConfigs array is intentionally preserved for deprecation and audit tooling.
+    function getActiveProxyConfigs() public view returns (L0Config[] memory configs) {
+        uint256 count;
+        for (uint256 i; i < proxyConfigs.length; ++i) {
+            if (!isDeprecatedChain(proxyConfigs[i].chainid)) ++count;
+        }
+
+        configs = new L0Config[](count);
+        uint256 writeIndex;
+        for (uint256 i; i < proxyConfigs.length; ++i) {
+            if (isDeprecatedChain(proxyConfigs[i].chainid)) continue;
+            configs[writeIndex++] = proxyConfigs[i];
+        }
+    }
+
+    /// @notice Active EVM and non-EVM configs used by deployment/configuration flows.
+    function getActiveAllConfigs() public view returns (L0Config[] memory configs) {
+        uint256 count;
+        for (uint256 i; i < allConfigs.length; ++i) {
+            if (!isDeprecatedChain(allConfigs[i].chainid)) ++count;
+        }
+
+        configs = new L0Config[](count);
+        uint256 writeIndex;
+        for (uint256 i; i < allConfigs.length; ++i) {
+            if (isDeprecatedChain(allConfigs[i].chainid)) continue;
+            configs[writeIndex++] = allConfigs[i];
+        }
+    }
+
     function _validateAndPopulateTestnetOfts() internal virtual {
         if (proxyOfts.length == 0) {
             proxyOfts.push(expectedProxyOfts[3]); // frxUSD OFT
@@ -277,7 +308,7 @@ contract BaseL0Script is L0Constants, Script {
 
         NonEvmPeer[] memory nonEvmPeers = abi.decode(json.parseRaw(".Peers"), (NonEvmPeer[]));
         
-        // As json has to be ordered alphabetically, sort the peer addresses in the order of OFT deployment
+        // Active mesh excludes FPI; the JSON field is retained for historical artifact audits.
         for (uint256 i=0; i<nonEvmPeers.length; i++) {
             NonEvmPeer memory peer = nonEvmPeers[i];
             bytes32[] memory peerArray = new bytes32[](NUM_OFTS);
@@ -286,7 +317,6 @@ contract BaseL0Script is L0Constants, Script {
             peerArray[uint256(Token.SFRXETH)] = peer.sfrxEth;
             peerArray[uint256(Token.FRXUSD)]  = peer.frxUSD;
             peerArray[uint256(Token.FRXETH)]  = peer.frxEth;
-            peerArray[uint256(Token.FPI)]     = peer.fpi;
 
             nonEvmPeersArrays.push(peerArray);
         }
@@ -312,7 +342,10 @@ contract BaseL0Script is L0Constants, Script {
         if (_oft == proxySFrxEthOft || (sfrxEthOft != address(0) && _oft == sfrxEthOft)) return uint256(Token.SFRXETH);
         if (_oft == proxyFrxUsdOft  || (frxUsdOft != address(0) && _oft == frxUsdOft)) return uint256(Token.FRXUSD);
         if (_oft == proxyFrxEthOft  || (frxEthOft != address(0) && _oft == frxEthOft)) return uint256(Token.FRXETH);
-        if (_oft == proxyFpiOft     || (fpiOft != address(0) && _oft == fpiOft)) return uint256(Token.FPI);
+        // FPI is deprecated and excluded from the active mesh.
+        if (_oft == proxyFpiOft || (fpiOft != address(0) && _oft == fpiOft)) {
+            revert("tokenIndex: FPI is deprecated and excluded from the active mesh");
+        }
         revert(string.concat("tokenIndex: unknown OFT ", Strings.toHexString(_oft)));
     }
 

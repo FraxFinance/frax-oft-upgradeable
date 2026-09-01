@@ -3,14 +3,15 @@ pragma solidity ^0.8.22;
 
 import { OFTAdapterUpgradeable } from "@fraxfinance/layerzero-v2-upgradeable/oapp/contracts/oft/OFTAdapterUpgradeable.sol";
 import { SupplyTrackingModule } from "contracts/modules/SupplyTrackingModule.sol";
+import { RateLimiterModule } from "contracts/modules/RateLimiterModule.sol";
 import { TempoAltTokenBase } from "contracts/base/TempoAltTokenBase.sol";
 import { ITIP20 } from "@tempo/interfaces/ITIP20.sol";
 import { MessagingFee, MessagingReceipt } from "@layerzerolabs/lz-evm-protocol-v2/contracts/interfaces/ILayerZeroEndpointV2.sol";
-import { IOFT, SendParam, OFTReceipt } from "@fraxfinance/layerzero-v2-upgradeable/oapp/contracts/oft/interfaces/IOFT.sol";
+import { IOFT, SendParam, OFTLimit, OFTFeeDetail, OFTReceipt } from "@fraxfinance/layerzero-v2-upgradeable/oapp/contracts/oft/interfaces/IOFT.sol";
 import { IERC20 } from "@openzeppelin/contracts/token/ERC20/IERC20.sol";
 import { SafeERC20 } from "@openzeppelin/contracts/token/ERC20/utils/SafeERC20.sol";
 
-contract FraxOFTMintableAdapterUpgradeableTIP20 is OFTAdapterUpgradeable, SupplyTrackingModule, TempoAltTokenBase {
+contract FraxOFTMintableAdapterUpgradeableTIP20 is OFTAdapterUpgradeable, SupplyTrackingModule, TempoAltTokenBase, RateLimiterModule {
     /// @notice Emitted when ERC20 tokens are recovered
     event RecoveredERC20(address indexed token, uint256 amount);
 
@@ -22,7 +23,7 @@ contract FraxOFTMintableAdapterUpgradeableTIP20 is OFTAdapterUpgradeable, Supply
     }
 
     function version() public pure returns (string memory) {
-        return "1.1.0";
+        return "1.2.0";
     }
 
     /// @dev This method is called specifically when deploying a new OFT
@@ -45,6 +46,58 @@ contract FraxOFTMintableAdapterUpgradeableTIP20 is OFTAdapterUpgradeable, Supply
     /// @dev added in v1.1.0
     function setInitialTotalSupply(uint32 _eid, uint256 _amount) external onlyOwner {
         _setInitialTotalSupply(_eid, _amount);
+    }
+
+    /// @notice Set whether negative supply is allowed for a given chain ID
+    /// @dev added in v1.2.0
+    function setAllowNegativeSupply(uint32 _eid, bool _allow) external onlyOwner {
+        _setAllowNegativeSupply(_eid, _allow);
+    }    
+
+    //==============================================================================
+    // Rate limit admin
+    //==============================================================================
+
+    function setRateLimitGlobalConfig(RateLimitGlobalConfig calldata _globalConfig) external onlyOwner {
+        _setRateLimitGlobalConfig(_globalConfig);
+    }
+
+    function setDefaultRateLimitConfig(RateLimitConfig calldata _defaultConfig) external onlyOwner {
+        _setDefaultRateLimitConfig(_defaultConfig);
+    }
+
+    function setRateLimitConfigs(SetRateLimitConfigParam[] calldata _params) external onlyOwner {
+        _setRateLimitConfigs(_params);
+    }
+
+    function setRateLimitStates(SetRateLimitStateParam[] calldata _params) external onlyOwner {
+        _setRateLimitStates(_params);
+    }
+
+    function checkpointRateLimits(uint32[] calldata _eids) external onlyOwner {
+        _checkpointRateLimits(_eids);
+    }
+
+    function quoteOFT(
+        SendParam calldata _sendParam
+    )
+        external
+        view
+        override
+        returns (OFTLimit memory oftLimit, OFTFeeDetail[] memory oftFeeDetails, OFTReceipt memory oftReceipt)
+    {
+        uint256 minAmountLD = 0;
+        uint256 maxAmountLD = _removeDust(_rateLimitedMaxAmountLD(_sendParam.dstEid));
+        oftLimit = OFTLimit(minAmountLD, maxAmountLD);
+
+        oftFeeDetails = new OFTFeeDetail[](0);
+
+        (uint256 amountSentLD, uint256 amountReceivedLD) = _debitView(
+            _sendParam.amountLD,
+            _sendParam.minAmountLD,
+            _sendParam.dstEid
+        );
+        oftReceipt = OFTReceipt(amountSentLD, amountReceivedLD);
     }
 
     /// @inheritdoc IOFT
@@ -81,6 +134,7 @@ contract FraxOFTMintableAdapterUpgradeableTIP20 is OFTAdapterUpgradeable, Supply
         uint32 _dstEid
     ) internal override returns (uint256 amountSentLD, uint256 amountReceivedLD) {
         (amountSentLD, amountReceivedLD) = _debitView(_amountLD, _minAmountLD, _dstEid);
+        _consumeOutboundRateLimit(_dstEid, amountSentLD);
 
         _addToTotalTransferTo(_dstEid, amountSentLD);
 
@@ -96,6 +150,7 @@ contract FraxOFTMintableAdapterUpgradeableTIP20 is OFTAdapterUpgradeable, Supply
         uint256 _amountLD,
         uint32 _srcEid
     ) internal override returns (uint256 amountReceivedLD) {
+        _consumeInboundRateLimit(_srcEid, _amountLD);
         _addToTotalTransferFrom(_srcEid, _amountLD);
 
         ITIP20(address(innerToken)).mint(_to, _amountLD);

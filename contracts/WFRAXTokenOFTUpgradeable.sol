@@ -2,24 +2,31 @@
 pragma solidity ^0.8.22;
 
 import { OFTUpgradeable } from "@fraxfinance/layerzero-v2-upgradeable/oapp/contracts/oft/OFTUpgradeable.sol";
-import { SendParam } from "@fraxfinance/layerzero-v2-upgradeable/oapp/contracts/oft/interfaces/IOFT.sol";
+import { SendParam, OFTLimit, OFTFeeDetail, OFTReceipt } from "@fraxfinance/layerzero-v2-upgradeable/oapp/contracts/oft/interfaces/IOFT.sol";
 
 import {EIP3009Module} from "contracts/modules/EIP3009Module.sol";
 import {PermitModule} from "contracts/modules/PermitModule.sol";
+import {RateLimiterModule} from "contracts/modules/RateLimiterModule.sol";
 
 import {ERC20Upgradeable} from "@openzeppelin/contracts-upgradeable/token/ERC20/ERC20Upgradeable.sol";
 
-contract WFRAXTokenOFTUpgradeable is OFTUpgradeable, EIP3009Module, PermitModule {
+contract WFRAXTokenOFTUpgradeable is OFTUpgradeable, EIP3009Module, PermitModule, RateLimiterModule {
     constructor(address _lzEndpoint) OFTUpgradeable(_lzEndpoint) {
         _disableInitializers();
     }
 
     function version() public pure returns (string memory) {
-        return "1.1.0";
+        return "1.2.0";
     }
 
     /// @dev This method is called specifically when upgrading an existing OFT
     function initializeV110() external reinitializer(3) {
+        __EIP712_init(name(), "1.1.0");
+    }
+
+    /// @dev This method is called specifically when upgrading an existing OFT to v1.2.0
+    ///      and re-initializes the EIP-712 domain version to 1.2.0.
+    function initializeV120() external reinitializer(4) {
         __EIP712_init(name(), version());
     }
 
@@ -58,8 +65,74 @@ contract WFRAXTokenOFTUpgradeable is OFTUpgradeable, EIP3009Module, PermitModule
     }
 
     //==============================================================================
+    // Rate limit admin
+    //==============================================================================
+
+    function setRateLimitGlobalConfig(RateLimitGlobalConfig calldata _globalConfig) external onlyOwner {
+        _setRateLimitGlobalConfig(_globalConfig);
+    }
+
+    function setDefaultRateLimitConfig(RateLimitConfig calldata _defaultConfig) external onlyOwner {
+        _setDefaultRateLimitConfig(_defaultConfig);
+    }
+
+    function setRateLimitConfigs(SetRateLimitConfigParam[] calldata _params) external onlyOwner {
+        _setRateLimitConfigs(_params);
+    }
+
+    function setRateLimitStates(SetRateLimitStateParam[] calldata _params) external onlyOwner {
+        _setRateLimitStates(_params);
+    }
+
+    function checkpointRateLimits(uint32[] calldata _eids) external onlyOwner {
+        _checkpointRateLimits(_eids);
+    }
+
+    function quoteOFT(
+        SendParam calldata _sendParam
+    )
+        external
+        view
+        override
+        returns (OFTLimit memory oftLimit, OFTFeeDetail[] memory oftFeeDetails, OFTReceipt memory oftReceipt)
+    {
+        uint256 minAmountLD = 0;
+        uint256 maxAmountLD = _removeDust(_rateLimitedMaxAmountLD(_sendParam.dstEid));
+        oftLimit = OFTLimit(minAmountLD, maxAmountLD);
+
+        oftFeeDetails = new OFTFeeDetail[](0);
+
+        (uint256 amountSentLD, uint256 amountReceivedLD) = _debitView(
+            _sendParam.amountLD,
+            _sendParam.minAmountLD,
+            _sendParam.dstEid
+        );
+        oftReceipt = OFTReceipt(amountSentLD, amountReceivedLD);
+    }
+
+    //==============================================================================
     // Overrides
     //==============================================================================
+
+    function _debit(
+        uint256 _amountLD,
+        uint256 _minAmountLD,
+        uint32 _dstEid
+    ) internal override returns (uint256 amountSentLD, uint256 amountReceivedLD) {
+        (amountSentLD, amountReceivedLD) = _debitView(_amountLD, _minAmountLD, _dstEid);
+        _consumeOutboundRateLimit(_dstEid, amountSentLD);
+        _burn(msg.sender, amountSentLD);
+    }
+
+    function _credit(
+        address _to,
+        uint256 _amountLD,
+        uint32 _srcEid
+    ) internal override returns (uint256 amountReceivedLD) {
+        _consumeInboundRateLimit(_srcEid, _amountLD);
+        _mint(_to, _amountLD);
+        return _amountLD;
+    }
 
     /// @dev supports EIP3009
     function _transfer(address from, address to, uint256 amount) internal override(EIP3009Module, ERC20Upgradeable) {

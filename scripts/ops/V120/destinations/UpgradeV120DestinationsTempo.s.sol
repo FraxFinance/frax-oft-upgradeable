@@ -3,9 +3,10 @@ pragma solidity ^0.8.22;
 
 import {UpgradeV120Base} from "scripts/ops/V120/UpgradeV120Base.s.sol";
 
-contract UpgradeV120Ethereum is UpgradeV120Base {
+/// @notice Upgrades only the Tempo destination profile.
+contract UpgradeV120DestinationsTempo is UpgradeV120Base {
     function outputDirectory() public view override returns (string memory) {
-        return _txsDirectory("ethereum");
+        return _txsDirectory("destinations");
     }
 
     function _deployImplementations()
@@ -13,7 +14,7 @@ contract UpgradeV120Ethereum is UpgradeV120Base {
         override
         returns (address[] memory implementations, ImplementationKind[] memory kinds)
     {
-        return _deployEthereumImplementations();
+        return _deployTempoImplementations();
     }
 
     function _buildAutomaticSupplySeeds(ImplementationKind[] memory _kinds)
@@ -26,6 +27,6 @@ contract UpgradeV120Ethereum is UpgradeV120Base {
     }
 
     function run() public override {
-        _upgradeChainById(ETHEREUM_CHAIN_ID);
+        _upgradeChainById(TEMPO_CHAIN_ID);
     }
 }

@@ -3,7 +3,7 @@ pragma solidity ^0.8.22;
 
 import {UpgradeV120Destinations, L0Config} from "./UpgradeV120Destinations.s.sol";
 
-/// @notice Generates a V120 Safe batch only for the chain selected by --rpc-url.
+/// @notice Generates a V120 Safe batch for one non-Tempo destination selected by --rpc-url.
 contract UpgradeV120Destination is UpgradeV120Destinations {
     function run() public override {
         for (uint256 i; i < proxyConfigs.length; ++i) {

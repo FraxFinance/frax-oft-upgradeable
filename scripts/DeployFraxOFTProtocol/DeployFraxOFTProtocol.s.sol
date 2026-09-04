@@ -129,10 +129,6 @@ contract DeployFraxOFTProtocol is SetDVNs, BaseL0Script {
             _connectedOfts: proxyOfts
         });
 
-        setAptosEnforcedOptions({
-            _connectedOfts: proxyOfts
-        });
-        
         /// @dev: additional enforced options for non-evms set here
 
         setNonEvmPeers({
@@ -459,6 +455,8 @@ contract DeployFraxOFTProtocol is SetDVNs, BaseL0Script {
         });
     }
 
+    /// @dev Movement left the mesh (Non-EVM config no longer carries it); kept only for
+    ///      the historical ops scripts that compiled against it. Reverts if called now.
     function setMovementEnforcedOptions(
         address[] memory _connectedOfts
     ) public virtual {
@@ -476,6 +474,8 @@ contract DeployFraxOFTProtocol is SetDVNs, BaseL0Script {
         });
     }
 
+    /// @dev Aptos left the mesh (Non-EVM config no longer carries it); kept only for
+    ///      the historical ops scripts that compiled against it. Reverts if called now.
     function setAptosEnforcedOptions(
         address[] memory _connectedOfts
     ) public virtual {
@@ -492,7 +492,6 @@ contract DeployFraxOFTProtocol is SetDVNs, BaseL0Script {
             _optionsTypeTwo: optionsTypeTwo
         });
     }
-
 
     function setEnforcedOptions(
         address[] memory _connectedOfts,

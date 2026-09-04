@@ -196,14 +196,19 @@ task(
             const instructionNames: string[] = []
             const peerData = peerConfig
                 ? decodedAccount<{
-                      peerAddress: Uint8Array
-                      enforcedOptions: { send: Uint8Array; sendAndCall: Uint8Array }
-                      feeBps: any
-                  }>(peerConfig)
+                    peerAddress: Uint8Array
+                    enforcedOptions: { send: Uint8Array; sendAndCall: Uint8Array }
+                    feeBps: any
+                }>(peerConfig)
                 : null
             const previousSendLibrary = sendLibraryConfig?.messageLib.toBase58() ?? null
-
-            if (sendLibraryConfig && previousSendLibrary !== BLOCKED_MESSAGE_LIB) {
+            const blockedMessageLibProgram = new Web3PublicKey(BLOCKED_MESSAGE_LIB)
+            // derive ["MessageLib"] under blockedMessageLibProgram
+            const [blockedMessageLibPda] = Web3PublicKey.findProgramAddressSync(
+                [Buffer.from('MessageLib')],
+                blockedMessageLibProgram
+            )
+            if (sendLibraryConfig && previousSendLibrary !== blockedMessageLibPda.toBase58()) {
                 instructions.push(
                     oft.setSendLibrary(
                         { admin: signer, oftStore },

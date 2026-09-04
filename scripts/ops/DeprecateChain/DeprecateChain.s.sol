@@ -83,6 +83,17 @@ contract DeprecateChain is DeprecateOFTBase {
         }
     }
 
+    /// @dev Simulates one source chain and deprecates all token paths to `_peer`.
+    function _deprecatePair(L0Config memory _simulateConfig, L0Config memory _peer) internal {
+        for (uint256 tokenIndex = 0; tokenIndex < NUM_OFTS; tokenIndex++) {
+            _deprecatePairOnToken({
+                _simulateConfig: _simulateConfig,
+                _peer: _peer,
+                _tokenIndex: tokenIndex
+            });
+        }
+    }
+
     function _skipDeprecateChainSimulation() internal view returns (bool) {
         string memory raw = vm.envOr("SKIP_DEPRECATE_CHAIN_SIM", string(""));
         if (bytes(raw).length == 0) return false;

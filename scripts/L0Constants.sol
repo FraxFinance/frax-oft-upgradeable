@@ -27,7 +27,6 @@ contract L0Constants {
     address[] public expectedProxyOfts;
     address[] public lineaProxyOfts;
     address[] public baseProxyOfts;
-    address[] public scrollProxyOfts;
     address[] public monadProxyOfts;
     address[] public zkEraProxyOfts;
     address[] public fullDeterministicProxyOfts;
@@ -61,13 +60,6 @@ contract L0Constants {
     address public lineaSFrxEthOft = 0x383Eac7CcaA89684b8277cBabC25BCa8b13B7Aa2;
     address public lineaFraxOft = 0x5217Ab28ECE654Aab2C68efedb6A22739df6C3D5;
     address public lineaFpiOft = 0xDaF72Aa849d3C4FAA8A9c8c99f240Cf33dA02fc4;
-
-    address public scrollFrxUsdOft = 0x397F939C3b91A74C321ea7129396492bA9Cdce82;
-    address public scrollSFrxUsdOft = 0xC6B2BE25d65760B826D0C852FD35F364250619c2;
-    address public scrollFrxEthOft = 0x0097Cf8Ee15800d4f80da8A6cE4dF360D9449Ed5;
-    address public scrollSFrxEthOft = 0x73382eb28F35d80Df8C3fe04A3EED71b1aFce5dE;
-    address public scrollFraxOft = 0x879BA0EFE1AB0119FefA745A21585Fa205B07907;
-    address public scrollFpiOft = 0x93cDc5d29293Cb6983f059Fec6e4FFEb656b6a62;
 
     address public monadFrxUsdOft = 0x58E3ee6accd124642dDB5d3f91928816Be8D8ed3;
     address public monadSFrxUsdOft = 0x137643F7b2C189173867b3391f6629caB46F0F1a;
@@ -148,13 +140,6 @@ contract L0Constants {
         lineaProxyOfts.push(lineaFrxEthOft);
         lineaProxyOfts.push(lineaFpiOft);
 
-        scrollProxyOfts.push(scrollFraxOft);
-        scrollProxyOfts.push(scrollSFrxUsdOft);
-        scrollProxyOfts.push(scrollSFrxEthOft);
-        scrollProxyOfts.push(scrollFrxUsdOft);
-        scrollProxyOfts.push(scrollFrxEthOft);
-        scrollProxyOfts.push(scrollFpiOft);
-
         monadProxyOfts.push(monadFraxOft);
         monadProxyOfts.push(monadSFrxUsdOft);
         monadProxyOfts.push(monadSFrxEthOft);
@@ -216,11 +201,11 @@ contract L0Constants {
         _registerChain(252, fraxtalLockboxes);
         _registerChain(8453, baseProxyOfts);
         _registerChain(59144, lineaProxyOfts);
-        _registerChain(534352, scrollProxyOfts);
         _registerChain(143, monadProxyOfts);
         _registerChain(2741, zkEraProxyOfts);
         _registerChain(324, zkEraProxyOfts); // ZKsync Era shares addresses with 2741
         _registerChain(4217, fullDeterministicProxyOfts);
+        _registerChain(4663, fullDeterministicProxyOfts);
         _registerChain(5031, fullDeterministicProxyOfts);
     }
 

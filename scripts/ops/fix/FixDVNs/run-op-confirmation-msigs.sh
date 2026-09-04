@@ -91,9 +91,6 @@ preferred_rpcs_for_chain() {
     130)
       echo "https://mainnet.unichain.org"
       ;;
-    34443)
-      echo "https://mainnet.mode.network"
-      ;;
     480)
       echo "https://worldchain-mainnet.g.alchemy.com/public"
       ;;
@@ -105,9 +102,6 @@ preferred_rpcs_for_chain() {
       ;;
     747474)
       echo "https://rpc.katana.network"
-      ;;
-    80094)
-      echo "https://rpc.berachain-apis.com"
       ;;
   esac
 }
@@ -134,9 +128,6 @@ fallback_rpcs_for_chain() {
       echo "https://unichain-rpc.publicnode.com"
       echo "https://unichain.drpc.org"
       ;;
-    34443)
-      echo "https://mainnet.mode.network"
-      ;;
     480)
       echo "https://worldchain-mainnet.g.alchemy.com/public"
       ;;
@@ -160,10 +151,6 @@ fallback_rpcs_for_chain() {
     5031)
       echo "https://5031.rpc.thirdweb.com"
       ;;
-    534352)
-      echo "https://rpc.scroll.io"
-      echo "https://scroll-rpc.publicnode.com"
-      ;;
     57073)
       echo "https://rpc-gel.inkonchain.com"
       ;;
@@ -173,12 +160,6 @@ fallback_rpcs_for_chain() {
       ;;
     747474)
       echo "https://rpc.katana.network"
-      ;;
-    80094)
-      echo "https://berachain.drpc.org"
-      echo "https://berachain-rpc.publicnode.com"
-      echo "https://rpc.berachain-apis.com"
-      echo "https://berachain-mainnet.gateway.tatum.io"
       ;;
     8453)
       echo "https://mainnet.base.org"
@@ -303,19 +284,6 @@ run_solana_route() {
   fi
 }
 
-run_movement_aptos_route() {
-  local source_chain_id="$1"
-  local dst_chain_id="$2"
-
-  if [[ "${MODE}" != "set-config-only" ]]; then
-    run_route "1d_SetBlockSendLibMovementAptos" "scripts/ops/fix/FixDVNs/1d_SetBlockSendLibMovementAptos.s.sol" "${source_chain_id}" "${dst_chain_id}"
-  fi
-  run_route "2d_FixDVNsMovementAptos" "scripts/ops/fix/FixDVNs/2d_FixDVNsMovementAptos.s.sol" "${source_chain_id}" "${dst_chain_id}"
-  if [[ "${MODE}" != "set-config-only" ]]; then
-    run_route "3d_SetSendLibMovementAptos" "scripts/ops/fix/FixDVNs/3d_SetSendLibMovementAptos.s.sol" "${source_chain_id}" "${dst_chain_id}"
-  fi
-}
-
 run_zk_manual_batches() {
   echo "manual ZK batches"
   if [[ "${MODE}" == "set-config-only" ]]; then
@@ -363,18 +331,15 @@ EVM_ROUTES=(
   "252 196"
   "252 2741"
   "252 324"
-  "252 34443"
   "252 42161"
   "252 4217"
   "252 43114"
   "252 480"
   "252 5031"
-  "252 534352"
   "252 56"
   "252 57073"
   "252 59144"
   "252 747474"
-  "252 80094"
   "252 8453"
   "252 988"
   "252 98866"
@@ -386,14 +351,11 @@ EVM_ROUTES=(
   "4217 252"
   "5031 252"
   "8453 252"
-  "34443 252"
   "42161 252"
   "43114 252"
   "57073 252"
   "59144 252"
-  "80094 252"
   "98866 252"
-  "534352 252"
   "747474 252"
   "1313161554 252"
 )
@@ -401,11 +363,6 @@ EVM_ROUTES=(
 SOLANA_ROUTES=(
   "252 111111111"
   "1 111111111"
-)
-
-MOVEMENT_APTOS_ROUTES=(
-  "252 22222222"
-  "252 33333333"
 )
 
 for route in "${EVM_ROUTES[@]}"; do
@@ -419,13 +376,6 @@ for route in "${SOLANA_ROUTES[@]}"; do
   read -r source_chain_id dst_chain_id <<< "${route}"
   if should_run_route "${source_chain_id}" "${dst_chain_id}"; then
     run_solana_route "${source_chain_id}" "${dst_chain_id}"
-  fi
-done
-
-for route in "${MOVEMENT_APTOS_ROUTES[@]}"; do
-  read -r source_chain_id dst_chain_id <<< "${route}"
-  if should_run_route "${source_chain_id}" "${dst_chain_id}"; then
-    run_movement_aptos_route "${source_chain_id}" "${dst_chain_id}"
   fi
 done
 

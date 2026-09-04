@@ -9,7 +9,9 @@ forge script scripts/FraxtalHub/1_DeployFraxOFTFraxtalHub/DeployFraxOFTFraxtalHu
 ```
 
 ### Setup Source 
-* Add `proxyAdmin` to `L0Config.json` for the new chain
+* Add the new chain's entry to `scripts/L0Config.json`: `RPC`, `chainid`, `eid`, `endpoint`, `delegate`, `proxyAdmin`, DVN addresses, and the chain's `sendLib302` **and** `receiveLib302` (SendUln302/ReceiveUln302 addresses from the [LayerZero metadata](https://metadata.layerzero-api.com/v1/metadata) deployment for the chain)
+  * Both libraries are pinned per route by `setLibs`. Pinning `receiveLib302` matters: the ULN DVN/confirmation config is stored per library, so an OApp left on the endpoint default would silently lose its security config if LayerZero rotates the default receive library
+  * `SetupSourceFraxOFTFraxtalHub` reverts if either lib is unset or not registered on the endpoint
 * Create a new solidity file inside `2_SetupSourceFraxOFTFraxtalHub` with name `SetupSourceFraxOFTFraxtal{chain-name}.sol` and inherit `SetupSourceFraxOFTFraxtalHub`
 * In the `constructor`, assign address for each OFTs deployed in above step
 * Refer to example script `SetupSourceFraxOFTFraxtalHubHyperliquidmock.sol`

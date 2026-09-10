@@ -137,6 +137,9 @@ contract DeployFraxOFTProtocol is SetDVNs, SetRateLimits, BaseL0Script {
         });
     }
 
+    /// @dev Solana is the only active non-EVM chain. Movement and Aptos are deprecated
+    ///      (isDeprecatedChain) — their enforced-option helpers remain below for
+    ///      backward compatibility with historical/deprecation tooling.
     function setupNonEvms() public virtual {
         require(proxyOfts.length == NUM_OFTS, "Error: non-evm setup will be incorrect");
 
@@ -144,10 +147,6 @@ contract DeployFraxOFTProtocol is SetDVNs, SetRateLimits, BaseL0Script {
             _connectedOfts: proxyOfts
         });
 
-        setAptosEnforcedOptions({
-            _connectedOfts: proxyOfts
-        });
-        
         /// @dev: additional enforced options for non-evms set here
 
         setNonEvmPeers({
@@ -216,6 +215,32 @@ contract DeployFraxOFTProtocol is SetDVNs, SetRateLimits, BaseL0Script {
         });
 
         // FPI is deprecated and no longer part of the active mesh.
+
+        _requireDeterministicOftAddresses();
+    }
+
+    /// @notice Reverts unless the CREATE2 deployment landed on the canonical mesh addresses.
+    /// @dev The mined salts in `_vanitySalt()` are only valid for one exact init-code hash. Nothing
+    ///      else in the deploy path checks the resulting address, so a drift in compilation inputs
+    ///      would otherwise produce a silently mis-addressed chain. Set ALLOW_OFT_ADDRESS_DRIFT=true
+    ///      to deploy deliberately off-address (e.g. while re-mining salts).
+    function _requireDeterministicOftAddresses() internal view virtual {
+        if (vm.envOr("ALLOW_OFT_ADDRESS_DRIFT", false)) {
+            console.log("WARNING: ALLOW_OFT_ADDRESS_DRIFT set; deterministic address check skipped");
+            return;
+        }
+
+        for (uint256 i; i < NUM_OFTS; ++i) {
+            if (proxyOfts[i] == fullDeterministicProxyOfts[i]) continue;
+
+            console.log("Deterministic address mismatch for token index", i);
+            console.log("  expected:", fullDeterministicProxyOfts[i]);
+            console.log("  actual  :", proxyOfts[i]);
+            revert(
+                "Deterministic OFT address mismatch: compilation inputs changed since the salts in"
+                " _vanitySalt() were mined. Re-mine with create2crunch, or set ALLOW_OFT_ADDRESS_DRIFT=true."
+            );
+        }
     }
 
     /// @notice Deploy a FraxOFTUpgradeable behind a TransparentUpgradeableProxy.
@@ -399,6 +424,8 @@ contract DeployFraxOFTProtocol is SetDVNs, SetRateLimits, BaseL0Script {
     }
 
     /// @dev Non-evm OFTs require their own unique peer address
+    /// @dev Deprecated non-EVM chains (Movement, Aptos) are skipped; their configs and
+    ///      peer arrays remain loaded for historical/deprecation tooling.
     function setNonEvmPeers(
         address[] memory _connectedOfts
     ) public virtual {
@@ -406,6 +433,7 @@ contract DeployFraxOFTProtocol is SetDVNs, SetRateLimits, BaseL0Script {
         for (uint256 o=0; o<_connectedOfts.length; o++) {
             // For each non-evm
             for (uint256 c=0; c<nonEvmPeersArrays.length; c++) {
+                if (isDeprecatedChain(nonEvmConfigs[c].chainid)) continue;
                 setPeer({
                     _config: nonEvmConfigs[c],
                     _connectedOft: _connectedOfts[o],

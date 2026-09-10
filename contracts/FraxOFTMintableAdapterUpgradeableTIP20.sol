@@ -62,6 +62,12 @@ contract FraxOFTMintableAdapterUpgradeableTIP20 is OFTAdapterUpgradeable, Supply
         _setRateLimitGlobalConfig(_globalConfig);
     }
 
+    /// @notice Set the slippage allowance applied to a quoted fee swap, in basis points.
+    /// @param _bps Allowance in bps, capped by MAX_FEE_SWAP_SLIPPAGE_BPS. 0 restores the default.
+    function setFeeSwapSlippageBps(uint16 _bps) external onlyOwner {
+        _setFeeSwapSlippageBps(_bps);
+    }
+
     function setDefaultRateLimitConfig(RateLimitConfig calldata _defaultConfig) external onlyOwner {
         _setDefaultRateLimitConfig(_defaultConfig);
     }

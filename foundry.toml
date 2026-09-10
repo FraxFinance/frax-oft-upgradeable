@@ -1,4 +1,9 @@
 [profile.default]
+# Deterministic builds: solc embeds the remappings list in every contract's metadata hash,
+# and CREATE2 addresses depend on it. Auto-detection changes with node_modules tree shape
+# (nested trees from git-dep prepare scripts), so it is disabled; remappings.txt carries
+# the exact list recovered from the Somnia-verified canonical deployment.
+auto_detect_remappings = false
 solc_version = '0.8.22'
 # evm_version = 'paris'
 src = 'scripts'
@@ -17,22 +22,42 @@ libs = [
 ]
 fs_permissions = [{ access = "read-write", path = "./"}]
 
+# The FULL remapping list, pinned. solc embeds it in every contract's metadata hash and
+# CREATE2 addresses depend on it, so auto-detection is disabled above and nothing may be
+# added or reordered here without moving every deterministic deploy address off-mesh.
+# (List matches the Somnia-verified canonical deployments.)
 remappings = [
-    # Due to a misconfiguration of solidity-bytes-utils, an outdated version
-    # of forge-std is being dragged in
-    # 
-    # To remedy this, we'll remap the ds-test and forge-std imports to ou own versions
-    'ds-test/=node_modules/@layerzerolabs/toolbox-foundry/lib/ds-test',
-    'forge-std/=node_modules/@layerzerolabs/toolbox-foundry/lib/forge-std',
+    'ds-test/=node_modules/@layerzerolabs/toolbox-foundry/lib/ds-test/',
+    'forge-std/=node_modules/@layerzerolabs/toolbox-foundry/lib/forge-std/',
     '@layerzerolabs/=node_modules/@layerzerolabs/',
     'frax-std/=node_modules/frax-standard-solidity/src/',
     '@tempo/=node_modules/tempo/docs/specs/src/',
-    "tempo-std/=node_modules/tempoxyz/tempo-std/src/"
+    'tempo-std/=node_modules/tempoxyz/tempo-std/src/',
+    '@fraxfinance/=node_modules/@fraxfinance/',
+    '@openzeppelin-5/=node_modules/@openzeppelin-5/',
+    '@openzeppelin/=node_modules/@openzeppelin/',
+    'frax-standard-solidity/=node_modules/frax-standard-solidity/',
+    'frax-template/=node_modules/frax-template/',
+    'hardhat-deploy/=node_modules/hardhat-deploy/',
+    'hardhat/=node_modules/hardhat/',
+    'solady/=node_modules/solady/',
+    'solidity-bytes-utils/=node_modules/solidity-bytes-utils/',
+    'tempo/=node_modules/tempo/',
+    'tempoxyz/=node_modules/tempoxyz/'
 ]
 
 via_ir = false
 optimizer = true
 optimizer_runs = 200
+
+
+# Tempo reference implementations (node_modules/tempo/docs/specs) require solc >= 0.8.26, so the
+# suite that exercises them against the real order book runs under its own profile:
+#   FOUNDRY_PROFILE=tempo forge test
+[profile.tempo]
+src = 'contracts'
+test = 'test/tempo'
+solc_version = '0.8.28'
 
 [etherscan]
 fraxtal = { key = "${ETHERSCAN_API_KEY}", url = "${FRAXSCAN_API_URL}" }

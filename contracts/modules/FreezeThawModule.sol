@@ -1,10 +1,12 @@
 pragma solidity ^0.8.0;
 
 import { EnumerableSet } from "@openzeppelin/contracts/utils/structs/EnumerableSet.sol";
+import {FreezeThawLib} from "contracts/libraries/FreezeThawLib.sol";
 
 /**
  * @title FreezeThawModule
  * @dev Contract module that allows freezing and thawing of accounts.
+ * @dev Set mutations are delegated to `FreezeThawLib`; membership reads are served locally.
  */
 abstract contract FreezeThawModule {
 
@@ -29,9 +31,7 @@ abstract contract FreezeThawModule {
     /// @dev To be called externally by admin
     /// @dev Does not revert if the account is already frozen so that freezing always succeeds
     function _freeze(address account) internal virtual {
-        FreezeThawStorage storage $ = _getFreezeThawStorage();
-        $.frozen.add(account);
-        emit AccountFrozen(account);
+        FreezeThawLib.freeze(account);
     }
 
     /// @notice Internal helper function to unfreeze an account
@@ -39,29 +39,21 @@ abstract contract FreezeThawModule {
     /// @dev To be called externally by admin
     /// @dev Does not revert if the account is not frozen so that thawing always succeeds
     function _thaw(address account) internal virtual {
-        FreezeThawStorage storage $ = _getFreezeThawStorage();
-        $.frozen.remove(account);
-        emit AccountThawed(account);
+        FreezeThawLib.thaw(account);
     }
 
     /// @notice Internal helper function to freeze an array of accounts
     /// @param accounts The accounts to freeze
     /// @dev To be called externally by admin
-    function _freezeMany(address[] memory accounts) internal virtual {
-        uint256 len = accounts.length;
-        for (uint256 i; i < len; ++i) {
-            _freeze(accounts[i]);
-        }
+    function _freezeMany(address[] calldata accounts) internal virtual {
+        FreezeThawLib.freezeMany(accounts);
     }
 
     /// @notice Internal helper function to unfreeze an array of accounts
     /// @param accounts The accounts to be unfrozen
     /// @dev To be called externally by admin
-    function _thawMany(address[] memory accounts) internal virtual {
-        uint256 len = accounts.length;
-        for (uint256 i; i < len; ++i) {
-            _thaw(accounts[i]);
-        }
+    function _thawMany(address[] calldata accounts) internal virtual {
+        FreezeThawLib.thawMany(accounts);
     }
 
     /// @notice Add a freezer role to an account
@@ -69,9 +61,7 @@ abstract contract FreezeThawModule {
     /// @dev To be called externally by admin
     /// @dev Reverts if the account is already a freezer
     function _addFreezer(address account) internal virtual {
-        FreezeThawStorage storage $ = _getFreezeThawStorage();
-        if (!$.freezers.add(account)) revert AlreadyFreezer();
-        emit AddFreezer(account);
+        FreezeThawLib.addFreezer(account);
     }
 
     /// @notice Remove a freezer role from an account
@@ -79,9 +69,7 @@ abstract contract FreezeThawModule {
     /// @dev To be called externally by admin
     /// @dev Reverts if the account is not a freezer
     function _removeFreezer(address account) internal virtual {
-        FreezeThawStorage storage $ = _getFreezeThawStorage();
-        if (!$.freezers.remove(account)) revert NotFreezer();
-        emit RemoveFreezer(account);
+        FreezeThawLib.removeFreezer(account);
     }
 
     /// @notice Check if an account is frozen
@@ -103,15 +91,13 @@ abstract contract FreezeThawModule {
     /// @notice Get the list of all frozen accounts
     /// @return addres[] An array set of all frozen accounts
     function frozen() external view virtual returns (address[] memory) {
-        FreezeThawStorage storage $ = _getFreezeThawStorage();
-        return $.frozen.values();
+        return FreezeThawLib.frozenList();
     }
 
     /// @notice Get the list of all freezer accounts
     /// @return address[] An array set of all freezer accounts
     function freezers() external view virtual returns (address[] memory) {
-        FreezeThawStorage storage $ = _getFreezeThawStorage();
-        return $.freezers.values();
+        return FreezeThawLib.freezersList();
     }
 
     /* ========== EVENTS ========== */

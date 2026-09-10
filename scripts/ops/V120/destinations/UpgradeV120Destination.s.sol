@@ -10,6 +10,7 @@ contract UpgradeV120Destination is UpgradeV120Destinations {
             L0Config memory config = proxyConfigs[i];
             if (config.chainid != block.chainid) continue;
             require(!isDeprecatedChain(config.chainid), "V120: selected chain is deprecated");
+            require(!_isLegacyOnlyChain(config.chainid), "V120: selected chain is legacy-mesh only");
             upgradeToV120(config);
             return;
         }

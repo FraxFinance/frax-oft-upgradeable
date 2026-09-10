@@ -1,10 +1,14 @@
 pragma solidity ^0.8.0;
 
 import {SignatureModule} from "./signatureModule/SignatureModule.sol";
+import {SignatureChecker} from "@openzeppelin/contracts/utils/cryptography/SignatureChecker.sol";
+import {ECDSAUpgradeable} from "@openzeppelin/contracts-upgradeable/utils/cryptography/ECDSAUpgradeable.sol";
+import {EIP3009Lib} from "contracts/libraries/EIP3009Lib.sol";
 
 /// @title Eip3009
 /// @notice Eip3009 provides internal implementations for gas-abstracted transfers under Eip3009 guidelines
 /// @author Frax Finance, inspired by Agora (thanks Drake)
+/// @dev Authorization checks are delegated to `EIP3009Lib`; `_transfer` is implemented by the token.
 abstract contract EIP3009Module is SignatureModule {
 
     /// @notice keccak256("TransferWithAuthorization(address from,address to,uint256 value,uint256 validAfter,uint256 validBefore,bytes32 nonce)")
@@ -93,22 +97,10 @@ abstract contract EIP3009Module is SignatureModule {
         bytes32 nonce,
         bytes memory signature
     ) public {
-        // Checks: authorization validity
-        if (block.timestamp <= validAfter) revert InvalidAuthorization();
-        if (block.timestamp >= validBefore) revert ExpiredAuthorization();
-        _requireUnusedAuthorization({ authorizer: from, nonce: nonce });
+        // Checks + effects (authorization validity, signature, nonce) in the linked library
+        EIP3009Lib.validateTransferAuthorization(from, to, value, validAfter, validBefore, nonce, signature);
 
-        // Checks: valid signature
-        _requireIsValidSignatureNow({
-            signer: from,
-            structHash: keccak256(
-                abi.encode(TRANSFER_WITH_AUTHORIZATION_TYPEHASH, from, to, value, validAfter, validBefore, nonce)
-            ),
-            signature: signature
-        });
-
-        // Effects: mark authorization as used and transfer
-        _markAuthorizationAsUsed({ authorizer: from, nonce: nonce });
+        // Effects: transfer
         _transfer({ from: from, to: to, amount: value });
     }
 
@@ -166,23 +158,11 @@ abstract contract EIP3009Module is SignatureModule {
         bytes32 nonce,
         bytes memory signature
     ) public {
-        // Checks: authorization validity
-        if (to != msg.sender) revert InvalidPayee({ caller: msg.sender, payee: to });
-        if (block.timestamp <= validAfter) revert InvalidAuthorization();
-        if (block.timestamp >= validBefore) revert ExpiredAuthorization();
-        _requireUnusedAuthorization({ authorizer: from, nonce: nonce });
+        // Checks + effects (payee, authorization validity, signature, nonce) in the linked
+        // library; msg.sender is preserved across the DELEGATECALL.
+        EIP3009Lib.validateReceiveAuthorization(from, to, value, validAfter, validBefore, nonce, signature);
 
-        // Checks: valid signature
-        _requireIsValidSignatureNow({
-            signer: from,
-            structHash: keccak256(
-                abi.encode(RECEIVE_WITH_AUTHORIZATION_TYPEHASH, from, to, value, validAfter, validBefore, nonce)
-            ),
-            signature: signature
-        });
-
-        // Effects: mark authorization as used and transfer
-        _markAuthorizationAsUsed({ authorizer: from, nonce: nonce });
+        // Effects: transfer
         _transfer({ from: from, to: to, amount: value });
     }
 
@@ -203,39 +183,7 @@ abstract contract EIP3009Module is SignatureModule {
     /// @param nonce         Nonce of the authorization
     /// @param signature     Signature byte array produced by an EOA wallet or a contract wallet
     function cancelAuthorization(address authorizer, bytes32 nonce, bytes memory signature) public {
-        _requireUnusedAuthorization({ authorizer: authorizer, nonce: nonce });
-        _requireIsValidSignatureNow({
-            signer: authorizer,
-            structHash: keccak256(abi.encode(CANCEL_AUTHORIZATION_TYPEHASH, authorizer, nonce)),
-            signature: signature
-        });
-
-        _getEIP3009ModuleStorage().isAuthorizationUsed[authorizer][nonce] = true;
-        emit AuthorizationCanceled({ authorizer: authorizer, nonce: nonce });
-    }
-
-    //==============================================================================
-    // Internal Checks Functions
-    //==============================================================================
-
-    /// @notice The ```_requireUnusedAuthorization``` checks that an authorization nonce is unused
-    /// @param authorizer    Authorizer's address
-    /// @param nonce         Nonce of the authorization
-    function _requireUnusedAuthorization(address authorizer, bytes32 nonce) private view {
-        if (_getEIP3009ModuleStorage().isAuthorizationUsed[authorizer][nonce])
-            revert UsedOrCanceledAuthorization();
-    }
-
-    //==============================================================================
-    // Internal Effects Functions
-    //==============================================================================
-
-    /// @notice The ```_markAuthorizationAsUsed``` function marks an authorization nonce as used
-    /// @param authorizer    Authorizer's address
-    /// @param nonce         Nonce of the authorization
-    function _markAuthorizationAsUsed(address authorizer, bytes32 nonce) private {
-        _getEIP3009ModuleStorage().isAuthorizationUsed[authorizer][nonce] = true;
-        emit AuthorizationUsed({ authorizer: authorizer, nonce: nonce });
+        EIP3009Lib.cancelAuthorization(authorizer, nonce, signature);
     }
 
     //==============================================================================

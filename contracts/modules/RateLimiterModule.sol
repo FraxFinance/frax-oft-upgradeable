@@ -1,6 +1,9 @@
 // SPDX-License-Identifier: UNLICENSED
 pragma solidity ^0.8.22;
 
+import {RateLimiterLib} from "contracts/libraries/RateLimiterLib.sol";
+
+/// @notice Rate limiting for OFT transfers.
 abstract contract RateLimiterModule {
     struct RateLimitGlobalConfig {
         bool isGloballyDisabled;
@@ -110,7 +113,7 @@ abstract contract RateLimiterModule {
     }
 
     function rateLimitConfig(uint32 _eid) public view returns (RateLimitConfig memory config) {
-        return _effectiveRateLimitConfig(_eid);
+        return RateLimiterLib.effectiveRateLimitConfig(_eid);
     }
 
     function storedRateLimitState(uint32 _eid) public view returns (RateLimitState memory state) {
@@ -119,235 +122,55 @@ abstract contract RateLimiterModule {
     }
 
     function rateLimitState(uint32 _eid) public view returns (RateLimitState memory state) {
-        RateLimitConfig memory config = _effectiveRateLimitConfig(_eid);
-        return _currentRateLimitState(_eid, config);
+        return RateLimiterLib.currentRateLimitState(_eid);
     }
 
     function outboundRateLimitAvailable(uint32 _eid) public view returns (uint256 availableLD) {
-        return _outboundRateLimitAvailable(_eid);
+        return RateLimiterLib.outboundRateLimitAvailable(_eid);
     }
 
     function inboundRateLimitAvailable(uint32 _eid) public view returns (uint256 availableLD) {
-        return _inboundRateLimitAvailable(_eid);
+        return RateLimiterLib.inboundRateLimitAvailable(_eid);
     }
 
     function _setRateLimitGlobalConfig(RateLimitGlobalConfig calldata _globalConfig) internal {
-        RateLimiterStorage storage $ = _getRateLimiterStorage();
-        $.globalConfig = _globalConfig;
-        emit RateLimitGlobalConfigSet(_globalConfig.isGloballyDisabled);
+        RateLimiterLib.setRateLimitGlobalConfig(_globalConfig);
     }
 
     function _setDefaultRateLimitConfig(RateLimitConfig calldata _defaultConfig) internal {
-        _validateRateLimitConfig(_defaultConfig);
-
-        RateLimiterStorage storage $ = _getRateLimiterStorage();
-        $.defaultConfig = _defaultConfig;
-
-        emit DefaultRateLimitConfigSet(
-            _defaultConfig.outboundEnabled,
-            _defaultConfig.inboundEnabled,
-            _defaultConfig.outboundLimit,
-            _defaultConfig.inboundLimit,
-            _defaultConfig.outboundWindow,
-            _defaultConfig.inboundWindow
-        );
+        RateLimiterLib.setDefaultRateLimitConfig(_defaultConfig);
     }
 
     function _setRateLimitConfigs(SetRateLimitConfigParam[] calldata _params) internal {
-        RateLimiterStorage storage $ = _getRateLimiterStorage();
-
-        uint256 length = _params.length;
-        for (uint256 i; i < length; ++i) {
-            _validateRateLimitConfig(_params[i].config);
-            _checkpointRateLimit(_params[i].eid, _effectiveRateLimitConfig(_params[i].eid));
-
-            $.configs[_params[i].eid] = _params[i].config;
-
-            emit RateLimitConfigSet(
-                _params[i].eid,
-                _params[i].config.overrideDefaultConfig,
-                _params[i].config.outboundEnabled,
-                _params[i].config.inboundEnabled,
-                _params[i].config.outboundLimit,
-                _params[i].config.inboundLimit,
-                _params[i].config.outboundWindow,
-                _params[i].config.inboundWindow
-            );
-        }
+        RateLimiterLib.setRateLimitConfigs(_params);
     }
 
     function _setRateLimitStates(SetRateLimitStateParam[] calldata _params) internal {
-        RateLimiterStorage storage $ = _getRateLimiterStorage();
-
-        uint256 length = _params.length;
-        for (uint256 i; i < length; ++i) {
-            _validateRateLimitState(_params[i].state);
-            $.states[_params[i].eid] = _params[i].state;
-
-            emit RateLimitStateSet(
-                _params[i].eid,
-                _params[i].state.outboundUsage,
-                _params[i].state.inboundUsage,
-                _params[i].state.lastUpdated
-            );
-        }
+        RateLimiterLib.setRateLimitStates(_params);
     }
 
     function _checkpointRateLimits(uint32[] calldata _eids) internal {
-        uint256 length = _eids.length;
-        for (uint256 i; i < length; ++i) {
-            _checkpointRateLimit(_eids[i], _effectiveRateLimitConfig(_eids[i]));
-        }
+        RateLimiterLib.checkpointRateLimits(_eids);
     }
 
     function _consumeOutboundRateLimit(uint32 _dstEid, uint256 _amountLD) internal {
-        _consumeRateLimit(_dstEid, _amountLD, true);
+        RateLimiterLib.consumeRateLimit(_dstEid, _amountLD, true);
     }
 
     function _consumeInboundRateLimit(uint32 _srcEid, uint256 _amountLD) internal {
-        _consumeRateLimit(_srcEid, _amountLD, false);
+        RateLimiterLib.consumeRateLimit(_srcEid, _amountLD, false);
     }
 
     function _outboundRateLimitAvailable(uint32 _dstEid) internal view returns (uint256 availableLD) {
-        RateLimiterStorage storage $ = _getRateLimiterStorage();
-        if ($.globalConfig.isGloballyDisabled) return type(uint256).max;
-
-        RateLimitConfig memory config = _effectiveRateLimitConfig(_dstEid);
-        if (!config.outboundEnabled) return type(uint256).max;
-
-        RateLimitState memory state = _currentRateLimitState(_dstEid, config);
-        if (state.outboundUsage >= config.outboundLimit) return 0;
-
-        return config.outboundLimit - state.outboundUsage;
+        return RateLimiterLib.outboundRateLimitAvailable(_dstEid);
     }
 
     function _inboundRateLimitAvailable(uint32 _srcEid) internal view returns (uint256 availableLD) {
-        RateLimiterStorage storage $ = _getRateLimiterStorage();
-        if ($.globalConfig.isGloballyDisabled) return type(uint256).max;
-
-        RateLimitConfig memory config = _effectiveRateLimitConfig(_srcEid);
-        if (!config.inboundEnabled) return type(uint256).max;
-
-        RateLimitState memory state = _currentRateLimitState(_srcEid, config);
-        if (state.inboundUsage >= config.inboundLimit) return 0;
-
-        return config.inboundLimit - state.inboundUsage;
-    }
-
-    function _effectiveRateLimitConfig(uint32 _eid) internal view returns (RateLimitConfig memory config) {
-        RateLimiterStorage storage $ = _getRateLimiterStorage();
-        RateLimitConfig storage stored = $.configs[_eid];
-        // peek the flag before copying so the common (default) case skips the per-eid struct copy
-        config = stored.overrideDefaultConfig ? stored : $.defaultConfig;
-    }
-
-    function _currentRateLimitState(
-        uint32 _eid,
-        RateLimitConfig memory _config
-    ) internal view returns (RateLimitState memory state) {
-        RateLimiterStorage storage $ = _getRateLimiterStorage();
-        state = $.states[_eid];
-
-        uint32 currentTimestamp = uint32(block.timestamp);
-        uint32 lastUpdated = state.lastUpdated;
-        if (lastUpdated == 0 || lastUpdated >= currentTimestamp) {
-            state.lastUpdated = currentTimestamp;
-            return state;
-        }
-
-        uint256 elapsed = currentTimestamp - lastUpdated;
-        // safe downcasts: decayed usage never exceeds the stored uint112 usage
-        state.outboundUsage =
-            uint112(_decayUsage(state.outboundUsage, _config.outboundLimit, _config.outboundWindow, elapsed));
-        state.inboundUsage =
-            uint112(_decayUsage(state.inboundUsage, _config.inboundLimit, _config.inboundWindow, elapsed));
-        state.lastUpdated = currentTimestamp;
-    }
-
-    function _checkpointRateLimit(uint32 _eid, RateLimitConfig memory _config) internal {
-        RateLimiterStorage storage $ = _getRateLimiterStorage();
-        RateLimitState memory currentState = _currentRateLimitState(_eid, _config);
-        $.states[_eid] = currentState;
-
-        emit RateLimitCheckpointed(
-            _eid,
-            currentState.outboundUsage,
-            currentState.inboundUsage,
-            currentState.lastUpdated
-        );
-    }
-
-    function _consumeRateLimit(uint32 _eid, uint256 _amountLD, bool _isOutbound) internal {
-        if (_amountLD == 0) return;
-
-        RateLimiterStorage storage $ = _getRateLimiterStorage();
-        if ($.globalConfig.isGloballyDisabled) return;
-
-        RateLimitConfig memory config = _effectiveRateLimitConfig(_eid);
-        if (_isOutbound && !config.outboundEnabled) return;
-        if (!_isOutbound && !config.inboundEnabled) return;
-
-        RateLimitState memory currentState = _currentRateLimitState(_eid, config);
-
-        uint256 limit = _isOutbound ? config.outboundLimit : config.inboundLimit;
-        uint256 usage = _isOutbound ? currentState.outboundUsage : currentState.inboundUsage;
-        uint256 available = usage >= limit ? 0 : limit - usage;
-        if (_amountLD > available) revert RateLimitExceeded(_eid, _isOutbound, _amountLD, available);
-
-        // safe downcasts: usage + _amountLD <= limit <= type(uint112).max (checked above)
-        if (_isOutbound) {
-            currentState.outboundUsage = uint112(usage + _amountLD);
-        } else {
-            currentState.inboundUsage = uint112(usage + _amountLD);
-        }
-
-        $.states[_eid] = currentState;
-
-        emit RateLimitConsumed(
-            _eid,
-            _isOutbound,
-            _amountLD,
-            _isOutbound ? currentState.outboundUsage : currentState.inboundUsage,
-            limit
-        );
-    }
-
-    function _validateRateLimitConfig(RateLimitConfig memory _config) internal pure {
-        if (_config.outboundEnabled && (_config.outboundLimit == 0 || _config.outboundWindow == 0)) {
-            revert InvalidRateLimitConfig();
-        }
-        if (_config.inboundEnabled && (_config.inboundLimit == 0 || _config.inboundWindow == 0)) {
-            revert InvalidRateLimitConfig();
-        }
-    }
-
-    function _validateRateLimitState(RateLimitState memory _state) internal view {
-        if (_state.lastUpdated > block.timestamp) revert InvalidRateLimitState();
-        if (_state.lastUpdated == 0 && (_state.outboundUsage != 0 || _state.inboundUsage != 0)) {
-            revert InvalidRateLimitState();
-        }
-    }
-
-    function _decayUsage(
-        uint256 _usage,
-        uint256 _limit,
-        uint32 _window,
-        uint256 _elapsed
-    ) internal pure returns (uint256 decayedUsage) {
-        if (_usage == 0 || _limit == 0 || _window == 0 || _elapsed == 0) {
-            return _usage;
-        }
-        if (_elapsed >= _window) {
-            return 0;
-        }
-
-        // cannot overflow: _limit <= type(uint112).max and _elapsed < _window <= type(uint32).max
-        uint256 replenished = (_limit * _elapsed) / _window;
-        return replenished >= _usage ? 0 : _usage - replenished;
+        return RateLimiterLib.inboundRateLimitAvailable(_srcEid);
     }
 
     function _rateLimitedMaxAmountLD(uint32 _dstEid) internal view returns (uint256 maxAmountLD) {
-        return _min(_outboundRateLimitAvailable(_dstEid), uint256(type(uint64).max)*1E12);
+        return _min(RateLimiterLib.outboundRateLimitAvailable(_dstEid), uint256(type(uint64).max)*1E12);
     }
 
     function _min(uint256 _a, uint256 _b) internal pure returns (uint256) {

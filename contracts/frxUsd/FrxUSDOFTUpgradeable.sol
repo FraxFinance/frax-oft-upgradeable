@@ -40,10 +40,6 @@ contract FrxUSDOFTUpgradeable is OFTUpgradeable, EIP3009Module, PermitModule, Fr
         _transferOwnership(_delegate);
     }
         
-    /// @dev This method is called specifically when upgrading an existing OFT
-    function initializeV110() external reinitializer(3) {
-        __EIP712_init(name(), "1.1.0");
-    }
 
     /// @dev This method is called specifically when upgrading an existing OFT to v1.2.0
     ///      and re-initializes the EIP-712 domain version to 1.2.0.
@@ -68,7 +64,7 @@ contract FrxUSDOFTUpgradeable is OFTUpgradeable, EIP3009Module, PermitModule, Fr
     /// @notice External admin gated function to unfreeze a set of accounts
     /// @param accounts Array of accounts to be unfrozen
     /// @dev Added in v1.1.0
-    function thawMany(address[] memory accounts) external onlyOwner {
+    function thawMany(address[] calldata accounts) external onlyOwner {
         _thawMany(accounts);
     }
 
@@ -82,7 +78,7 @@ contract FrxUSDOFTUpgradeable is OFTUpgradeable, EIP3009Module, PermitModule, Fr
     /// @notice External admin gated function to batch freeze a set of accounts
     /// @param accounts Array of accounts to be frozen
     /// @dev Added in v1.1.0
-    function freezeMany(address[] memory accounts) external {
+    function freezeMany(address[] calldata accounts) external {
         if (!isFreezer(msg.sender) && msg.sender != owner()) revert NotFreezer();
         _freezeMany(accounts);
     }
@@ -100,12 +96,13 @@ contract FrxUSDOFTUpgradeable is OFTUpgradeable, EIP3009Module, PermitModule, Fr
     /// @param amounts Array of amounts corresponding to the balances to be burned
     /// @dev Added in v1.1.0
     /// @dev if `amount` == 0, entire balance will be burned
-    function burnMany(address[] memory accounts, uint256[] memory amounts) external onlyOwner {
+    function burnMany(address[] calldata accounts, uint256[] calldata amounts) external onlyOwner {
         uint lenOwner = accounts.length;
         if (accounts.length != amounts.length) revert ArrayMisMatch();
         for (uint i; i < lenOwner; ++i) {
-            if (amounts[i] == 0) amounts[i] = balanceOf(accounts[i]);
-            _burn(accounts[i], amounts[i]);
+            uint256 amount = amounts[i];
+            if (amount == 0) amount = balanceOf(accounts[i]);
+            _burn(accounts[i], amount);
         }
     }
 

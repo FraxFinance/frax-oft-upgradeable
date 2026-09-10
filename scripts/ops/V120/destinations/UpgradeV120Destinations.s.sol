@@ -33,6 +33,7 @@ abstract contract UpgradeV120Destinations is UpgradeV120Base {
         for (uint256 i; i < proxyConfigs.length; ++i) {
             uint256 chainid = proxyConfigs[i].chainid;
             if (isDeprecatedChain(chainid)) continue;
+            if (_isLegacyOnlyChain(chainid)) continue;
             if (chainid == ETHEREUM_CHAIN_ID || chainid == FRAXTAL_CHAIN_ID || chainid == TEMPO_CHAIN_ID) continue;
             if (_isZkStackChain(chainid) != _zkOnly) continue;
             upgradeToV120(proxyConfigs[i]);

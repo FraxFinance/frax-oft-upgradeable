@@ -1,13 +1,4 @@
 {
-    "34443": {
-        "bcwGroup": "0x0000000000000000000000000000000000000000",
-        "canary": "0xda63525a0fc42bcc2cad1dd28708d5ed11849347",
-        "frax": "0xf4064220871e3b94ca6ab3b0cee8e29178bf47de",
-        "horizen": "0x7fe673201724925b5c477d4e1a4bd3e954688cf5",
-        "lz": "0x129ee430cb2ff2708ccaddbdb408a88fe4ffd480",
-        "nethermind": "0xdd7b5e1db4aafd5c8ec3b764efb8ed265aa5445b",
-        "stargate": "0x0000000000000000000000000000000000000000"
-    },
     "1329": {
         "bcwGroup": "0x0000000000000000000000000000000000000000",
         "canary": "0xda63525a0fc42bcc2cad1dd28708d5ed11849347",
@@ -98,15 +89,6 @@
         "nethermind": "0xdd7b5e1db4aafd5c8ec3b764efb8ed265aa5445b",
         "stargate": "0x0000000000000000000000000000000000000000"
     },
-    "1101": {
-        "bcwGroup": "0x0000000000000000000000000000000000000000",
-        "canary": "0x0000000000000000000000000000000000000000",
-        "frax": "0xf4064220871e3b94ca6ab3b0cee8e29178bf47de",
-        "horizen": "0x7fe673201724925b5c477d4e1a4bd3e954688cf5",
-        "lz": "0x129ee430cb2ff2708ccaddbdb408a88fe4ffd480",
-        "nethermind": "0xdd7b5e1db4aafd5c8ec3b764efb8ed265aa5445b",
-        "stargate": "0x0000000000000000000000000000000000000000"
-    },
     "1": {
         "bcwGroup": "0x0000000000000000000000000000000000000000",
         "canary": "0xda63525a0fc42bcc2cad1dd28708d5ed11849347",
@@ -126,15 +108,6 @@
         "stargate": "0x0000000000000000000000000000000000000000"
     },
     "8453": {
-        "bcwGroup": "0x0000000000000000000000000000000000000000",
-        "canary": "0xda63525a0fc42bcc2cad1dd28708d5ed11849347",
-        "frax": "0xf4064220871e3b94ca6ab3b0cee8e29178bf47de",
-        "horizen": "0x7fe673201724925b5c477d4e1a4bd3e954688cf5",
-        "lz": "0x129ee430cb2ff2708ccaddbdb408a88fe4ffd480",
-        "nethermind": "0xdd7b5e1db4aafd5c8ec3b764efb8ed265aa5445b",
-        "stargate": "0x0000000000000000000000000000000000000000"
-    },
-    "80094": {
         "bcwGroup": "0x0000000000000000000000000000000000000000",
         "canary": "0xda63525a0fc42bcc2cad1dd28708d5ed11849347",
         "frax": "0xf4064220871e3b94ca6ab3b0cee8e29178bf47de",
@@ -188,15 +161,6 @@
         "nethermind": "0xdd7b5e1db4aafd5c8ec3b764efb8ed265aa5445b",
         "stargate": "0x0000000000000000000000000000000000000000"
     },
-    "3637": {
-        "bcwGroup": "0x0000000000000000000000000000000000000000",
-        "canary": "0xda63525a0fc42bcc2cad1dd28708d5ed11849347",
-        "frax": "0xf4064220871e3b94ca6ab3b0cee8e29178bf47de",
-        "horizen": "0x7fe673201724925b5c477d4e1a4bd3e954688cf5",
-        "lz": "0x129ee430cb2ff2708ccaddbdb408a88fe4ffd480",
-        "nethermind": "0xdd7b5e1db4aafd5c8ec3b764efb8ed265aa5445b",
-        "stargate": "0x0000000000000000000000000000000000000000"
-    },
     "98866": {
         "bcwGroup": "0x0000000000000000000000000000000000000000",
         "canary": "0xda63525a0fc42bcc2cad1dd28708d5ed11849347",
@@ -216,15 +180,6 @@
         "stargate": "0x0000000000000000000000000000000000000000"
     },
     "1313161554": {
-        "bcwGroup": "0x0000000000000000000000000000000000000000",
-        "canary": "0xda63525a0fc42bcc2cad1dd28708d5ed11849347",
-        "frax": "0xf4064220871e3b94ca6ab3b0cee8e29178bf47de",
-        "horizen": "0x7fe673201724925b5c477d4e1a4bd3e954688cf5",
-        "lz": "0x129ee430cb2ff2708ccaddbdb408a88fe4ffd480",
-        "nethermind": "0xdd7b5e1db4aafd5c8ec3b764efb8ed265aa5445b",
-        "stargate": "0x0000000000000000000000000000000000000000"
-    },
-    "534352": {
         "bcwGroup": "0x0000000000000000000000000000000000000000",
         "canary": "0xda63525a0fc42bcc2cad1dd28708d5ed11849347",
         "frax": "0xf4064220871e3b94ca6ab3b0cee8e29178bf47de",
@@ -278,7 +233,7 @@
         "nethermind": "0xdd7b5e1db4aafd5c8ec3b764efb8ed265aa5445b",
         "stargate": "0x0000000000000000000000000000000000000000"
     },
-    "111111111": {
+    "4663": {
         "bcwGroup": "0x0000000000000000000000000000000000000000",
         "canary": "0xda63525a0fc42bcc2cad1dd28708d5ed11849347",
         "frax": "0xf4064220871e3b94ca6ab3b0cee8e29178bf47de",
@@ -287,18 +242,9 @@
         "nethermind": "0xdd7b5e1db4aafd5c8ec3b764efb8ed265aa5445b",
         "stargate": "0x0000000000000000000000000000000000000000"
     },
-    "22222222": {
+    "111111111": {
         "bcwGroup": "0x0000000000000000000000000000000000000000",
-        "canary": "0x0000000000000000000000000000000000000000",
-        "frax": "0xf4064220871e3b94ca6ab3b0cee8e29178bf47de",
-        "horizen": "0x7fe673201724925b5c477d4e1a4bd3e954688cf5",
-        "lz": "0x129ee430cb2ff2708ccaddbdb408a88fe4ffd480",
-        "nethermind": "0xdd7b5e1db4aafd5c8ec3b764efb8ed265aa5445b",
-        "stargate": "0x0000000000000000000000000000000000000000"
-    },
-    "33333333": {
-        "bcwGroup": "0x0000000000000000000000000000000000000000",
-        "canary": "0x0000000000000000000000000000000000000000",
+        "canary": "0xda63525a0fc42bcc2cad1dd28708d5ed11849347",
         "frax": "0xf4064220871e3b94ca6ab3b0cee8e29178bf47de",
         "horizen": "0x7fe673201724925b5c477d4e1a4bd3e954688cf5",
         "lz": "0x129ee430cb2ff2708ccaddbdb408a88fe4ffd480",

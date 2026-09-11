@@ -331,6 +331,54 @@ contract BaseL0Script is L0Constants, Script {
         return bytes32(uint256(uint160(_addr)));
     }
 
+    /// @notice OFT address declared for a token slot, or zero if this chain lacks it.
+    /// @dev    Inverse of `tokenIndex()`; child scripts assign these state variables.
+    function _oftForToken(Token _token) internal view returns (address) {
+        if (_token == Token.WFRAX)   return wfraxOft;
+        if (_token == Token.SFRXUSD) return sfrxUsdOft;
+        if (_token == Token.SFRXETH) return sfrxEthOft;
+        if (_token == Token.FRXUSD)  return frxUsdOft;
+        if (_token == Token.FRXETH)  return frxEthOft;
+        if (_token == Token.FPI)     return fpiOft;
+        revert("_oftForToken: unknown token");
+    }
+
+    function _setOftForToken(Token _token, address _oft) internal {
+        if (_token == Token.WFRAX)        wfraxOft   = _oft;
+        else if (_token == Token.SFRXUSD) sfrxUsdOft = _oft;
+        else if (_token == Token.SFRXETH) sfrxEthOft = _oft;
+        else if (_token == Token.FRXUSD)  frxUsdOft  = _oft;
+        else if (_token == Token.FRXETH)  frxEthOft  = _oft;
+        else if (_token == Token.FPI)     fpiOft     = _oft;
+        else revert("_setOftForToken: unknown token");
+    }
+
+    /// @dev For every token routed through deployFraxOFTUpgradeableAndProxy(), the symbol
+    ///      doubles as the CREATE2 salt key and must keep matching the historical value or
+    ///      the deterministic address would move. frxUSD is the exception: it deploys via
+    ///      deployFrxUsdOFTUpgradeableAndProxy(), which passes its own salt string.
+    function _tokenMeta(Token _token) internal pure returns (string memory name_, string memory symbol_) {
+        if (_token == Token.WFRAX)   return ("Wrapped Frax", "WFRAX");
+        if (_token == Token.SFRXUSD) return ("Staked Frax USD", "sfrxUSD");
+        if (_token == Token.SFRXETH) return ("Staked Frax Ether", "sfrxETH");
+        if (_token == Token.FRXUSD)  return ("Frax USD", "frxUSD");
+        if (_token == Token.FRXETH)  return ("Frax Ether", "frxETH");
+        if (_token == Token.FPI)     return ("Frax Price Index", "FPI");
+        revert("_tokenMeta: unknown token");
+    }
+
+    /// @notice Whether this run manages a token slot. Presence is per-chain: a token
+    ///         retired before this chain was onboarded is simply unset and skipped.
+    function _managesToken(Token _token) internal view returns (bool) {
+        return _oftForToken(_token) != address(0);
+    }
+
+    function _managedTokenCount() internal view returns (uint256 count) {
+        for (uint256 i = 0; i < NUM_OFTS; i++) {
+            if (_managesToken(Token(i))) count++;
+        }
+    }
+
     /// @notice Map an OFT proxy address to its canonical Token index.
     ///         Works for both the deterministic proxy addresses and the deployment-time
     ///         OFT state variables (wfraxOft, frxUsdOft, etc.).
@@ -342,10 +390,7 @@ contract BaseL0Script is L0Constants, Script {
         if (_oft == proxySFrxEthOft || (sfrxEthOft != address(0) && _oft == sfrxEthOft)) return uint256(Token.SFRXETH);
         if (_oft == proxyFrxUsdOft  || (frxUsdOft != address(0) && _oft == frxUsdOft)) return uint256(Token.FRXUSD);
         if (_oft == proxyFrxEthOft  || (frxEthOft != address(0) && _oft == frxEthOft)) return uint256(Token.FRXETH);
-        // FPI is deprecated and excluded from the active mesh.
-        if (_oft == proxyFpiOft || (fpiOft != address(0) && _oft == fpiOft)) {
-            revert("tokenIndex: FPI is deprecated and excluded from the active mesh");
-        }
+        if (_oft == proxyFpiOft     || (_managesToken(Token.FPI) && _oft == fpiOft)) return uint256(Token.FPI);
         revert(string.concat("tokenIndex: unknown OFT ", Strings.toHexString(_oft)));
     }
 

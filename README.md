@@ -31,7 +31,6 @@ This repository contains all of the contracts and deployment code used to manage
   - [`Blast`](https://app.safe.protofire.io/home?safe=blastmainnet:0x33A133020b2C2CD41a24F74033B11EC2fC0bF97a)
   - [`Metis`](https://metissafe.tech/home?safe=metis-andromeda:0xF4A4F32732F9B2fB84Ee28c58616946F3bF80F7d)
   - [`Base`](https://app.safe.global/home?safe=base:0xCBfd4Ef00a8cf91Fd1e1Fe97dC05910772c15E53)
-  - [`Mode`](https://safe.optimism.io/home?safe=mode:0x6336CFA6eDBeC2A459d869031DB77fC2770Eaa66)
   - [`Sei`](https://sei-safe.protofire.io/home?safe=sei:0x0357D02fc95320b990322d3ff69204c3D251171b)
   - [`Fraxtal`](https://safe.mainnet.frax.com/home?safe=fraxtal:0x5f25218ed9474b721d6a38c115107428E832fA2E)
   - [`X-Layer`](https://app.safe.global/home?safe=xlayer:0xe7Cc52f0C86f4FAB6630f1E26167B487fbF66a61)
@@ -44,33 +43,29 @@ This repository contains all of the contracts and deployment code used to manage
   - [`BSC`](https://app.safe.global/home?safe=bnb:0xB1eff95B323D60cc04B1a44Ca1dBcbC935ae2C84)
   - [`Polygon zkEvm`](https://app.safe.global/home?safe=zkevm:0x57445fD8d544e5D313e4f715220103b091814df4)
   - [`Solana`](https://app.squads.so/squads/FSRTW4KPGifKL8yKcZ8mfoR9mKtAjwZiTHbHwgix8AQo/home)
-  - [`Berachain`](https://safe.berachain.com/home?safe=berachain:0x436b303dAf4b95e94ad86cA3821d5E50eB0De3aA)
   - [`Linea`](https://safe.linea.build/home?safe=linea:0x0E5a5284820E350ffce7fe7ba3364FaC1C53eaFD)
   - [`ZkSync`](https://app.safe.global/home?safe=zksync:0x66716ae60898dD4479B52aC4d92ef16C1821f420)
   - [`Abstract`](https://abstract-safe.protofire.io/home?safe=abstract:0xcC20eAE3CdC554E96291708B362dF349CC443808)
-  - [`Movement`](https://movement.m-safe.io/assets?msafe=0xda80fe6404a059e99569ba06f8d87814b3a9521c8d6c78ac5ed4ca75ad867ab3)
-  - [`Aptos`](https://aptos.m-safe.io/assets?msafe=0x6f9e27569fb34873f13a6868b3732b384f81c89fb525a623a969fdba155de21c)
   - [`Worldchain`](https://app.safe.global/home?safe=wc:0xf57d47c3EA11c12253dBc0BeAf097d5c206e8773)
   - [`Unichain`](https://app.safe.global/home?safe=unichain:0x6f8FDdfD4F6a1456BA5632C919bEF74b64DD032D)
   - [`Plume`](https://safe.onchainden.com/home?safe=plume:0x77dDd3EC570EEAf2c513de3c833c5E82A721978B)
   - [`Katana`](https://app.safe.global/settings/setup?safe=katana:0x19A90b0476cdc8EC1239266663CA820175B9B527)
   - [`Aurora`](https://app.safe.global/home?safe=aurora:0x73F365d34b81E731825a094c2E722A08574335cd)
-  - [`Scroll`](https://app.safe.global/home?safe=scr:0x73F365d34b81E731825a094c2E722A08574335cd)
   - [`HyperEVM`](https://app.safe.global/home?safe=hyper-evm:0x738ee62157f127C879Ff5c4B7102Eb0d166C7a6d)
   - [`Stable`](https://app.safe.global/home?safe=stable:0x0C46f54BF9EF8fd58e2D294b8cEA488204EcB3D8)
   - [`Monad`](https://app.safe.global/home?safe=monad:0x47FF5bBAB981Ff022743AA4281D4d6Dd7Fb1a4D0)
   - [`Tempo`](https://app.safe.global/home?safe=tempo:0x1Ba19a54a01AE967f5E3895764Caaa6919FD2bEe)
   - [`Somnia`](https://safe.somnia.network/home?safe=somnia:0x9527e19F55d1afCE9F1e9Edcea79552bF41983F9)
+  - [`Robinhood`](https://app.safe.global/home?safe=robinhood:0xFA1224aDd725eb2708BA4d15F627F4027dAfcEde)
 
 ### Proxy (upgradeable) OFTs
-- Chain: `Mode`, `Sei`, `X-Layer`, `Ink`, `Sonic`, `Arbitrum`, `Optimism`, `Polygon`, `BSC`, `Avalanche`, `Polygon zkEvm`, `Blast`, `Berachain`, `Worldchain`, `Unichain`, `Plume`, `Katana`, `Aurora`, `Hyperliquid`, `Stable`
+- Chain: `Sei`, `X-Layer`, `Ink`, `Sonic`, `Arbitrum`, `Optimism`, `Polygon`, `BSC`, `Avalanche`, `Blast`, `Worldchain`, `Unichain`, `Plume`, `Katana`, `Aurora`, `Hyperliquid`, `Stable`
   - OFTs
     - `frxUSD`: `0x80Eede496655FB9047dd39d9f418d5483ED600df`
     - `sfrxUSD`: `0x5Bff88cA1442c2496f7E475E9e7786383Bc070c0`
     - `frxETH`: `0x43eDD7f3831b08FE70B7555ddD373C8bF65a9050`
     - `sfrxETH`: `0x3Ec3849C33291a9eF4c5dB86De593EB4A37fDe45`
     - `WFRAX`: `0x64445f0aecC51E94aD52d8AC56b7190e764E561a`
-    - `FPI` : `0x90581eCa9469D8D7F5D3B60f4715027aDFCf7927`
 - Chain: `Ethereum`
   - OFTs
     - `WFRAX`: `0x04ACaF8D2865c0714F79da09645C13FD2888977f`
@@ -81,7 +76,6 @@ This repository contains all of the contracts and deployment code used to manage
     - `frxETH`: `0x7eb8d1E4E2D0C8b9bEDA7a97b305cF49F3eeE8dA`
     - `sfrxETH`: `0x192e0C7Cc9B263D93fa6d472De47bBefe1Fb12bA`
     - `WFRAX`: `0x0CEAC003B0d2479BebeC9f4b2EBAd0a803759bbf`
-    - `FPI` : `0xEEdd3A0DDDF977462A97C1F0eBb89C3fbe8D084B`
 - Chain: `Linea`
   - OFTs:
       - `frxUSD`: `0xC7346783f5e645aa998B106Ef9E7f499528673D8`
@@ -89,7 +83,6 @@ This repository contains all of the contracts and deployment code used to manage
       - `frxETH`: `0xB1aFD04774c02AE84692619448B08BA79F19b1ff`
       - `sfrxETH`: `0x383Eac7CcaA89684b8277cBabC25BCa8b13B7Aa2`
       - `WFRAX`: `0x5217Ab28ECE654Aab2C68efedb6A22739df6C3D5`
-      - `FPI`:  `0xDaF72Aa849d3C4FAA8A9c8c99f240Cf33dA02fc4`
 - Chain: `ZkSync`,`Abstract`
   - OFTs:
       - `frxUSD`: `0xEa77c590Bb36c43ef7139cE649cFBCFD6163170d`
@@ -97,15 +90,6 @@ This repository contains all of the contracts and deployment code used to manage
       - `frxETH`: `0xc7Ab797019156b543B7a3fBF5A99ECDab9eb4440`
       - `sfrxETH`: `0xFD78FD3667DeF2F1097Ed221ec503AE477155394`
       - `WFRAX`: `0xAf01aE13Fb67AD2bb2D76f29A83961069a5F245F`
-      - `FPI`: `0x580F2ee1476eDF4B1760bd68f6AaBaD57dec420E`
-- Chain: `Scroll`
-  - OFTs:
-     - `frxUSD`: `0x397F939C3b91A74C321ea7129396492bA9Cdce82`
-     - `sfrxUSD`: `0xC6B2BE25d65760B826D0C852FD35F364250619c2`
-     - `frxETH`: `0x0097Cf8Ee15800d4f80da8A6cE4dF360D9449Ed5`
-     - `sfrxETH`: `0x73382eb28F35d80Df8C3fe04A3EED71b1aFce5dE`
-     - `WFRAX`: `0x879ba0efe1ab0119fefa745a21585fa205b07907`
-     - `FPI`: `0x93cDc5d29293Cb6983f059Fec6e4FFEb656b6a62`
 - Chain: `Monad`
   - OFTs:
      - `frxUSD`: `0x58e3ee6accd124642ddb5d3f91928816be8d8ed3`
@@ -113,15 +97,13 @@ This repository contains all of the contracts and deployment code used to manage
      - `frxETH`: `0x288f9d76019469bfeb56bb77d86afa2bf563b75b`
      - `sfrxETH`: `0x3b4cf37a3335f21c945a40088404c715525fcb29`
      - `WFRAX`: `0x29acc7c504665a5ea95344796f784095f0cfcc58`
-     - `FPI`: `0xba554f7a47f0792b9fa41a1256d4cf628bb1d028`
-- Chain: `Tempo`, `Somnia`
+- Chain: `Tempo`, `Somnia`, `Robinhood`
   - OFTs:
      - `frxUSD`: `0x00000000D61733e7A393A10A5B48c311AbE8f1E5`
      - `sfrxUSD`: `0x00000000fD8C4B8A413A06821456801295921a71`
      - `frxETH`: `0x000000008c3930dCA540bB9B3A5D0ee78FcA9A4c`
      - `sfrxETH`: `0x00000000883279097A49dB1f2af954EAd0C77E3c`
      - `WFRAX`: `0x00000000E9CE0f293D1Ce552768b187eBA8a56D4`
-     - `FPI`: `0x00000000bC4aEF4bA6363a437455Cb1af19e2aEb`
      - (tempo specific)
         - `FrxUSDPolicyAdminTempo` : `0x766c2BD9C6dDc5BeE9ACd7D4C8ADD5b969952969`
         - `PolicyID` : `5`
@@ -165,10 +147,6 @@ With the exception of Ethereum, Fraxtal and Tempo (frxUSD TIP20), Frax tokens ar
 - Fraxtal (Adapter): `0xd86fBBd0c8715d2C1f40e451e5C3514e65E7576A`
 - Ethereum (OFT): `0x04ACaF8D2865c0714F79da09645C13FD2888977f`
 
-#### FPI
-- Fraxtal (Mintable Adapter): `0x75c38D46001b0F8108c4136216bd2694982C20FC`
-- Ethereum (Mintable Adapter): `0x9033BAD7aA130a2466060A2dA71fAe2219781B4b`
-
 ### Legacy lockboxes
 Prior to Upgradeable lockboxes, Frax operated immutable lockboxes on Ethereum.  Liquidity can be unlocked via the Stargate UI:
   - `LFRAX`: `0x909DBdE1eBE906Af95660033e478D59EFe831fED`
@@ -195,33 +173,7 @@ Prior to Upgradeable lockboxes, Frax operated immutable lockboxes on Ethereum.  
 - `WFRAX`
   - SPL Token: `zZbQjiRg8uSxZaPu996XuviuZeSY6nsaMuutKZQBJga`
     - As bytes32: `0x4939035f8dd13d15a9386e28b6705519aa6f488791323466a3c0116a201e51aa`
-- `FPI`
-  - SPL Token: `8xKX8CRH9LxriRUNCPittu1jiovyQQr4EonWQjHZjWyH`
-    - As bytes32: `0xd3cee058686107cc51844f331ee213a33142ab299b5ce473c1cf3a8ddaa721a0`
 
-### Movement, Aptos
-- Admin: Chain-respective msig
-- `frxUSD`
-  - OFT Package: `0xe067037681385b86d8344e6b7746023604c6ac90ddc997ba3c58396c258ad17b`
-    - OFT FA: `0xe4354602aa4311f36240dd57f3f3435ffccdbd0cd2963f1a69da39a2dbcd59b5`
-- `sfrxUSD`
-  - OFT Package: `0xc9bdfdc965bb7fcdcfa6b45870eab33bfaf8f4e8e3f6b89d3e0203aba634a1c9`
-    - OFT FA: `0xbf2efbffbbd7083aaf006379d96b866b73bb4eb9684a7504c62feafe670962c2`
-- `frxETH`
-  - OFT Package: `0xecb3a766f12981919158fc8ec3b98dd3f8b39a59280e62e80c600cea1b2c0f9c`
-    - OFT FA: `0x8645126a60d36e138d435a28875a2aeef253bf80aae22bebcd411ad4251f1585`
-- `sfrxETH`
-  - OFT Package: `0x28b7264258592031a024ed8e1632090648ec53797c269ac91aa0c9ed94268356`
-    - OFT FA: `0x80d729c4632bcc6279b7bed2542e01e2cebd34ca9f3f15963c29d1621efc221a`
-- `FXS` (depreacted)
-  - OFT Package: `0x687dd7e354df73a46a98cc81cfbf51d46e540560b840591eca9ee054f9a2e34c`
-    - OFT FA: `0xb5660995134dc2cb90d615928c37b2a67c3e006c88d222b23a455cffb14202b9`
-- `WFRAX`
-  - OFT Package: `0x267749b1a80d9d582019e6b0572c1dbc98648e24101b0861395cdbed095ceff2`
-    - OFT FA: `0x4e4cce8f877d7ad45c896c1823017fe07874f3d8db6e15960eda26e211151300`
-- `FPI`
-  - OFT Package: `0xadf0ffffa5ee44a94f0c65be05e701951e65e276419f7460286a139d9403e864`
-    - OFT FA: `0x15607151cc023512886f5af24d4f77e6e7a5d6fb8a482dfb56b9c4f5c1fca0b2`
 ### Testnet
 Frax operates a lightweight LZ stack on testnets, replicating the dual-lockbox approach.  Below are the following addresses:
 

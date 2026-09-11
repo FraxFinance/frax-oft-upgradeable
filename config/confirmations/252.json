@@ -11,10 +11,6 @@
         "receiveConfirmations": 20,
         "sendConfirmations": 5
     },
-    "1101": {
-        "receiveConfirmations": 225000,
-        "sendConfirmations": 5
-    },
     "130": {
         "receiveConfirmations": 72,
         "sendConfirmations": 5
@@ -59,11 +55,11 @@
         "receiveConfirmations": 20,
         "sendConfirmations": 5
     },
-    "3637": {
-        "receiveConfirmations": 2,
+    "4217": {
+        "receiveConfirmations": 20,
         "sendConfirmations": 5
     },
-    "4217": {
+    "4663": {
         "receiveConfirmations": 20,
         "sendConfirmations": 5
     },
@@ -73,10 +69,6 @@
     },
     "8453": {
         "receiveConfirmations": 10,
-        "sendConfirmations": 5
-    },
-    "34443": {
-        "receiveConfirmations": 36,
         "sendConfirmations": 5
     },
     "42161": {
@@ -95,10 +87,6 @@
         "receiveConfirmations": 10,
         "sendConfirmations": 5
     },
-    "80094": {
-        "receiveConfirmations": 20,
-        "sendConfirmations": 5
-    },
     "81457": {
         "receiveConfirmations": 5,
         "sendConfirmations": 5
@@ -107,20 +95,8 @@
         "receiveConfirmations": 5,
         "sendConfirmations": 5
     },
-    "534352": {
-        "receiveConfirmations": 20,
-        "sendConfirmations": 5
-    },
     "747474": {
         "receiveConfirmations": 60,
-        "sendConfirmations": 5
-    },
-    "22222222": {
-        "receiveConfirmations": 30000,
-        "sendConfirmations": 5
-    },
-    "33333333": {
-        "receiveConfirmations": 260,
         "sendConfirmations": 5
     },
     "111111111": {

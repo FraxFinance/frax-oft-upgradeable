@@ -141,7 +141,13 @@ contract DeployFraxOFTProtocol is SetDVNs, SetRateLimits, BaseL0Script {
     ///      (isDeprecatedChain) — their enforced-option helpers remain below for
     ///      backward compatibility with historical/deprecation tooling.
     function setupNonEvms() public virtual {
-        require(proxyOfts.length == NUM_OFTS, "Error: non-evm setup will be incorrect");
+        /// @dev nonEvmPeersArrays is Token-indexed and setNonEvmPeers walks proxyOfts by
+        ///      position, so proxyOfts must be a slot-aligned prefix: every slot (chains
+        ///      predating a retirement) or just the active ones.
+        require(
+            proxyOfts.length == NUM_OFTS || proxyOfts.length == activeTokens.length,
+            "Error: non-evm setup will be incorrect"
+        );
 
         setSolanaEnforcedOptions({
             _connectedOfts: proxyOfts
@@ -166,8 +172,10 @@ contract DeployFraxOFTProtocol is SetDVNs, SetRateLimits, BaseL0Script {
         }
     }
 
+    /// @dev A fresh deployment yields exactly the active tokens; retired ones are never
+    ///      redeployed. See `activeTokens` in L0Constants.
     function postDeployChecks() internal virtual view {
-        require(proxyOfts.length == NUM_OFTS, "Did not deploy all OFTs");
+        require(proxyOfts.length == activeTokens.length, "Did not deploy all OFTs");
     }
 
     function deployFraxOFTUpgradeablesAndProxies() public virtual broadcastAs(oftDeployerPK) {
@@ -186,55 +194,44 @@ contract DeployFraxOFTProtocol is SetDVNs, SetRateLimits, BaseL0Script {
             _initCode: type(ImplementationMock).creationCode
         });
 
-        // / @dev: follows deployment order of legacy OFTs found at https://etherscan.io/address/0xded884435f2db0169010b3c325e733df0038e51d
-        // Deploy WFRAX
-        (,wfraxOft) = deployFraxOFTUpgradeableAndProxy({
-            _name: "Wrapped Frax",
-            _symbol: "WFRAX"
-        });
+        /// @dev Deploys exactly `activeTokens`, in slot order - which matches the legacy
+        ///      order at https://etherscan.io/address/0xded884435f2db0169010b3c325e733df0038e51d
+        ///      Retiring or activating a token needs no edit here.
+        for (uint256 i = 0; i < activeTokens.length; i++) {
+            Token token = activeTokens[i];
+            (string memory name_, string memory symbol_) = _tokenMeta(token);
 
-        // Deploy sfrxUSD
-        (,sfrxUsdOft) = deployFraxOFTUpgradeableAndProxy({
-            _name: "Staked Frax USD",
-            _symbol: "sfrxUSD"
-        });
-
-        // Deploy sfrxETH
-        (,sfrxEthOft) = deployFraxOFTUpgradeableAndProxy({
-            _name: "Staked Frax Ether",
-            _symbol: "sfrxETH"
-        });
-
-        // Deploy frxUSD
-        (,frxUsdOft) = deployFrxUsdOFTUpgradeableAndProxy();
-
-        // Deploy frxETH
-        (,frxEthOft) = deployFraxOFTUpgradeableAndProxy({
-            _name: "Frax Ether",
-            _symbol: "frxETH"
-        });
-
-        // FPI is deprecated and no longer part of the active mesh.
+            address proxy;
+            /// @dev frxUSD hardcodes its name/symbol in the contract, so it has its own initializer
+            if (token == Token.FRXUSD) {
+                (, proxy) = deployFrxUsdOFTUpgradeableAndProxy();
+            } else {
+                (, proxy) = deployFraxOFTUpgradeableAndProxy({ _name: name_, _symbol: symbol_ });
+            }
+            _setOftForToken(token, proxy);
+        }
 
         _requireDeterministicOftAddresses();
     }
 
-    /// @notice Reverts unless the CREATE2 deployment landed on the canonical mesh addresses.
-    /// @dev The mined salts in `_vanitySalt()` are only valid for one exact init-code hash. Nothing
-    ///      else in the deploy path checks the resulting address, so a drift in compilation inputs
-    ///      would otherwise produce a silently mis-addressed chain. Set ALLOW_OFT_ADDRESS_DRIFT=true
-    ///      to deploy deliberately off-address (e.g. while re-mining salts).
+    /// @notice Reverts unless every deployed proxy landed on its canonical mesh address.
+    /// @dev The mined salts in `_vanitySalt()` are only valid for one exact init-code hash, and
+    ///      nothing else in the deploy path checks the resulting address, so drift in compilation
+    ///      inputs would otherwise produce a silently mis-addressed chain. `proxyOfts[i]` is the
+    ///      proxy for `activeTokens[i]`; retired slots are not deployed and not checked.
+    ///      Set ALLOW_OFT_ADDRESS_DRIFT=true to deploy deliberately off-address.
     function _requireDeterministicOftAddresses() internal view virtual {
         if (vm.envOr("ALLOW_OFT_ADDRESS_DRIFT", false)) {
             console.log("WARNING: ALLOW_OFT_ADDRESS_DRIFT set; deterministic address check skipped");
             return;
         }
 
-        for (uint256 i; i < NUM_OFTS; ++i) {
-            if (proxyOfts[i] == fullDeterministicProxyOfts[i]) continue;
+        for (uint256 i; i < activeTokens.length; ++i) {
+            uint256 slot = uint256(activeTokens[i]);
+            if (proxyOfts[i] == fullDeterministicProxyOfts[slot]) continue;
 
-            console.log("Deterministic address mismatch for token index", i);
-            console.log("  expected:", fullDeterministicProxyOfts[i]);
+            console.log("Deterministic address mismatch for token slot", slot);
+            console.log("  expected:", fullDeterministicProxyOfts[slot]);
             console.log("  actual  :", proxyOfts[i]);
             revert(
                 "Deterministic OFT address mismatch: compilation inputs changed since the salts in"
@@ -500,6 +497,8 @@ contract DeployFraxOFTProtocol is SetDVNs, SetRateLimits, BaseL0Script {
         });
     }
 
+    /// @dev Movement left the mesh (Non-EVM config no longer carries it); kept only for
+    ///      the historical ops scripts that compiled against it. Reverts if called now.
     function setMovementEnforcedOptions(
         address[] memory _connectedOfts
     ) public virtual {
@@ -517,6 +516,8 @@ contract DeployFraxOFTProtocol is SetDVNs, SetRateLimits, BaseL0Script {
         });
     }
 
+    /// @dev Aptos left the mesh (Non-EVM config no longer carries it); kept only for
+    ///      the historical ops scripts that compiled against it. Reverts if called now.
     function setAptosEnforcedOptions(
         address[] memory _connectedOfts
     ) public virtual {
@@ -533,7 +534,6 @@ contract DeployFraxOFTProtocol is SetDVNs, SetRateLimits, BaseL0Script {
             _optionsTypeTwo: optionsTypeTwo
         });
     }
-
 
     function setEnforcedOptions(
         address[] memory _connectedOfts,
@@ -739,6 +739,7 @@ contract DeployFraxOFTProtocol is SetDVNs, SetRateLimits, BaseL0Script {
         if (nameHash == keccak256("sfrxETH"))  return 0x0000000000000000000000000000000000000000e89cf04fa14917675b2700a0;
         if (nameHash == keccak256("frxUSD"))   return 0x0000000000000000000000000000000000000000e89cf04fa149c185b52d0006;
         if (nameHash == keccak256("frxETH"))   return 0x0000000000000000000000000000000000000000e89cf04fa14981f4e2470008;
+        /// @dev retained for the earlier ops scripts that deployed FPI; no current path deploys it
         if (nameHash == keccak256("FPI"))      return 0x0000000000000000000000000000000000000000e89cf04fa1496467a96d00c0;
 
         return bytes32(0); // no vanity salt found

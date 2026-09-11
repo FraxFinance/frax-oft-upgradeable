@@ -154,6 +154,17 @@ abstract contract UpgradeV120Base is DeployFraxOFTProtocol {
         return _chainid == 81457;
     }
 
+    /// @notice True when `_slot` is one of the tokens v1.2.0 upgrades.
+    /// @dev Arrays stay `NUM_OFTS` wide and are indexed by `Token` slot, so retired slots (FPI)
+    ///      exist but are never deployed, upgraded or validated. Post-FPI chains carry
+    ///      `address(0)` there, and pre-retirement chains keep an FPI proxy this upgrade leaves alone.
+    function _isActiveSlot(uint256 _slot) internal view returns (bool) {
+        for (uint256 i; i < activeTokens.length; ++i) {
+            if (uint256(activeTokens[i]) == _slot) return true;
+        }
+        return false;
+    }
+
     /// @notice True for ZK-stack chains (zkSync Era, Abstract) handled by the dedicated ZK script.
     function _isZkStackChain(uint256 _chainid) internal pure returns (bool) {
         return _chainid == ZKSYNC_CHAIN_ID || _chainid == ABSTRACT_CHAIN_ID;
@@ -200,6 +211,7 @@ abstract contract UpgradeV120Base is DeployFraxOFTProtocol {
 
         require(connectedOfts.length == NUM_OFTS, "V120: unexpected OFT count");
         for (uint256 i; i < connectedOfts.length; ++i) {
+            if (!_isActiveSlot(i)) continue;
             require(connectedOfts[i] != address(0), "V120: zero OFT");
             require(connectedOfts[i].code.length != 0, "V120: OFT not deployed");
         }
@@ -250,6 +262,7 @@ abstract contract UpgradeV120Base is DeployFraxOFTProtocol {
         address[] memory proxyAdmins = new address[](count);
 
         for (uint256 i; i < count; ++i) {
+            if (!_isActiveSlot(i)) continue;
             (beforeStates[i], upgradeCalldatas[i]) = _stageUpgrade(connectedOfts[i], _implementations[i], _kinds[i]);
             proxyAdmins[i] = beforeStates[i].proxyAdmin;
             require(Ownable(proxyAdmins[i]).owner() == upgradeAuthority, "V120: mixed upgrade authority");
@@ -258,6 +271,7 @@ abstract contract UpgradeV120Base is DeployFraxOFTProtocol {
         if (!upgradeViaTimelock) {
             vm.startPrank(upgradeAuthority);
             for (uint256 i; i < count; ++i) {
+                if (!_isActiveSlot(i)) continue;
                 _safeCall(proxyAdmins[i], upgradeCalldatas[i], "V120: upgrade");
                 _pushPhasedTx(
                     upgradeExecutor,
@@ -273,6 +287,7 @@ abstract contract UpgradeV120Base is DeployFraxOFTProtocol {
             // after the timelock delay — both signed by the timelock's admin Safe.
             vm.startPrank(upgradeExecutor);
             for (uint256 i; i < count; ++i) {
+                if (!_isActiveSlot(i)) continue;
                 bytes memory queueData = abi.encodeCall(
                     IV120Timelock.queueTransaction, (proxyAdmins[i], 0, "", upgradeCalldatas[i], timelockEta)
                 );
@@ -291,6 +306,7 @@ abstract contract UpgradeV120Base is DeployFraxOFTProtocol {
 
             vm.startPrank(upgradeExecutor);
             for (uint256 i; i < count; ++i) {
+                if (!_isActiveSlot(i)) continue;
                 bytes memory executeData = abi.encodeCall(
                     IV120Timelock.executeTransaction, (proxyAdmins[i], 0, "", upgradeCalldatas[i], timelockEta)
                 );
@@ -307,6 +323,7 @@ abstract contract UpgradeV120Base is DeployFraxOFTProtocol {
         }
 
         for (uint256 i; i < count; ++i) {
+            if (!_isActiveSlot(i)) continue;
             _validateUpgrade(connectedOfts[i], _kinds[i], beforeStates[i]);
         }
     }
@@ -441,7 +458,7 @@ abstract contract UpgradeV120Base is DeployFraxOFTProtocol {
         vm.stopBroadcast();
 
         for (uint256 i; i < NUM_OFTS; ++i) {
-            kinds[i] = ImplementationKind.StandardOFT;
+            if (_isActiveSlot(i)) kinds[i] = ImplementationKind.StandardOFT;
         }
     }
 
@@ -484,6 +501,7 @@ abstract contract UpgradeV120Base is DeployFraxOFTProtocol {
 
         _startImplementationBroadcast();
         for (uint256 i; i < NUM_OFTS; ++i) {
+            if (!_isActiveSlot(i)) continue;
             address token = IV120OFTView(connectedOfts[i]).token();
             bool mintable = i == uint256(Token.SFRXUSD) || i == uint256(Token.FRXUSD);
 
@@ -512,6 +530,7 @@ abstract contract UpgradeV120Base is DeployFraxOFTProtocol {
         kinds[uint256(Token.WFRAX)] = ImplementationKind.StandardOFT;
 
         for (uint256 i = 1; i < NUM_OFTS; ++i) {
+            if (!_isActiveSlot(i)) continue;
             address token = IV120OFTView(connectedOfts[i]).token();
             bool mintable = i == uint256(Token.SFRXUSD) || i == uint256(Token.FRXUSD);
 

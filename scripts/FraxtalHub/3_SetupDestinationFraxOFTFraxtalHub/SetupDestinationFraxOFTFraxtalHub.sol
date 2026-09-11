@@ -38,10 +38,14 @@ abstract contract SetupDestinationFraxOFTFraxtalHub is DeployFraxOFTProtocol {
             OFTUpgradeable(frxEthOft).isPeer(30255, addressToBytes32(fraxtalFrxEthLockbox)),
             "frxethoft is not connected to fraxtal"
         );
-        require(
-            OFTUpgradeable(fpiOft).isPeer(30255, addressToBytes32(fraxtalFpiLockbox)),
-            "frxethoft is not connected to fraxtal"
-        );
+        // FPI is deprecated: chains from Robinhood onward never deploy it, so this
+        // only applies to the earlier chains whose child script still sets fpiOft.
+        if (_managesToken(Token.FPI)) {
+            require(
+                OFTUpgradeable(fpiOft).isPeer(30255, addressToBytes32(fraxtalFpiLockbox)),
+                "fpioft is not connected to fraxtal"
+            );
+        }
 
         for (uint256 i; i < proxyConfigs.length; i++) {
             // Set up destinations for Fraxtal lockboxes only
@@ -59,6 +63,22 @@ abstract contract SetupDestinationFraxOFTFraxtalHub is DeployFraxOFTProtocol {
         delete tempConfigs;
 
         setupDestinations();
+    }
+
+    /// @dev Keeps only the slots this chain manages, so a retired token's Fraxtal
+    ///      lockbox is never wired to a chain that has no such OFT. Filtering by slot
+    ///      (not trimming a tail) stays correct whichever slot retires.
+    function _populateConnectedOfts() public override {
+        address[] memory peers = _getChainPeers(simulateConfig.chainid);
+        require(peers.length == NUM_OFTS, "peer array width mismatch");
+
+        delete connectedOfts;
+        for (uint256 i = 0; i < NUM_OFTS; i++) {
+            if (!_managesToken(Token(i))) continue;
+            require(peers[i] != address(0), "connected OFT is zero");
+            connectedOfts.push(peers[i]);
+        }
+        require(connectedOfts.length == proxyOfts.length, "proxyOfts length mismatch");
     }
 
     modifier simulateAndWriteTxs(L0Config memory _simulateConfig) override {

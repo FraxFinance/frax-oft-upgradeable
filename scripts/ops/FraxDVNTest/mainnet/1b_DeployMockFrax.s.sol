@@ -55,6 +55,7 @@ import { FraxOFTWalletUpgradeable } from "contracts/FraxOFTWalletUpgradeable.sol
 // aurora : forge script ./scripts/ops/FraxDVNTest/mainnet/1b_DeployMockFrax.s.sol --rpc-url https://mainnet.aurora.dev --legacy --verifier-url $AURORA_BLOCKSCOUT_API_URL --verifier blockscout --verify --broadcast
 // hyperliquid : forge script ./scripts/ops/FraxDVNTest/mainnet/1b_DeployMockFrax.s.sol --rpc-url https://rpc.hyperliquid.xyz/evm --broadcast --verify --verifier-url $HYPEREVMSCAN_API_URL --etherscan-api-key $HYPEREVMSCAN_API_KEY --verifier etherscan
 // somnia : forge script ./scripts/ops/FraxDVNTest/mainnet/1b_DeployMockFrax.s.sol --rpc-url https://api.infra.mainnet.somnia.network --broadcast --verify --chain-id 5031 --watch --verifier-url https://explorer.somnia.network/api --verifier blockscout
+// robinhood : forge script ./scripts/ops/FraxDVNTest/mainnet/1b_DeployMockFrax.s.sol --rpc-url https://rpc.mainnet.chain.robinhood.com --broadcast
 
 contract DeployMockFrax is DeployFraxOFTProtocol {
     address[] public proxyOftWallets;
@@ -95,6 +96,11 @@ contract DeployMockFrax is DeployFraxOFTProtocol {
                 // L0 team has not setup defaultSendLibrary and defaultReceiveLibrary on tempo for
                 // Solana (30168), Movement (30325), Aptos (30108), Blast (30243)
                 if (eid == 30168 || eid == 30325 || eid == 30108 || eid == 30243) continue;
+            }
+            if (broadcastConfig.eid == 30416) {
+                // L0 team has not setup defaultSendLibrary and defaultReceiveLibrary on robinhood for
+                // Blast (30243) and Tempo (30410)
+                if (eid == 30243 || eid == 30410) continue;
             }
             if (broadcastConfig.eid == 30380) {
                 // L0 team has not setup defaultSendLibrary and defaultReceiveLibrary on somnia for

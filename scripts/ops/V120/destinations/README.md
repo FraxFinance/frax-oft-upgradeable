@@ -9,7 +9,7 @@ The V120 scripts deploy rate-limited implementations, simulate each proxy upgrad
 - Ethereum (`1`) and Fraxtal (`252`) have dedicated scripts because their adapter implementations bind the underlying token as an immutable constructor argument.
 - Retired and always skipped: Polygon zkEVM (`1101`), Mode (`34443`), Berachain (`80094`), Scroll (`534352`), Botanix (`3637`), and the non-EVM pair Movement / Aptos. Solana is the only active non-EVM chain.
 - Blast (`81457`) is skipped as legacy-mesh only: it appears in both the Legacy and Proxy sections of `L0Config`, but its proxy OFTs peer outward to active chains without any of them peering back, so the wiring is one-way and stale. The legacy mesh is not in scope for v1.2.0.
-- FPI is not part of V120.
+- FPI is not part of V120. The scripts upgrade exactly the `activeTokens` registry in `L0Constants`; peer arrays stay `NUM_OFTS` wide and `Token`-indexed, so chains that still hold an FPI proxy keep it untouched and post-retirement chains (Robinhood onward), whose FPI slot is `address(0)`, upgrade cleanly.
 
 ## Commands
 

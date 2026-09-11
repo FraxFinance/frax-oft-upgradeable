@@ -15,12 +15,12 @@ struct L0Config {
     address sendLib302;
 }
 
-/// @dev Active production OFT mesh is five tokens. FPI is fully removed from active
-///      deployment, peer registration, upgrade, and deprecation flows.
-uint256 constant NUM_OFTS = 5;
+/// @dev Width of every per-chain peer array — the number of `Token` slots ever defined,
+///      active or retired. For what a new chain receives, use `activeTokens`.
+uint256 constant NUM_OFTS = 6;
 
-/// @dev Canonical token identifiers. The active mesh uses 0..4. FPI remains at index 5
-///      only so historical scripts and generated artifacts continue to compile.
+/// @dev Canonical token slots. APPEND-ONLY — peer arrays are indexed by this enum and
+///      deployed chains keep the tokens they have, so retire via `activeTokens` below.
 enum Token { WFRAX, SFRXUSD, SFRXETH, FRXUSD, FRXETH, FPI }
 
 contract L0Constants {
@@ -28,10 +28,18 @@ contract L0Constants {
     address[] public expectedProxyOfts;
     address[] public lineaProxyOfts;
     address[] public baseProxyOfts;
-    address[] public scrollProxyOfts;
     address[] public monadProxyOfts;
     address[] public zkEraProxyOfts;
     address[] public fullDeterministicProxyOfts;
+    /// @dev Peer array for the cohort onboarded after FPI was retired (Robinhood onward):
+    ///      the deterministic addresses with the FPI slot zeroed. This is a HISTORICAL
+    ///      record of what that cohort deployed, so it must NOT track future retirements -
+    ///      a later retirement does not remove a token those chains already have.
+    address[] public fullDeterministicProxyOftsPostFpi;
+
+    /// @dev Tokens deployed on newly onboarded chains, in slot order. Declared in the
+    ///      constructor; retired tokens are simply absent.
+    Token[] public activeTokens;
     address[] public fraxtalLockboxes;
     address[] public ethLockboxes;
     address[] public connectedOfts;
@@ -62,13 +70,6 @@ contract L0Constants {
     address public lineaSFrxEthOft = 0x383Eac7CcaA89684b8277cBabC25BCa8b13B7Aa2;
     address public lineaFraxOft = 0x5217Ab28ECE654Aab2C68efedb6A22739df6C3D5;
     address public lineaFpiOft = 0xDaF72Aa849d3C4FAA8A9c8c99f240Cf33dA02fc4;
-
-    address public scrollFrxUsdOft = 0x397F939C3b91A74C321ea7129396492bA9Cdce82;
-    address public scrollSFrxUsdOft = 0xC6B2BE25d65760B826D0C852FD35F364250619c2;
-    address public scrollFrxEthOft = 0x0097Cf8Ee15800d4f80da8A6cE4dF360D9449Ed5;
-    address public scrollSFrxEthOft = 0x73382eb28F35d80Df8C3fe04A3EED71b1aFce5dE;
-    address public scrollFraxOft = 0x879BA0EFE1AB0119FefA745A21585Fa205B07907;
-    address public scrollFpiOft = 0x93cDc5d29293Cb6983f059Fec6e4FFEb656b6a62;
 
     address public monadFrxUsdOft = 0x58E3ee6accd124642dDB5d3f91928816Be8D8ed3;
     address public monadSFrxUsdOft = 0x137643F7b2C189173867b3391f6629caB46F0F1a;
@@ -126,6 +127,16 @@ contract L0Constants {
     address public fraxtalTestnetFrxUsdLockbox = 0x7C9DF6704Ec6E18c5E656A2db542c23ab73CB24d;
 
     constructor() {
+        /// @dev Active token registry - the single declaration of what a new chain gets.
+        ///      Retire a token: delete its line (chains that already have it keep it).
+        ///      Activate one: append a `Token` slot, widen the per-chain arrays, add a line.
+        activeTokens.push(Token.WFRAX);
+        activeTokens.push(Token.SFRXUSD);
+        activeTokens.push(Token.SFRXETH);
+        activeTokens.push(Token.FRXUSD);
+        activeTokens.push(Token.FRXETH);
+        // Token.FPI retired 2026-09
+
         // array of semi-pre-determined upgradeable OFTs
         /// @dev: this array maintains the same token order as proxyOfts
         expectedProxyOfts.push(proxyFraxOft);
@@ -133,56 +144,64 @@ contract L0Constants {
         expectedProxyOfts.push(proxySFrxEthOft);
         expectedProxyOfts.push(proxyFrxUsdOft);
         expectedProxyOfts.push(proxyFrxEthOft);
+        expectedProxyOfts.push(proxyFpiOft);
 
         baseProxyOfts.push(baseFraxOft);
         baseProxyOfts.push(baseSFrxUsdOft);
         baseProxyOfts.push(baseSFrxEthOft);
         baseProxyOfts.push(baseFrxUsdOft);
         baseProxyOfts.push(baseFrxEthOft);
+        baseProxyOfts.push(baseFpiOft);
 
         lineaProxyOfts.push(lineaFraxOft);
         lineaProxyOfts.push(lineaSFrxUsdOft);
         lineaProxyOfts.push(lineaSFrxEthOft);
         lineaProxyOfts.push(lineaFrxUsdOft);
         lineaProxyOfts.push(lineaFrxEthOft);
-
-        // Scroll remains address-resolvable for deprecation/audit tooling, but active
-        // operations exclude it through isDeprecatedChain().
-        scrollProxyOfts.push(scrollFraxOft);
-        scrollProxyOfts.push(scrollSFrxUsdOft);
-        scrollProxyOfts.push(scrollSFrxEthOft);
-        scrollProxyOfts.push(scrollFrxUsdOft);
-        scrollProxyOfts.push(scrollFrxEthOft);
+        lineaProxyOfts.push(lineaFpiOft);
 
         monadProxyOfts.push(monadFraxOft);
         monadProxyOfts.push(monadSFrxUsdOft);
         monadProxyOfts.push(monadSFrxEthOft);
         monadProxyOfts.push(monadFrxUsdOft);
         monadProxyOfts.push(monadFrxEthOft);
+        monadProxyOfts.push(monadFpiOft);
 
         zkEraProxyOfts.push(zkEraFraxOft);
         zkEraProxyOfts.push(zkEraSFrxUsdOft);
         zkEraProxyOfts.push(zkEraSFrxEthOft);
         zkEraProxyOfts.push(zkEraFrxUsdOft);
         zkEraProxyOfts.push(zkEraFrxEthOft);
+        zkEraProxyOfts.push(zkEraFpiOft);
 
         fullDeterministicProxyOfts.push(fullDeterministicFraxOft);
         fullDeterministicProxyOfts.push(fullDeterministicSFrxUsdOft);
         fullDeterministicProxyOfts.push(fullDeterministicSFrxEthOft);
         fullDeterministicProxyOfts.push(fullDeterministicFrxUsdOft);
         fullDeterministicProxyOfts.push(fullDeterministicFrxEthOft);
+        fullDeterministicProxyOfts.push(fullDeterministicFpiOft);
+
+        /// @dev Stays NUM_OFTS wide (peer arrays are Token-indexed); the FPI slot is zero
+        ///      so determinePeer() reverts if anything tries to wire FPI to this cohort.
+        for (uint256 i = 0; i < NUM_OFTS; i++) {
+            fullDeterministicProxyOftsPostFpi.push(
+                Token(i) == Token.FPI ? address(0) : fullDeterministicProxyOfts[i]
+            );
+        }
 
         fraxtalLockboxes.push(fraxtalFraxLockbox);
         fraxtalLockboxes.push(fraxtalSFrxUsdLockbox);
         fraxtalLockboxes.push(fraxtalSFrxEthLockbox);
         fraxtalLockboxes.push(fraxtalFrxUsdLockbox);
         fraxtalLockboxes.push(fraxtalFrxEthLockbox);
+        fraxtalLockboxes.push(fraxtalFpiLockbox);
 
         ethLockboxes.push(ethFraxOft);
         ethLockboxes.push(ethSFrxUsdLockbox);
         ethLockboxes.push(ethSFrxEthLockbox);
         ethLockboxes.push(ethFrxUsdLockbox);
         ethLockboxes.push(ethFrxEthLockbox);
+        ethLockboxes.push(ethFpiLockbox);
 
         connectedOfts = new address[](expectedProxyOfts.length);
 
@@ -210,26 +229,31 @@ contract L0Constants {
         _registerChain(252, fraxtalLockboxes);
         _registerChain(8453, baseProxyOfts);
         _registerChain(59144, lineaProxyOfts);
-        _registerChain(534352, scrollProxyOfts);
         _registerChain(143, monadProxyOfts);
         _registerChain(2741, zkEraProxyOfts);
         _registerChain(324, zkEraProxyOfts); // ZKsync Era shares addresses with 2741
         _registerChain(4217, fullDeterministicProxyOfts);
+        _registerChain(4663, fullDeterministicProxyOftsPostFpi); // onboarded after FPI retirement
         _registerChain(5031, fullDeterministicProxyOfts);
+
     }
+
 
     /// @notice Copy a per-chain address array into the chainPeerAddresses mapping.
     function _registerChain(uint256 _chainid, address[] storage _peers) internal {
+        /// @dev Peer arrays are indexed by `Token`, so every one must span all slots -
+        ///      absent tokens are address(0), never a shortened array.
+        require(_peers.length == NUM_OFTS, "L0Constants: peer array must be NUM_OFTS wide");
         for (uint256 i = 0; i < _peers.length; i++) {
             chainPeerAddresses[_chainid].push(_peers[i]);
         }
     }
 
-    /// @notice Chains removed from the active OFT mesh. Their L0Config entries and
-    ///         address mappings remain available so historical deprecation batches can
-    ///         still be reproduced and audited.
+    /// @notice Chains removed from the active OFT mesh. They no longer appear in L0Config, so this
+    ///         is a guard against re-introduction rather than an active filter: every mesh-wide
+    ///         operation consults it before touching a chain.
     /// @dev EVM: PolygonZkEVM (1101), Mode (34443), Berachain (80094), Scroll (534352),
-    ///      Botanix (3637). Non-EVM: Movement (22222222), Aptos (33333333) — Solana is the
+    ///      Botanix (3637). Non-EVM: Movement (22222222), Aptos (33333333) - Solana is the
     ///      only active non-EVM chain.
     function isDeprecatedChain(uint256 _chainid) public pure returns (bool) {
         return _chainid == 1101 || _chainid == 34443 || _chainid == 80094 || _chainid == 534352

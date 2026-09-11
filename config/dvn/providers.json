@@ -96,16 +96,6 @@
     ],
     "quorum": 4
   },
-  "zkpolygon": {
-    "uris": [
-      "https://1rpc.io/polygon/zkevm",
-      "https://endpoints.omniatech.io/v1/polygon-zkevm/mainnet/public",
-      "https://polygon-zkevm-mainnet.public.blastapi.io",
-      "https://polygon-zkevm.drpc.org",
-      "https://zkevm-rpc.com"
-    ],
-    "quorum": 3
-  },
   "sei": {
     "uris": [
       "https://evm-rpc.sei-apis.com",
@@ -139,16 +129,6 @@
       "https://rpc.owlracle.info/base/70d38ce1826c4a60bb2a8e05a6c8b20f"
     ],
     "quorum": 6
-  },
-  "mode": {
-    "uris": [
-      "https://1rpc.io/mode",
-      "https://mainnet.mode.network",
-      "https://mode-mainnet.public.blastapi.io",
-      "https://mode.drpc.org",
-      "https://mode.gateway.tenderly.co"
-    ],
-    "quorum": 3
   },
   "arbitrum": {
     "uris": [
@@ -197,17 +177,6 @@
     ],
     "quorum": 3
   },
-  "bera": {
-    "uris": [
-      "https://bera-mainnet.public.blastapi.io",
-      "https://berachain-rpc.publicnode.com",
-      "https://berachain.blockpi.network/v1/rpc/public",
-      "https://berachain.drpc.org",
-      "https://rpc.berachain-apis.com",
-      "https://rpc.berachain.com"
-    ],
-    "quorum": 4
-  },
   "blast": {
     "uris": [
       "https://blast-rpc.publicnode.com",
@@ -242,14 +211,6 @@
       "https://unichain.gateway.tenderly.co"
     ],
     "quorum": 4
-  },
-  "botanix": {
-    "uris": [
-      "https://botanix-rpc.publicnode.com",
-      "https://rpc.botanixlabs.com",
-      "https://rpc.btxtestchain.com"
-    ],
-    "quorum": 2
   },
   "solana": {
     "uris": [
@@ -317,25 +278,6 @@
     ],
     "quorum": 4
   },
-  "scroll": {
-    "uris": [
-      "https://1rpc.io/scroll",
-      "https://endpoints.omniatech.io/v1/scroll/mainnet/public",
-      "https://node.histori.xyz/scroll-mainnet/8ry9f6t9dct1se2hlagxnd9n2a",
-      "https://rpc-scroll.icecreamswap.com",
-      "https://rpc.ankr.com/scroll",
-      "https://rpc.scroll.io",
-      "https://scroll-mainnet-public.unifra.io",
-      "https://scroll-mainnet.chainstacklabs.com",
-      "https://scroll-mainnet.public.blastapi.io",
-      "https://scroll-mainnet.rpc.grove.city/v1/a7a7c8e2",
-      "https://scroll-rpc.publicnode.com",
-      "https://scroll.api.onfinality.io/public",
-      "https://scroll.drpc.org",
-      "https://scroll.therpc.io"
-    ],
-    "quorum": 8
-  },
   "stable": {
     "uris": [
       "https://stable-mainnet-rpc.ops.frax.com"
@@ -353,6 +295,35 @@
       "https://rpc2.monad.xyz",
       "https://rpc3.monad.xyz",
       "https://rpc4.monad.xyz"
+    ],
+    "quorum": 5
+  },
+  "tempo": {
+    "uris": [
+      "https://tempo-mainnet.drpc.org",
+      "https://rpc.mainnet.tempo.xyz",
+      "https://lb.routeme.sh/rpc/evm/4217"
+    ],
+    "quorum": 2
+  },
+  "somnia": {
+    "uris": [
+      "https://5031.rpc.thirdweb.com",
+      "https://api.infra.mainnet.somnia.network",
+      "https://rpc.ankr.com/somnia_mainnet",
+      "https://somnia-rpc.publicnode.com"
+    ],
+    "quorum": 3
+  },
+  "robinhood": {
+    "uris": [
+      "https://rpc-robinhood.blockmachine.io",
+      "https://rpc.nodeflare.app/robinhood/public",
+      "https://robinhood.api.pocket.network",
+      "https://lb.routeme.sh/rpc/evm/4663",
+      "https://robinhood-rpc.publicnode.com",
+      "https://rpc.mainnet.chain.robinhood.com",
+      "https://robinhood.rpc.blxrbdn.com"
     ],
     "quorum": 5
   }

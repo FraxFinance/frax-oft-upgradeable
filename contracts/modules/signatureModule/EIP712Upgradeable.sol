@@ -5,6 +5,7 @@ pragma solidity ^0.8.20;
 
 import {IERC5267} from "@openzeppelin/contracts/interfaces/IERC5267.sol";
 import {ECDSAUpgradeable} from "@openzeppelin/contracts-upgradeable/utils/cryptography/ECDSAUpgradeable.sol";
+import {EIP712Lib} from "contracts/libraries/EIP712Lib.sol";
 
 /**
   @notice This contract is a blend of OZ 4 and 5 to
@@ -92,11 +93,7 @@ abstract contract EIP712Upgradeable is IERC5267 {
      * @dev Returns the domain separator for the current chain.
      */
     function _domainSeparatorV4() internal view returns (bytes32) {
-        return _buildDomainSeparator();
-    }
-
-    function _buildDomainSeparator() private view returns (bytes32) {
-        return keccak256(abi.encode(TYPE_HASH, _EIP712NameHash(), _EIP712VersionHash(), block.chainid, address(this)));
+        return EIP712Lib.domainSeparatorV4();
     }
 
     /**
@@ -135,20 +132,7 @@ abstract contract EIP712Upgradeable is IERC5267 {
             uint256[] memory extensions
         )
     {
-        EIP712Storage storage $ = _getEIP712Storage();
-        // If the hashed name and version in storage are non-zero, the contract hasn't been properly initialized
-        // and the EIP712 domain is not reliable, as it will be missing name and version.
-        require($._hashedName == 0 && $._hashedVersion == 0, "EIP712: Uninitialized");
-
-        return (
-            hex"0f", // 01111
-            _EIP712Name(),
-            _EIP712Version(),
-            block.chainid,
-            address(this),
-            bytes32(0),
-            new uint256[](0)
-        );
+        return EIP712Lib.eip712Domain();
     }
 
     /**

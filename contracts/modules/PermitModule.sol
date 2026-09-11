@@ -1,10 +1,14 @@
 pragma solidity ^0.8.0;
 
 import {SignatureModule} from "./signatureModule/SignatureModule.sol";
+import {SignatureChecker} from "@openzeppelin/contracts/utils/cryptography/SignatureChecker.sol";
+import {ECDSAUpgradeable} from "@openzeppelin/contracts-upgradeable/utils/cryptography/ECDSAUpgradeable.sol";
 
 import {Counters} from "@openzeppelin/contracts/utils/Counters.sol";
+import {PermitLib} from "contracts/libraries/PermitLib.sol";
 
 /// @dev Ripped from OZ 4.9.4 ERC20Permit.sol with namespaced storage and support of ERC1271 signatures
+/// @dev Permit validation is delegated to `PermitLib`; `_approve` is implemented by the token.
 abstract contract PermitModule is SignatureModule {
 
     using Counters for Counters.Counter;
@@ -13,14 +17,11 @@ abstract contract PermitModule is SignatureModule {
     // Storage
     //==============================================================================
 
-    bytes32 private constant PERMIT_TYPEHASH =
-        keccak256("Permit(address owner,address spender,uint256 value,uint256 nonce,uint256 deadline)");
-
     struct PermitModuleStorage {
         mapping(address => Counters.Counter) nonces;
     }
 
-    // keccak256(abi.encode(uint256(keccak256("frax.storage.PermitModule")) - 1)) & ~bytes32(uint256(0xff))    
+    // keccak256(abi.encode(uint256(keccak256("frax.storage.PermitModule")) - 1)) & ~bytes32(uint256(0xff))
     bytes32 private constant PermitModuleStorageLocation = 0xb39b43abb0b115e0a59dece28477e279ee5f8e2fd55fbe200557c3ab864a0300;
 
     function _getPermitModuleStorage() private pure returns (PermitModuleStorage storage $) {
@@ -58,13 +59,8 @@ abstract contract PermitModule is SignatureModule {
         uint256 deadline,
         bytes memory signature
     ) public virtual {
-        require(block.timestamp <= deadline, "ERC20Permit: expired deadline");
-
-        _requireIsValidSignatureNow({
-            signer: owner,
-            structHash: keccak256(abi.encode(PERMIT_TYPEHASH, owner, spender, value, _useNonce(owner), deadline)),
-            signature: signature
-        });
+        // Checks + effects (deadline, signature, nonce) in the linked library
+        PermitLib.validatePermit(owner, spender, value, deadline, signature);
 
         _approve(owner, spender, value);
     }
@@ -76,12 +72,6 @@ abstract contract PermitModule is SignatureModule {
 
     function DOMAIN_SEPARATOR() external view returns (bytes32) {
         return _domainSeparatorV4();
-    }
-
-    function _useNonce(address owner) internal virtual returns (uint256 current) {
-        PermitModuleStorage storage $ = _getPermitModuleStorage();
-        current = $.nonces[owner].current();
-        $.nonces[owner].increment();
     }
 
     //==============================================================================

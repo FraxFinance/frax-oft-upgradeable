@@ -6,16 +6,17 @@ import { FreezeThawModule } from "contracts/modules/FreezeThawModule.sol";
 import { PauseModule } from "contracts/modules/PauseModule.sol";
 import { EIP3009Module } from "contracts/modules/EIP3009Module.sol";
 import { PermitModule } from "contracts/modules/PermitModule.sol";
-import { SendParam } from "@fraxfinance/layerzero-v2-upgradeable/oapp/contracts/oft/interfaces/IOFT.sol";
+import { RateLimiterModule } from "contracts/modules/RateLimiterModule.sol";
+import { SendParam, OFTLimit, OFTFeeDetail, OFTReceipt } from "@fraxfinance/layerzero-v2-upgradeable/oapp/contracts/oft/interfaces/IOFT.sol";
 import { ERC20Upgradeable } from "@openzeppelin/contracts-upgradeable/token/ERC20/ERC20Upgradeable.sol";
 
-contract FrxUSDOFTUpgradeable is OFTUpgradeable, EIP3009Module, PermitModule, FreezeThawModule, PauseModule {
+contract FrxUSDOFTUpgradeable is OFTUpgradeable, EIP3009Module, PermitModule, FreezeThawModule, PauseModule, RateLimiterModule {
     constructor(address _lzEndpoint) OFTUpgradeable(_lzEndpoint) {
         _disableInitializers();
     }
 
     function version() public pure returns (string memory) {
-        return "1.1.0";
+        return "1.2.0";
     }
     
     /// @dev overrides state where previous OFT versions were named the legacy "FRAX"
@@ -39,8 +40,10 @@ contract FrxUSDOFTUpgradeable is OFTUpgradeable, EIP3009Module, PermitModule, Fr
         _transferOwnership(_delegate);
     }
         
-    /// @dev This method is called specifically when upgrading an existing OFT
-    function initializeV110() external reinitializer(3) {
+
+    /// @dev This method is called specifically when upgrading an existing OFT to v1.2.0
+    ///      and re-initializes the EIP-712 domain version to 1.2.0.
+    function initializeV120() external reinitializer(4) {
         __EIP712_init(name(), version());
     }
 
@@ -61,7 +64,7 @@ contract FrxUSDOFTUpgradeable is OFTUpgradeable, EIP3009Module, PermitModule, Fr
     /// @notice External admin gated function to unfreeze a set of accounts
     /// @param accounts Array of accounts to be unfrozen
     /// @dev Added in v1.1.0
-    function thawMany(address[] memory accounts) external onlyOwner {
+    function thawMany(address[] calldata accounts) external onlyOwner {
         _thawMany(accounts);
     }
 
@@ -75,7 +78,7 @@ contract FrxUSDOFTUpgradeable is OFTUpgradeable, EIP3009Module, PermitModule, Fr
     /// @notice External admin gated function to batch freeze a set of accounts
     /// @param accounts Array of accounts to be frozen
     /// @dev Added in v1.1.0
-    function freezeMany(address[] memory accounts) external {
+    function freezeMany(address[] calldata accounts) external {
         if (!isFreezer(msg.sender) && msg.sender != owner()) revert NotFreezer();
         _freezeMany(accounts);
     }
@@ -93,12 +96,13 @@ contract FrxUSDOFTUpgradeable is OFTUpgradeable, EIP3009Module, PermitModule, Fr
     /// @param amounts Array of amounts corresponding to the balances to be burned
     /// @dev Added in v1.1.0
     /// @dev if `amount` == 0, entire balance will be burned
-    function burnMany(address[] memory accounts, uint256[] memory amounts) external onlyOwner {
+    function burnMany(address[] calldata accounts, uint256[] calldata amounts) external onlyOwner {
         uint lenOwner = accounts.length;
         if (accounts.length != amounts.length) revert ArrayMisMatch();
         for (uint i; i < lenOwner; ++i) {
-            if (amounts[i] == 0) amounts[i] = balanceOf(accounts[i]);
-            _burn(accounts[i], amounts[i]);
+            uint256 amount = amounts[i];
+            if (amount == 0) amount = balanceOf(accounts[i]);
+            _burn(accounts[i], amount);
         }
     }
 
@@ -165,8 +169,74 @@ contract FrxUSDOFTUpgradeable is OFTUpgradeable, EIP3009Module, PermitModule, Fr
     }
 
     //==============================================================================
+    // Rate limit admin
+    //==============================================================================
+
+    function setRateLimitGlobalConfig(RateLimitGlobalConfig calldata _globalConfig) external onlyOwner {
+        _setRateLimitGlobalConfig(_globalConfig);
+    }
+
+    function setDefaultRateLimitConfig(RateLimitConfig calldata _defaultConfig) external onlyOwner {
+        _setDefaultRateLimitConfig(_defaultConfig);
+    }
+
+    function setRateLimitConfigs(SetRateLimitConfigParam[] calldata _params) external onlyOwner {
+        _setRateLimitConfigs(_params);
+    }
+
+    function setRateLimitStates(SetRateLimitStateParam[] calldata _params) external onlyOwner {
+        _setRateLimitStates(_params);
+    }
+
+    function checkpointRateLimits(uint32[] calldata _eids) external onlyOwner {
+        _checkpointRateLimits(_eids);
+    }
+
+    function quoteOFT(
+        SendParam calldata _sendParam
+    )
+        external
+        view
+        override
+        returns (OFTLimit memory oftLimit, OFTFeeDetail[] memory oftFeeDetails, OFTReceipt memory oftReceipt)
+    {
+        uint256 minAmountLD = 0;
+        uint256 maxAmountLD = _removeDust(_rateLimitedMaxAmountLD(_sendParam.dstEid));
+        oftLimit = OFTLimit(minAmountLD, maxAmountLD);
+
+        oftFeeDetails = new OFTFeeDetail[](0);
+
+        (uint256 amountSentLD, uint256 amountReceivedLD) = _debitView(
+            _sendParam.amountLD,
+            _sendParam.minAmountLD,
+            _sendParam.dstEid
+        );
+        oftReceipt = OFTReceipt(amountSentLD, amountReceivedLD);
+    }
+
+    //==============================================================================
     // Overrides
     //==============================================================================
+
+    function _debit(
+        uint256 _amountLD,
+        uint256 _minAmountLD,
+        uint32 _dstEid
+    ) internal override returns (uint256 amountSentLD, uint256 amountReceivedLD) {
+        (amountSentLD, amountReceivedLD) = _debitView(_amountLD, _minAmountLD, _dstEid);
+        _consumeOutboundRateLimit(_dstEid, amountSentLD);
+        _burn(msg.sender, amountSentLD);
+    }
+
+    function _credit(
+        address _to,
+        uint256 _amountLD,
+        uint32 _srcEid
+    ) internal override returns (uint256 amountReceivedLD) {
+        _consumeInboundRateLimit(_srcEid, _amountLD);
+        _mint(_to, _amountLD);
+        return _amountLD;
+    }
 
     /// @dev supports EIP3009
     function _transfer(address from, address to, uint256 amount) internal override(EIP3009Module, ERC20Upgradeable) {

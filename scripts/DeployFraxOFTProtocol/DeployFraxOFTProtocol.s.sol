@@ -4,13 +4,14 @@ pragma solidity ^0.8.19;
 import "../BaseL0Script.sol";
 
 import { SetDVNs } from "scripts/DeployFraxOFTProtocol/inherited/SetDVNs.s.sol";
+import { SetRateLimits } from "scripts/DeployFraxOFTProtocol/inherited/SetRateLimits.s.sol";
 
 /*
 TODO
 - Deployment handling on non-pre-deterministic chains
 */
 
-contract DeployFraxOFTProtocol is SetDVNs, BaseL0Script {
+contract DeployFraxOFTProtocol is SetDVNs, SetRateLimits, BaseL0Script {
     using OptionsBuilder for bytes;
     using stdJson for string;
     using Strings for uint256;
@@ -48,6 +49,7 @@ contract DeployFraxOFTProtocol is SetDVNs, BaseL0Script {
 
     function setupProxyDestinations() public virtual {
         for (uint256 i=0; i<proxyConfigs.length; i++) {
+            if (isDeprecatedChain(proxyConfigs[i].chainid)) continue;
             // skip if destination == source
             if (proxyConfigs[i].eid == broadcastConfig.eid) continue;
             setupDestination({
@@ -63,6 +65,7 @@ contract DeployFraxOFTProtocol is SetDVNs, BaseL0Script {
     function setupDestination(
         L0Config memory _connectedConfig
     ) public virtual simulateAndWriteTxs(_connectedConfig) {
+        require(!isDeprecatedChain(_connectedConfig.chainid), "Destination is not in the active mesh");
         setEvmEnforcedOptions({
             _connectedOfts: connectedOfts,
             _configs: broadcastConfigArray
@@ -72,6 +75,11 @@ contract DeployFraxOFTProtocol is SetDVNs, BaseL0Script {
             _connectedOfts: connectedOfts,
             _peerOfts: proxyOfts,
             _configs: broadcastConfigArray 
+        });
+
+        setRateLimits({
+            _connectedOfts: connectedOfts,
+            _configs: broadcastConfigArray
         });
 
         setDVNs({
@@ -88,40 +96,50 @@ contract DeployFraxOFTProtocol is SetDVNs, BaseL0Script {
     }
 
     function setupSource() public virtual broadcastAs(configDeployerPK) {
+        L0Config[] memory activeConfigs = getActiveAllConfigs();
         /// @dev set enforced options / peers separately
         setupEvms();
         setupNonEvms();
+
+        setRateLimits({
+            _connectedOfts: proxyOfts,
+            _configs: activeConfigs
+        });
 
         /// @dev configures legacy configs as well
         setDVNs({
             _connectedConfig: broadcastConfig,
             _connectedOfts: proxyOfts,
-            _configs: allConfigs
+            _configs: activeConfigs
         });
 
         setLibs({
             _connectedConfig: broadcastConfig,
             _connectedOfts: proxyOfts,
-            _configs: allConfigs
+            _configs: activeConfigs
         });
 
         setPriviledgedRoles();
     }
 
     function setupEvms() public virtual {
+        L0Config[] memory activeConfigs = getActiveProxyConfigs();
         setEvmEnforcedOptions({
             _connectedOfts: proxyOfts,
-            _configs: proxyConfigs
+            _configs: activeConfigs
         });
 
         /// @dev Upgradeable OFTs maintaining the same address cross-chain.
         setEvmPeers({
             _connectedOfts: proxyOfts,
             _peerOfts: expectedProxyOfts,
-            _configs: proxyConfigs
+            _configs: activeConfigs
         });
     }
 
+    /// @dev Solana is the only active non-EVM chain. Movement and Aptos are deprecated
+    ///      (isDeprecatedChain) — their enforced-option helpers remain below for
+    ///      backward compatibility with historical/deprecation tooling.
     function setupNonEvms() public virtual {
         /// @dev nonEvmPeersArrays is Token-indexed and setNonEvmPeers walks proxyOfts by
         ///      position, so proxyOfts must be a slot-aligned prefix: every slot (chains
@@ -143,7 +161,9 @@ contract DeployFraxOFTProtocol is SetDVNs, BaseL0Script {
     }
 
     function preDeployChecks() public virtual view {
+        require(!isDeprecatedChain(broadcastConfig.chainid), "Source chain is not in the active mesh");
         for (uint256 e=0; e<allConfigs.length; e++) {
+            if (isDeprecatedChain(allConfigs[e].chainid)) continue;
             uint32 eid = uint32(allConfigs[e].eid);
             require(
                 IMessageLibManager(broadcastConfig.endpoint).isSupportedEid(eid),
@@ -189,6 +209,34 @@ contract DeployFraxOFTProtocol is SetDVNs, BaseL0Script {
                 (, proxy) = deployFraxOFTUpgradeableAndProxy({ _name: name_, _symbol: symbol_ });
             }
             _setOftForToken(token, proxy);
+        }
+
+        _requireDeterministicOftAddresses();
+    }
+
+    /// @notice Reverts unless every deployed proxy landed on its canonical mesh address.
+    /// @dev The mined salts in `_vanitySalt()` are only valid for one exact init-code hash, and
+    ///      nothing else in the deploy path checks the resulting address, so drift in compilation
+    ///      inputs would otherwise produce a silently mis-addressed chain. `proxyOfts[i]` is the
+    ///      proxy for `activeTokens[i]`; retired slots are not deployed and not checked.
+    ///      Set ALLOW_OFT_ADDRESS_DRIFT=true to deploy deliberately off-address.
+    function _requireDeterministicOftAddresses() internal view virtual {
+        if (vm.envOr("ALLOW_OFT_ADDRESS_DRIFT", false)) {
+            console.log("WARNING: ALLOW_OFT_ADDRESS_DRIFT set; deterministic address check skipped");
+            return;
+        }
+
+        for (uint256 i; i < activeTokens.length; ++i) {
+            uint256 slot = uint256(activeTokens[i]);
+            if (proxyOfts[i] == fullDeterministicProxyOfts[slot]) continue;
+
+            console.log("Deterministic address mismatch for token slot", slot);
+            console.log("  expected:", fullDeterministicProxyOfts[slot]);
+            console.log("  actual  :", proxyOfts[i]);
+            revert(
+                "Deterministic OFT address mismatch: compilation inputs changed since the salts in"
+                " _vanitySalt() were mined. Re-mine with create2crunch, or set ALLOW_OFT_ADDRESS_DRIFT=true."
+            );
         }
     }
 
@@ -373,6 +421,8 @@ contract DeployFraxOFTProtocol is SetDVNs, BaseL0Script {
     }
 
     /// @dev Non-evm OFTs require their own unique peer address
+    /// @dev Deprecated non-EVM chains (Movement, Aptos) are skipped; their configs and
+    ///      peer arrays remain loaded for historical/deprecation tooling.
     function setNonEvmPeers(
         address[] memory _connectedOfts
     ) public virtual {
@@ -380,6 +430,7 @@ contract DeployFraxOFTProtocol is SetDVNs, BaseL0Script {
         for (uint256 o=0; o<_connectedOfts.length; o++) {
             // For each non-evm
             for (uint256 c=0; c<nonEvmPeersArrays.length; c++) {
+                if (isDeprecatedChain(nonEvmConfigs[c].chainid)) continue;
                 setPeer({
                     _config: nonEvmConfigs[c],
                     _connectedOft: _connectedOfts[o],

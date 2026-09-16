@@ -195,7 +195,7 @@
             "sendLib302": "0xc1B621b18187F74c8F6D52a6F709Dd2780C09821"
         },
         {
-            "RPC": "https://mainnet.base.org",
+            "RPC": "https://base-rpc.publicnode.com",
             "chainid": 8453,
             "delegate": "0xCBfd4Ef00a8cf91Fd1e1Fe97dC05910772c15E53",
             "dvnHorizen": "0xa7b5189bcA84Cd304D8553977c7C614329750d99",

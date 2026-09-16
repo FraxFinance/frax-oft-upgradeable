@@ -103,15 +103,17 @@ abstract contract UpgradeV120Base is DeployFraxOFTProtocol {
     }
 
     /// @notice Execution slots for the split-authority rollout, in mandatory execution order.
-    /// @dev SeedAhead: numeric `setInitialTotalSupply` executed by the OFT owner BEFORE the
-    ///      upgrade (the v1.1.0 lockboxes already expose the setter and the ERC-7201 storage
-    ///      persists across the upgrade). Upgrade: direct ProxyAdmin calls by its owner.
-    ///      TimelockQueue/TimelockExecute: used instead of Upgrade when the ProxyAdmin owner
-    ///      is a Compound-style timelock (Ethereum) — queued and, after `delay`, executed by
-    ///      the timelock's admin Safe. PostUpgrade: v1.2.0-only setters (`setAllowNegative-
-    ///      Supply`) executed by the OFT owner after the upgrade lands.
+    /// @dev Upgrade: direct ProxyAdmin calls by its owner. TimelockQueue/TimelockExecute: used
+    ///      instead of Upgrade when the ProxyAdmin owner is a Compound-style timelock (Ethereum),
+    ///      queued and, after `delay`, executed by the timelock's admin Safe. PostUpgrade: every
+    ///      supply-ledger write (`setInitialTotalSupply`, `setAllowNegativeSupply`), executed by
+    ///      the OFT owner once v1.2.0 is live.
+    ///
+    ///      Ledger writes MUST follow the upgrade. The v1.1.0 setter zeroes `totalTransferFrom`
+    ///      and `totalTransferTo` as a side effect; v1.2.0's writes only the baseline. The seed
+    ///      arithmetic assumes the counters persist, so applying it to v1.1.0 would wipe the
+    ///      ledger and leave the guard orders of magnitude looser than intended.
     enum BatchPhase {
-        SeedAhead,
         Upgrade,
         TimelockQueue,
         TimelockExecute,
@@ -179,9 +181,9 @@ abstract contract UpgradeV120Base is DeployFraxOFTProtocol {
         _prepareUpgrade(_config);
         (address[] memory implementations, ImplementationKind[] memory kinds) = _deployImplementations();
         SupplySeed[] memory seeds = _resolveSupplySeeds(kinds);
-        _simulateSeedAhead(kinds, seeds);
         _resolveUpgradeAuthority();
         _simulateUpgrades(implementations, kinds);
+        _simulateSupplySeeds(kinds, seeds);
         _simulatePostUpgradeSeeds(kinds, seeds);
         _writeBatches();
     }
@@ -420,15 +422,14 @@ abstract contract UpgradeV120Base is DeployFraxOFTProtocol {
             console.log("      is only valid from eta until eta + GRACE_PERIOD:");
             console.log("  eta:", timelockEta);
         }
-        console.log("V120: steps MUST execute in ascending order (seed-ahead before upgrade).");
+        console.log("V120: steps MUST execute in ascending order (upgrade before supply-ledger writes).");
     }
 
     function _phaseLabel(BatchPhase _phase) internal pure returns (string memory) {
-        if (_phase == BatchPhase.SeedAhead) return "seed";
         if (_phase == BatchPhase.Upgrade) return "upgrade";
         if (_phase == BatchPhase.TimelockQueue) return "queue";
         if (_phase == BatchPhase.TimelockExecute) return "execute";
-        return "allow-negative";
+        return "supply-ledger";
     }
 
     function _startImplementationBroadcast() internal {
@@ -652,11 +653,15 @@ abstract contract UpgradeV120Base is DeployFraxOFTProtocol {
         }
     }
 
-    /// @notice Simulate + serialize the numeric `setInitialTotalSupply` seeds AGAINST THE
-    ///         LIVE v1.1.0 PROXIES, before any upgrade — executed by each OFT's owner.
-    ///         Seeding first removes the post-upgrade freeze window entirely: the ERC-7201
-    ///         supply storage persists across the implementation upgrade.
-    function _simulateSeedAhead(ImplementationKind[] memory _kinds, SupplySeed[] memory _seeds) internal {
+    /// @notice Simulate + serialize the numeric `setInitialTotalSupply` seeds against the
+    ///         upgraded (v1.2.0) proxies, executed by each OFT's owner.
+    /// @dev Runs after `_simulateUpgrades` on purpose: only the v1.2.0 setter leaves the
+    ///      transfer counters intact, which the seed arithmetic depends on. Where the OFT owner
+    ///      is also the upgrade executor the calls land in the same Safe batch, directly after
+    ///      the upgrade, so there is no window. Where authority is split (Fraxtal) they form a
+    ///      separate step and any eid already in deficit rejects inbound messages until it
+    ///      executes — those messages stay retryable at the endpoint.
+    function _simulateSupplySeeds(ImplementationKind[] memory _kinds, SupplySeed[] memory _seeds) internal {
         for (uint256 i; i < _seeds.length; ++i) {
             if (_seeds[i].initialTotalSupply == 0) continue;
             // Skip anything the chain already satisfies; the setter overwrites, so lowering a
@@ -671,12 +676,24 @@ abstract contract UpgradeV120Base is DeployFraxOFTProtocol {
                 (_seeds[i].eid, _seeds[i].initialTotalSupply)
             );
             string memory name =
-                string.concat("Set ", symbol, " initialTotalSupply[", uint256(_seeds[i].eid).toString(), "] (pre-upgrade)");
+                string.concat("Set ", symbol, " initialTotalSupply[", uint256(_seeds[i].eid).toString(), "]");
 
-            vm.startPrank(owner);
-            _safeCall(_seeds[i].oft, data, name);
-            vm.stopPrank();
-            _pushPhasedTx(owner, BatchPhase.SeedAhead, name, _seeds[i].oft, data);
+            bool foldIntoExecute =
+                upgradeViaTimelock && owner == upgradeExecutor && _hasPhase(BatchPhase.TimelockExecute);
+            // Read the ledger before the simulated write below raises the baseline.
+            _warnIfInboundWindow(_seeds[i].oft, _seeds[i].eid, symbol, foldIntoExecute || owner == upgradeExecutor);
+
+            // Same guard as the allow-negative path: the write cannot be simulated while the proxy
+            // still serves v1.1.0, and must not be — that setter resets the counters.
+            if (_isUpgraded(_seeds[i].oft)) {
+                vm.startPrank(owner);
+                _safeCall(_seeds[i].oft, data, name);
+                vm.stopPrank();
+            } else {
+                console.log("V120: not yet on v1.2.0, serializing unsimulated (executes post-upgrade):", name);
+            }
+
+            _pushPhasedTx(owner, foldIntoExecute ? BatchPhase.TimelockExecute : BatchPhase.PostUpgrade, name, _seeds[i].oft, data);
         }
     }
 
@@ -698,6 +715,10 @@ abstract contract UpgradeV120Base is DeployFraxOFTProtocol {
             // `setAllowNegativeSupply` ships with v1.2.0, so it cannot be simulated while the
             // proxy still serves v1.1.0. The call is still serialized: this step is executed
             // after the upgrade, by which point the setter exists.
+            bool foldIntoExecute =
+                upgradeViaTimelock && owner == upgradeExecutor && _hasPhase(BatchPhase.TimelockExecute);
+            _warnIfInboundWindow(_seeds[i].oft, _seeds[i].eid, symbol, foldIntoExecute || owner == upgradeExecutor);
+
             if (_isUpgraded(_seeds[i].oft)) {
                 vm.startPrank(owner);
                 _safeCall(_seeds[i].oft, data, name);
@@ -706,8 +727,6 @@ abstract contract UpgradeV120Base is DeployFraxOFTProtocol {
                 console.log("V120: not yet on v1.2.0, serializing unsimulated (executes post-upgrade):", name);
             }
 
-            bool foldIntoExecute =
-                upgradeViaTimelock && owner == upgradeExecutor && _hasPhase(BatchPhase.TimelockExecute);
             BatchPhase phase = foldIntoExecute ? BatchPhase.TimelockExecute : BatchPhase.PostUpgrade;
             _pushPhasedTx(owner, phase, name, _seeds[i].oft, data);
         }
@@ -833,10 +852,14 @@ abstract contract UpgradeV120Base is DeployFraxOFTProtocol {
         // guard. v1.2.0 starts enforcing against those accumulated counters, so the seed must be
         // derived from the live ledger. Seeding the peer's raw supply would overwrite a calibrated
         // baseline and can drop an eid straight into a permanent revert.
-        // Target headroom == the peer's circulating supply: at most that much can ever come back.
-        uint256 required = _ledger.transferFrom > _ledger.transferTo
-            ? _ledger.transferFrom - _ledger.transferTo + supply
-            : supply;
+        // The guard admits inbound while transferFrom <= initial + transferTo, i.e. headroom is
+        // initial + transferTo - transferFrom. Target headroom == the peer's circulating supply
+        // (at most that much can ever come back), so solve for `initial` directly. A ledger
+        // already in surplus (transferTo > transferFrom) needs a SMALLER baseline than the raw
+        // supply; branching on the sign and falling back to `supply` would over-relax by the
+        // whole surplus.
+        uint256 needed = _ledger.transferFrom + supply;
+        uint256 required = needed > _ledger.transferTo ? needed - _ledger.transferTo : 0;
         if (required <= _ledger.initialTotalSupply) return seedCount; // already covered; never lower it
 
         _seeds[seedCount++] = SupplySeed({
@@ -1007,6 +1030,7 @@ abstract contract UpgradeV120Base is DeployFraxOFTProtocol {
 
     function _shouldAutoReadSupply(L0Config memory _config) internal view returns (bool) {
         if (isDeprecatedChain(_config.chainid)) return false;
+        if (_isLegacyOnlyChain(_config.chainid)) return false; // not a hub peer; nothing to seed
         if (_config.chainid == simulateConfig.chainid) return false;
         if (_config.endpoint == address(0)) return false;
         // Somnia's node software rejects EIP-1898 blockHash-pinned queries, which forge's
@@ -1033,6 +1057,18 @@ abstract contract UpgradeV120Base is DeployFraxOFTProtocol {
     /// @dev Filename stem for emitted Safe batches; overridden by standalone operations.
     function _batchPrefix() internal view virtual returns (string memory) {
         return "UpgradeV120";
+    }
+
+    /// @notice Flag an eid whose guard fix cannot land atomically with the upgrade and whose ledger
+    ///         is already in deficit: it will reject inbound messages from the moment the upgrade
+    ///         executes until the ledger step lands. Those messages stay retryable at the endpoint.
+    function _warnIfInboundWindow(address _oft, uint32 _eid, string memory _symbol, bool _atomic) internal view {
+        if (_atomic) return;
+        uint256 from = ISupplyLedger(_oft).totalTransferFrom(_eid);
+        uint256 cap = ISupplyLedger(_oft).initialTotalSupply(_eid) + ISupplyLedger(_oft).totalTransferTo(_eid);
+        if (from <= cap) return;
+        console.log("V120 WINDOW:", _symbol, "eid", _eid);
+        console.log("  ledger is in deficit by", (from - cap), "- inbound from this eid REVERTS between the upgrade step and the ledger step; execute them back to back (failed messages are retryable)");
     }
 
     /// @notice True once the proxy serves the v1.2.0 implementation.

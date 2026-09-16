@@ -32,11 +32,17 @@ interface IProxyAdminLike {
 }
 
 /// @notice Fork proof that the v1.2.0 supply guard behaves as intended on a chain whose ledger is
-///         already in deficit, and that seeding beforehand is what keeps inbound transfers alive.
+///         already in deficit, and that seeding AFTER the upgrade restores exactly the intended
+///         headroom.
 /// @dev v1.1.0 accumulates `totalTransferTo`/`totalTransferFrom` but never enforces the guard.
 ///      v1.2.0 begins enforcing against those inherited counters, so an eid where
 ///      `totalTransferFrom > initialTotalSupply + totalTransferTo` starts reverting on its first
-///      inbound message unless the baseline is raised first.
+///      inbound message unless the baseline is raised.
+///
+///      The order matters: v1.1.0's `setInitialTotalSupply` also zeroes both counters, while
+///      v1.2.0's writes only the baseline. The seed arithmetic assumes persisting counters, so
+///      seeding before the upgrade would wipe the ledger and leave the guard far looser than
+///      intended (see `test_V110Setter_ResetsCounters`).
 ///
 ///      Requires network access: the suite forks Fraxtal (override with FRAXTAL_RPC_URL).
 ///      Run: forge test --match-path test/foundry/contracts/V120SupplyGuardForkTest.t.sol
@@ -109,34 +115,73 @@ contract V120SupplyGuardForkTest is Test {
         adapter.lzReceive(origin, bytes32("guid"), message, address(0), "");
     }
 
-    /// @notice Seeding first — as `SeedSupplyLedger` emits — keeps the path open across the upgrade.
-    function test_SeedThenUpgrade_KeepsInboundAlive() public {
+    /// @notice Upgrade, then seed with the generator's formula: headroom lands exactly on the
+    ///         intended margin because the v1.2.0 setter leaves the counters alone.
+    function test_UpgradeThenSeed_RestoresIntendedHeadroom() public {
+        uint256 margin = 1_000_000e18; // stands in for the peer's circulating supply
         uint256 from = adapter.totalTransferFrom(DEFICIT_EID);
         uint256 to = adapter.totalTransferTo(DEFICIT_EID);
-        // Same formula the generator uses: cover the deficit, leaving headroom for real flow.
-        uint256 required = from - to + 1_000_000e18;
-
-        vm.prank(adapter.owner());
-        adapter.setInitialTotalSupply(DEFICIT_EID, required);
 
         _upgrade(_deployV120());
 
-        _deliverInbound(1e6);
-        _deliverInbound(1e6);
+        vm.prank(adapter.owner());
+        adapter.setInitialTotalSupply(DEFICIT_EID, from - to + margin);
 
-        assertGt(
-            adapter.initialTotalSupply(DEFICIT_EID) + adapter.totalTransferTo(DEFICIT_EID),
-            adapter.totalTransferFrom(DEFICIT_EID),
-            "guard should still have headroom"
+        // counters untouched by the v1.2.0 setter
+        assertEq(adapter.totalTransferFrom(DEFICIT_EID), from, "v1.2.0 setter must not reset transferFrom");
+        assertEq(adapter.totalTransferTo(DEFICIT_EID), to, "v1.2.0 setter must not reset transferTo");
+
+        // headroom is precisely the margin we asked for
+        uint256 headroom = adapter.initialTotalSupply(DEFICIT_EID) + adapter.totalTransferTo(DEFICIT_EID)
+            - adapter.totalTransferFrom(DEFICIT_EID);
+        assertEq(headroom, margin, "headroom != intended margin");
+
+        _deliverInbound(1e6);
+        _deliverInbound(1e6);
+        assertEq(
+            adapter.initialTotalSupply(DEFICIT_EID) + adapter.totalTransferTo(DEFICIT_EID)
+                - adapter.totalTransferFrom(DEFICIT_EID),
+            margin - 2e18,
+            "headroom should shrink by exactly the delivered amount"
         );
     }
 
-    /// @notice The seed setter already exists on v1.1.0, which is what makes seed-before-upgrade
-    ///         possible and removes any freeze window.
-    function test_SeedSetterExistsPreUpgrade() public {
-        assertEq(adapter.version(), "1.1.0", "fork is not on v1.1.0");
+    /// @notice Surplus case (transferTo > transferFrom): the unified formula must still land
+    ///         headroom on peer supply, not peer supply plus the surplus.
+    function test_UpgradeThenSeed_SurplusEid_HeadroomEqualsPeerSupply() public {
+        uint32 eid = 30101; // Ethereum: Fraxtal has sent it more than it has received back
+        uint256 from = adapter.totalTransferFrom(eid);
+        uint256 to = adapter.totalTransferTo(eid);
+        assertGt(to, from, "precondition: eid should be in surplus");
+
+        uint256 peerSupply = 97_000_000e18; // order of magnitude of Ethereum frxUSD supply
+        uint256 needed = from + peerSupply;
+        uint256 required = needed > to ? needed - to : 0;
+        assertLt(required, peerSupply, "surplus eid must need a baseline BELOW peer supply");
+
+        _upgrade(_deployV120());
         vm.prank(adapter.owner());
-        adapter.setInitialTotalSupply(DEFICIT_EID, 123);
-        assertEq(adapter.initialTotalSupply(DEFICIT_EID), 123, "v1.1.0 cannot be seeded");
+        adapter.setInitialTotalSupply(eid, required);
+
+        uint256 headroom = adapter.initialTotalSupply(eid) + adapter.totalTransferTo(eid) - adapter.totalTransferFrom(eid);
+        assertEq(headroom, peerSupply, "headroom must equal peer supply, not supply + surplus");
+    }
+
+    /// @notice Why seeding must NOT happen before the upgrade: the v1.1.0 setter zeroes both
+    ///         counters, so the deficit formula would over-relax the guard by the whole deficit.
+    function test_V110Setter_ResetsCounters() public {
+        assertEq(adapter.version(), "1.1.0", "fork is not on v1.1.0");
+        uint256 from = adapter.totalTransferFrom(DEFICIT_EID);
+        uint256 to = adapter.totalTransferTo(DEFICIT_EID);
+        assertGt(from, 0, "precondition: live counters are non-zero");
+
+        vm.prank(adapter.owner());
+        adapter.setInitialTotalSupply(DEFICIT_EID, from - to + 1_000_000e18);
+
+        assertEq(adapter.totalTransferFrom(DEFICIT_EID), 0, "v1.1.0 setter did not reset transferFrom");
+        assertEq(adapter.totalTransferTo(DEFICIT_EID), 0, "v1.1.0 setter did not reset transferTo");
+        // With counters wiped, headroom equals the full seed rather than the intended margin.
+        assertEq(adapter.initialTotalSupply(DEFICIT_EID), from - to + 1_000_000e18);
+        assertGt(adapter.initialTotalSupply(DEFICIT_EID), 1_000_000e18 * 5, "deficit dwarfs the margin here");
     }
 }

@@ -99,7 +99,7 @@ contract FraxOFTUpgradeable is OFTUpgradeable, EIP3009Module, PermitModule, Rate
         returns (OFTLimit memory oftLimit, OFTFeeDetail[] memory oftFeeDetails, OFTReceipt memory oftReceipt)
     {
         uint256 minAmountLD = 0;
-        uint256 maxAmountLD = _removeDust(_rateLimitedMaxAmountLD(_sendParam.dstEid));
+        uint256 maxAmountLD = _removeDust(_rateLimitedMaxAmountLD(_sendParam.dstEid, _toLD(type(uint64).max)));
         oftLimit = OFTLimit(minAmountLD, maxAmountLD);
 
         oftFeeDetails = new OFTFeeDetail[](0);

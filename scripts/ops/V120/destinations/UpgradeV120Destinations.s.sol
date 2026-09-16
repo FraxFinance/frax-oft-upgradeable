@@ -2,6 +2,7 @@
 pragma solidity ^0.8.22;
 
 import {UpgradeV120Base, L0Config} from "scripts/ops/V120/UpgradeV120Base.s.sol";
+import {console} from "forge-std/console.sol";
 
 abstract contract UpgradeV120Destinations is UpgradeV120Base {
     function outputDirectory() public view override returns (string memory) {
@@ -36,8 +37,22 @@ abstract contract UpgradeV120Destinations is UpgradeV120Base {
             if (_isLegacyOnlyChain(chainid)) continue;
             if (chainid == ETHEREUM_CHAIN_ID || chainid == FRAXTAL_CHAIN_ID || chainid == TEMPO_CHAIN_ID) continue;
             if (_isZkStackChain(chainid) != _zkOnly) continue;
+            if (_needsDedicatedRun(chainid)) {
+                console.log("V120: skipping chain in sweep (needs its own run, see README):", chainid);
+                continue;
+            }
             upgradeToV120(proxyConfigs[i]);
         }
+    }
+
+    /// @notice Chains the multi-chain sweep cannot fork-simulate; run `UpgradeV120Destination`
+    ///         against them individually instead of letting one of them abort the whole sweep.
+    /// @dev Somnia (5031): its RPCs reject the EIP-1898 block-hash queries forge's fork backend
+    ///      needs — deploy with `forge create` and hand-build the batch. HyperEVM (999): the fork
+    ///      inherits the chain's small-block gas cap and the implementation deploys run out of gas
+    ///      in simulation; broadcast with big blocks enabled for the deployer.
+    function _needsDedicatedRun(uint256 _chainid) internal pure returns (bool) {
+        return _chainid == 5031 || _chainid == 999;
     }
 
     function upgradeToV120(L0Config memory _config) public {

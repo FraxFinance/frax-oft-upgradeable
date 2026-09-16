@@ -24,7 +24,8 @@ forge script scripts/ops/V120/destinations/UpgradeV120Destination.s.sol \
 forge script scripts/ops/V120/destinations/UpgradeV120DestinationsTempo.s.sol \
   --rpc-url "$TEMPO_RPC_URL" --broadcast --ffi
 
-# All active non-ZK destinations (excludes Ethereum, Fraxtal, Tempo)
+# All active non-ZK destinations (excludes Ethereum, Fraxtal, Tempo). Somnia and HyperEVM are
+# skipped with a log line because they cannot be fork-simulated — run them individually (below).
 forge script scripts/ops/V120/destinations/UpgradeV120DestinationsEVM.s.sol \
   --rpc-url "$RPC_URL" --broadcast --ffi
 
@@ -55,11 +56,12 @@ The v1.2.0 implementations link `contracts/libraries/*.sol` (rate limiter, EIP-3
 
 Supply-tracked chains emit **ordered step files** rather than one batch, because the ProxyAdmin owner is not the config `delegate` on the hubs:
 
-1. `seed` — numeric `setInitialTotalSupply`, executed by each OFT's owner **before** the upgrade. The v1.1.0 lockboxes already expose the setter and the namespaced storage survives the upgrade, so seeding first removes the guard's freeze window.
-2. `upgrade` — direct `ProxyAdmin.upgrade*` by its owner Safe; on Ethereum the owner is a Compound-style timelock, so this becomes a `queue` step and, after the delay, an `execute` step signed by the timelock's admin Safe (`eta` defaults to now + delay + 3 days, override with `V120_TIMELOCK_ETA`).
-3. `allow-negative` — `setAllowNegativeSupply` (v1.2.0-only), executed by the OFT owner after the upgrade; folded into the execute step when the same Safe owns both.
+1. `upgrade` — direct `ProxyAdmin.upgrade*` by its owner Safe; on Ethereum the owner is a Compound-style timelock, so this becomes a `queue` step and, after the delay, an `execute` step signed by the timelock's admin Safe (`eta` defaults to now + delay + 3 days, override with `V120_TIMELOCK_ETA`). `queueTransaction` requires `eta >= block.timestamp + delay` **at queue time**, so the queue step must execute within ~3 days of generating the batch — regenerate if signing slips.
+2. `supply-ledger` — `setInitialTotalSupply` and `setAllowNegativeSupply`, executed by the OFT owner **after** the upgrade; folded into the execute step when the same Safe owns both.
 
-Steps must execute in ascending order; the script prints the file → executor → order summary. Chains where one executor owns everything (all destinations, Tempo) still emit the single `UpgradeV120-<chainid>.json`.
+**The ledger writes must follow the upgrade.** v1.1.0's `setInitialTotalSupply` also zeroes `totalTransferFrom` and `totalTransferTo`; v1.2.0's writes only the baseline. The seed values are computed assuming the counters persist (`transferFrom - transferTo + peerSupply`, so headroom equals the peer's circulating supply), and applying them to v1.1.0 would wipe the ledger and leave the guard looser by the whole accumulated deficit. Where the OFT owner is also the upgrade executor (all destinations, Tempo) the writes sit in the same Safe batch directly after the upgrade, so there is no window. Where the two Safes differ, any eid already in deficit rejects inbound messages between the upgrade step and the ledger step; those messages stay retryable at the endpoint and clear once the ledger step lands. Execute the steps back to back. Today that is Fraxtal (Base 30184 and Katana 30375 on frxUSD, executed by the delegate after the ProxyAdmin Safe's upgrade step) and Ethereum (sfrxUSD eid 30255, executed by the delegate after the timelock's execute step; frxUSD is owned by the timelock's admin Safe so its writes fold into the execute step with no window). The scripts recompute this from the live ledger on every run and print a `V120 WINDOW:` line per affected eid — treat that output as the authoritative list.
+
+Steps must execute in ascending order; the script prints the file → executor → order summary. Chains where one executor owns everything still emit the single `UpgradeV120-<chainid>.json`.
 
 A reviewed `scripts/ops/V120/supply/<chainid>.json` is the source of truth and skips peer-forking entirely; otherwise the script auto-generates seeds from fresh peer reads and writes `supply/generated/<chainid>.json`. **The auto-generator cannot see Somnia (its RPCs reject the EIP-1898 queries forge's fork backend needs) or Solana** — add those rows by hand. Run `scripts/ops/V120/supply/SeedSupplyLedger.s.sol` to generate them; it diffs against live chain state and emits nothing where the chain already satisfies the guard.
 

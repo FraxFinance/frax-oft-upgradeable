@@ -9,6 +9,14 @@ import { FraxOFTAdapterUpgradeable } from "contracts/FraxOFTAdapterUpgradeable.s
 import { RateLimiterModule } from "contracts/modules/RateLimiterModule.sol";
 import { ERC20Mock } from "test/mocks/ERC20Mock.sol";
 
+contract ERC20Mock6 is ERC20Mock {
+    constructor() ERC20Mock("Six", "SIX") {}
+
+    function decimals() public pure override returns (uint8) {
+        return 6;
+    }
+}
+
 contract EndpointV2MockLite {
     mapping(address => address) public delegates;
 
@@ -168,6 +176,22 @@ contract RateLimiterModuleTest is Test {
 
         (OFTLimit memory limit,,) = oft.quoteOFT(sendParam);
         assertEq(limit.maxAmountLD, 7.5e18);
+    }
+
+    /// @notice With rate limits off, the quoted maximum is the largest amount representable in
+    ///         shared decimals expressed in the token's OWN local decimals: `uint64.max * 1e12`
+    ///         for an 18dp token but plain `uint64.max` for a 6dp one (Tempo's TIP-20 frxUSD).
+    function test_QuoteOFTMax_FollowsDecimalConversionRate() external {
+        SendParam memory sendParam;
+        sendParam.dstEid = DST_EID;
+
+        (OFTLimit memory lim18,,) = oft.quoteOFT(sendParam);
+        assertEq(lim18.maxAmountLD, uint256(type(uint64).max) * 1e12, "18dp ceiling");
+
+        FraxOFTAdapterUpgradeableRateLimitHarness six = _deployAdapter(address(new ERC20Mock6()));
+        assertEq(six.decimalConversionRate(), 1, "precondition: 6dp local == 6dp shared");
+        (OFTLimit memory lim6,,) = six.quoteOFT(sendParam);
+        assertEq(lim6.maxAmountLD, uint256(type(uint64).max), "6dp ceiling must not carry the 18dp multiplier");
     }
 
     function test_AdapterRateLimits_ApplyOnDebitAndCredit() external {

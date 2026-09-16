@@ -23,6 +23,22 @@ contract SeedSupplyLedger is UpgradeV120Base {
         return "SeedSupply";
     }
 
+    /// @dev This script exists for post-upgrade seeding and top-ups. Refuse to emit a standalone
+    ///      ledger batch while any supply-tracked adapter still serves v1.1.0: that version's
+    ///      `setInitialTotalSupply` zeroes both transfer counters, and the values computed here
+    ///      assume they persist. Pre-upgrade seeding is only produced by the upgrade scripts, which
+    ///      order it after the upgrade step. Override with ALLOW_V110_SEED_BATCH=true.
+    function _requireUpgradedForStandaloneSeeding(ImplementationKind[] memory _kinds) internal view {
+        if (vm.envOr("ALLOW_V110_SEED_BATCH", false)) return;
+        for (uint256 i; i < connectedOfts.length; ++i) {
+            if (!_isSupplyTracked(_kinds[i]) || !_isActiveSlot(i)) continue;
+            require(
+                _isUpgraded(connectedOfts[i]),
+                "SeedSupplyLedger: adapter still on v1.1.0 - its setInitialTotalSupply resets the transfer counters; run the upgrade first"
+            );
+        }
+    }
+
     function _deployImplementations()
         internal
         view
@@ -48,10 +64,11 @@ contract SeedSupplyLedger is UpgradeV120Base {
 
             _prepareUpgrade(proxyConfigs[i]);
             ImplementationKind[] memory kinds = _kindsForChain();
+            _requireUpgradedForStandaloneSeeding(kinds);
             SupplySeed[] memory seeds = _resolveSupplySeeds(kinds);
 
-            _simulateSeedAhead(kinds, seeds);
             _resolveUpgradeAuthority();
+            _simulateSupplySeeds(kinds, seeds);
             _simulatePostUpgradeSeeds(kinds, seeds);
 
             if (phasedTxs.length == 0) {

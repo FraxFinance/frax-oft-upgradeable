@@ -169,8 +169,9 @@ abstract contract RateLimiterModule {
         return RateLimiterLib.inboundRateLimitAvailable(_srcEid);
     }
 
-    function _rateLimitedMaxAmountLD(uint32 _dstEid) internal view returns (uint256 maxAmountLD) {
-        return _min(RateLimiterLib.outboundRateLimitAvailable(_dstEid), uint256(type(uint64).max)*1E12);
+    /// @param _ceilingLD Largest amount representable in shared decimals, in local decimals.
+    function _rateLimitedMaxAmountLD(uint32 _dstEid, uint256 _ceilingLD) internal view returns (uint256 maxAmountLD) {
+        return _min(RateLimiterLib.outboundRateLimitAvailable(_dstEid), _ceilingLD);
     }
 
     function _min(uint256 _a, uint256 _b) internal pure returns (uint256) {

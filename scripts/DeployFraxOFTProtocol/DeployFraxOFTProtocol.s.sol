@@ -357,11 +357,17 @@ contract DeployFraxOFTProtocol is SetDVNs, SetRateLimits, BaseL0Script {
         address[] memory _peerOfts,
         L0Config[] memory _configs
     ) public virtual {
-        require(_connectedOfts.length == _peerOfts.length, "connectedOfts.length != _peerOfts.length");
-        // For each OFT
-        for (uint256 o=0; o<_connectedOfts.length; o++) {
+        uint256 numPairs = _connectedOfts.length < _peerOfts.length ? _connectedOfts.length : _peerOfts.length;
+        require(
+            numPairs == activeTokens.length || numPairs == NUM_OFTS,
+            "connectedOfts and peerOfts must align to active or legacy mesh lengths"
+        );
+
+        // For each active OFT pair. Retired tokens keep their legacy slot in the
+        // canonical registry, but post-FPI runs deploy only the active token set.
+        for (uint256 o = 0; o < numPairs; ++o) {
             // Set the config per chain
-            for (uint256 c=0; c<_configs.length; c++) {
+            for (uint256 c = 0; c < _configs.length; ++c) {
                 address peerOft = determinePeer({
                     _chainid: _configs[c].chainid,
                     _oft: _peerOfts[o],
@@ -408,7 +414,10 @@ contract DeployFraxOFTProtocol is SetDVNs, SetRateLimits, BaseL0Script {
     ///         address array.  Uses `tokenIndex()` from BaseL0Script to map the OFT to its
     ///         canonical Token enum index, replacing the previous if/else ladder.
     function getPeerFromArray(address _oft, address[] memory _oftArray) public virtual view returns (address peer) {
-        require(_oftArray.length == NUM_OFTS, "getPeerFromArray: array length != NUM_OFTS");
+        require(
+            _oftArray.length == NUM_OFTS || _oftArray.length == activeTokens.length,
+            "getPeerFromArray: unsupported array length"
+        );
         require(_oft != address(0), "getPeerFromArray: OFT is zero address");
         peer = _oftArray[tokenIndex(_oft)];
     }

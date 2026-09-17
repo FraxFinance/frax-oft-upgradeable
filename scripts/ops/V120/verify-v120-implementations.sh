@@ -52,16 +52,14 @@ is_library() {
     esac
 }
 
-# Build --libraries flags from the library CREATEs recorded in the same broadcast file, so
-# the linked implementation bytecode matches exactly during verification.
+# Build --libraries flags from the broadcast file's `libraries` list (forge records every linked
+# library there, including ones it found already deployed and skipped), so the linked
+# implementation bytecode matches exactly during verification.
 libraries_flags_from() {
     local file="$1" flags=""
-    while IFS=$'\t' read -r name addr; do
-        local fqn
-        fqn="$(fqn_for "$name")" || continue
-        is_library "$name" || continue
-        flags="$flags --libraries ${fqn}:${addr}"
-    done < <(jq -r '.transactions[] | select(.transactionType == "CREATE" or .transactionType == "CREATE2") | [.contractName, .contractAddress] | @tsv' "$file")
+    while read -r entry; do
+        [[ -n "$entry" ]] && flags="$flags --libraries ${entry}"
+    done < <(jq -r '.libraries[]?' "$file")
     echo "$flags"
 }
 

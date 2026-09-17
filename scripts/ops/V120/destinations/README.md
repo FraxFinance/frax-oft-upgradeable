@@ -13,42 +13,44 @@ The V120 scripts deploy rate-limited implementations, simulate each proxy upgrad
 
 ## Commands
 
-All runs need `--ffi` (the Safe batch writer shells out to post-process its JSON).
+All runs need `--ffi` (the Safe batch writer shells out to post-process its JSON). Broadcast **one chain per run** with `--rpc-url` set to that chain, and always pass `--sender` as the broadcasting address (the GCS signer's `0x54f9…`, or the address behind `PK_CONFIG_DEPLOYER`): forge pre-deploys the linked libraries from `--sender` on the `--rpc-url` fork, and the implementation addresses are computed from the nonces that leaves behind. `--slow` is cheap insurance on public RPCs.
 
 ```bash
+SIGN="--gcp --sender 0x54f9b12743a7deec0ea48721683cbebedc6e17bc --broadcast --slow --ffi"
+
 # One non-Tempo destination selected by the RPC chain ID
-forge script scripts/ops/V120/destinations/UpgradeV120Destination.s.sol \
-  --rpc-url "$RPC_URL" --broadcast --ffi
+forge script scripts/ops/V120/destinations/UpgradeV120Destination.s.sol --rpc-url "$RPC_URL" $SIGN
 
 # Tempo destination only
-forge script scripts/ops/V120/destinations/UpgradeV120DestinationsTempo.s.sol \
-  --rpc-url "$TEMPO_RPC_URL" --broadcast --ffi
+forge script scripts/ops/V120/destinations/UpgradeV120DestinationsTempo.s.sol --rpc-url "$TEMPO_RPC_URL" $SIGN
 
-# All active non-ZK destinations (excludes Ethereum, Fraxtal, Tempo). Somnia and HyperEVM are
-# skipped with a log line because they cannot be fork-simulated — run them individually (below).
-forge script scripts/ops/V120/destinations/UpgradeV120DestinationsEVM.s.sol \
-  --rpc-url "$RPC_URL" --broadcast --ffi
-
-# All active ZK-stack destinations (requires foundryup-zksync)
-forge script scripts/ops/V120/destinations/UpgradeV120DestinationsZK.s.sol \
-  --rpc-url "$RPC_URL" --broadcast --ffi --zksync
+# ZK-stack destination (requires foundryup-zksync; the batch prints to console)
+forge script scripts/ops/V120/destinations/UpgradeV120DestinationsZK.s.sol --rpc-url "$RPC_URL" $SIGN --zksync
 
 # Ethereum lockboxes/OFT — needs a modern EVM spec; the live sfrxUSD token and the
 # ProxyAdmin's timelock use opcodes newer than forge's default simulation spec.
-forge script scripts/ops/V120/ethereum/UpgradeV120Ethereum.s.sol \
-  --rpc-url "$ETH_RPC_URL" --broadcast --ffi --evm-version osaka
+forge script scripts/ops/V120/ethereum/UpgradeV120Ethereum.s.sol --rpc-url "$ETH_RPC_URL" $SIGN --evm-version osaka
 
 # Fraxtal lockboxes — do NOT pass --evm-version osaka here; op-revm then expects Isthmus
 # L1Block fields Fraxtal does not have and forge panics.
-forge script scripts/ops/V120/fraxtal/UpgradeV120Fraxtal.s.sol \
-  --rpc-url "$FRAXTAL_RPC_URL" --broadcast --ffi
+forge script scripts/ops/V120/fraxtal/UpgradeV120Fraxtal.s.sol --rpc-url "$FRAXTAL_RPC_URL" $SIGN
 ```
 
-Implementation deployment can broadcast either from a funded `PK_CONFIG_DEPLOYER`, or from the Google Cloud signer with Foundry's `--gcp --sender 0x54f9b12743a7deec0ea48721683cbebedc6e17bc` flow. Broadcasting deploys only the new implementations. Proxy upgrades are simulated and emitted under the corresponding `txs/` directory for Safe review and signing.
+`UpgradeV120DestinationsEVM.s.sol` sweeps every active non-ZK destination in one process and is for **simulation only** (`--rpc-url` any chain, no `--broadcast`): the library pre-deploy exists on the `--rpc-url` fork alone, so a broadcast from the sweep would mis-nonce every other chain. Somnia and HyperEVM are skipped in the sweep with a log line because they cannot be fork-simulated.
+
+Broadcasting deploys only the libraries and implementations. Proxy upgrades and ledger writes are simulated and emitted under the corresponding `txs/` directory for Safe review and signing.
+
+## Deploy now, sign later
+
+Implementations are deployed and verified first, go to audit, and are upgraded to only once the audit clears — so the batches must be regenerable weeks after the deployment against exactly the addresses that were audited. The broadcast that deploys a chain's implementations writes `scripts/ops/V120/implementations/<chainid>.json` (commit it). From then on:
+
+- A run **without** `--broadcast` binds its batches to the pinned addresses instead of the addresses it just simulated, after checking each pinned implementation carries exactly the runtime code the current build produces (immutables, linked libraries and metadata included). A pin that does not match this commit — or has no code — refuses. Regenerate the batches on signing day this way: Ethereum gets a fresh timelock `eta`, the hubs get fresh ledger reads and `V120 WINDOW:` lines.
+- A run **with** `--broadcast` refuses while the pin exists. To redeploy after an audit finding: fix, delete the pin, broadcast, verify, commit the new pin. Libraries already on-chain are detected by forge and not redeployed.
+- If a broadcast fails part-way, `forge script … --resume` finishes sending the recorded transactions; the pin written by that run is still correct because the nonces have not changed. Delete the pin only if you abandon the run.
 
 ## Externally linked libraries
 
-The v1.2.0 implementations link `contracts/libraries/*.sol` (rate limiter, EIP-3009, permit, EIP-712, freeze/thaw, pause, Tempo fee routing) to stay under the EIP-170 code size limit. `forge script --broadcast` deploys them via CREATE2 in the same run and links automatically, so no extra step is needed — but **explorer verification requires the `--libraries` mapping**. Use `scripts/ops/V120/verify-v120-implementations.sh <broadcast run-latest.json>` (or `--all`), which reads the library addresses out of the broadcast file and routes each chain to the right verifier.
+The v1.2.0 implementations link `contracts/libraries/*.sol` (rate limiter, EIP-3009, permit, EIP-712, freeze/thaw, pause, Tempo fee routing) to stay under the EIP-170 code size limit. `forge script --broadcast` deploys them via CREATE2 (salt 0 through the canonical `0x4e59…` factory, so the addresses are the same on every chain) in the same run and links automatically, so no extra step is needed — but **explorer verification requires the `--libraries` mapping**. Use `scripts/ops/V120/verify-v120-implementations.sh <broadcast run-latest.json>` (or `--all`), which reads the linked library addresses out of the broadcast file's `libraries` list (present even when forge found them already deployed) and routes each chain to the right verifier.
 
 `FrxUSDOFTUpgradeable` sits ~227 bytes under the limit — re-check its size on any change to it or its modules.
 

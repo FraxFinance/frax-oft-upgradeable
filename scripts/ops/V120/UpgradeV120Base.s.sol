@@ -35,6 +35,11 @@ interface ITempoV120View {
 }
 
 /// @notice Compound-style timelock owning the Ethereum ProxyAdmin (Miscellany/Timelock.sol).
+interface IForgeContext {
+    /// @dev `Vm.isContext(ForgeContext)`; 6 == ScriptBroadcast.
+    function isContext(uint8 context) external view returns (bool);
+}
+
 interface IV120Timelock {
     function admin() external view returns (address);
     function delay() external view returns (uint256);
@@ -172,14 +177,15 @@ abstract contract UpgradeV120Base is DeployFraxOFTProtocol {
         return _chainid == ZKSYNC_CHAIN_ID || _chainid == ABSTRACT_CHAIN_ID;
     }
 
-    /// @notice Fork the chain, deploy its profile's implementations, and emit the Safe
-    ///         batches. Supply seeds with numeric values are simulated and serialized
-    ///         AHEAD of the upgrade (against the live v1.1.0 proxies); upgrades are
-    ///         simulated as the actual ProxyAdmin owner (Safe or timelock); v1.2.0-only
-    ///         setters follow after.
+    /// @notice Fork the chain, deploy (or pin) its profile's implementations, and emit the
+    ///         Safe batches. Upgrades are simulated as the actual ProxyAdmin owner (Safe or
+    ///         timelock); every ledger write — `setInitialTotalSupply`, then
+    ///         `setAllowNegativeSupply` — is simulated and serialized AFTER the upgrade,
+    ///         against v1.2.0, because the v1.1.0 setter resets the transfer counters.
     function _upgradeChain(L0Config memory _config) internal {
         _prepareUpgrade(_config);
         (address[] memory implementations, ImplementationKind[] memory kinds) = _deployImplementations();
+        implementations = _pinImplementations(implementations);
         SupplySeed[] memory seeds = _resolveSupplySeeds(kinds);
         _resolveUpgradeAuthority();
         _simulateUpgrades(implementations, kinds);
@@ -201,7 +207,10 @@ abstract contract UpgradeV120Base is DeployFraxOFTProtocol {
     function _prepareUpgrade(L0Config memory _config) internal {
         require(!isDeprecatedChain(_config.chainid), "V120: deprecated chain");
 
-        vm.createSelectFork(_config.RPC);
+        // Stay on the --rpc-url fork when it is this chain: forge pre-deploys the linked libraries
+        // there, and a fresh fork would carry neither them nor the deployer nonces they consume,
+        // so every implementation address would be computed at a stale nonce.
+        if (block.chainid != _config.chainid) vm.createSelectFork(_config.RPC);
         simulateConfig = _config;
         _populateConnectedOfts();
         delete serializedTxs;
@@ -224,6 +233,55 @@ abstract contract UpgradeV120Base is DeployFraxOFTProtocol {
         internal
         virtual
         returns (address[] memory implementations, ImplementationKind[] memory kinds);
+
+    /// @notice Bind the batch to the implementations already deployed on this chain.
+    /// @dev `implementations/<chainid>.json` is written by the broadcast that deploys them and is
+    ///      the source of truth from then on: later runs (a fresh timelock eta, fresh ledger reads)
+    ///      regenerate the batches against those audited addresses and never redeploy. Every pinned
+    ///      address must carry exactly the runtime code this build produces — immutables, linked
+    ///      libraries and metadata included — so a batch cannot point at stale code. Delete the
+    ///      file to redeploy.
+    function _pinImplementations(address[] memory _deployed) internal returns (address[] memory implementations) {
+        string memory path = string.concat(
+            vm.projectRoot(), "/scripts/ops/V120/implementations/", simulateConfig.chainid.toString(), ".json"
+        );
+        if (!vm.exists(path)) {
+            if (_isBroadcasting()) _writeImplementations(path, _deployed);
+            return _deployed;
+        }
+
+        implementations = vm.parseJsonAddressArray(vm.readFile(path), ".implementations");
+        require(implementations.length == NUM_OFTS, "V120: pinned implementation count");
+        if (_isBroadcasting()) {
+            // forge runs a broadcast script twice (local pass, then on-chain simulation); the pin
+            // written by the first pass names the same addresses. Anything else is a redeploy.
+            require(
+                keccak256(abi.encode(implementations)) == keccak256(abi.encode(_deployed)),
+                string.concat("V120: implementations already deployed; regenerate without --broadcast or delete ", path)
+            );
+            return _deployed;
+        }
+        for (uint256 i; i < NUM_OFTS; ++i) {
+            if (!_isActiveSlot(i)) continue;
+            require(
+                implementations[i].code.length != 0 && implementations[i].codehash == _deployed[i].codehash,
+                string.concat("V120: pinned implementation does not match this build: ", Strings.toHexString(implementations[i]))
+            );
+        }
+        console.log("V120: batches bound to pinned implementations in", path);
+    }
+
+    function _writeImplementations(string memory _path, address[] memory _implementations) internal {
+        vm.createDir(string.concat(vm.projectRoot(), "/scripts/ops/V120/implementations"), true);
+        string memory key = "implementations";
+        vm.serializeUint(key, "chainid", simulateConfig.chainid);
+        string memory json = vm.serializeAddress(key, "implementations", _implementations);
+        vm.writeJson(json, _path);
+    }
+
+    function _isBroadcasting() internal view returns (bool) {
+        return IForgeContext(address(vm)).isContext(6);
+    }
 
     /// @notice Resolve who can actually execute `ProxyAdmin.upgrade*` on this chain.
     /// @dev On the destinations and Tempo the ProxyAdmin owner is the delegate Safe; on the

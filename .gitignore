@@ -27,3 +27,9 @@ pnpm-error.log
 .turbo
 build
 target
+
+# Foundry broadcast outputs and artifacts
+broadcast/
+scripts/ops/V120/*/txs/
+scripts/ops/V120/implementations/
+scripts/ops/V120/supply/generated/

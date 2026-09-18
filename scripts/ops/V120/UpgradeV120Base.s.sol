@@ -283,6 +283,13 @@ abstract contract UpgradeV120Base is DeployFraxOFTProtocol {
         return IForgeContext(address(vm)).isContext(6);
     }
 
+    /// @dev Fund the impersonated Safe before pranking: a zero-balance caller makes the fork's
+    ///      CALL fail with no reason (WorldChain's ProxyAdmin owner holds no ETH). Simulation only.
+    function _impersonate(address _who) internal {
+        vm.deal(_who, 1 ether);
+        vm.startPrank(_who);
+    }
+
     /// @notice Resolve who can actually execute `ProxyAdmin.upgrade*` on this chain.
     /// @dev On the destinations and Tempo the ProxyAdmin owner is the delegate Safe; on the
     ///      hubs it is NOT (Ethereum: a Compound-style timelock admin'd by a Safe; Fraxtal:
@@ -329,7 +336,7 @@ abstract contract UpgradeV120Base is DeployFraxOFTProtocol {
         }
 
         if (!upgradeViaTimelock) {
-            vm.startPrank(upgradeAuthority);
+            _impersonate(upgradeAuthority);
             for (uint256 i; i < count; ++i) {
                 if (!_isActiveSlot(i)) continue;
                 _safeCall(proxyAdmins[i], upgradeCalldatas[i], "V120: upgrade");
@@ -345,7 +352,7 @@ abstract contract UpgradeV120Base is DeployFraxOFTProtocol {
         } else {
             // Queue batch (executable now), then the real upgrades via executeTransaction
             // after the timelock delay — both signed by the timelock's admin Safe.
-            vm.startPrank(upgradeExecutor);
+            _impersonate(upgradeExecutor);
             for (uint256 i; i < count; ++i) {
                 if (!_isActiveSlot(i)) continue;
                 bytes memory queueData = abi.encodeCall(
@@ -364,7 +371,7 @@ abstract contract UpgradeV120Base is DeployFraxOFTProtocol {
 
             vm.warp(timelockEta + 1);
 
-            vm.startPrank(upgradeExecutor);
+            _impersonate(upgradeExecutor);
             for (uint256 i; i < count; ++i) {
                 if (!_isActiveSlot(i)) continue;
                 bytes memory executeData = abi.encodeCall(
@@ -744,7 +751,7 @@ abstract contract UpgradeV120Base is DeployFraxOFTProtocol {
             // Same guard as the allow-negative path: the write cannot be simulated while the proxy
             // still serves v1.1.0, and must not be — that setter resets the counters.
             if (_isUpgraded(_seeds[i].oft)) {
-                vm.startPrank(owner);
+                _impersonate(owner);
                 _safeCall(_seeds[i].oft, data, name);
                 vm.stopPrank();
             } else {
@@ -778,7 +785,7 @@ abstract contract UpgradeV120Base is DeployFraxOFTProtocol {
             _warnIfInboundWindow(_seeds[i].oft, _seeds[i].eid, symbol, foldIntoExecute || owner == upgradeExecutor);
 
             if (_isUpgraded(_seeds[i].oft)) {
-                vm.startPrank(owner);
+                _impersonate(owner);
                 _safeCall(_seeds[i].oft, data, name);
                 vm.stopPrank();
             } else {

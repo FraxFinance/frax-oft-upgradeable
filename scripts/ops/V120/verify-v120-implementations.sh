@@ -82,6 +82,8 @@ verifier_args_for_chain() {
         5031)       echo "--verifier blockscout --verifier-url https://explorer.somnia.network/api" ;;
         # X-Layer: OKLink requires a paid API key; Sourcify supports chain 196 and needs none.
         196)        echo "--verifier sourcify --verifier-url https://sourcify.dev/server" ;;
+        # Robinhood: the Blockscout verify API sits behind Cloudflare and rejects forge; Sourcify indexes 4663.
+        4663)       echo "--verifier sourcify --verifier-url https://sourcify.dev/server" ;;
         *) return 1 ;;
     esac
 }
@@ -131,11 +133,26 @@ verify_broadcast_file() {
             vargs="$(verifier_args_for_chain "$cid")" || { echo "no verifier route for chain ${cid}" >&2; return 1; }
         fi
         echo "-- verifying ${name} @ ${addr}"
+        # Blockscout instances rate-limit the is-verified pre-check forge makes before submitting;
+        # skip it and pace the submissions instead.
+        local extra=""
+        if [[ "$vargs" == *"--verifier blockscout"* ]]; then extra="--skip-is-verified-check"; sleep 10; fi
         # shellcheck disable=SC2086
         if ! forge verify-contract "$addr" "$fqn" \
-                --chain "$cid" $zksync $vargs $lib_flags \
+                --chain "$cid" $zksync $vargs $lib_flags $extra \
                 ${ctor_args:+--constructor-args "$ctor_args"} \
                 --watch; then
+            # Blockscout's public API throttles bursts; Sourcify indexes these chains and Blockscout
+            # imports Sourcify matches, so fall back rather than fail the run.
+            if [[ "$vargs" == *"--verifier blockscout"* ]]; then
+                echo "-- blockscout refused; retrying ${name} via sourcify"
+                # shellcheck disable=SC2086
+                if forge verify-contract "$addr" "$fqn" --chain "$cid" $lib_flags \
+                        --verifier sourcify --verifier-url https://sourcify.dev/server \
+                        ${ctor_args:+--constructor-args "$ctor_args"} --watch; then
+                    continue
+                fi
+            fi
             echo "FAILED: ${name} @ ${addr} on chain ${cid}" >&2
             rc=1
         fi

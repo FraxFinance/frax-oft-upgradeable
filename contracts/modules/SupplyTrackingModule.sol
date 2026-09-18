@@ -12,6 +12,7 @@ abstract contract SupplyTrackingModule {
         mapping(uint32 eid => uint256 amount) totalTransferFrom;
         mapping(uint32 eid => uint256 amount) totalTransferTo;
         mapping(uint32 eid => uint256 totalSupply) initialTotalSupply;
+        mapping(uint32 eid => bool) allowNegativeSupply;
     }
 
     /// @dev keccak256(abi.encode(uint256(keccak256("frax.storage.SupplyTrackingModule")) - 1)) & ~bytes32(uint256(0xff))
@@ -34,6 +35,15 @@ abstract contract SupplyTrackingModule {
         $.totalTransferFrom[_eid] += _amount;
         $.totalTransferFromSum += _amount;
 
+        if (!$.allowNegativeSupply[_eid] && $.totalTransferFrom[_eid] > $.initialTotalSupply[_eid] + $.totalTransferTo[_eid]) {
+            revert TotalTransferFromExceedsInitialTotalSupply(
+                _eid,
+                $.totalTransferFrom[_eid],
+                $.initialTotalSupply[_eid],
+                $.totalTransferTo[_eid]
+            );
+        }
+
         emit AddToTotalTransferFromEid(_eid, previousTotalTransferFromEid, _amount);
         emit AddToTotalTransferFromSum(previousTotalTransferFromSum, _amount);
     }
@@ -54,12 +64,13 @@ abstract contract SupplyTrackingModule {
     function _setInitialTotalSupply(uint32 _eid, uint256 _amount) internal {
         SupplyTrackingStorage storage $ = _getSupplyTrackingStorage();
         $.initialTotalSupply[_eid] = _amount;
-        // reset the transfer amounts for the EID as well as initialTotalSupply == current supply,
-        // which means there should be no pre-existing transferFrom/transferTo
-        $.totalTransferFrom[_eid] = 0;
-        $.totalTransferTo[_eid] = 0;
-
         emit SetInitialTotalSupply(_eid, _amount);
+    }
+
+    function _setAllowNegativeSupply(uint32 _eid, bool _allow) internal {
+        SupplyTrackingStorage storage $ = _getSupplyTrackingStorage();
+        $.allowNegativeSupply[_eid] = _allow;
+        emit SetAllowNegativeSupply(_eid, _allow);
     }
 
     // Views
@@ -150,4 +161,10 @@ abstract contract SupplyTrackingModule {
 
     /// @notice Event emitted when calling `_setInitialTotalSupply()`
     event SetInitialTotalSupply(uint32 indexed eid, uint256 amount);
+
+    /// @notice Event emitted when calling `_setAllowNegativeSupply()`
+    event SetAllowNegativeSupply(uint32 indexed eid, bool allow);
+
+    /// @notice Error emitted when totalTransferFrom exceeds initialTotalSupply
+    error TotalTransferFromExceedsInitialTotalSupply(uint32 eid, uint256 totalTransferFrom, uint256 initialTotalSupply, uint256 totalTransferTo);
 }

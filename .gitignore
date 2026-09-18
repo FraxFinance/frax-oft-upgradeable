@@ -27,8 +27,3 @@ pnpm-error.log
 .turbo
 build
 target
-
-# Foundry generated artifacts (keep broadcast for version control)
-scripts/ops/V120/*/txs/
-scripts/ops/V120/implementations/
-scripts/ops/V120/supply/generated/

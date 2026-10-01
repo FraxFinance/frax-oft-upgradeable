@@ -158,21 +158,33 @@ Prior to Upgradeable lockboxes, Frax operated immutable lockboxes on Ethereum.  
 
 ### Solana
 - Admin: Chain-respective msig
+- OFT program (all tokens): `E1ht9dUh1ZkgWWRRPCuN3kExEoF2FXiyADXeN3XyMHaQ`
+- The bytes32 values below are the **OFT store PDAs** — the LayerZero OApp each EVM adapter holds in `peers(30168)` — not the SPL mints. Full account sets are in `deployments/solana-mainnet/*OFT.json`.
 - `frxUSD`
   - SPL Token: `GzX1ireZDU865FiMaKrdVB1H6AE8LAqWYCg6chrMrfBw`
-    - As bytes32: `0x5e208a73d5bb1c78e9dbf53badd7299afd6bee9acacdcd4fd668833e53c538ad`
+  - OFT store: `7LS6y37WXXCyBHkBU6zVpiqaqbkXLr4P85ZhQi3eonSp`
+    - As bytes32 (EVM peer): `0x5e208a73d5bb1c78e9dbf53badd7299afd6bee9acacdcd4fd668833e53c538ad`
 - `sfrxUSD`
   - SPL Token: `DUvWQMyASSkLNJFwsMDA4kwxEvmfaqpPGrvUVKtitX45`
-    - As bytes32: `0x8602f005ca65b6da46a3c6ce66ecd1d15be911ca650d5f418d369df184b584cf`
+  - OFT store: `A28EK6j1euK4e6taP1KLFpGEoR1mDpXR4vtfiyCE1Nxv`
+    - As bytes32 (EVM peer): `0x8602f005ca65b6da46a3c6ce66ecd1d15be911ca650d5f418d369df184b584cf`
 - `frxETH`
   - SPL Token: `5sDrwVNiHMM2jC78hRBH1CtysDQYiNKihubgW2zNu8tf`
-    - As bytes32: `0x38dd9e11bbf63835dc61d3cbf259f4221f5987ac92982c96609b99634662dfb3`
+  - OFT store: `4pyqBQFhzsuL7ED76x3AyzT4bCVpMpQWXhS1LqEsfQtz`
+    - As bytes32 (EVM peer): `0x38dd9e11bbf63835dc61d3cbf259f4221f5987ac92982c96609b99634662dfb3`
 - `sfrxETH`
   - SPL Token: `58zpC9acE6F4FBtd88L64NoWHJcmzLsQSy5bjz35Ydgv`
-    - As bytes32: `0xbf2f1fc27286a43f25b05bd843a74a5478c4246343fa90c1fcb641a1caf46c61`
+  - OFT store: `DsJYjDF5yVSopMC15q9W42v833MhWGhCxcU2J39oS3wN`
+    - As bytes32 (EVM peer): `0xbf2f1fc27286a43f25b05bd843a74a5478c4246343fa90c1fcb641a1caf46c61`
 - `WFRAX`
   - SPL Token: `zZbQjiRg8uSxZaPu996XuviuZeSY6nsaMuutKZQBJga`
-    - As bytes32: `0x4939035f8dd13d15a9386e28b6705519aa6f488791323466a3c0116a201e51aa`
+  - OFT store: `5vqBiG7nxNnoCst8mEVVS6ax7C1ypEEenPfcZ4kLgj9B`
+    - As bytes32 (EVM peer): `0x4939035f8dd13d15a9386e28b6705519aa6f488791323466a3c0116a201e51aa`
+
+#### Address lookup tables
+A Fraxtal-hop send from Solana (`lz:oft:send:fraxtalhopv2`: HopMessage compose + lzCompose native drop) references 51 accounts and only fits Solana's 1232-byte packet with two lookup tables:
+- LayerZero's: `AokBxha6VMLLgf97B5VYHEtqztamWmYERBmmFvjuTzJB` (endpoint, ULN, executor, LayerZero Labs DVN)
+- Frax's: `AxK5myLkGReGSzEywXUM7hnbQ4n1ccnbR7VL7MqPBxFy`, authority `53dNdHXc7uruWqELhWtpx4f4UvpPk5SaT1upQNoKdi7y` (the fraxOFTWallet). It was created with frxUSD's accounts only; `pnpm exec hardhat lz:oft:solana:extend-hop-lookup-table --eid 30168` computes what every token's hop send still needs (dry run) and `--execute` appends it with `SOLANA_PRIVATE_KEY`, after which each token's hop send is ~780 bytes. Tables only grow: re-run after adding a token or changing the DVN set.
 
 ### Testnet
 Frax operates a lightweight LZ stack on testnets, replicating the dual-lockbox approach.  Below are the following addresses:

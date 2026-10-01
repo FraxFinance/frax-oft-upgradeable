@@ -144,7 +144,10 @@ task('lz:oft:send:fraxtalhopv2', 'Send frax OFT from Solana to any supported EVM
             // Quote the destination hop fee (Fraxtal -> Final Destination)
             // ============================================================
             const FRAXTAL_EID = 30255
-            const FRAXTAL_HOP_V2_ADDRESS = '0xe8Cd13de17CeC6FCd9dD5E0a1465Da240f951536'
+            // Canonical FraxtalHopV2. The previous address (0xe8Cd13de…) was the superseded
+            // first-generation hub; the 2026-09 mesh cleanup paused it and revoked every OFT
+            // approval, so lzCompose there reverts and the hop would strand tokens in the hub.
+            const FRAXTAL_HOP_V2_ADDRESS = '0x00000000e18aFc20Afe54d4B2C8688bB60c06B36'
             
             logger.info('Quoting destination hop fee (Fraxtal -> Final Destination)...')
             

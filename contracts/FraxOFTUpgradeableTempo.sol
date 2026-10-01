@@ -52,4 +52,11 @@ contract FraxOFTUpgradeableTempo is FraxOFTUpgradeable, TempoAltTokenBase {
     function _payNative(uint256 _nativeFee) internal virtual override returns (uint256 nativeFee) {
         return _payNativeAltToken(_nativeFee, address(endpoint));
     }
+
+    /// @notice Set the slippage allowance applied to a quoted fee swap, in basis points.
+    /// @param _bps Allowance in bps, capped by MAX_FEE_SWAP_SLIPPAGE_BPS. 0 restores the default.
+    function setFeeSwapSlippageBps(uint16 _bps) external onlyOwner {
+        _setFeeSwapSlippageBps(_bps);
+    }
+
 }

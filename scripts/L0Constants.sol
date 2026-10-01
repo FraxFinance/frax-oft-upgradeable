@@ -248,4 +248,15 @@ contract L0Constants {
             chainPeerAddresses[_chainid].push(_peers[i]);
         }
     }
+
+    /// @notice Chains removed from the active OFT mesh. They no longer appear in L0Config, so this
+    ///         is a guard against re-introduction rather than an active filter: every mesh-wide
+    ///         operation consults it before touching a chain.
+    /// @dev EVM: PolygonZkEVM (1101), Mode (34443), Berachain (80094), Scroll (534352),
+    ///      Botanix (3637). Non-EVM: Movement (22222222), Aptos (33333333) - Solana is the
+    ///      only active non-EVM chain.
+    function isDeprecatedChain(uint256 _chainid) public pure returns (bool) {
+        return _chainid == 1101 || _chainid == 34443 || _chainid == 80094 || _chainid == 534352
+            || _chainid == 3637 || _chainid == 22222222 || _chainid == 33333333;
+    }
 }

@@ -242,7 +242,7 @@ contract FraxOFTMintableAdapterUpgradeableTIP20Test is TempoTestHelpers {
     // ---------------------------------------------------
 
     function test_Version_returnsExpected() external {
-        assertEq(adapter.version(), "1.1.0");
+        assertEq(adapter.version(), "1.2.0");
     }
 
     // ---------------------------------------------------

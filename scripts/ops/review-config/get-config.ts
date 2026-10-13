@@ -139,7 +139,7 @@ async function main() {
             client: createPublicClient({
                 chain: mainnet,
                 transport: http(
-                    "https://eth-mainnet.alchemyapi.io/v2/-qUruptd488TJA0HpIHhSmKny7kZ75FZ"
+                    "https://ethereum-rpc.publicnode.com"
                 ),
             }),
             peerId: 30101,
@@ -170,7 +170,7 @@ async function main() {
             client: createPublicClient({
                 chain: base,
                 transport: http(
-                    "https://base-mainnet.g.alchemy.com/v2/-qUruptd488TJA0HpIHhSmKny7kZ75FZ"
+                    "https://mainnet.base.org"
                 ),
             }),
             peerId: 30184,
@@ -182,7 +182,7 @@ async function main() {
             client: createPublicClient({
                 chain: metis,
                 transport: http(
-                    "https://metis-mainnet.g.alchemy.com/v2/-qUruptd488TJA0HpIHhSmKny7kZ75FZ"
+                    "https://metis-rpc.publicnode.com"
                 ),
             }),
             peerId: 30151,
@@ -194,7 +194,7 @@ async function main() {
             client: createPublicClient({
                 chain: blast,
                 transport: http(
-                    "https://blast-mainnet.g.alchemy.com/v2/-qUruptd488TJA0HpIHhSmKny7kZ75FZ"
+                    "https://rpc.blast.io"
                 ),
             }),
             peerId: 30243,
@@ -236,7 +236,7 @@ async function main() {
             client: createPublicClient({
                 chain: sonic,
                 transport: http(
-                    "https://sonic-mainnet.g.alchemy.com/v2/-qUruptd488TJA0HpIHhSmKny7kZ75FZ"
+                    "https://rpc.soniclabs.com"
                 ),
             }),
             peerId: 30332,
@@ -248,7 +248,7 @@ async function main() {
             client: createPublicClient({
                 chain: ink,
                 transport: http(
-                    "https://ink-mainnet.g.alchemy.com/v2/-qUruptd488TJA0HpIHhSmKny7kZ75FZ"
+                    "https://rpc-gel.inkonchain.com"
                 ),
             }),
             peerId: 30339,
@@ -260,7 +260,7 @@ async function main() {
             client: createPublicClient({
                 chain: arbitrum,
                 transport: http(
-                    "https://arb-mainnet.g.alchemy.com/v2/-qUruptd488TJA0HpIHhSmKny7kZ75FZ"
+                    "https://arb1.arbitrum.io/rpc"
                 ),
             }),
             peerId: 30110,
@@ -272,7 +272,7 @@ async function main() {
             client: createPublicClient({
                 chain: optimism,
                 transport: http(
-                    "https://opt-mainnet.g.alchemy.com/v2/-qUruptd488TJA0HpIHhSmKny7kZ75FZ"
+                    "https://optimism-rpc.publicnode.com"
                 ),
             }),
             peerId: 30111,
@@ -284,7 +284,7 @@ async function main() {
             client: createPublicClient({
                 chain: polygon,
                 transport: http(
-                    "https://polygon-mainnet.g.alchemy.com/v2/-qUruptd488TJA0HpIHhSmKny7kZ75FZ"
+                    "https://polygon-bor-rpc.publicnode.com"
                 ),
             }),
             peerId: 30109,
@@ -296,7 +296,7 @@ async function main() {
             client: createPublicClient({
                 chain: avalanche,
                 transport: http(
-                    "https://avax-mainnet.g.alchemy.com/v2/-qUruptd488TJA0HpIHhSmKny7kZ75FZ"
+                    "https://api.avax.network/ext/bc/C/rpc"
                 ),
             }),
             peerId: 30106,
@@ -318,7 +318,7 @@ async function main() {
             client: createPublicClient({
                 chain: polygonZkEvm,
                 transport: http(
-                    "https://polygonzkevm-mainnet.g.alchemy.com/v2/-qUruptd488TJA0HpIHhSmKny7kZ75FZ"
+                    "https://zkevm-rpc.com"
                 ),
             }),
             peerId: 30158,

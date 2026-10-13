@@ -84,7 +84,7 @@ const config: HardhatUserConfig = {
         },
         "xlayer-mainnet":{
             eid: EndpointId.XLAYER_V2_MAINNET,
-            url: process.env.RPC_URL_XLAYER || 'https://endpoints.omniatech.io/v1/xlayer/mainnet/public',
+            url: process.env.RPC_URL_XLAYER || 'https://xlayerrpc.okx.com',
             accounts,
         },
         "sonic-mainnet":{
@@ -109,12 +109,12 @@ const config: HardhatUserConfig = {
         },
         "polygon-mainnet":{
             eid: EndpointId.POLYGON_V2_MAINNET,
-            url: process.env.RPC_URL_POLYGON || 'https://polygon-rpc.com',
+            url: process.env.RPC_URL_POLYGON || 'https://polygon-bor-rpc.publicnode.com',
             accounts,
         },
         "avalanche-mainnet":{
             eid: EndpointId.AVALANCHE_V2_MAINNET,
-            url: process.env.RPC_URL_AVALANCHE || 'https://avax-mainnet.g.alchemy.com/v2/ISqt4ylM2QDVoqg8av78v4Jz6Gb426JT',
+            url: process.env.RPC_URL_AVALANCHE || 'https://api.avax.network/ext/bc/C/rpc',
             accounts,
         },
         "bsc-mainnet":{
@@ -124,7 +124,7 @@ const config: HardhatUserConfig = {
         },
         "zkpolygon-mainnet":{
             eid: EndpointId.ZKPOLYGON_V2_MAINNET,
-            url: process.env.RPC_URL_ZKEVM || 'https://polygon-zkevm-mainnet.public.blastapi.io',
+            url: process.env.RPC_URL_ZKEVM || 'https://zkevm-rpc.com',
             accounts,
         },
         "zkconsensys-mainnet":{
@@ -184,12 +184,12 @@ const config: HardhatUserConfig = {
         },
         sepolia: {
             eid: EndpointId.SEPOLIA_V2_TESTNET,
-            url: process.env.RPC_URL_SEPOLIA || 'https://rpc.sepolia.org/',
+            url: process.env.RPC_URL_SEPOLIA || 'https://ethereum-sepolia-rpc.publicnode.com',
             accounts,
         },
         fuji: {
             eid: EndpointId.AVALANCHE_V2_TESTNET,
-            url: process.env.RPC_URL_FUJI || 'https://rpc.ankr.com/avalanche_fuji',
+            url: process.env.RPC_URL_FUJI || 'https://api.avax-test.network/ext/bc/C/rpc',
             accounts,
         },
         amoy: {

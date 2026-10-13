@@ -5,7 +5,7 @@ This repository contains all of the contracts and deployment code used to manage
 ## Contracts & Addresses
 ### Admin
 - `ProxyAdmin`
-  - `Mode`, `Sei`, `Fraxtal`, `X-Layer`, `Ink`, `Sonic`, `Arbitrum`, `Optimism`, `Polygon`, `Avalanche`, `BSC`, `Polygon zkEvm`, `Blast`, `Berachain`, `Worldchain`, `Unichain`, `Plume`, `Katana`, `Aurora`, `Stable`
+  - `Sei`, `Fraxtal`, `X-Layer`, `Ink`, `Sonic`, `Arbitrum`, `Optimism`, `Polygon`, `Avalanche`, `BSC`, `Worldchain`, `Unichain`, `Plume`, `Katana`, `Hyperliquid`, `Stable`
     - `0x223a681fc5c5522c85c96157c0efa18cd6c5405c`
   - `Ethereum`
     - `0x223a681fc5c5522c85c96157c0efa18cd6c5405c`
@@ -14,22 +14,23 @@ This repository contains all of the contracts and deployment code used to manage
     - `0xF59C41A57AB4565AF7424F64981523DfD7A453c5`
   - `Linea`
     - `0x3cf371c128b092b085B7732069cEAF3Fd863F270`
-  - `Scroll`
-    - `0x8f1b9c1fd67136d525e14d96efb3887a33f16250`
   - `ZKSync`, `Abstract`
     - `0xe59dcae52a4ffa39be99588486c84bc2dc1ba52f`
   - `Monad`
     - `0xc2871eae630640ce1a16b39a17c498f22d76c21a`
-  - `Tempo` , `Somnia`
+  - `Tempo`, `Somnia`, `Robinhood`
     - `0x000000dbfaA1Fb91ca46867cE6D41aB6da4f7428`
+  - Deprecated chains (contracts remain deployed but are disconnected from the mesh)
+    - `Mode`, `Polygon zkEvm`, `Blast`, `Berachain`, `Aurora`
+      - `0x223a681fc5c5522c85c96157c0efa18cd6c5405c`
+    - `Scroll`
+      - `0x8f1b9c1fd67136d525e14d96efb3887a33f16250`
 
 - Msigs (links to gnosis safe and squad for Solana)
   - `Ethereum`
     - [OFT Admin](https://app.safe.global/home?safe=eth:0xB1748C79709f4Ba2Dd82834B8c82D4a505003f27)
     - [Hop Admin](https://app.safe.global/home?safe=eth:0x6cCF3F2Ca29591F90ADB403D67E4dcB49cEcC634)
     - [frxUSD Upgrade Admin](https://app.safe.global/home?safe=eth:0xffffff4f3bac444b2c0ecf2a1840d018be783937)
-  - [`Blast`](https://app.safe.protofire.io/home?safe=blastmainnet:0x33A133020b2C2CD41a24F74033B11EC2fC0bF97a)
-  - [`Metis`](https://metissafe.tech/home?safe=metis-andromeda:0xF4A4F32732F9B2fB84Ee28c58616946F3bF80F7d)
   - [`Base`](https://app.safe.global/home?safe=base:0xCBfd4Ef00a8cf91Fd1e1Fe97dC05910772c15E53)
   - [`Sei`](https://sei-safe.protofire.io/home?safe=sei:0x0357D02fc95320b990322d3ff69204c3D251171b)
   - [`Fraxtal`](https://safe.mainnet.frax.com/home?safe=fraxtal:0x5f25218ed9474b721d6a38c115107428E832fA2E)
@@ -41,7 +42,6 @@ This repository contains all of the contracts and deployment code used to manage
   - [`Polygon`](https://app.safe.global/home?safe=matic:0xDbf59edA454679bB157b3B048Ba54C4D762b559E)
   - [`Avalanche`](https://app.safe.global/home?safe=avax:0xBF1fF4D8B05F0871ca3f49e49fF1cA8AeeBD3b4b)
   - [`BSC`](https://app.safe.global/home?safe=bnb:0xB1eff95B323D60cc04B1a44Ca1dBcbC935ae2C84)
-  - [`Polygon zkEvm`](https://app.safe.global/home?safe=zkevm:0x57445fD8d544e5D313e4f715220103b091814df4)
   - [`Solana`](https://app.squads.so/squads/FSRTW4KPGifKL8yKcZ8mfoR9mKtAjwZiTHbHwgix8AQo/home)
   - [`Linea`](https://safe.linea.build/home?safe=linea:0x0E5a5284820E350ffce7fe7ba3364FaC1C53eaFD)
   - [`ZkSync`](https://app.safe.global/home?safe=zksync:0x66716ae60898dD4479B52aC4d92ef16C1821f420)
@@ -50,22 +50,27 @@ This repository contains all of the contracts and deployment code used to manage
   - [`Unichain`](https://app.safe.global/home?safe=unichain:0x6f8FDdfD4F6a1456BA5632C919bEF74b64DD032D)
   - [`Plume`](https://safe.onchainden.com/home?safe=plume:0x77dDd3EC570EEAf2c513de3c833c5E82A721978B)
   - [`Katana`](https://app.safe.global/settings/setup?safe=katana:0x19A90b0476cdc8EC1239266663CA820175B9B527)
-  - [`Aurora`](https://app.safe.global/home?safe=aurora:0x73F365d34b81E731825a094c2E722A08574335cd)
   - [`HyperEVM`](https://app.safe.global/home?safe=hyper-evm:0x738ee62157f127C879Ff5c4B7102Eb0d166C7a6d)
   - [`Stable`](https://app.safe.global/home?safe=stable:0x0C46f54BF9EF8fd58e2D294b8cEA488204EcB3D8)
   - [`Monad`](https://app.safe.global/home?safe=monad:0x47FF5bBAB981Ff022743AA4281D4d6Dd7Fb1a4D0)
   - [`Tempo`](https://app.safe.global/home?safe=tempo:0x1Ba19a54a01AE967f5E3895764Caaa6919FD2bEe)
   - [`Somnia`](https://safe.somnia.network/home?safe=somnia:0x9527e19F55d1afCE9F1e9Edcea79552bF41983F9)
   - [`Robinhood`](https://app.safe.global/home?safe=robinhood:0xFA1224aDd725eb2708BA4d15F627F4027dAfcEde)
+  - Deprecated chains (no longer connected to the mesh)
+    - [`Aurora`](https://app.safe.global/home?safe=aurora:0x73F365d34b81E731825a094c2E722A08574335cd)
+    - [`Blast`](https://app.safe.protofire.io/home?safe=blastmainnet:0x33A133020b2C2CD41a24F74033B11EC2fC0bF97a) (also administers the Blast legacy OFTs)
+    - [`Metis`](https://metissafe.tech/home?safe=metis-andromeda:0xF4A4F32732F9B2fB84Ee28c58616946F3bF80F7d) (legacy OFTs only)
+    - [`Polygon zkEvm`](https://app.safe.global/home?safe=zkevm:0x57445fD8d544e5D313e4f715220103b091814df4)
 
 ### Proxy (upgradeable) OFTs
-- Chain: `Sei`, `X-Layer`, `Ink`, `Sonic`, `Arbitrum`, `Optimism`, `Polygon`, `BSC`, `Avalanche`, `Blast`, `Worldchain`, `Unichain`, `Plume`, `Katana`, `Aurora`, `Hyperliquid`, `Stable`
+- Chain: `Sei`, `X-Layer`, `Ink`, `Sonic`, `Arbitrum`, `Optimism`, `Polygon`, `BSC`, `Avalanche`, `Worldchain`, `Unichain`, `Plume`, `Katana`, `Hyperliquid`, `Stable`
   - OFTs
     - `frxUSD`: `0x80Eede496655FB9047dd39d9f418d5483ED600df`
     - `sfrxUSD`: `0x5Bff88cA1442c2496f7E475E9e7786383Bc070c0`
     - `frxETH`: `0x43eDD7f3831b08FE70B7555ddD373C8bF65a9050`
     - `sfrxETH`: `0x3Ec3849C33291a9eF4c5dB86De593EB4A37fDe45`
     - `WFRAX`: `0x64445f0aecC51E94aD52d8AC56b7190e764E561a`
+  - Deprecated chains with the same OFT addresses, disconnected from the mesh: `Aurora`, `Berachain`, `Blast`, `Mode`, `Polygon zkEvm`
 - Chain: `Ethereum`
   - OFTs
     - `WFRAX`: `0x04ACaF8D2865c0714F79da09645C13FD2888977f`
@@ -136,11 +141,11 @@ With the exception of Ethereum, Fraxtal and Tempo (frxUSD TIP20), Frax tokens ar
 - Ethereum (Mintable Adapter): `0x7311CEA93ccf5f4F7b789eE31eBA5D9B9290E126`
 
 #### frxETH
-- Fraxtal (Mintable Adapter): `0x9aBFE1F8a999B0011ecD6116649AEe8D575F5604`
+- Fraxtal (Adapter): `0x9aBFE1F8a999B0011ecD6116649AEe8D575F5604`
 - Ethereum (Adapter): `0x1c1649A38f4A3c5A0c4a24070f688C525AB7D6E6`
 
 #### sfrxETH
-- Fraxtal (Mintable Adapter): `0x999dfAbe3b1cc2EF66eB032Eea42FeA329bBa168`
+- Fraxtal (Adapter): `0x999dfAbe3b1cc2EF66eB032Eea42FeA329bBa168`
 - Ethereum (Adapter): `0xbBc424e58ED38dd911309611ae2d7A23014Bd960`
 
 #### WFRAX

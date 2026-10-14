@@ -108,6 +108,9 @@ contract FraxOFTMintableAdapterUpgradeableTIP20 is OFTAdapterUpgradeable, Supply
 
     /// @inheritdoc IOFT
     /// @dev Overrides send to prevent msg.value being sent (EndpointV2Alt uses ERC20 for gas)
+    /// @dev `_refundAddress` receives any fee surplus in LZEndpointDollar rather than the TIP20 paid,
+    ///      so a contract passed here must be able to transfer it or call `unwrap`. See
+    ///      TempoAltTokenBase.
     function send(
         SendParam calldata _sendParam,
         MessagingFee calldata _fee,

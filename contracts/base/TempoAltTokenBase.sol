@@ -19,6 +19,10 @@ interface IEndpointV2Alt {
 ///         an LZEndpointDollar-whitelisted stablecoin for fee payment.
 /// @dev Routing, quoting and payment are delegated to `TempoAltTokenLib`; `nativeToken` is passed
 ///      in explicitly because libraries cannot read immutables.
+/// @dev Fees are denominated in LZEndpointDollar. The endpoint prices a send on execution and refunds
+///      any surplus to that send's `_refundAddress` in LZEndpointDollar — never in the TIP20 collected
+///      here. Recover it with `ILZEndpointDollar.unwrap(whitelistedToken, to, amount)`; where the fee
+///      was paid through a swap the unwrap yields the whitelisted intermediate, not the token paid.
 abstract contract TempoAltTokenBase {
     error NativeTokenUnavailable();
     error OFTAltCore__msg_value_not_zero(uint256 _msg_value);
@@ -120,6 +124,10 @@ abstract contract TempoAltTokenBase {
     /// @dev Handles gas payment for EndpointV2Alt which uses an ERC20 token as native.
     ///      Dynamically resolves the best whitelisted swap target from LZEndpointDollar.
     ///      Children call this from their _payNative() override, passing `address(endpoint)`.
+    ///      Wraps exactly `_nativeFee`; the swap allowance is returned to the payer in their own TIP20.
+    ///      A fee surplus therefore only arises when `_nativeFee` exceeds the endpoint's price at
+    ///      execution, and the endpoint refunds that surplus in LZEndpointDollar. Quote as close to
+    ///      the send as possible: the fee prices destination gas, so it moves between quote and send.
     /// @param _nativeFee The fee in endpoint-native (LZEndpointDollar) units.
     /// @param _endpointAddr The address of the LZ endpoint to send wrapped tokens to.
     function _payNativeAltToken(uint256 _nativeFee, address _endpointAddr) internal returns (uint256) {

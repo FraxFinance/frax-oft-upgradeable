@@ -79,11 +79,11 @@ verifier_args_for_chain() {
         57073)      echo "--verifier blockscout --verifier-url https://explorer.inkonchain.com/api" ;;
         98866)      echo "--verifier blockscout --verifier-url https://explorer.plume.org/api" ;;
         1313161554) echo "--verifier blockscout --verifier-url https://explorer.mainnet.aurora.dev/api" ;;
-        5031)       echo "--verifier blockscout --verifier-url https://explorer.somnia.network/api" ;;
+        5031)       echo "--verifier blockscout --verifier-url https://explorer.somnia.network/api/" ;;  # trailing slash: /api 301s and drops the POST
         # X-Layer: OKLink requires a paid API key; Sourcify supports chain 196 and needs none.
         196)        echo "--verifier sourcify --verifier-url https://sourcify.dev/server" ;;
-        # Robinhood: the Blockscout verify API sits behind Cloudflare and rejects forge; Sourcify indexes 4663.
-        4663)       echo "--verifier sourcify --verifier-url https://sourcify.dev/server" ;;
+        # Robinhood: Etherscan v2 now serves 4663 (robin.etherscan.io); Sourcify also indexes it.
+        4663)       echo "--verifier etherscan --verifier-url https://api.etherscan.io/v2/api?chainid=${cid} --etherscan-api-key ${ETHERSCAN_API_KEY:?ETHERSCAN_API_KEY not set}" ;;
         *) return 1 ;;
     esac
 }

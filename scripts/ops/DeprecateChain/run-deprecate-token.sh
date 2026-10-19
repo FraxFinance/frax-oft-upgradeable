@@ -149,7 +149,7 @@ for source_chain_id in "${sources[@]}"; do
   # point at the generator that reads their state over plain eth_calls.
   if is_zksync_chain "${source_chain_id}"; then
     echo "SKIP SOURCE_CHAIN_ID=${source_chain_id}: cannot be fork-simulated."
-    echo "     generate with: python3 scripts/ops/DeprecateChain/generate-unforkable-batches.py --write"
+    echo "     generate with: python3 scripts/ops/DeprecateChain/generate-unforkable-batches.py --source ${source_chain_id} --token ${DEPRECATE_TOKEN} --out-dir deprecate-${DEPRECATE_TOKEN} --write"
     skipped_unforkable+=("${source_chain_id}")
     continue
   fi

@@ -14,17 +14,12 @@ This repository contains all of the contracts and deployment code used to manage
     - `0xF59C41A57AB4565AF7424F64981523DfD7A453c5`
   - `Linea`
     - `0x3cf371c128b092b085B7732069cEAF3Fd863F270`
-  - `ZKSync`, `Abstract`
+  - `ZKSync`
     - `0xe59dcae52a4ffa39be99588486c84bc2dc1ba52f`
   - `Monad`
     - `0xc2871eae630640ce1a16b39a17c498f22d76c21a`
   - `Tempo`, `Somnia`, `Robinhood`
     - `0x000000dbfaA1Fb91ca46867cE6D41aB6da4f7428`
-  - Deprecated chains (contracts remain deployed but are disconnected from the mesh)
-    - `Mode`, `Polygon zkEvm`, `Blast`, `Berachain`, `Aurora`
-      - `0x223a681fc5c5522c85c96157c0efa18cd6c5405c`
-    - `Scroll`
-      - `0x8f1b9c1fd67136d525e14d96efb3887a33f16250`
 
 - Msigs (links to gnosis safe and squad for Solana)
   - `Ethereum`
@@ -45,7 +40,6 @@ This repository contains all of the contracts and deployment code used to manage
   - [`Solana`](https://app.squads.so/squads/FSRTW4KPGifKL8yKcZ8mfoR9mKtAjwZiTHbHwgix8AQo/home)
   - [`Linea`](https://safe.linea.build/home?safe=linea:0x0E5a5284820E350ffce7fe7ba3364FaC1C53eaFD)
   - [`ZkSync`](https://app.safe.global/home?safe=zksync:0x66716ae60898dD4479B52aC4d92ef16C1821f420)
-  - [`Abstract`](https://abstract-safe.protofire.io/home?safe=abstract:0xcC20eAE3CdC554E96291708B362dF349CC443808)
   - [`Worldchain`](https://app.safe.global/home?safe=wc:0xf57d47c3EA11c12253dBc0BeAf097d5c206e8773)
   - [`Unichain`](https://app.safe.global/home?safe=unichain:0x6f8FDdfD4F6a1456BA5632C919bEF74b64DD032D)
   - [`Plume`](https://safe.onchainden.com/home?safe=plume:0x77dDd3EC570EEAf2c513de3c833c5E82A721978B)
@@ -56,11 +50,8 @@ This repository contains all of the contracts and deployment code used to manage
   - [`Tempo`](https://app.safe.global/home?safe=tempo:0x1Ba19a54a01AE967f5E3895764Caaa6919FD2bEe)
   - [`Somnia`](https://safe.somnia.network/home?safe=somnia:0x9527e19F55d1afCE9F1e9Edcea79552bF41983F9)
   - [`Robinhood`](https://app.safe.global/home?safe=robinhood:0xFA1224aDd725eb2708BA4d15F627F4027dAfcEde)
-  - Deprecated chains (no longer connected to the mesh)
-    - [`Aurora`](https://app.safe.global/home?safe=aurora:0x73F365d34b81E731825a094c2E722A08574335cd)
-    - [`Blast`](https://app.safe.protofire.io/home?safe=blastmainnet:0x33A133020b2C2CD41a24F74033B11EC2fC0bF97a) (also administers the Blast legacy OFTs)
-    - [`Metis`](https://metissafe.tech/home?safe=metis-andromeda:0xF4A4F32732F9B2fB84Ee28c58616946F3bF80F7d) (legacy OFTs only)
-    - [`Polygon zkEvm`](https://app.safe.global/home?safe=zkevm:0x57445fD8d544e5D313e4f715220103b091814df4)
+  - [`Blast`](https://app.safe.protofire.io/home?safe=blastmainnet:0x33A133020b2C2CD41a24F74033B11EC2fC0bF97a) (legacy OFTs only)
+  - [`Metis`](https://metissafe.tech/home?safe=metis-andromeda:0xF4A4F32732F9B2fB84Ee28c58616946F3bF80F7d) (legacy OFTs only)
 
 ### Proxy (upgradeable) OFTs
 - Chain: `Sei`, `X-Layer`, `Ink`, `Sonic`, `Arbitrum`, `Optimism`, `Polygon`, `BSC`, `Avalanche`, `Worldchain`, `Unichain`, `Plume`, `Katana`, `Hyperliquid`, `Stable`
@@ -70,7 +61,6 @@ This repository contains all of the contracts and deployment code used to manage
     - `frxETH`: `0x43eDD7f3831b08FE70B7555ddD373C8bF65a9050`
     - `sfrxETH`: `0x3Ec3849C33291a9eF4c5dB86De593EB4A37fDe45`
     - `WFRAX`: `0x64445f0aecC51E94aD52d8AC56b7190e764E561a`
-  - Deprecated chains with the same OFT addresses, disconnected from the mesh: `Aurora`, `Berachain`, `Blast`, `Mode`, `Polygon zkEvm`
 - Chain: `Ethereum`
   - OFTs
     - `WFRAX`: `0x04ACaF8D2865c0714F79da09645C13FD2888977f`
@@ -88,7 +78,7 @@ This repository contains all of the contracts and deployment code used to manage
       - `frxETH`: `0xB1aFD04774c02AE84692619448B08BA79F19b1ff`
       - `sfrxETH`: `0x383Eac7CcaA89684b8277cBabC25BCa8b13B7Aa2`
       - `WFRAX`: `0x5217Ab28ECE654Aab2C68efedb6A22739df6C3D5`
-- Chain: `ZkSync`,`Abstract`
+- Chain: `ZkSync`
   - OFTs:
       - `frxUSD`: `0xEa77c590Bb36c43ef7139cE649cFBCFD6163170d`
       - `sfrxUSD`: `0x9F87fbb47C33Cd0614E43500b9511018116F79eE`

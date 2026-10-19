@@ -8,6 +8,8 @@ import { FraxOFTUpgradeable } from "contracts/FraxOFTUpgradeable.sol";
 import { FraxOFTAdapterUpgradeable } from "contracts/FraxOFTAdapterUpgradeable.sol";
 import { RateLimiterModule } from "contracts/modules/RateLimiterModule.sol";
 import { ERC20Mock } from "test/mocks/ERC20Mock.sol";
+import { SetRateLimits, IRateLimitedOFT } from "scripts/DeployFraxOFTProtocol/inherited/SetRateLimits.s.sol";
+import { L0Config } from "scripts/L0Constants.sol";
 
 contract ERC20Mock6 is ERC20Mock {
     constructor() ERC20Mock("Six", "SIX") {}
@@ -230,6 +232,186 @@ contract RateLimiterModuleTest is Test {
         adapter.credit(bob, 1e18, SRC_EID);
     }
 
+    // ── A default change settles inheriting EIDs under the outgoing default ─────────
+
+    /// @notice Swapping the default must not re-decay time that elapsed under the old one. A full
+    ///       bucket, 2h into a 30-day window, keeps all but 2h of decay when the window becomes 1h.
+    function test_DefaultConfigChange_SettlesInheritingEidsUnderOutgoingDefault() external {
+        oft.setDefaultRateLimitConfig(_config(1_000e18, 30 days, 0, 0));
+        vm.prank(alice);
+        oft.debit(1_000e18, 1_000e18, DST_EID);
+        skip(2 hours);
+
+        oft.setDefaultRateLimitConfig(_config(1_000e18, 1 hours, 0, 0));
+
+        uint256 decayedUnderOldDefault = (1_000e18 * 2 hours) / uint256(30 days);
+        assertEq(oft.outboundRateLimitAvailable(DST_EID), decayedUnderOldDefault, "only 2h of real decay");
+
+        skip(1 hours); // from here the new 1h window applies, so the bucket drains completely
+        assertEq(oft.outboundRateLimitAvailable(DST_EID), 1_000e18);
+    }
+
+    /// @notice An EID first written by a checkpoint, with no usage yet, is still tracked: its later
+    ///         usage is settled on the next default change like any other inheriting EID.
+    function test_DefaultConfigChange_SettlesEidFirstWrittenByCheckpoint() external {
+        oft.setDefaultRateLimitConfig(_config(1_000e18, 30 days, 0, 0));
+        uint32[] memory eids = new uint32[](1);
+        eids[0] = DST_EID;
+        oft.checkpointRateLimits(eids); // empty state, but stamps lastUpdated
+
+        vm.prank(alice);
+        oft.debit(1_000e18, 1_000e18, DST_EID);
+        skip(2 hours);
+        oft.setDefaultRateLimitConfig(_config(1_000e18, 1 hours, 0, 0));
+
+        assertEq(oft.outboundRateLimitAvailable(DST_EID), (1_000e18 * 2 hours) / uint256(30 days));
+    }
+
+    /// @notice An EID with its own override is not touched by a default change.
+    function test_DefaultConfigChange_LeavesOverriddenEidAlone() external {
+        _setOverride(DST_EID, _config(1_000e18, 30 days, 0, 0));
+        vm.prank(alice);
+        oft.debit(1_000e18, 1_000e18, DST_EID);
+        skip(2 hours);
+
+        oft.setDefaultRateLimitConfig(_config(1_000e18, 1 hours, 0, 0));
+
+        assertEq(oft.rateLimitConfig(DST_EID).outboundWindow, 30 days, "still on its override");
+        assertEq(oft.outboundRateLimitAvailable(DST_EID), (1_000e18 * 2 hours) / uint256(30 days));
+    }
+
+    // ── A disabled direction drains instead of freezing ──────────────────────────
+
+    /// @notice Disabling inbound by zeroing its limit and window, then routing outbound traffic for 30
+    ///         days, used to leave the inbound bucket exactly as full as when it was paused: the shared
+    ///         lastUpdated advanced while a zero rate decayed nothing. Re-enabling must find it empty.
+    function test_DisabledDirection_DrainsInsteadOfFreezing() external {
+        _setOverride(SRC_EID, _config(1_000e18, 1 days, 1_000e18, 1 days));
+        oft.credit(bob, 1_000e18, SRC_EID);
+        assertEq(oft.inboundRateLimitAvailable(SRC_EID), 0, "inbound bucket full");
+
+        _setOverride(SRC_EID, _config(1_000e18, 1 days, 0, 0)); // inbound off
+        for (uint256 d; d < 30; ++d) {
+            skip(1 days);
+            vm.prank(alice);
+            oft.debit(1e18, 1e18, SRC_EID); // routine outbound traffic on the same EID
+        }
+
+        _setOverride(SRC_EID, _config(1_000e18, 1 days, 1_000e18, 1 days)); // inbound back on
+        assertEq(oft.inboundRateLimitAvailable(SRC_EID), 1_000e18, "re-enabled direction starts empty");
+        oft.credit(bob, 1_000e18, SRC_EID);
+    }
+
+    /// @notice Disabling only the flag, with the limit and window kept, keeps decaying as before.
+    function test_DisabledFlagWithRateKept_StillDecays() external {
+        _setOverride(SRC_EID, _config(0, 0, 1_000e18, 1 days));
+        oft.credit(bob, 1_000e18, SRC_EID);
+
+        RateLimiterModule.RateLimitConfig memory paused = _config(0, 0, 1_000e18, 1 days);
+        paused.inboundEnabled = false;
+        _setOverride(SRC_EID, paused);
+        skip(12 hours);
+
+        _setOverride(SRC_EID, _config(0, 0, 1_000e18, 1 days));
+        assertEq(oft.inboundRateLimitAvailable(SRC_EID), 500e18, "half a window of decay");
+    }
+
+    // ── Per-EID configs must actually take effect ───────────────────────────────
+
+    function test_SetRateLimitConfigs_RejectsLimitsWithoutOverride() external {
+        RateLimiterModule.SetRateLimitConfigParam[] memory params = new RateLimiterModule.SetRateLimitConfigParam[](1);
+        params[0] = RateLimiterModule.SetRateLimitConfigParam({ eid: DST_EID, config: _config(1_000e18, 1 days, 0, 0) });
+
+        vm.expectRevert(RateLimiterModule.InvalidRateLimitConfig.selector);
+        oft.setRateLimitConfigs(params);
+    }
+
+    function test_SetRateLimitConfigs_EmptyConfigClearsOverride() external {
+        oft.setDefaultRateLimitConfig(_config(500e18, 1 days, 0, 0));
+        _setOverride(DST_EID, _config(1_000e18, 1 days, 0, 0));
+        assertEq(oft.rateLimitConfig(DST_EID).outboundLimit, 1_000e18);
+
+        RateLimiterModule.RateLimitConfig memory empty;
+        RateLimiterModule.SetRateLimitConfigParam[] memory params = new RateLimiterModule.SetRateLimitConfigParam[](1);
+        params[0] = RateLimiterModule.SetRateLimitConfigParam({ eid: DST_EID, config: empty });
+        oft.setRateLimitConfigs(params);
+
+        assertEq(oft.rateLimitConfig(DST_EID).outboundLimit, 500e18, "back on the default");
+    }
+
+    // ── Manual state writes are bounded by the limit in force ───────────────────
+
+    function test_SetRateLimitStates_RejectsUsageAboveLimit() external {
+        oft.setDefaultRateLimitConfig(_config(0, 0, 100e18, 1 hours));
+
+        vm.expectRevert(RateLimiterModule.InvalidRateLimitState.selector);
+        _setState(SRC_EID, 0, 100e18 + 1);
+
+        _setState(SRC_EID, 0, 100e18); // exactly the limit is a full bucket, which is allowed
+        assertEq(oft.inboundRateLimitAvailable(SRC_EID), 0);
+    }
+
+    function test_SetRateLimitStates_RejectsUsageOnDisabledDirection() external {
+        oft.setDefaultRateLimitConfig(_config(0, 0, 100e18, 1 hours)); // outbound disabled, limit 0
+
+        vm.expectRevert(RateLimiterModule.InvalidRateLimitState.selector);
+        _setState(DST_EID, 1, 0);
+    }
+
+    // ── Each EID is tracked once, however often its state is written ─────────────
+
+    function test_TrackedEids_ListsEachEidOnce() external {
+        oft.setDefaultRateLimitConfig(_config(1_000e18, 1 days, 1_000e18, 1 days));
+        vm.startPrank(alice);
+        oft.debit(1e18, 1e18, DST_EID);
+        oft.debit(1e18, 1e18, DST_EID);
+        vm.stopPrank();
+        uint32[] memory eids = new uint32[](1);
+        eids[0] = DST_EID;
+        oft.checkpointRateLimits(eids);
+        _setState(DST_EID, 0, 0);
+        oft.setDefaultRateLimitConfig(_config(1_000e18, 2 days, 1_000e18, 2 days));
+
+        oft.credit(bob, 1e18, SRC_EID);
+        assertEq(_trackedEidCount(), 2, "two lanes, one entry each");
+    }
+
+    function test_SetRateLimitStates_RejectsZeroTimestamp() external {
+        RateLimiterModule.SetRateLimitStateParam[] memory params = new RateLimiterModule.SetRateLimitStateParam[](1);
+        params[0] = RateLimiterModule.SetRateLimitStateParam({
+            eid: DST_EID,
+            state: RateLimiterModule.RateLimitState({ outboundUsage: 0, inboundUsage: 0, lastUpdated: 0 })
+        });
+        vm.expectRevert(RateLimiterModule.InvalidRateLimitState.selector);
+        oft.setRateLimitStates(params);
+    }
+
+    /// @dev RateLimiterStorage: globalConfig (+0), defaultConfig (+1, +2), configs (+3), states (+4), trackedEids (+5)
+    function _trackedEidCount() internal view returns (uint256) {
+        bytes32 base = 0xf02f50e1c246a23e457c592e128a403f9c1cc60baa3a1ad2dc69bb4a5a51be00;
+        return uint256(vm.load(address(oft), bytes32(uint256(base) + 5)));
+    }
+
+    function _setOverride(uint32 _eid, RateLimiterModule.RateLimitConfig memory _cfg) internal {
+        _cfg.overrideDefaultConfig = true;
+        RateLimiterModule.SetRateLimitConfigParam[] memory params = new RateLimiterModule.SetRateLimitConfigParam[](1);
+        params[0] = RateLimiterModule.SetRateLimitConfigParam({ eid: _eid, config: _cfg });
+        oft.setRateLimitConfigs(params);
+    }
+
+    function _setState(uint32 _eid, uint112 _outbound, uint112 _inbound) internal {
+        RateLimiterModule.SetRateLimitStateParam[] memory params = new RateLimiterModule.SetRateLimitStateParam[](1);
+        params[0] = RateLimiterModule.SetRateLimitStateParam({
+            eid: _eid,
+            state: RateLimiterModule.RateLimitState({
+                outboundUsage: _outbound,
+                inboundUsage: _inbound,
+                lastUpdated: uint32(block.timestamp)
+            })
+        });
+        oft.setRateLimitStates(params);
+    }
+
     function _deployOFT() internal returns (FraxOFTUpgradeableRateLimitHarness deployed) {
         FraxOFTUpgradeableRateLimitHarness implementation = new FraxOFTUpgradeableRateLimitHarness(address(endpoint));
         TransparentUpgradeableProxy proxy = new TransparentUpgradeableProxy(
@@ -268,5 +450,109 @@ contract RateLimiterModuleTest is Test {
             outboundWindow: _outboundWindow,
             inboundWindow: _inboundWindow
         });
+    }
+}
+
+/// @dev Drives the real SetRateLimits batch builder with a desired default, recording each emitted tx.
+contract SetRateLimitsHarness is SetRateLimits {
+    string[] public names;
+    bytes[] public datas;
+    IRateLimitedOFT.RateLimitConfig internal desired;
+
+    function setDesired(IRateLimitedOFT.RateLimitConfig memory _c) external {
+        desired = _c;
+    }
+
+    function desiredDefaultRateLimitConfig(
+        address
+    ) public view override returns (bool shouldSet, IRateLimitedOFT.RateLimitConfig memory config) {
+        return (true, desired);
+    }
+
+    function pushSerializedTx(string memory _name, address, uint256, bytes memory _data) public override {
+        names.push(_name);
+        datas.push(_data);
+    }
+
+    function count() external view returns (uint256) {
+        return names.length;
+    }
+}
+
+/// @notice The batch builder registers peered, untracked EIDs before a default change, so the
+///         first armed delivery on a lane does not pay the tracking write inside lzReceive.
+contract SetRateLimitsRegistrationTest is Test {
+    uint32 internal constant LOCAL_EID = 30255;
+    uint32 internal constant UNTRACKED_PEER = 30101;
+    uint32 internal constant TRACKED_PEER = 30184;
+    uint32 internal constant UNPEERED = 30999;
+
+    FraxOFTUpgradeableRateLimitHarness internal oft;
+    SetRateLimitsHarness internal script;
+
+    function setUp() external {
+        EndpointV2MockLite endpoint = new EndpointV2MockLite();
+        FraxOFTUpgradeableRateLimitHarness impl = new FraxOFTUpgradeableRateLimitHarness(address(endpoint));
+        oft = FraxOFTUpgradeableRateLimitHarness(
+            address(
+                new TransparentUpgradeableProxy(
+                    address(impl),
+                    address(0x9999),
+                    abi.encodeWithSelector(FraxOFTUpgradeable.initialize.selector, "Mock Frax", "mFRAX", address(this))
+                )
+            )
+        );
+        oft.setPeer(UNTRACKED_PEER, bytes32(uint256(1)));
+        oft.setPeer(TRACKED_PEER, bytes32(uint256(2)));
+        uint32[] memory already = new uint32[](1);
+        already[0] = TRACKED_PEER;
+        oft.checkpointRateLimits(already); // already tracked: must not be re-registered
+
+        script = new SetRateLimitsHarness();
+        oft.transferOwnership(address(script));
+        script.setDesired(
+            IRateLimitedOFT.RateLimitConfig({
+                overrideDefaultConfig: false,
+                outboundEnabled: true,
+                inboundEnabled: true,
+                outboundWindow: 1 days,
+                inboundWindow: 1 days,
+                outboundLimit: 1_000e18,
+                inboundLimit: 1_000e18
+            })
+        );
+    }
+
+    function _configs() internal view returns (L0Config[] memory c) {
+        c = new L0Config[](4);
+        c[0].chainid = block.chainid; c[0].eid = LOCAL_EID;
+        c[1].chainid = 1; c[1].eid = UNTRACKED_PEER;
+        c[2].chainid = 8453; c[2].eid = TRACKED_PEER;
+        c[3].chainid = 999; c[3].eid = UNPEERED;
+    }
+
+    function test_RegistersOnlyPeeredUntrackedEidsBeforeTheDefault() external {
+        address[] memory ofts = new address[](1);
+        ofts[0] = address(oft);
+        script.setRateLimits(ofts, _configs());
+
+        assertEq(script.count(), 2, "checkpoint then default");
+        assertEq(script.names(0), "checkpointRateLimits");
+        assertEq(script.names(1), "setDefaultRateLimitConfig");
+
+        uint32[] memory registered = new uint32[](1);
+        registered[0] = UNTRACKED_PEER;
+        assertEq(script.datas(0), abi.encodeCall(IRateLimitedOFT.checkpointRateLimits, (registered)), "only 30101");
+        assertGt(oft.storedRateLimitState(UNTRACKED_PEER).lastUpdated, 0, "lane pre-written by the owner");
+    }
+
+    function test_NoRegistrationWhenTheDefaultIsAlreadyInPlace() external {
+        address[] memory ofts = new address[](1);
+        ofts[0] = address(oft);
+        script.setRateLimits(ofts, _configs());
+        uint256 before = script.count();
+
+        script.setRateLimits(ofts, _configs());
+        assertEq(script.count(), before, "re-run emits nothing");
     }
 }

@@ -28,6 +28,17 @@ library RateLimiterLib {
         _validateRateLimitConfig(_defaultConfig);
 
         RateLimiterModule.RateLimiterStorage storage $ = _getRateLimiterStorage();
+
+        // Settle every EID still on the default under the outgoing default before replacing it;
+        // otherwise its next read would decay the whole interval since its last write under the
+        // new limit and window. setRateLimitConfigs does the same per EID.
+        RateLimiterModule.RateLimitConfig memory outgoing = $.defaultConfig;
+        uint256 count = $.trackedEids.length;
+        for (uint256 i; i < count; ++i) {
+            uint32 eid = $.trackedEids[i];
+            if (!$.configs[eid].overrideDefaultConfig) _checkpointRateLimit(eid, outgoing);
+        }
+
         $.defaultConfig = _defaultConfig;
 
         emit RateLimiterModule.DefaultRateLimitConfigSet(
@@ -46,6 +57,11 @@ library RateLimiterLib {
         uint256 length = _params.length;
         for (uint256 i; i < length; ++i) {
             _validateRateLimitConfig(_params[i].config);
+            // A per-EID config without the override flag is stored but never read, so limits passed
+            // with it would silently not apply. Clearing an override takes an all-empty config.
+            if (!_params[i].config.overrideDefaultConfig && !_isEmpty(_params[i].config)) {
+                revert RateLimiterModule.InvalidRateLimitConfig();
+            }
             _checkpointRateLimit(_params[i].eid, _effectiveRateLimitConfig(_params[i].eid));
 
             $.configs[_params[i].eid] = _params[i].config;
@@ -64,12 +80,15 @@ library RateLimiterLib {
     }
 
     function setRateLimitStates(RateLimiterModule.SetRateLimitStateParam[] calldata _params) external {
-        RateLimiterModule.RateLimiterStorage storage $ = _getRateLimiterStorage();
-
         uint256 length = _params.length;
         for (uint256 i; i < length; ++i) {
             _validateRateLimitState(_params[i].state);
-            $.states[_params[i].eid] = _params[i].state;
+            RateLimiterModule.RateLimitConfig memory config = _effectiveRateLimitConfig(_params[i].eid);
+            if (
+                _params[i].state.outboundUsage > config.outboundLimit ||
+                _params[i].state.inboundUsage > config.inboundLimit
+            ) revert RateLimiterModule.InvalidRateLimitState();
+            _storeRateLimitState(_params[i].eid, _params[i].state);
 
             emit RateLimiterModule.RateLimitStateSet(
                 _params[i].eid,
@@ -113,7 +132,7 @@ library RateLimiterLib {
             currentState.inboundUsage = uint112(usage + _amountLD);
         }
 
-        $.states[_eid] = currentState;
+        _storeRateLimitState(_eid, currentState);
 
         emit RateLimiterModule.RateLimitConsumed(
             _eid,
@@ -193,9 +212,8 @@ library RateLimiterLib {
     }
 
     function _checkpointRateLimit(uint32 _eid, RateLimiterModule.RateLimitConfig memory _config) internal {
-        RateLimiterModule.RateLimiterStorage storage $ = _getRateLimiterStorage();
         RateLimiterModule.RateLimitState memory currentState = _currentRateLimitState(_eid, _config);
-        $.states[_eid] = currentState;
+        _storeRateLimitState(_eid, currentState);
 
         emit RateLimiterModule.RateLimitCheckpointed(
             _eid,
@@ -203,6 +221,18 @@ library RateLimiterLib {
             currentState.inboundUsage,
             currentState.lastUpdated
         );
+    }
+
+    function _storeRateLimitState(uint32 _eid, RateLimiterModule.RateLimitState memory _state) internal {
+        RateLimiterModule.RateLimiterStorage storage $ = _getRateLimiterStorage();
+        // First write for this EID. Every write stores a non-zero lastUpdated, so this runs once per EID.
+        if ($.states[_eid].lastUpdated == 0) $.trackedEids.push(_eid);
+        $.states[_eid] = _state;
+    }
+
+    function _isEmpty(RateLimiterModule.RateLimitConfig memory _config) internal pure returns (bool) {
+        return !_config.outboundEnabled && !_config.inboundEnabled && _config.outboundLimit == 0
+            && _config.inboundLimit == 0 && _config.outboundWindow == 0 && _config.inboundWindow == 0;
     }
 
     function _validateRateLimitConfig(RateLimiterModule.RateLimitConfig memory _config) internal pure {
@@ -216,9 +246,9 @@ library RateLimiterLib {
 
     function _validateRateLimitState(RateLimiterModule.RateLimitState memory _state) internal view {
         if (_state.lastUpdated > block.timestamp) revert RateLimiterModule.InvalidRateLimitState();
-        if (_state.lastUpdated == 0 && (_state.outboundUsage != 0 || _state.inboundUsage != 0)) {
-            revert RateLimiterModule.InvalidRateLimitState();
-        }
+        // Zero means "never written" and would re-list the EID for default settlement. To reset a lane,
+        // write zero usage at the current timestamp, which behaves identically.
+        if (_state.lastUpdated == 0) revert RateLimiterModule.InvalidRateLimitState();
     }
 
     function _decayUsage(
@@ -227,10 +257,12 @@ library RateLimiterLib {
         uint32 _window,
         uint256 _elapsed
     ) internal pure returns (uint256 decayedUsage) {
-        if (_usage == 0 || _limit == 0 || _window == 0 || _elapsed == 0) {
+        if (_usage == 0 || _elapsed == 0) {
             return _usage;
         }
-        if (_elapsed >= _window) {
+        // A zero limit or window only occurs on a disabled direction. It tracks nothing, so its usage
+        // must not survive the disabled period and block traffic once the direction is re-enabled.
+        if (_limit == 0 || _window == 0 || _elapsed >= _window) {
             return 0;
         }
 

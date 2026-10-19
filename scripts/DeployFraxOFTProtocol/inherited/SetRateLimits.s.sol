@@ -25,12 +25,21 @@ interface IRateLimitedOFT {
         RateLimitConfig config;
     }
 
+    struct RateLimitState {
+        uint112 outboundUsage;
+        uint112 inboundUsage;
+        uint32 lastUpdated;
+    }
+
     function rateLimitGlobalConfig() external view returns (RateLimitGlobalConfig memory config);
     function defaultRateLimitConfig() external view returns (RateLimitConfig memory config);
     function storedRateLimitConfig(uint32 _eid) external view returns (RateLimitConfig memory config);
     function setRateLimitGlobalConfig(RateLimitGlobalConfig calldata _globalConfig) external;
     function setDefaultRateLimitConfig(RateLimitConfig calldata _defaultConfig) external;
     function setRateLimitConfigs(SetRateLimitConfigParam[] calldata _params) external;
+    function storedRateLimitState(uint32 _eid) external view returns (RateLimitState memory state);
+    function checkpointRateLimits(uint32[] calldata _eids) external;
+    function peers(uint32 _eid) external view returns (bytes32);
 }
 
 contract SetRateLimits is BaseInherited, Script {
@@ -42,6 +51,7 @@ contract SetRateLimits is BaseInherited, Script {
     ) public virtual {
         for (uint256 o; o < _connectedOfts.length; ++o) {
             _setRateLimitGlobalConfig(_connectedOfts[o]);
+            _registerRateLimitEids(_connectedOfts[o], _configs);
             _setDefaultRateLimitConfig(_connectedOfts[o]);
             _setRateLimitConfigs(_connectedOfts[o], _configs);
         }
@@ -73,6 +83,41 @@ contract SetRateLimits is BaseInherited, Script {
         _rateLimitSafeCall(_connectedOft, data, "setRateLimitGlobalConfig");
         pushSerializedTx({
             _name: "setRateLimitGlobalConfig",
+            _to: _connectedOft,
+            _value: 0,
+            _data: data
+        });
+    }
+
+    /// @notice Before a default change, checkpoint every peered EID the OFT has not seen yet.
+    /// @dev A default change settles the EIDs the rate limiter already tracks. An EID it has never
+    ///      written is untracked, and its first armed transfer would pay the tracking write itself —
+    ///      inside lzReceive on the inbound side, where that pushes the first delivery on a lockbox
+    ///      lane past the 200k enforced gas. Checkpointing here moves that one-time write to the owner.
+    function _registerRateLimitEids(address _connectedOft, L0Config[] memory _configs) internal virtual {
+        (bool shouldSet, IRateLimitedOFT.RateLimitConfig memory desiredConfig) =
+            desiredDefaultRateLimitConfig(_connectedOft);
+        if (!shouldSet) return;
+        if (_rateLimitConfigsEqual(IRateLimitedOFT(_connectedOft).defaultRateLimitConfig(), desiredConfig)) return;
+
+        uint32[] memory eids = new uint32[](_configs.length);
+        uint256 count;
+        for (uint256 c; c < _configs.length; ++c) {
+            if (_configs[c].chainid == block.chainid) continue;
+            uint32 eid = uint32(_configs[c].eid);
+            if (IRateLimitedOFT(_connectedOft).peers(eid) == bytes32(0)) continue;
+            if (IRateLimitedOFT(_connectedOft).storedRateLimitState(eid).lastUpdated != 0) continue;
+            eids[count++] = eid;
+        }
+        if (count == 0) return;
+        assembly {
+            mstore(eids, count)
+        }
+
+        bytes memory data = abi.encodeCall(IRateLimitedOFT.checkpointRateLimits, (eids));
+        _rateLimitSafeCall(_connectedOft, data, "checkpointRateLimits");
+        pushSerializedTx({
+            _name: "checkpointRateLimits",
             _to: _connectedOft,
             _value: 0,
             _data: data

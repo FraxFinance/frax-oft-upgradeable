@@ -42,6 +42,8 @@ abstract contract RateLimiterModule {
         RateLimitConfig defaultConfig;
         mapping(uint32 eid => RateLimitConfig config) configs;
         mapping(uint32 eid => RateLimitState state) states;
+        /// @dev every EID whose state has been written, so a default change can settle them first
+        uint32[] trackedEids;
     }
 
     /// @dev keccak256(abi.encode(uint256(keccak256("frax.storage.RateLimiterModule")) - 1)) & ~bytes32(uint256(0xff))

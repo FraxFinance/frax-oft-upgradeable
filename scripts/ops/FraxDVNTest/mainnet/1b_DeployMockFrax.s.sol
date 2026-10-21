@@ -56,6 +56,7 @@ import { FraxOFTWalletUpgradeable } from "contracts/FraxOFTWalletUpgradeable.sol
 // hyperliquid : forge script ./scripts/ops/FraxDVNTest/mainnet/1b_DeployMockFrax.s.sol --rpc-url https://rpc.hyperliquid.xyz/evm --broadcast --verify --verifier-url $HYPEREVMSCAN_API_URL --etherscan-api-key $HYPEREVMSCAN_API_KEY --verifier etherscan
 // somnia : forge script ./scripts/ops/FraxDVNTest/mainnet/1b_DeployMockFrax.s.sol --rpc-url https://api.infra.mainnet.somnia.network --broadcast --verify --chain-id 5031 --watch --verifier-url https://explorer.somnia.network/api --verifier blockscout
 // robinhood : forge script ./scripts/ops/FraxDVNTest/mainnet/1b_DeployMockFrax.s.sol --rpc-url https://rpc.mainnet.chain.robinhood.com --broadcast
+// celo : forge script ./scripts/ops/FraxDVNTest/mainnet/1b_DeployMockFrax.s.sol --rpc-url https://forno.celo.org --broadcast
 
 contract DeployMockFrax is DeployFraxOFTProtocol {
     address[] public proxyOftWallets;
@@ -101,6 +102,11 @@ contract DeployMockFrax is DeployFraxOFTProtocol {
                 // L0 team has not setup defaultSendLibrary and defaultReceiveLibrary on robinhood for
                 // Blast (30243) and Tempo (30410)
                 if (eid == 30243 || eid == 30410) continue;
+            }
+            if (broadcastConfig.eid == 30125) {
+                // L0 team has not setup defaultSendLibrary and defaultReceiveLibrary on celo for
+                // Plume (30370)
+                if (eid == 30370) continue;
             }
             if (broadcastConfig.eid == 30380) {
                 // L0 team has not setup defaultSendLibrary and defaultReceiveLibrary on somnia for

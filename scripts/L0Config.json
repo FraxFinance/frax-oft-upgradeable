@@ -353,7 +353,7 @@
         {
             "RPC": "https://forno.celo.org",
             "chainid": 42220,
-            "delegate": "0x0000000000000000000000000000000000000000",
+            "delegate": "0xFfdBB6221390d05366df8F6733E586c8CE92103C",
             "dvnHorizen": "0x31f748a368a893bdb5abb67ec95f232507601a73",
             "dvnL0": "0x75b073994560a5c03cd970414d9170be0c6e5c36",
             "eid": 30125,

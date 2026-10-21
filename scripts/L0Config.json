@@ -351,6 +351,18 @@
             "sendLib302": "0xC39161c743D0307EB9BCc9FEF03eeb9Dc4802de7"
         },
         {
+            "RPC": "https://forno.celo.org",
+            "chainid": 42220,
+            "delegate": "0x0000000000000000000000000000000000000000",
+            "dvnHorizen": "0x31f748a368a893bdb5abb67ec95f232507601a73",
+            "dvnL0": "0x75b073994560a5c03cd970414d9170be0c6e5c36",
+            "eid": 30125,
+            "endpoint": "0x1a44076050125825900e736c501f859c50fE728c",
+            "proxyAdmin": "0x000000dbfaA1Fb91ca46867cE6D41aB6da4f7428",
+            "receiveLib302": "0xaDDed4478B423d991C21E525Cd3638FBce1AaD17",
+            "sendLib302": "0x42b4E9C6495B4cFDaE024B1eC32E09F28027620e"
+        },
+        {
             "RPC": "https://api.mainnet.abs.xyz",
             "chainid": 2741,
             "delegate": "0xcC20eAE3CdC554E96291708B362dF349CC443808",

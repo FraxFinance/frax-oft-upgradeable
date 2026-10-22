@@ -23,6 +23,18 @@ is equivalent to simulating the batch.
 Chain configs come from scripts/L0Config.json, expected EVM peers from the chain registry in
 scripts/L0Constants.sol, and non-EVM peers from scripts/NonEvmPeers.json.
 
+The legacy (non-upgradeable) OFT set is a second universe: `--legacy` switches sources and peers to
+the L0Config `Legacy` chains and the OFTs to L0Constants' `ethLockboxesLegacy` addresses, which are
+the same on every legacy chain, so the expected peer of a legacy route is the OFT's own address.
+Files are then labelled `<SYMBOL>-<addr8>` (FRAX-909dbde1, SFRAX-e4796ccb, FXS-23432452, ...)
+because Blast and Base run a proxy OFT with the same symbol next to the legacy one. `--oapp` does
+the same for any other OApp whose peers mirror its own address (the non-canonical FPI mesh), and
+`--peer-eid` adds a raw endpoint id, optionally with the peer address to expect there.
+
+`--seal` retires a route for good: the receive library is pinned to BlockedMessageLib instead of
+being reset to LayerZero's default, so nothing toward that eid can be verified again even if the
+peer were restored. This is the state the legacy FPI and non-canonical FPI lanes were left in.
+
 Usage (from anywhere in the repo; dry run unless --write):
   # DeprecateChain shape: every token from one unforkable chain toward every other chain.
   ./generate-unforkable-batches.py --source 2741 --out-dir deprecate-2741 --write
@@ -30,6 +42,19 @@ Usage (from anywhere in the repo; dry run unless --write):
   ./generate-unforkable-batches.py --source 324 --peer 2741 --out-dir deprecate-2741 --write
   # DeprecateToken shape: FPI toward Fraxtal from the chains forge could not simulate.
   ./generate-unforkable-batches.py --source 10,324,2741 --peer 252 --token FPI --out-dir deprecate-FPI --write
+  # Legacy OFT set: retire every lane of the five funded legacy OFTs on Blast (Metis has no Safe UI,
+  # so its batches run through the on-chain approveHash flow, but the files are the same).
+  ./generate-unforkable-batches.py --legacy --seal --source 81457 \
+      --token WFRAX,SFRXUSD,SFRXETH,FRXUSD,FRXETH --out-dir deprecate-81457 --write
+  # Legacy counterpart: Ethereum-legacy's lanes toward Blast only.
+  ./generate-unforkable-batches.py --legacy --seal --source 1 --peer 81457 \
+      --token WFRAX,SFRXUSD,SFRXETH,FRXUSD,FRXETH --out-dir deprecate-81457 --write
+  # Non-canonical FPI spoke on Metis: its legacy-chain peers mirror its address, the others are
+  # the Fraxtal-set address, and Mode (30260) is no longer in L0Config.
+  ./generate-unforkable-batches.py --legacy --seal --source 1088 --oapp FPI=0xE41228a455700cAF09E551805A8aB37caa39D08c \
+      --peer 1,8453,81457 \
+      --peer-eid 30255=0xEed9DE5E41b53D1C8fAB8AAB4b0e446F828c1483,30260=0xEed9DE5E41b53D1C8fAB8AAB4b0e446F828c1483,30280=0xEed9DE5E41b53D1C8fAB8AAB4b0e446F828c1483,30274=0xEed9DE5E41b53D1C8fAB8AAB4b0e446F828c1483 \
+      --out-dir deprecate-1088 --write
 
 Env: RPC_URL_<chainid> overrides a chain's L0Config RPC.
 """
@@ -60,6 +85,10 @@ TOKENS = ["WFRAX", "SFRXUSD", "SFRXETH", "FRXUSD", "FRXETH", "FPI"]
 # BaseL0Script maps NonEvmPeers.json keys onto Token slots.
 NON_EVM_KEYS = {"WFRAX": "wfrax", "SFRXUSD": "sfrxUSD", "SFRXETH": "sfrxEth",
                 "FRXUSD": "frxUSD", "FRXETH": "frxEth", "FPI": "fpi"}
+# What the legacy OFTs answer to symbol() (the Ethereum-legacy lockboxes have no symbol()), per Token
+# slot of L0Constants' ethLockboxesLegacy; the DeprecateFromSafeBatch extraction named files the same way.
+LEGACY_LABELS = {"WFRAX": "FXS", "SFRXUSD": "SFRAX", "SFRXETH": "SFRXETH",
+                 "FRXUSD": "FRAX", "FRXETH": "FRXETH", "FPI": "FPI"}
 
 ZERO32 = "0x" + "00" * 32
 ZERO_ADDRESS = "0x" + "00" * 20
@@ -204,20 +233,27 @@ def load_registry():
     for chain_id, array in re.findall(r"_registerChain\((\d+),\s*(\w+)\);", source):
         registry[int(chain_id)] = arrays.get(array, [])
     registry["default"] = arrays.get("expectedProxyOfts", [])
+    # The legacy (non-upgradeable) set: one address per token, identical on every legacy chain.
+    registry["legacy"] = arrays.get("ethLockboxesLegacy", [])
     for key, peers in registry.items():
         if len(peers) != len(TOKENS):
             raise RuntimeError(f"L0Constants registry for {key} resolved {len(peers)} of {len(TOKENS)} slots")
     return registry
 
 
-def load_chains():
+def load_chains(legacy=False):
+    """Chain universe keyed by chain id. `legacy` selects the L0Config `Legacy` chains (Ethereum-legacy,
+    Metis, Blast, Base), which share ids with Proxy entries but carry the legacy delegates and libraries;
+    non-EVM chains never took part in the legacy mesh."""
     config = json.load(open(L0_CONFIG))
     non_evm_peers = json.load(open(NON_EVM_PEERS))["Peers"]
     chains = {}
-    for entry in config["Proxy"]:
+    for entry in config["Legacy" if legacy else "Proxy"]:
         entry = dict(entry, kind="evm")
         entry["RPC"] = os.environ.get(f"RPC_URL_{entry['chainid']}", entry["RPC"])
         chains[entry["chainid"]] = entry
+    if legacy:
+        return chains
     for index, entry in enumerate(config["Non-EVM"]):
         peers = non_evm_peers[index] if index < len(non_evm_peers) else {}
         chains[entry["chainid"]] = {"chainid": entry["chainid"], "eid": entry["eid"], "kind": "non-evm",
@@ -233,13 +269,40 @@ def expected_peer(registry, peer_chain, token):
     return ZERO32 if int(address, 16) == 0 else "0x" + address_word(address)
 
 
+def address_peer(address):
+    return ZERO32 if int(address, 16) == 0 else "0x" + address_word(address)
+
+
+def parse_targets(raw):
+    """`--oapp LABEL=0x...[,LABEL=0x...]` -> [(label, address)]."""
+    targets = []
+    for item in raw.split(","):
+        label, _, address = item.strip().partition("=")
+        if not label or not re.fullmatch(r"0x[0-9a-fA-F]{40}", address):
+            raise ValueError(f"--oapp entries are LABEL=0x<40 hex>: {item!r}")
+        targets.append((label.upper(), address))
+    return targets
+
+
+def parse_peer_eids(raw):
+    """`--peer-eid EID[=0xpeer][,...]` -> {eid: peer address or None}."""
+    peers = {}
+    for item in raw.split(","):
+        eid, _, address = item.strip().partition("=")
+        if not eid.isdigit() or (address and not re.fullmatch(r"0x[0-9a-fA-F]{40}", address)):
+            raise ValueError(f"--peer-eid entries are EID[=0x<40 hex>]: {item!r}")
+        peers[int(eid)] = address or None
+    return peers
+
+
 class RouteTeardown:
     """DeprecateOFTBase._deprecatePairOnToken for one (source, peer, token) over eth_calls."""
 
-    def __init__(self, rpc, source, oft, peer_chain, token, expected):
+    def __init__(self, rpc, source, oft, peer_chain, token, expected, seal=False):
         self.rpc, self.source, self.oft, self.token = rpc, source, oft, token
         self.eid = peer_chain["eid"]
         self.expected = expected
+        self.seal = seal
         self.endpoint = source["endpoint"]
         self.txs, self.owner_txs, self.notes = [], [], []
         self.owner = None
@@ -321,11 +384,11 @@ class RouteTeardown:
             has_expected_peer = True
 
         route_had_wiring = has_expected_peer or self._has_non_send_wiring()
+        blocked = read_address(self.rpc.call(self.endpoint, SEL_BLOCKED_LIBRARY))
 
         # --- send library -> blockedLibrary ---
         is_default = self._try(self.endpoint, SEL_IS_DEFAULT_SEND + address_word(self.oft) + word(self.eid))
         if is_default is not None:
-            blocked = read_address(self.rpc.call(self.endpoint, SEL_BLOCKED_LIBRARY))
             current_send = self._try(self.endpoint, SEL_GET_SEND_LIBRARY + address_word(self.oft) + word(self.eid))
             current_send = None if current_send is None else read_address(current_send)
             if read_word(is_default, 0) != 0:
@@ -341,9 +404,13 @@ class RouteTeardown:
             data = calldata("setPeer(uint32,bytes32)", self.eid, ZERO32)
             self._push("setPeer", self.oft, data, self._owner_scoped(data, "setPeer"))
 
-        # --- receive library -> DEFAULT ---
+        # --- receive library -> DEFAULT, or -> blockedLibrary when sealing ---
         receive = self._receive_library()
-        if receive is not None and not receive[1]:
+        if self.seal:
+            if receive is not None and receive[0].lower() != blocked.lower():
+                self._push("setReceiveLibrary", self.endpoint,
+                           calldata("setReceiveLibrary(address,uint32,address,uint256)", self.oft, self.eid, blocked, 0))
+        elif receive is not None and not receive[1]:
             self._push("setReceiveLibrary", self.endpoint,
                        calldata("setReceiveLibrary(address,uint32,address,uint256)", self.oft, self.eid, ZERO_ADDRESS, 0))
 
@@ -394,49 +461,84 @@ def parse_ids(raw):
 def main():
     parser = argparse.ArgumentParser(description=__doc__, formatter_class=argparse.RawDescriptionHelpFormatter)
     parser.add_argument("--source", required=True, help="comma-separated chain ids that execute the batches")
-    parser.add_argument("--peer", help="comma-separated peer chain ids (default: every other Proxy + Non-EVM chain)")
+    parser.add_argument("--peer", help="comma-separated peer chain ids (default: every other chain of the universe)")
+    parser.add_argument("--peer-eid", help="comma-separated raw endpoint ids to add as peers, each optionally "
+                                           "EID=0x<expected peer address> (default: the OApp's own address)")
     parser.add_argument("--token", help=f"comma-separated subset of {','.join(TOKENS)} (default: all)")
+    parser.add_argument("--legacy", action="store_true",
+                        help="use the L0Config Legacy chains and the legacy OFT set instead of Proxy")
+    parser.add_argument("--oapp", help="comma-separated LABEL=0x<address> OApps to tear down instead of the token set; "
+                                       "their peers are expected to mirror their own address")
+    parser.add_argument("--seal", action="store_true",
+                        help="pin the receive library to BlockedMessageLib instead of resetting it to the default")
     parser.add_argument("--out-dir", required=True, help="output folder under txs/")
     parser.add_argument("--write", action="store_true", help="persist files (default: dry run)")
     args = parser.parse_args()
 
-    chains, registry = load_chains(), load_registry()
+    chains, registry = load_chains(args.legacy), load_registry()
     tokens = [t.strip().upper() for t in args.token.split(",")] if args.token else TOKENS
     unknown = [t for t in tokens if t not in TOKENS]
     if unknown:
         parser.error(f"unknown token(s): {unknown}")
+    try:
+        oapps = parse_targets(args.oapp) if args.oapp else None
+        raw_peers = parse_peer_eids(args.peer_eid) if args.peer_eid else {}
+    except ValueError as exc:
+        parser.error(str(exc))
+    if oapps and args.token:
+        parser.error("--oapp replaces the token set; --token does not apply")
+    for eid, peer in raw_peers.items():
+        if any(c["eid"] == eid for c in chains.values()):
+            parser.error(f"--peer-eid {eid} is a configured chain; pass its chain id to --peer instead")
+        # Raw eids are keyed and named by the eid itself, like the non-EVM files DeprecateChain writes.
+        chains[eid] = {"chainid": eid, "eid": eid, "kind": "evm", "raw_peer": peer}
+    universe = "Legacy" if args.legacy else "Proxy"
     out_dir = os.path.join(TXS_DIR, args.out_dir)
     review, failures, written = [], [], []
 
     for source_id in parse_ids(args.source):
         source = chains.get(source_id)
-        if source is None or source["kind"] != "evm":
-            parser.error(f"source {source_id} is not an EVM chain in L0Config Proxy")
-        peer_ids = parse_ids(args.peer) or [c for c in chains if c != source_id]
+        if source is None or source["kind"] != "evm" or "raw_peer" in source:
+            parser.error(f"source {source_id} is not an EVM chain in L0Config {universe}")
+        peer_ids = (parse_ids(args.peer) + list(raw_peers)) or [c for c in chains if c != source_id]
         rpc = Rpc(source["RPC"])
-        own = registry.get(source_id, registry["default"])
+        if oapps:
+            # (file label, token slot or None, OApp address)
+            targets = [(f"{label}-{address[2:10].lower()}", None, address) for label, address in oapps]
+        elif args.legacy:
+            targets = [(f"{LEGACY_LABELS[t]}-{registry['legacy'][TOKENS.index(t)][2:10].lower()}", t,
+                        registry["legacy"][TOKENS.index(t)]) for t in tokens]
+        else:
+            own = registry.get(source_id, registry["default"])
+            targets = [(t, t, own[TOKENS.index(t)]) for t in tokens]
+
+        def expected(peer_chain, token, oft):
+            if "raw_peer" in peer_chain:
+                return address_peer(peer_chain["raw_peer"] or oft)
+            if oapps or args.legacy:
+                return address_peer(oft)
+            return expected_peer(registry, peer_chain, token)
 
         def route(job):
-            peer_id, token = job
-            oft = own[TOKENS.index(token)]
+            peer_id, (_, token, oft) = job
             if int(oft, 16) == 0 or rpc.code(oft) in ("0x", "0x0"):
                 return job, None, ["OFT not deployed"]
             teardown = RouteTeardown(rpc, source, oft, chains[peer_id], token,
-                                     expected_peer(registry, chains[peer_id], token))
+                                     expected(chains[peer_id], token, oft), seal=args.seal)
             if not teardown.plan():
                 return job, None, teardown.notes
             return job, teardown, teardown.simulate()
 
         missing = [p for p in peer_ids if p not in chains]
         if missing:
-            parser.error(f"peer chain(s) not in L0Config: {missing}")
-        jobs = [(p, t) for p in peer_ids if p != source_id for t in tokens]
-        print(f"\n=== source {source_id} (eid {source['eid']}): {len(jobs)} routes ===")
+            parser.error(f"peer chain(s) not in L0Config {universe}: {missing}")
+        jobs = [(p, t) for p in peer_ids if p != source_id for t in targets]
+        print(f"\n=== source {source_id} (eid {source['eid']}, {universe}): {len(jobs)} routes ===")
         with ThreadPoolExecutor(max_workers=4) as pool:
             results = list(pool.map(route, jobs))
 
-        for (peer_id, token), teardown, notes in results:
-            label = f"{token} {source_id} -> {peer_id}"
+        for (peer_id, (file_label, _, _)), teardown, notes in results:
+            label = f"{file_label} {source_id} -> {peer_id}"
             if teardown is None:
                 if notes and notes[0].startswith("NEEDS REVIEW"):
                     review.append(f"{label}: {notes[0]}")
@@ -444,7 +546,7 @@ def main():
                 continue
             if notes:
                 failures.extend(f"{label}: {n}" for n in notes)
-            stem = f"Deprecate-{source_id}-{peer_id}-{token}"
+            stem = f"Deprecate-{source_id}-{peer_id}-{file_label}"
             for txs, suffix in ((teardown.txs, ""), (teardown.owner_txs, f"-owner-{teardown.owner}")):
                 if not txs:
                     continue

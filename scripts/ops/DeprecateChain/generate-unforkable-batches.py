@@ -26,9 +26,10 @@ scripts/L0Constants.sol, and non-EVM peers from scripts/NonEvmPeers.json.
 The legacy (non-upgradeable) OFT set is a second universe: `--legacy` switches sources and peers to
 the L0Config `Legacy` chains and the OFTs to L0Constants' `ethLockboxesLegacy` addresses, which are
 the same on every legacy chain, so the expected peer of a legacy route is the OFT's own address.
-Files are then labelled `<SYMBOL>-<addr8>` (FRAX-909dbde1, SFRAX-e4796ccb, FXS-23432452, ...)
-because Blast and Base run a proxy OFT with the same symbol next to the legacy one. `--oapp` does
-the same for any other OApp whose peers mirror its own address (the non-canonical FPI mesh), and
+Files are then labelled `<symbol>-legacy` with the symbol the legacy OFT answers on-chain (frax-legacy
+is 0x909D…, fxs-legacy is 0x2343…; the legacy symbols predate the FXS -> FRAX rename), since Blast and
+Base run a proxy OFT with the same symbol next to the legacy one. `--oapp label=address` tears down any
+other OApp whose peers mirror its own address (the non-canonical FPI mesh) under the label given, and
 `--peer-eid` adds a raw endpoint id, optionally with the peer address to expect there.
 
 `--seal` retires a route for good: the receive library is pinned to BlockedMessageLib instead of
@@ -51,7 +52,7 @@ Usage (from anywhere in the repo; dry run unless --write):
       --token WFRAX,SFRXUSD,SFRXETH,FRXUSD,FRXETH --out-dir deprecate-81457 --write
   # Non-canonical FPI spoke on Metis: its legacy-chain peers mirror its address, the others are
   # the Fraxtal-set address, and Mode (30260) is no longer in L0Config.
-  ./generate-unforkable-batches.py --legacy --seal --source 1088 --oapp FPI=0xE41228a455700cAF09E551805A8aB37caa39D08c \
+  ./generate-unforkable-batches.py --legacy --seal --source 1088 --oapp fpi-noncanonical=0xE41228a455700cAF09E551805A8aB37caa39D08c \
       --peer 1,8453,81457 \
       --peer-eid 30255=0xEed9DE5E41b53D1C8fAB8AAB4b0e446F828c1483,30260=0xEed9DE5E41b53D1C8fAB8AAB4b0e446F828c1483,30280=0xEed9DE5E41b53D1C8fAB8AAB4b0e446F828c1483,30274=0xEed9DE5E41b53D1C8fAB8AAB4b0e446F828c1483 \
       --out-dir deprecate-1088 --write
@@ -85,10 +86,11 @@ TOKENS = ["WFRAX", "SFRXUSD", "SFRXETH", "FRXUSD", "FRXETH", "FPI"]
 # BaseL0Script maps NonEvmPeers.json keys onto Token slots.
 NON_EVM_KEYS = {"WFRAX": "wfrax", "SFRXUSD": "sfrxUSD", "SFRXETH": "sfrxEth",
                 "FRXUSD": "frxUSD", "FRXETH": "frxEth", "FPI": "fpi"}
-# What the legacy OFTs answer to symbol() (the Ethereum-legacy lockboxes have no symbol()), per Token
-# slot of L0Constants' ethLockboxesLegacy; the DeprecateFromSafeBatch extraction named files the same way.
-LEGACY_LABELS = {"WFRAX": "FXS", "SFRXUSD": "SFRAX", "SFRXETH": "SFRXETH",
-                 "FRXUSD": "FRAX", "FRXETH": "FRXETH", "FPI": "FPI"}
+
+# What each legacy OFT answers to symbol(), per Token slot of L0Constants' ethLockboxesLegacy; the
+# Ethereum-legacy lockboxes have no symbol() but wrap the same tokens.
+LEGACY_SYMBOLS = {"WFRAX": "fxs", "SFRXUSD": "sfrax", "SFRXETH": "sfrxeth",
+                  "FRXUSD": "frax", "FRXETH": "frxeth", "FPI": "fpi"}
 
 ZERO32 = "0x" + "00" * 32
 ZERO_ADDRESS = "0x" + "00" * 20
@@ -274,13 +276,13 @@ def address_peer(address):
 
 
 def parse_targets(raw):
-    """`--oapp LABEL=0x...[,LABEL=0x...]` -> [(label, address)]."""
+    """`--oapp label=0x...[,label=0x...]` -> [(label, address)], label used verbatim in file names."""
     targets = []
     for item in raw.split(","):
         label, _, address = item.strip().partition("=")
-        if not label or not re.fullmatch(r"0x[0-9a-fA-F]{40}", address):
-            raise ValueError(f"--oapp entries are LABEL=0x<40 hex>: {item!r}")
-        targets.append((label.upper(), address))
+        if not re.fullmatch(r"[A-Za-z0-9-]+", label) or not re.fullmatch(r"0x[0-9a-fA-F]{40}", address):
+            raise ValueError(f"--oapp entries are label=0x<40 hex> (label: letters, digits, dashes): {item!r}")
+        targets.append((label, address))
     return targets
 
 
@@ -467,8 +469,8 @@ def main():
     parser.add_argument("--token", help=f"comma-separated subset of {','.join(TOKENS)} (default: all)")
     parser.add_argument("--legacy", action="store_true",
                         help="use the L0Config Legacy chains and the legacy OFT set instead of Proxy")
-    parser.add_argument("--oapp", help="comma-separated LABEL=0x<address> OApps to tear down instead of the token set; "
-                                       "their peers are expected to mirror their own address")
+    parser.add_argument("--oapp", help="comma-separated label=0x<address> OApps to tear down instead of the token set, "
+                                       "filed under that label; their peers are expected to mirror their own address")
     parser.add_argument("--seal", action="store_true",
                         help="pin the receive library to BlockedMessageLib instead of resetting it to the default")
     parser.add_argument("--out-dir", required=True, help="output folder under txs/")
@@ -504,10 +506,9 @@ def main():
         rpc = Rpc(source["RPC"])
         if oapps:
             # (file label, token slot or None, OApp address)
-            targets = [(f"{label}-{address[2:10].lower()}", None, address) for label, address in oapps]
+            targets = [(label, None, address) for label, address in oapps]
         elif args.legacy:
-            targets = [(f"{LEGACY_LABELS[t]}-{registry['legacy'][TOKENS.index(t)][2:10].lower()}", t,
-                        registry["legacy"][TOKENS.index(t)]) for t in tokens]
+            targets = [(f"{LEGACY_SYMBOLS[t]}-legacy", t, registry["legacy"][TOKENS.index(t)]) for t in tokens]
         else:
             own = registry.get(source_id, registry["default"])
             targets = [(t, t, own[TOKENS.index(t)]) for t in tokens]

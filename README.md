@@ -155,12 +155,21 @@ whitelisted USD TIP-20s (currently `pathUSD`, `USDC.e`, `USDT0`).
 
 On a send, the Tempo OFT and the frxUSD TIP-20 adapter:
 
-1. resolve the caller's gas token from `TIP_FEE_MANAGER.userTokens(msg.sender)`, defaulting to `pathUSD`;
+1. resolve the caller's gas token from `TIP_FEE_MANAGER.userTokens(msg.sender)`, defaulting to `pathUSD`
+   (or take the `feeToken` named to `sendWithFeeCap`, see below);
 2. if LZD whitelists that token, pull exactly `fee.nativeFee` of it; otherwise swap for the cheapest
    whitelisted token on the StablecoinDEX, applying a 50 bps allowance (`feeSwapSlippageBps`) because
    the DEX quote and its settlement round differently across order boundaries — anything the swap does
    not consume is returned to the caller **in the same TIP-20**;
 3. wrap exactly `fee.nativeFee` into LZD, minted directly to the endpoint.
+
+**Capping the TIP-20 debit.** `IOFT.send` carries no ceiling on the TIP-20 pulled for the fee: only the
+caller's allowance bounds it, and a DEX-routed fee can move between quote and inclusion.
+`sendWithFeeCap(sendParam, fee, refundAddress, feeToken, maxFeeTokenAmount)` is the same send with the
+fee token named explicitly (independent of the FeeManager binding) and the debit capped: it reverts
+`FeeAboveCap`, keeping nothing, if the fee in `feeToken` — `quoteUserTokenFee(feeToken, fee.nativeFee)`,
+headroom included — exceeds the cap. Approve exactly that figure and pass it as the cap; the unspent
+headroom is refunded in the same call. It takes no value.
 
 **Overpaid fees are refunded in LZD, not in the TIP-20 the caller paid with.** The endpoint prices the
 send when the transaction lands and compares it against its whole LZD balance; any surplus goes to

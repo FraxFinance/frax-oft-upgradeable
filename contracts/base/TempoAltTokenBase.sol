@@ -28,6 +28,8 @@ abstract contract TempoAltTokenBase {
     error OFTAltCore__msg_value_not_zero(uint256 _msg_value);
     error NoSwappableWhitelistedToken(address userToken);
     error FeeSwapSlippageTooHigh(uint16 bps);
+    error FeeAboveCap(uint256 required, uint256 cap);
+    error InvalidFeeToken();
 
     /// @notice Emitted when the fee-swap slippage allowance changes.
     event FeeSwapSlippageBpsSet(uint16 bps);
@@ -106,7 +108,9 @@ abstract contract TempoAltTokenBase {
     /// @param _userToken The TIP20 gas token to quote for.
     /// @param _endpointFee The fee in endpoint-native (LZEndpointDollar) units, as returned by quoteSend().
     /// @return The estimated amount of `_userToken` required, including the slippage allowance
-    ///         applied when the fee must be swapped. Approve at least this much.
+    ///         applied when the fee must be swapped. Approve exactly this much and pass it as the
+    ///         fee cap of `sendWithFeeCap`; the unspent part of a swap allowance is refunded in the
+    ///         same call.
     function quoteUserTokenFee(address _userToken, uint256 _endpointFee) external view returns (uint256) {
         return TempoAltTokenLib.quoteUserTokenFee(nativeToken, _userToken, _endpointFee, feeSwapSlippageBps());
     }
@@ -132,5 +136,25 @@ abstract contract TempoAltTokenBase {
     /// @param _endpointAddr The address of the LZ endpoint to send wrapped tokens to.
     function _payNativeAltToken(uint256 _nativeFee, address _endpointAddr) internal returns (uint256) {
         return TempoAltTokenLib.payNativeAltToken(nativeToken, _nativeFee, _endpointAddr, feeSwapSlippageBps());
+    }
+
+    /// @dev As `_payNativeAltToken`, paying in `_feeToken` rather than the caller's FeeManager token and
+    ///      reverting `FeeAboveCap` before anything is pulled if the debit would exceed `_maxFeeTokenAmount`.
+    ///      The debit is the figure `quoteUserTokenFee(_feeToken, _nativeFee)` reports.
+    function _payNativeAltTokenCapped(
+        uint256 _nativeFee,
+        address _endpointAddr,
+        address _feeToken,
+        uint256 _maxFeeTokenAmount
+    ) internal returns (uint256) {
+        return
+            TempoAltTokenLib.payNativeAltTokenCapped(
+                nativeToken,
+                _nativeFee,
+                _endpointAddr,
+                feeSwapSlippageBps(),
+                _feeToken,
+                _maxFeeTokenAmount
+            );
     }
 }

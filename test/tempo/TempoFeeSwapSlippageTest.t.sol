@@ -214,6 +214,88 @@ contract TempoFeeSwapSlippageTest is Test {
         harness.setBps(MAX_FEE_SWAP_SLIPPAGE_BPS + 1);
     }
 
+    /// @notice The capped collector checks the padded quote — the figure `quoteUserTokenFee` reports —
+    ///         against the cap before pulling anything, and never consults the fee manager.
+    function test_PayNativeAltTokenCapped_CapBelowPaddedQuote_RevertsWithoutPulling() public {
+        MockLZEndpointDollar lzDollar = new MockLZEndpointDollar(address(pathUsd));
+        AltTokenHarness harness = new AltTokenHarness(address(new MockEndpointV2Alt(address(lzDollar))));
+
+        uint128 quoted = DEX.quoteSwapExactAmountOut(address(gasToken), address(pathUsd), NATIVE_FEE);
+        uint128 maxIn = _withSlippage(quoted, DEFAULT_FEE_SWAP_SLIPPAGE_BPS);
+        assertEq(harness.quoteUserTokenFee(address(gasToken), NATIVE_FEE), maxIn, "the cap figure is the quote");
+
+        uint256 payerBefore = gasToken.balanceOf(PAYER);
+        vm.prank(PAYER);
+        gasToken.approve(address(harness), type(uint256).max);
+
+        vm.prank(PAYER);
+        vm.expectRevert(abi.encodeWithSelector(TempoAltTokenBase.FeeAboveCap.selector, maxIn, maxIn - 1));
+        harness.payCapped(NATIVE_FEE, address(0xE4D), address(gasToken), maxIn - 1);
+
+        assertEq(gasToken.balanceOf(PAYER), payerBefore, "nothing pulled");
+        assertEq(pathUsd.balanceOf(address(0xE4D)), 0, "endpoint received nothing");
+    }
+
+    /// @notice At the padded quote the swap settles despite the divergence and the remainder comes back.
+    function test_PayNativeAltTokenCapped_CapAtPaddedQuote_SettlesAndRefunds() public {
+        MockLZEndpointDollar lzDollar = new MockLZEndpointDollar(address(pathUsd));
+        AltTokenHarness harness = new AltTokenHarness(address(new MockEndpointV2Alt(address(lzDollar))));
+
+        uint128 quoted = DEX.quoteSwapExactAmountOut(address(gasToken), address(pathUsd), NATIVE_FEE);
+        uint128 maxIn = _withSlippage(quoted, DEFAULT_FEE_SWAP_SLIPPAGE_BPS);
+        uint256 payerBefore = gasToken.balanceOf(PAYER);
+
+        vm.prank(PAYER);
+        gasToken.approve(address(harness), maxIn);
+        vm.prank(PAYER);
+        harness.payCapped(NATIVE_FEE, address(0xE4D), address(gasToken), maxIn);
+
+        uint256 spent = payerBefore - gasToken.balanceOf(PAYER);
+        assertGt(spent, quoted, "control: this book should under-quote");
+        assertLe(spent, maxIn, "spent more than the cap");
+        assertEq(gasToken.balanceOf(address(harness)), 0, "adapter retained leftover gas token");
+        assertEq(pathUsd.balanceOf(address(0xE4D)), NATIVE_FEE, "endpoint did not receive the fee");
+        assertEq(gasToken.allowance(address(harness), address(DEX)), 0, "residual DEX allowance left open");
+    }
+
+    /// @notice A whitelisted fee token is collected 1:1, so its cap is the exact fee.
+    function test_PayNativeAltTokenCapped_WhitelistedToken_CapIsExactFee() public {
+        MockLZEndpointDollar lzDollar = new MockLZEndpointDollar(address(pathUsd));
+        AltTokenHarness harness = new AltTokenHarness(address(new MockEndpointV2Alt(address(lzDollar))));
+        pathUsd.mint(PAYER, NATIVE_FEE);
+        vm.prank(PAYER);
+        pathUsd.approve(address(harness), type(uint256).max);
+
+        vm.prank(PAYER);
+        vm.expectRevert(abi.encodeWithSelector(TempoAltTokenBase.FeeAboveCap.selector, NATIVE_FEE, NATIVE_FEE - 1));
+        harness.payCapped(NATIVE_FEE, address(0xE4D), address(pathUsd), NATIVE_FEE - 1);
+        assertEq(pathUsd.balanceOf(PAYER), NATIVE_FEE, "nothing pulled");
+
+        vm.prank(PAYER);
+        harness.payCapped(NATIVE_FEE, address(0xE4D), address(pathUsd), NATIVE_FEE);
+        assertEq(pathUsd.balanceOf(PAYER), 0, "debited exactly the fee");
+        assertEq(pathUsd.balanceOf(address(0xE4D)), NATIVE_FEE, "endpoint received the fee");
+    }
+
+    /// @notice The named token pays, whatever the fee manager reports as the caller's gas token.
+    function test_PayNativeAltTokenCapped_NamedTokenIgnoresFeeManager() public {
+        vm.etch(StdPrecompiles.TIP_FEE_MANAGER_ADDRESS, address(new MockFeeManager(address(gasToken))).code);
+        MockLZEndpointDollar lzDollar = new MockLZEndpointDollar(address(pathUsd));
+        AltTokenHarness harness = new AltTokenHarness(address(new MockEndpointV2Alt(address(lzDollar))));
+        pathUsd.mint(PAYER, NATIVE_FEE);
+        uint256 gasBefore = gasToken.balanceOf(PAYER);
+
+        vm.startPrank(PAYER);
+        pathUsd.approve(address(harness), type(uint256).max);
+        gasToken.approve(address(harness), type(uint256).max);
+        harness.payCapped(NATIVE_FEE, address(0xE4D), address(pathUsd), NATIVE_FEE);
+        vm.stopPrank();
+
+        assertEq(gasToken.balanceOf(PAYER), gasBefore, "fee-manager token untouched");
+        assertEq(pathUsd.balanceOf(PAYER), 0, "named token paid");
+        assertEq(pathUsd.balanceOf(address(0xE4D)), NATIVE_FEE, "endpoint received the fee");
+    }
+
     /// @notice Control: a single order at the same tick does not diverge.
     function test_Control_SingleOrder_NoDivergence() public {
         ITIP20 solo = ITIP20(_deployTIP20("Solo", "SOLO", StdTokens.BETA_USD_ADDRESS));
@@ -319,6 +401,10 @@ contract AltTokenHarness is TempoAltTokenBase {
 
     function pay(uint256 _fee, address _endpointAddr) external returns (uint256) {
         return _payNativeAltToken(_fee, _endpointAddr);
+    }
+
+    function payCapped(uint256 _fee, address _endpointAddr, address _feeToken, uint256 _cap) external returns (uint256) {
+        return _payNativeAltTokenCapped(_fee, _endpointAddr, _feeToken, _cap);
     }
 
     function setBps(uint16 _bps) external {

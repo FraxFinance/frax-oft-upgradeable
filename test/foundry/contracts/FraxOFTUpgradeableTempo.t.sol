@@ -377,4 +377,96 @@ contract FraxOFTUpgradeableTempoTest is TempoTestHelpers, LZTestHelperOz4 {
         assertEq(oftReceipt.amountSentLD, sendAmount, "amountSentLD should match");
         assertEq(oftReceipt.amountReceivedLD, sendAmount, "amountReceivedLD should match");
     }
+
+    /// @dev sendWithFeeCap with a whitelisted fee token: the cap is the exact fee. One unit under it reverts the
+    ///      whole call with nothing kept; at it the send goes through and the debit is exactly the quote.
+    function test_SendWithFeeCap_WhitelistedToken_RevertsAboveCapThenSucceedsAtQuote() external {
+        uint256 sendAmount = 1_000_000_000_000; // avoid dust
+        uint256 nativeFee = 10e6;
+
+        _setupPeer();
+        deal(address(oft), alice, sendAmount);
+        StdTokens.PATH_USD.mint(alice, nativeFee);
+
+        vm.startPrank(alice);
+        oft.approve(address(oft), type(uint256).max);
+        StdTokens.PATH_USD.approve(address(oft), type(uint256).max);
+        vm.stopPrank();
+
+        SendParam memory sendParam = _buildSendParam(sendAmount);
+        MessagingFee memory fee = MessagingFee({ nativeFee: nativeFee, lzTokenFee: 0 });
+        uint256 cap = oft.quoteUserTokenFee(StdTokens.PATH_USD_ADDRESS, nativeFee);
+        assertEq(cap, nativeFee, "whitelisted token quotes 1:1");
+
+        vm.prank(alice);
+        vm.expectRevert(abi.encodeWithSelector(TempoAltTokenBase.FeeAboveCap.selector, nativeFee, cap - 1));
+        oft.sendWithFeeCap(sendParam, fee, alice, StdTokens.PATH_USD_ADDRESS, cap - 1);
+        assertEq(oft.balanceOf(alice), sendAmount, "nothing kept on revert: principal");
+        assertEq(StdTokens.PATH_USD.balanceOf(alice), nativeFee, "nothing kept on revert: fee");
+
+        vm.prank(alice);
+        (MessagingReceipt memory msgReceipt, OFTReceipt memory oftReceipt) = oft.sendWithFeeCap(
+            sendParam,
+            fee,
+            alice,
+            StdTokens.PATH_USD_ADDRESS,
+            cap
+        );
+
+        assertGt(uint256(msgReceipt.guid), 0, "guid should be non-zero");
+        assertEq(oftReceipt.amountSentLD, sendAmount, "amountSentLD should match");
+        assertEq(oft.balanceOf(alice), 0, "principal debited");
+        assertEq(StdTokens.PATH_USD.balanceOf(alice), 0, "debited exactly the fee");
+        assertEq(lzEndpoint.nativeErc20().balanceOf(address(lzEndpoint)), nativeFee, "endpoint should receive LZEndpointDollar");
+    }
+
+    /// @dev sendWithFeeCap on the swap path: the cap is checked against the padded quote and the named token
+    ///      pays even though the caller's FeeManager token is PATH_USD.
+    function test_SendWithFeeCap_SwapPath_NamedTokenPaysUnderPaddedQuote() external {
+        uint256 sendAmount = 1_000_000_000_000; // avoid dust
+        uint256 nativeFee = 20_000e6;
+
+        ITIP20 gasToken = _createTIP20WithDexPair("Other", "OTHER", keccak256("test_SendWithFeeCap_SwapPath"));
+        _setUserGasToken(alice, StdTokens.PATH_USD_ADDRESS);
+        _setupPeer();
+
+        deal(address(oft), alice, sendAmount);
+        StdTokens.PATH_USD.mint(alice, nativeFee);
+        _addDexLiquidity(address(gasToken), nativeFee * 2);
+        uint256 cap = oft.quoteUserTokenFee(address(gasToken), nativeFee);
+        assertGt(cap, nativeFee, "swap quote carries headroom");
+        gasToken.mint(alice, cap);
+
+        vm.startPrank(alice);
+        oft.approve(address(oft), type(uint256).max);
+        gasToken.approve(address(oft), type(uint256).max);
+        StdTokens.PATH_USD.approve(address(oft), type(uint256).max);
+        vm.stopPrank();
+
+        SendParam memory sendParam = _buildSendParam(sendAmount);
+        MessagingFee memory fee = MessagingFee({ nativeFee: nativeFee, lzTokenFee: 0 });
+
+        vm.prank(alice);
+        vm.expectRevert(abi.encodeWithSelector(TempoAltTokenBase.FeeAboveCap.selector, cap, cap - 1));
+        oft.sendWithFeeCap(sendParam, fee, alice, address(gasToken), cap - 1);
+        assertEq(gasToken.balanceOf(alice), cap, "nothing kept on revert");
+
+        vm.prank(alice);
+        oft.sendWithFeeCap(sendParam, fee, alice, address(gasToken), cap);
+
+        // A single order at tick 0 settles at the raw quote, so the headroom comes straight back.
+        assertEq(gasToken.balanceOf(alice), cap - nativeFee, "debited the settled swap input, headroom refunded");
+        assertEq(StdTokens.PATH_USD.balanceOf(alice), nativeFee, "FeeManager token untouched: the named token paid");
+        assertEq(gasToken.balanceOf(address(oft)), 0, "nothing stranded on the OFT");
+        assertEq(lzEndpoint.nativeErc20().balanceOf(address(lzEndpoint)), nativeFee, "endpoint should receive LZEndpointDollar");
+    }
+
+    function test_SendWithFeeCap_RejectsZeroFeeToken() external {
+        _setupPeer();
+        SendParam memory sendParam = _buildSendParam(1_000_000_000_000);
+
+        vm.prank(alice);
+        vm.expectRevert(TempoAltTokenBase.InvalidFeeToken.selector);
+        oft.sendWithFeeCap(sendParam, MessagingFee({ nativeFee: 10e6, lzTokenFee: 0 }), alice, address(0), type(uint256).max);
+    }
 }

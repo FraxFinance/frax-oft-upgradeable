@@ -94,19 +94,43 @@ library TempoAltTokenLib {
         findSwapTarget(_nativeToken, userToken, uint128(_nativeFee));
     }
 
+    /// @dev Pays in the caller's FeeManager fee token with no cap other than their allowance.
     function payNativeAltToken(
         ILZEndpointDollar _nativeToken,
         uint256 _nativeFee,
         address _endpointAddr,
         uint16 _slippageBps
     ) external returns (uint256) {
+        return _payNativeAltToken(_nativeToken, _nativeFee, _endpointAddr, _slippageBps, _resolveUserToken(), type(uint256).max);
+    }
+
+    /// @dev Pays in `_feeToken`, reverting `FeeAboveCap` before anything is pulled if the debit -- the
+    ///      figure `quoteUserTokenFee` reports for the same inputs -- would exceed `_maxFeeTokenAmount`.
+    function payNativeAltTokenCapped(
+        ILZEndpointDollar _nativeToken,
+        uint256 _nativeFee,
+        address _endpointAddr,
+        uint16 _slippageBps,
+        address _feeToken,
+        uint256 _maxFeeTokenAmount
+    ) external returns (uint256) {
+        return _payNativeAltToken(_nativeToken, _nativeFee, _endpointAddr, _slippageBps, _feeToken, _maxFeeTokenAmount);
+    }
+
+    function _payNativeAltToken(
+        ILZEndpointDollar _nativeToken,
+        uint256 _nativeFee,
+        address _endpointAddr,
+        uint16 _slippageBps,
+        address userToken,
+        uint256 _maxUserTokenAmount
+    ) private returns (uint256) {
         if (_nativeFee == 0) return 0;
         if (address(_nativeToken) == address(0)) revert TempoAltTokenBase.NativeTokenUnavailable();
 
-        address userToken = _resolveUserToken();
-
         // If userToken is directly whitelisted, wrap directly
         if (_nativeToken.isWhitelistedToken(userToken)) {
+            if (_nativeFee > _maxUserTokenAmount) revert TempoAltTokenBase.FeeAboveCap(_nativeFee, _maxUserTokenAmount);
             ITIP20(userToken).transferFrom(msg.sender, address(this), _nativeFee);
             ITIP20(userToken).approve(address(_nativeToken), _nativeFee);
             _nativeToken.wrap(userToken, _endpointAddr, _nativeFee);
@@ -118,6 +142,7 @@ library TempoAltTokenLib {
         // debits only what it consumes and the remainder is refunded below.
         (address targetToken, uint128 quotedAmountIn) = findSwapTarget(_nativeToken, userToken, uint128(_nativeFee));
         uint128 maxAmountIn = _withSlippage(quotedAmountIn, _slippageBps);
+        if (maxAmountIn > _maxUserTokenAmount) revert TempoAltTokenBase.FeeAboveCap(maxAmountIn, _maxUserTokenAmount);
 
         ITIP20(userToken).transferFrom(msg.sender, address(this), maxAmountIn);
         ITIP20(userToken).approve(address(StdPrecompiles.STABLECOIN_DEX), maxAmountIn);

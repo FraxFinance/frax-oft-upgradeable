@@ -38,7 +38,7 @@
     "@babel/core": "^7.28.0",
     "@coral-xyz/anchor": "^0.29.0",
     "@ethersproject/bytes": "^5.8.0",
-    "@fraxfinance/layerzero-v2-upgradeable": "github:fraxfinance/LayerZero-v2-upgradeable#v1.0.0",
+    "@fraxfinance/layerzero-v2-upgradeable": "github:fraxfinance/LayerZero-v2-upgradeable#5fb31cb218422889d32ee25ebfadbf169aa10697",
     "@jest/globals": "^29.7.0",
     "@layerzerolabs/devtools": "~0.4.10",
     "@layerzerolabs/devtools-evm": "~1.0.6",

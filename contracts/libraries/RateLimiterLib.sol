@@ -262,11 +262,19 @@ library RateLimiterLib {
             && _config.inboundLimit == 0 && _config.outboundWindow == 0 && _config.inboundWindow == 0;
     }
 
+    /// @dev An enabled direction must recover at least one base unit per second (limit >= window, which
+    ///      also rules out a zero limit). Every write that advances the shared lastUpdated covers at least
+    ///      one second, so it credits each direction at least one unit and the per-write floor in
+    ///      _decayUsage can never stall recovery.
     function _validateRateLimitConfig(RateLimiterModule.RateLimitConfig memory _config) internal pure {
-        if (_config.outboundEnabled && (_config.outboundLimit == 0 || _config.outboundWindow == 0)) {
+        if (
+            _config.outboundEnabled && (_config.outboundWindow == 0 || _config.outboundLimit < _config.outboundWindow)
+        ) {
             revert RateLimiterModule.InvalidRateLimitConfig();
         }
-        if (_config.inboundEnabled && (_config.inboundLimit == 0 || _config.inboundWindow == 0)) {
+        if (
+            _config.inboundEnabled && (_config.inboundWindow == 0 || _config.inboundLimit < _config.inboundWindow)
+        ) {
             revert RateLimiterModule.InvalidRateLimitConfig();
         }
     }
@@ -278,6 +286,9 @@ library RateLimiterLib {
         if (_state.lastUpdated == 0) revert RateLimiterModule.InvalidRateLimitState();
     }
 
+    /// @dev Floors each direction independently. Both directions share one lastUpdated, so each write that
+    ///      advances it discards under one base unit of recovery per direction. The loss only ever slows
+    ///      recovery, never over-replenishes, and _validateRateLimitConfig keeps it from stalling.
     function _decayUsage(
         uint256 _usage,
         uint256 _limit,

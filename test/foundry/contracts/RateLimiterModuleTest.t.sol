@@ -433,6 +433,67 @@ contract RateLimiterModuleTest is Test {
         assertLt(used, 2_000_000, "settlement loop gas");
     }
 
+    // ── Each enabled direction recovers at least one base unit per second ───────
+
+    /// @notice Both setters reject an enabled direction whose limit is below its window, including Zellic's
+    ///         1-per-2s proof-of-concept config, and accept exactly one unit per second.
+    function test_RejectsRecoveryBelowOneUnitPerSecond() external {
+        _expectBothSettersReject(_config(1, 2, 0, 0));
+        _expectBothSettersReject(_config(1 days - 1, 1 days, 0, 0));
+        _expectBothSettersReject(_config(0, 0, 1 days - 1, 1 days));
+        _expectBothSettersReject(_config(1_000e18, 1 days, 1 days - 1, 1 days));
+
+        oft.setDefaultRateLimitConfig(_config(1 days, 1 days, 1 days, 1 days));
+        _setOverride(DST_EID, _config(1 days, 1 days, 1 days, 1 days));
+    }
+
+    /// @notice Zellic's stall shape at the threshold: a 2-per-2s outbound bucket still refills one unit per
+    ///         second while an inbound delivery on the same EID re-anchors the shared timestamp every second.
+    function test_OppositeTrafficEverySecond_CannotStallRecovery() external {
+        ERC20Mock6 sixToken = new ERC20Mock6();
+        FraxOFTAdapterUpgradeableRateLimitHarness six = _deployAdapter(address(sixToken));
+        six.setDefaultRateLimitConfig(_config(2, 2, 2, 2));
+        sixToken.mint(alice, 100);
+        sixToken.mint(address(six), 100); // escrow for the inbound credits
+        vm.prank(alice);
+        sixToken.approve(address(six), type(uint256).max);
+
+        for (uint256 w; w < 3; ++w) {
+            vm.prank(alice);
+            six.debit(2, 2, DST_EID);
+            assertEq(six.outboundRateLimitAvailable(DST_EID), 0, "saturated");
+            for (uint256 t = 1; t <= 2; ++t) {
+                skip(1);
+                six.credit(bob, 1, DST_EID);
+                assertEq(six.outboundRateLimitAvailable(DST_EID), t, "one unit per second");
+            }
+        }
+    }
+
+    /// @notice On a realistic config the shared timestamp costs under one base unit per write: a lane
+    ///         re-anchored by 100 inbound deliveries trails a quiet lane by fewer than 100 wei, never leads it.
+    function test_OppositeTraffic_TruncationUnderOneUnitPerWrite() external {
+        uint32 busy = SRC_EID;
+        uint256 writes = 100;
+        oft.mint(alice, 1_000e18); // setUp mints one lane's worth
+        oft.setDefaultRateLimitConfig(_config(1_000e18, 1 days, 1_000e18, 1 days));
+        vm.startPrank(alice);
+        oft.debit(1_000e18, 1_000e18, DST_EID);
+        oft.debit(1_000e18, 1_000e18, busy);
+        vm.stopPrank();
+
+        for (uint256 i; i < writes; ++i) {
+            skip(7); // 1,000e18 * 7 is not a multiple of 86,400, so every write floors a fraction away
+            oft.credit(bob, 1, busy);
+        }
+
+        uint256 quiet = oft.outboundRateLimitAvailable(DST_EID);
+        uint256 reanchored = oft.outboundRateLimitAvailable(busy);
+        assertEq(quiet, uint256(1_000e18) * (7 * writes) / 1 days, "quiet lane: one projection");
+        assertLt(reanchored, quiet, "truncation only slows recovery");
+        assertLt(quiet - reanchored, writes, "under one unit per write");
+    }
+
     // ── Per-EID configs must actually take effect ───────────────────────────────
 
     function test_SetRateLimitConfigs_RejectsLimitsWithoutOverride() external {
@@ -522,6 +583,17 @@ contract RateLimiterModuleTest is Test {
         _cfg.overrideDefaultConfig = true;
         RateLimiterModule.SetRateLimitConfigParam[] memory params = new RateLimiterModule.SetRateLimitConfigParam[](1);
         params[0] = RateLimiterModule.SetRateLimitConfigParam({ eid: _eid, config: _cfg });
+        oft.setRateLimitConfigs(params);
+    }
+
+    function _expectBothSettersReject(RateLimiterModule.RateLimitConfig memory _cfg) internal {
+        vm.expectRevert(RateLimiterModule.InvalidRateLimitConfig.selector);
+        oft.setDefaultRateLimitConfig(_cfg);
+
+        _cfg.overrideDefaultConfig = true;
+        RateLimiterModule.SetRateLimitConfigParam[] memory params = new RateLimiterModule.SetRateLimitConfigParam[](1);
+        params[0] = RateLimiterModule.SetRateLimitConfigParam({ eid: DST_EID, config: _cfg });
+        vm.expectRevert(RateLimiterModule.InvalidRateLimitConfig.selector);
         oft.setRateLimitConfigs(params);
     }
 

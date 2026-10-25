@@ -302,8 +302,8 @@ contract RateLimiterModuleTest is Test {
         oft.credit(bob, 1_000e18, SRC_EID);
     }
 
-    /// @notice Disabling only the flag, with the limit and window kept, keeps decaying as before.
-    function test_DisabledFlagWithRateKept_StillDecays() external {
+    /// @notice Disabling only the flag, with the limit and window kept, also resets: the flag decides.
+    function test_DisabledFlagWithRateKept_ResetsOnReenable() external {
         _setOverride(SRC_EID, _config(0, 0, 1_000e18, 1 days));
         oft.credit(bob, 1_000e18, SRC_EID);
 
@@ -313,7 +313,124 @@ contract RateLimiterModuleTest is Test {
         skip(12 hours);
 
         _setOverride(SRC_EID, _config(0, 0, 1_000e18, 1 days));
-        assertEq(oft.inboundRateLimitAvailable(SRC_EID), 500e18, "half a window of decay");
+        assertEq(oft.inboundRateLimitAvailable(SRC_EID), 1_000e18, "re-enabled direction starts empty");
+    }
+
+    /// @notice Two lanes on the same timeline, one disabled with zeroed fields and one with its limit and
+    ///         window kept, come back identical.
+    function test_DisabledDirection_ZeroedAndRetainedFieldsAgree() external {
+        uint32 other = 30184;
+        _setOverride(DST_EID, _config(100e18, 100, 0, 0));
+        _setOverride(other, _config(100e18, 100, 0, 0));
+        vm.startPrank(alice);
+        oft.debit(100e18, 100e18, DST_EID);
+        oft.debit(100e18, 100e18, other);
+        vm.stopPrank();
+        skip(5);
+
+        RateLimiterModule.RateLimitConfig memory retained = _config(100e18, 100, 0, 0);
+        retained.outboundEnabled = false;
+        _setOverride(DST_EID, _config(0, 0, 0, 0));
+        _setOverride(other, retained);
+        skip(10);
+
+        _setOverride(DST_EID, _config(100e18, 100, 0, 0));
+        _setOverride(other, _config(100e18, 100, 0, 0));
+        assertEq(oft.outboundRateLimitAvailable(DST_EID), 100e18, "zeroed");
+        assertEq(oft.outboundRateLimitAvailable(other), 100e18, "retained");
+    }
+
+    /// @notice The global switch stops consumption without settling: usage keeps decaying meanwhile.
+    function test_GlobalDisable_DecayContinues() external {
+        oft.setDefaultRateLimitConfig(_config(100e18, 100, 0, 0));
+        vm.prank(alice);
+        oft.debit(100e18, 100e18, DST_EID);
+
+        oft.setRateLimitGlobalConfig(RateLimiterModule.RateLimitGlobalConfig({ isGloballyDisabled: true }));
+        skip(50);
+        oft.setRateLimitGlobalConfig(RateLimiterModule.RateLimitGlobalConfig({ isGloballyDisabled: false }));
+
+        assertEq(oft.outboundRateLimitAvailable(DST_EID), 50e18);
+    }
+
+    // ── Transitions settle under the old rate and fit usage to the new limit ─────
+
+    /// @notice A drained 100-per-100s bucket, 10s later, carries 90 of usage into a 1,000-per-10s default.
+    function test_DefaultConfigChange_FasterReplacementKeepsCarriedUsage() external {
+        oft.setDefaultRateLimitConfig(_config(100e18, 100, 0, 0));
+        vm.prank(alice);
+        oft.debit(100e18, 100e18, DST_EID);
+        skip(10);
+
+        oft.setDefaultRateLimitConfig(_config(1_000e18, 10, 0, 0));
+        assertEq(oft.outboundRateLimitAvailable(DST_EID), 910e18);
+    }
+
+    /// @notice Half-decayed usage under a fast default drains at the slower rate after the change.
+    function test_DefaultConfigChange_SlowerReplacementCarriesUsage() external {
+        oft.setDefaultRateLimitConfig(_config(100e18, 10, 0, 0));
+        vm.prank(alice);
+        oft.debit(100e18, 100e18, DST_EID);
+        skip(5);
+
+        oft.setDefaultRateLimitConfig(_config(100e18, 100, 0, 0));
+        assertEq(oft.outboundRateLimitAvailable(DST_EID), 50e18, "50 carried");
+        skip(25);
+        assertEq(oft.outboundRateLimitAvailable(DST_EID), 75e18, "slow rate applies");
+        skip(25);
+        assertEq(oft.outboundRateLimitAvailable(DST_EID), 100e18);
+    }
+
+    /// @notice Tightening a limit below current usage clamps it to the new limit, so a lane whose other
+    ///         direction keeps writing state refills on the same schedule as a quiet one.
+    function test_LimitDecrease_QuietAndBusyLanesRefillAlike() external {
+        uint32 busy = SRC_EID;
+        oft.mint(alice, 1_000e18); // setUp mints one lane's worth
+        oft.setDefaultRateLimitConfig(_config(1_000e18, 1 days, 1_000e18, 1 days));
+        vm.startPrank(alice);
+        oft.debit(1_000e18, 1_000e18, DST_EID);
+        oft.debit(1_000e18, 1_000e18, busy);
+        vm.stopPrank();
+
+        oft.setDefaultRateLimitConfig(_config(100e18, 1 days, 1_000e18, 1 days));
+        assertEq(oft.storedRateLimitState(DST_EID).outboundUsage, 100e18, "clamped to the new limit");
+
+        skip(12 hours);
+        oft.credit(bob, 1e18, busy); // inbound delivery re-anchors lastUpdated
+        assertEq(oft.outboundRateLimitAvailable(DST_EID), 50e18, "quiet, half a window");
+        assertEq(oft.outboundRateLimitAvailable(busy), 50e18, "busy, half a window");
+
+        skip(12 hours);
+        oft.credit(bob, 1e18, busy);
+        assertEq(oft.outboundRateLimitAvailable(DST_EID), 100e18);
+        assertEq(oft.outboundRateLimitAvailable(busy), 100e18);
+    }
+
+    /// @notice A per-EID override that tightens the limit clamps carried usage the same way.
+    function test_OverrideTightening_ClampsUsage() external {
+        oft.setDefaultRateLimitConfig(_config(1_000e18, 1 days, 0, 0));
+        vm.prank(alice);
+        oft.debit(1_000e18, 1_000e18, DST_EID);
+
+        _setOverride(DST_EID, _config(100e18, 1 days, 0, 0));
+        assertEq(oft.storedRateLimitState(DST_EID).outboundUsage, 100e18);
+        skip(1 days);
+        assertEq(oft.outboundRateLimitAvailable(DST_EID), 100e18, "one window to refill");
+    }
+
+    /// @notice The default setter settles every inheriting lane; 128 lanes with usage stay well in budget.
+    function test_DefaultConfigChange_GasBoundAt128Lanes() external {
+        oft.setDefaultRateLimitConfig(_config(1_000e18, 1 days, 1_000e18, 1 days));
+        for (uint32 i; i < 128; ++i) {
+            oft.credit(bob, 1e18, 40_000 + i);
+        }
+        skip(1);
+
+        uint256 gasBefore = gasleft();
+        oft.setDefaultRateLimitConfig(_config(1_000e18, 2 days, 1_000e18, 2 days));
+        uint256 used = gasBefore - gasleft();
+        assertEq(_trackedEidCount(), 128);
+        assertLt(used, 2_000_000, "settlement loop gas");
     }
 
     // ── Per-EID configs must actually take effect ───────────────────────────────
@@ -353,6 +470,15 @@ contract RateLimiterModuleTest is Test {
 
     function test_SetRateLimitStates_RejectsUsageOnDisabledDirection() external {
         oft.setDefaultRateLimitConfig(_config(0, 0, 100e18, 1 hours)); // outbound disabled, limit 0
+
+        vm.expectRevert(RateLimiterModule.InvalidRateLimitState.selector);
+        _setState(DST_EID, 1, 0);
+    }
+
+    function test_SetRateLimitStates_RejectsUsageOnDisabledDirectionWithRetainedLimit() external {
+        RateLimiterModule.RateLimitConfig memory paused = _config(100e18, 1 hours, 0, 0);
+        paused.outboundEnabled = false;
+        _setOverride(DST_EID, paused);
 
         vm.expectRevert(RateLimiterModule.InvalidRateLimitState.selector);
         _setState(DST_EID, 1, 0);

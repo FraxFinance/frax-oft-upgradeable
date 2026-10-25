@@ -18,6 +18,8 @@ library RateLimiterLib {
         }
     }
 
+    /// @dev The global switch only stops consumption. Nothing changes rate, so no lane is settled: usage keeps
+    ///      decaying at each lane's configured rate while the switch is on.
     function setRateLimitGlobalConfig(RateLimiterModule.RateLimitGlobalConfig calldata _globalConfig) external {
         RateLimiterModule.RateLimiterStorage storage $ = _getRateLimiterStorage();
         $.globalConfig = _globalConfig;
@@ -36,7 +38,7 @@ library RateLimiterLib {
         uint256 count = $.trackedEids.length;
         for (uint256 i; i < count; ++i) {
             uint32 eid = $.trackedEids[i];
-            if (!$.configs[eid].overrideDefaultConfig) _checkpointRateLimit(eid, outgoing);
+            if (!$.configs[eid].overrideDefaultConfig) _settleRateLimit(eid, outgoing, _defaultConfig);
         }
 
         $.defaultConfig = _defaultConfig;
@@ -62,7 +64,9 @@ library RateLimiterLib {
             if (!_params[i].config.overrideDefaultConfig && !_isEmpty(_params[i].config)) {
                 revert RateLimiterModule.InvalidRateLimitConfig();
             }
-            _checkpointRateLimit(_params[i].eid, _effectiveRateLimitConfig(_params[i].eid));
+            RateLimiterModule.RateLimitConfig memory incoming = _params[i].config;
+            if (!incoming.overrideDefaultConfig) incoming = $.defaultConfig;
+            _settleRateLimit(_params[i].eid, _effectiveRateLimitConfig(_params[i].eid), incoming);
 
             $.configs[_params[i].eid] = _params[i].config;
 
@@ -84,9 +88,10 @@ library RateLimiterLib {
         for (uint256 i; i < length; ++i) {
             _validateRateLimitState(_params[i].state);
             RateLimiterModule.RateLimitConfig memory config = _effectiveRateLimitConfig(_params[i].eid);
+            // A disabled direction holds no usage, whatever its limit field says.
             if (
-                _params[i].state.outboundUsage > config.outboundLimit ||
-                _params[i].state.inboundUsage > config.inboundLimit
+                _params[i].state.outboundUsage > (config.outboundEnabled ? config.outboundLimit : 0) ||
+                _params[i].state.inboundUsage > (config.inboundEnabled ? config.inboundLimit : 0)
             ) revert RateLimiterModule.InvalidRateLimitState();
             _storeRateLimitState(_params[i].eid, _params[i].state);
 
@@ -188,6 +193,8 @@ library RateLimiterLib {
         config = stored.overrideDefaultConfig ? stored : $.defaultConfig;
     }
 
+    /// @dev The enabled flag is authoritative: a disabled direction reads as zero usage, so re-enabling it
+    ///      starts from an empty bucket however its limit and window fields were left.
     function _currentRateLimitState(
         uint32 _eid,
         RateLimiterModule.RateLimitConfig memory _config
@@ -197,18 +204,38 @@ library RateLimiterLib {
 
         uint32 currentTimestamp = uint32(block.timestamp);
         uint32 lastUpdated = state.lastUpdated;
-        if (lastUpdated == 0 || lastUpdated >= currentTimestamp) {
-            state.lastUpdated = currentTimestamp;
-            return state;
+        if (lastUpdated != 0 && lastUpdated < currentTimestamp) {
+            uint256 elapsed = currentTimestamp - lastUpdated;
+            // safe downcasts: decayed usage never exceeds the stored uint112 usage
+            state.outboundUsage =
+                uint112(_decayUsage(state.outboundUsage, _config.outboundLimit, _config.outboundWindow, elapsed));
+            state.inboundUsage =
+                uint112(_decayUsage(state.inboundUsage, _config.inboundLimit, _config.inboundWindow, elapsed));
         }
-
-        uint256 elapsed = currentTimestamp - lastUpdated;
-        // safe downcasts: decayed usage never exceeds the stored uint112 usage
-        state.outboundUsage =
-            uint112(_decayUsage(state.outboundUsage, _config.outboundLimit, _config.outboundWindow, elapsed));
-        state.inboundUsage =
-            uint112(_decayUsage(state.inboundUsage, _config.inboundLimit, _config.inboundWindow, elapsed));
+        if (!_config.outboundEnabled) state.outboundUsage = 0;
+        if (!_config.inboundEnabled) state.inboundUsage = 0;
         state.lastUpdated = currentTimestamp;
+    }
+
+    /// @dev Settles an EID across a config change: decays under the outgoing config, then fits the usage
+    ///      to the incoming one so it never exceeds the limit in force. A tightened limit therefore costs
+    ///      at most one incoming window of refill, independent of other traffic on the EID.
+    function _settleRateLimit(
+        uint32 _eid,
+        RateLimiterModule.RateLimitConfig memory _outgoing,
+        RateLimiterModule.RateLimitConfig memory _incoming
+    ) internal {
+        RateLimiterModule.RateLimitState memory state = _currentRateLimitState(_eid, _outgoing);
+        state.outboundUsage = _fitUsage(state.outboundUsage, _incoming.outboundEnabled, _incoming.outboundLimit);
+        state.inboundUsage = _fitUsage(state.inboundUsage, _incoming.inboundEnabled, _incoming.inboundLimit);
+        _storeRateLimitState(_eid, state);
+
+        emit RateLimiterModule.RateLimitCheckpointed(_eid, state.outboundUsage, state.inboundUsage, state.lastUpdated);
+    }
+
+    function _fitUsage(uint112 _usage, bool _enabled, uint112 _limit) internal pure returns (uint112) {
+        if (!_enabled) return 0;
+        return _usage > _limit ? _limit : _usage;
     }
 
     function _checkpointRateLimit(uint32 _eid, RateLimiterModule.RateLimitConfig memory _config) internal {
@@ -260,8 +287,8 @@ library RateLimiterLib {
         if (_usage == 0 || _elapsed == 0) {
             return _usage;
         }
-        // A zero limit or window only occurs on a disabled direction. It tracks nothing, so its usage
-        // must not survive the disabled period and block traffic once the direction is re-enabled.
+        // A zero limit or window only occurs on a disabled direction, which _currentRateLimitState zeroes
+        // anyway; returning 0 here keeps the division safe.
         if (_limit == 0 || _window == 0 || _elapsed >= _window) {
             return 0;
         }

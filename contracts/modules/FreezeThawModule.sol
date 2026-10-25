@@ -120,4 +120,5 @@ abstract contract FreezeThawModule {
     /* ========== ERRORS ========== */
     error AlreadyFreezer();
     error NotFreezer();
+    error InvalidFreezeTarget();
 }

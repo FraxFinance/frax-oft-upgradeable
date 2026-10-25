@@ -18,7 +18,10 @@ library FreezeThawLib {
         }
     }
 
+    /// @dev Rejects the zero address: mint and burn route through it, so freezing it would
+    ///      halt issuance, redemption and both bridge directions instead of one account.
     function freeze(address account) public {
+        if (account == address(0)) revert FreezeThawModule.InvalidFreezeTarget();
         FreezeThawModule.FreezeThawStorage storage $ = _getFreezeThawStorage();
         $.frozen.add(account);
         emit FreezeThawModule.AccountFrozen(account);

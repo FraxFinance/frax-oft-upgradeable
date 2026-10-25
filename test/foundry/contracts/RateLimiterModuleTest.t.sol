@@ -496,6 +496,8 @@ contract RateLimiterModuleTest is Test {
 
     // ── Per-EID configs must actually take effect ───────────────────────────────
 
+    // ── Per-EID configs must actually take effect ───────────────────────────────
+
     function test_SetRateLimitConfigs_RejectsLimitsWithoutOverride() external {
         RateLimiterModule.SetRateLimitConfigParam[] memory params = new RateLimiterModule.SetRateLimitConfigParam[](1);
         params[0] = RateLimiterModule.SetRateLimitConfigParam({ eid: DST_EID, config: _config(1_000e18, 1 days, 0, 0) });

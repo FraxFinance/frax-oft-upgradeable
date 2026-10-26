@@ -10,7 +10,7 @@
 #   (no key needed for Blockscout, Sourcify or the zksync verifiers)
 #
 # Chain routing:
-#   Etherscan v2 (single key): 1 10 56 130 137 143 146 252 480 988 999 1329 8453
+#   Etherscan v2 (single key): 1 10 56 130 137 143 146 252 480 988 999 1329 8453 42220
 #                              42161 43114 59144 81457 747474
 #   Blockscout (keyless):      57073 Ink, 98866 Plume, 1313161554 Aurora, 5031 Somnia
 #   Sourcify (keyless):        196 X-Layer  — also a fallback for any chain above
@@ -74,7 +74,7 @@ ctor_sig_for() {
 verifier_args_for_chain() {
     local cid="$1"
     case "$cid" in
-        1|10|56|130|137|143|146|252|480|988|999|1329|8453|42161|43114|59144|81457|747474)
+        1|10|56|130|137|143|146|252|480|988|999|1329|8453|42161|43114|59144|81457|747474|42220)
             echo "--verifier etherscan --verifier-url https://api.etherscan.io/v2/api?chainid=${cid} --etherscan-api-key ${ETHERSCAN_API_KEY:?ETHERSCAN_API_KEY not set}" ;;
         57073)      echo "--verifier blockscout --verifier-url https://explorer.inkonchain.com/api" ;;
         98866)      echo "--verifier blockscout --verifier-url https://explorer.plume.org/api" ;;

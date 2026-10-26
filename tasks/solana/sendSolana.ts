@@ -39,6 +39,8 @@ export interface SolanaArgs {
     oftProgramId?: string
     tokenProgram?: string
     computeUnitPriceScaleFactor?: number
+    /** Extra address lookup tables (base58), used alongside LayerZero's. */
+    addressLookupTables?: string[]
 }
 
 export async function sendSolana({
@@ -53,6 +55,7 @@ export async function sendSolana({
     minAmount,
     extraOptions,
     composeMsg,
+    addressLookupTables = [],
 }: SolanaArgs): Promise<SendResult> {
     // 1️⃣ RPC + UMI
     const { connection, umi, umiWalletSigner } = await deriveConnection(srcEid)
@@ -158,7 +161,8 @@ export async function sendSolana({
         txB,
         umiWalletSigner,
         computeUnitPriceScaleFactor,
-        TransactionType.SendOFT
+        TransactionType.SendOFT,
+        addressLookupTables.map((address) => publicKey(address))
     )
     let txHash: string
     try {

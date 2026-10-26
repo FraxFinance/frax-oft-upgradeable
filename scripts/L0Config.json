@@ -75,7 +75,7 @@
             "sendLib302": "0x377530cdA84DFb2673bF4d145DCF0C4D7fdcB5b6"
         },
         {
-            "RPC": "https://rpc.xlayer.tech",
+            "RPC": "https://xlayerrpc.okx.com",
             "chainid": 196,
             "delegate": "0xe7Cc52f0C86f4FAB6630f1E26167B487fbF66a61",
             "dvnHorizen": "0xDd7B5E1dB4AaFd5C8EC3b764eFB8ed265Aa5445B",
@@ -391,7 +391,7 @@
     ],
     "Testnet": [
         {
-            "RPC": "https://eth-sepolia.public.blastapi.io",
+            "RPC": "https://ethereum-sepolia-rpc.publicnode.com",
             "chainid": 11155111,
             "delegate": "0x0990be6dB8c785FBbF9deD8bAEc612A10CaE814b",
             "dvnHorizen": "0x000bfb182cc999879ffb5cd7cf9f1db18a454248",

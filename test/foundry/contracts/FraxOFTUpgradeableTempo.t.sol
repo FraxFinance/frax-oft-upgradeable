@@ -469,4 +469,46 @@ contract FraxOFTUpgradeableTempoTest is TempoTestHelpers, LZTestHelperOz4 {
         vm.expectRevert(TempoAltTokenBase.InvalidFeeToken.selector);
         oft.sendWithFeeCap(sendParam, MessagingFee({ nativeFee: 10e6, lzTokenFee: 0 }), alice, address(0), type(uint256).max);
     }
+
+    /// @dev Both Tempo entry points encode through the fork's checked _toSD: one shared unit above the uint64 ceiling
+    ///      reverts before any fee is pulled, and the ceiling itself goes through (audit finding ZELLIC-BFHKMW).
+    function test_SharedDecimalCeiling_SendAndSendWithFeeCap() external {
+        uint256 rate = oft.decimalConversionRate();
+        uint256 maxLD = uint256(type(uint64).max) * rate;
+        uint256 nativeFee = 10e6;
+        MessagingFee memory fee = MessagingFee({ nativeFee: nativeFee, lzTokenFee: 0 });
+
+        _setUserGasToken(alice, StdTokens.PATH_USD_ADDRESS);
+        _setupPeer();
+        deal(address(oft), alice, 2 * maxLD + rate, true);
+        StdTokens.PATH_USD.mint(alice, 2 * nativeFee);
+        vm.prank(alice);
+        StdTokens.PATH_USD.approve(address(oft), type(uint256).max);
+
+        // The fork's check is a bare require, so the revert carries no data
+        vm.expectRevert(bytes(""));
+        vm.prank(alice);
+        oft.send{ value: 0 }(_buildSendParam(maxLD + rate), fee, alice);
+
+        vm.expectRevert(bytes(""));
+        vm.prank(alice);
+        oft.sendWithFeeCap(_buildSendParam(maxLD + rate), fee, alice, StdTokens.PATH_USD_ADDRESS, nativeFee);
+
+        vm.prank(alice);
+        (, OFTReceipt memory sent) = oft.send{ value: 0 }(_buildSendParam(maxLD), fee, alice);
+        assertEq(sent.amountSentLD, maxLD, "send: the ceiling goes through");
+
+        vm.prank(alice);
+        (, OFTReceipt memory capped) = oft.sendWithFeeCap(
+            _buildSendParam(maxLD),
+            fee,
+            alice,
+            StdTokens.PATH_USD_ADDRESS,
+            nativeFee
+        );
+        assertEq(capped.amountSentLD, maxLD, "sendWithFeeCap: the ceiling goes through");
+
+        assertEq(oft.balanceOf(alice), rate, "two ceilings debited");
+        assertEq(StdTokens.PATH_USD.balanceOf(alice), 0, "two fees paid");
+    }
 }

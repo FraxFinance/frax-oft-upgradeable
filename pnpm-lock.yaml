@@ -51,8 +51,8 @@ importers:
         specifier: ^5.8.0
         version: 5.8.0
       '@fraxfinance/layerzero-v2-upgradeable':
-        specifier: github:fraxfinance/LayerZero-v2-upgradeable#5fb31cb218422889d32ee25ebfadbf169aa10697
-        version: https://codeload.github.com/fraxfinance/LayerZero-v2-upgradeable/tar.gz/5fb31cb218422889d32ee25ebfadbf169aa10697
+        specifier: github:fraxfinance/LayerZero-v2-upgradeable#9876b375a3c3bf490b4c6a37dcb889441043b2b4
+        version: https://codeload.github.com/fraxfinance/LayerZero-v2-upgradeable/tar.gz/9876b375a3c3bf490b4c6a37dcb889441043b2b4
       '@jest/globals':
         specifier: ^29.7.0
         version: 29.7.0
@@ -995,9 +995,9 @@ packages:
     resolution: {integrity: sha512-vBZP4NlzfOlerQTnba4aqZoMhE/a9HY7HRqoOPaETQcSQuWEIyZMHGfVu6w9wGtGK5fED5qRs2DteVCjOH60sA==}
     engines: {node: '>=14'}
 
-  '@fraxfinance/layerzero-v2-upgradeable@https://codeload.github.com/fraxfinance/LayerZero-v2-upgradeable/tar.gz/5fb31cb218422889d32ee25ebfadbf169aa10697':
-    resolution: {tarball: https://codeload.github.com/fraxfinance/LayerZero-v2-upgradeable/tar.gz/5fb31cb218422889d32ee25ebfadbf169aa10697}
-    version: 2.0.2
+  '@fraxfinance/layerzero-v2-upgradeable@https://codeload.github.com/fraxfinance/LayerZero-v2-upgradeable/tar.gz/9876b375a3c3bf490b4c6a37dcb889441043b2b4':
+    resolution: {tarball: https://codeload.github.com/fraxfinance/LayerZero-v2-upgradeable/tar.gz/9876b375a3c3bf490b4c6a37dcb889441043b2b4}
+    version: 1.0.4
     engines: {node: '>=18.12.0'}
 
   '@ganache/ethereum-address@0.1.4':
@@ -8702,7 +8702,7 @@ snapshots:
 
   '@fastify/busboy@2.1.1': {}
 
-  '@fraxfinance/layerzero-v2-upgradeable@https://codeload.github.com/fraxfinance/LayerZero-v2-upgradeable/tar.gz/5fb31cb218422889d32ee25ebfadbf169aa10697': {}
+  '@fraxfinance/layerzero-v2-upgradeable@https://codeload.github.com/fraxfinance/LayerZero-v2-upgradeable/tar.gz/9876b375a3c3bf490b4c6a37dcb889441043b2b4': {}
 
   '@ganache/ethereum-address@0.1.4':
     dependencies:

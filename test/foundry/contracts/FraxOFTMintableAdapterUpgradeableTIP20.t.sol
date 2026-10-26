@@ -805,4 +805,50 @@ contract FraxOFTMintableAdapterUpgradeableTIP20Test is TempoTestHelpers {
         vm.expectRevert(TempoAltTokenBase.InvalidFeeToken.selector);
         adapter.sendWithFeeCap(sendParam, MessagingFee({ nativeFee: 10e6, lzTokenFee: 0 }), alice, address(0), type(uint256).max);
     }
+
+    /// @dev Both entry points encode through the fork's checked _toSD. With 6 local decimals the rate is 1, so the
+    ///      ceiling is plain uint64.max: one unit above reverts before any fee is pulled, and the ceiling itself goes
+    ///      through (audit finding ZELLIC-BFHKMW).
+    function test_SharedDecimalCeiling_SendAndSendWithFeeCap() external {
+        assertEq(adapter.decimalConversionRate(), 1, "6-decimal TIP20");
+        uint256 maxLD = type(uint64).max;
+        uint256 nativeFee = 10e6;
+        MessagingFee memory fee = MessagingFee({ nativeFee: nativeFee, lzTokenFee: 0 });
+
+        _setUserGasToken(alice, StdTokens.PATH_USD_ADDRESS);
+        frxUsdToken.mint(alice, 2 * maxLD + 1);
+        StdTokens.PATH_USD.mint(alice, 2 * nativeFee);
+        _setupPeer();
+
+        vm.startPrank(alice);
+        frxUsdToken.approve(address(adapter), type(uint256).max);
+        StdTokens.PATH_USD.approve(address(adapter), type(uint256).max);
+        vm.stopPrank();
+
+        // The fork's check is a bare require, so the revert carries no data
+        vm.expectRevert(bytes(""));
+        vm.prank(alice);
+        adapter.send{ value: 0 }(_buildSendParam(maxLD + 1), fee, alice);
+
+        vm.expectRevert(bytes(""));
+        vm.prank(alice);
+        adapter.sendWithFeeCap(_buildSendParam(maxLD + 1), fee, alice, StdTokens.PATH_USD_ADDRESS, nativeFee);
+
+        vm.prank(alice);
+        (, OFTReceipt memory sent) = adapter.send{ value: 0 }(_buildSendParam(maxLD), fee, alice);
+        assertEq(sent.amountSentLD, maxLD, "send: the ceiling goes through");
+
+        vm.prank(alice);
+        (, OFTReceipt memory capped) = adapter.sendWithFeeCap(
+            _buildSendParam(maxLD),
+            fee,
+            alice,
+            StdTokens.PATH_USD_ADDRESS,
+            nativeFee
+        );
+        assertEq(capped.amountSentLD, maxLD, "sendWithFeeCap: the ceiling goes through");
+
+        assertEq(frxUsdToken.balanceOf(alice), 1, "two ceilings burned");
+        assertEq(adapter.totalTransferTo(DST_EID), 2 * maxLD, "ledger counts only the two successful sends");
+    }
 }

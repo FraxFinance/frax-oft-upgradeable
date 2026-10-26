@@ -230,8 +230,7 @@ contract L0Constants {
         _registerChain(8453, baseProxyOfts);
         _registerChain(59144, lineaProxyOfts);
         _registerChain(143, monadProxyOfts);
-        _registerChain(2741, zkEraProxyOfts);
-        _registerChain(324, zkEraProxyOfts); // ZKsync Era shares addresses with 2741
+        _registerChain(324, zkEraProxyOfts);
         _registerChain(4217, fullDeterministicProxyOfts);
         _registerChain(4663, fullDeterministicProxyOftsPostFpi); // onboarded after FPI retirement
         _registerChain(5031, fullDeterministicProxyOfts);
@@ -254,10 +253,11 @@ contract L0Constants {
     ///         is a guard against re-introduction rather than an active filter: every mesh-wide
     ///         operation consults it before touching a chain.
     /// @dev EVM: PolygonZkEVM (1101), Mode (34443), Berachain (80094), Scroll (534352),
-    ///      Botanix (3637). Non-EVM: Movement (22222222), Aptos (33333333) - Solana is the
-    ///      only active non-EVM chain.
+    ///      Botanix (3637), Aurora (1313161554), Abstract (2741). Non-EVM: Movement (22222222),
+    ///      Aptos (33333333) - Solana is the only active non-EVM chain.
     function isDeprecatedChain(uint256 _chainid) public pure returns (bool) {
         return _chainid == 1101 || _chainid == 34443 || _chainid == 80094 || _chainid == 534352
-            || _chainid == 3637 || _chainid == 22222222 || _chainid == 33333333;
+            || _chainid == 3637 || _chainid == 1313161554 || _chainid == 2741 || _chainid == 22222222
+            || _chainid == 33333333;
     }
 }

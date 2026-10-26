@@ -12,10 +12,10 @@
 # Chain routing:
 #   Etherscan v2 (single key): 1 10 56 130 137 143 146 252 480 988 999 1329 8453 42220
 #                              42161 43114 59144 81457 747474
-#   Blockscout (keyless):      57073 Ink, 98866 Plume, 1313161554 Aurora, 5031 Somnia
+#   Blockscout (keyless):      57073 Ink, 98866 Plume, 5031 Somnia
 #   Sourcify (keyless):        196 X-Layer  — also a fallback for any chain above
 #   Tempo:                     4217 -> pnpm verify:tempo:mainnet <broadcast file>
-#   zksync-stack:              324 zkSync Era, 2741 Abstract -> must run under
+#   zksync-stack:              324 zkSync Era -> must run under
 #                              foundry-zksync (foundryup-zksync), handled here with
 #                              --verifier custom zksync endpoints; falls back to a
 #                              printed manual command if the active forge lacks --zksync.
@@ -78,7 +78,6 @@ verifier_args_for_chain() {
             echo "--verifier etherscan --verifier-url https://api.etherscan.io/v2/api?chainid=${cid} --etherscan-api-key ${ETHERSCAN_API_KEY:?ETHERSCAN_API_KEY not set}" ;;
         57073)      echo "--verifier blockscout --verifier-url https://explorer.inkonchain.com/api" ;;
         98866)      echo "--verifier blockscout --verifier-url https://explorer.plume.org/api" ;;
-        1313161554) echo "--verifier blockscout --verifier-url https://explorer.mainnet.aurora.dev/api" ;;
         5031)       echo "--verifier blockscout --verifier-url https://explorer.somnia.network/api/" ;;  # trailing slash: /api 301s and drops the POST
         # X-Layer: OKLink requires a paid API key; Sourcify supports chain 196 and needs none.
         196)        echo "--verifier sourcify --verifier-url https://sourcify.dev/server" ;;
@@ -101,7 +100,7 @@ verify_broadcast_file() {
     fi
 
     local zksync=""
-    if [[ "$cid" == "324" || "$cid" == "2741" ]]; then
+    if [[ "$cid" == "324" ]]; then
         if ! forge build --help 2>/dev/null | grep -q -- --zksync; then
             echo "chain ${cid} is zksync-stack: run 'foundryup-zksync' first, then re-run this script." >&2
             return 1
@@ -127,8 +126,6 @@ verify_broadcast_file() {
         local vargs
         if [[ "$cid" == "324" ]]; then
             vargs="--verifier zksync --verifier-url https://zksync2-mainnet-explorer.zksync.io/contract_verification"
-        elif [[ "$cid" == "2741" ]]; then
-            vargs="--verifier zksync --verifier-url https://api-explorer-verify.mainnet.abs.xyz/contract_verification"
         else
             vargs="$(verifier_args_for_chain "$cid")" || { echo "no verifier route for chain ${cid}" >&2; return 1; }
         fi

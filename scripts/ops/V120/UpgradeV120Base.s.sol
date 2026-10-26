@@ -71,8 +71,6 @@ abstract contract UpgradeV120Base is DeployFraxOFTProtocol {
     uint256 internal constant TEMPO_CHAIN_ID = 4217;
     uint256 internal constant ZKSYNC_CHAIN_ID = 324;
 
-    uint256 internal constant ABSTRACT_CHAIN_ID = 2741;
-
     enum ImplementationKind {
         StandardOFT,
         TempoOFT,
@@ -172,9 +170,9 @@ abstract contract UpgradeV120Base is DeployFraxOFTProtocol {
         return false;
     }
 
-    /// @notice True for ZK-stack chains (zkSync Era, Abstract) handled by the dedicated ZK script.
+    /// @notice True for ZK-stack chains (zkSync Era) handled by the dedicated ZK script.
     function _isZkStackChain(uint256 _chainid) internal pure returns (bool) {
-        return _chainid == ZKSYNC_CHAIN_ID || _chainid == ABSTRACT_CHAIN_ID;
+        return _chainid == ZKSYNC_CHAIN_ID;
     }
 
     /// @notice Fork the chain, deploy (or pin) its profile's implementations, and emit the
@@ -1040,7 +1038,7 @@ abstract contract UpgradeV120Base is DeployFraxOFTProtocol {
     }
 
     /// @dev Peer supply reads run entirely node-side via `eth_call` — peer contracts may be
-    ///      EraVM bytecode (zkSync Era / Abstract), TIP-20 native accounts (Tempo), or use
+    ///      EraVM bytecode (zkSync Era), TIP-20 native accounts (Tempo), or use
     ///      opcodes newer than the local fork spec (Ethereum sfrxUSD); none of those can be
     ///      executed by the local fork EVM. The node answers at its own latest block, which
     ///      may sit slightly ahead of the fork's pinned block — acceptable for seed

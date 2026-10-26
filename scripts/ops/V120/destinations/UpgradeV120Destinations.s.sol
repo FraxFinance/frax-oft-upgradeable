@@ -27,8 +27,8 @@ abstract contract UpgradeV120Destinations is UpgradeV120Base {
         return new SupplySeed[](0);
     }
 
-    /// @notice Upgrade every active destination. `_zkOnly` selects the ZK-stack chains (zkSync,
-    ///         Abstract) handled by the dedicated ZK script; the EVM script takes the complement.
+    /// @notice Upgrade every active destination. `_zkOnly` selects the ZK-stack chain (zkSync Era)
+    ///         handled by the dedicated ZK script; the EVM script takes the complement.
     ///         Ethereum, Fraxtal, Tempo, and deprecated chains are always excluded.
     function _upgradeDestinations(bool _zkOnly) internal {
         for (uint256 i; i < proxyConfigs.length; ++i) {

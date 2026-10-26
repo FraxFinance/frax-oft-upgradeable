@@ -11,7 +11,7 @@
             "fpi": "0x6Eca253b102D41B6B69AC815B9CC6bD47eF1979d"
         },
         {
-            "RPC": "https://metis-mainnet.public.blastapi.io",
+            "RPC": "https://metis-rpc.publicnode.com",
             "chainid": 1088,
             "frxUSD": "0x909DBdE1eBE906Af95660033e478D59EFe831fED",
             "sfrxUSD": "0xe4796cCB6bB5DE2290C417Ac337F2b66CA2E770E",
@@ -43,7 +43,7 @@
             "fpi": "0x90581eCa9469D8D7F5D3B60f4715027aDFCf7927"
         },
         {
-            "RPC": "https://twilight-crimson-grass.sei-pacific.quiknode.pro/1fe7cb5c6950df0f3ebceead37f8eefdf41ddbe9/",
+            "RPC": "https://evm-rpc.sei-apis.com",
             "chainid": 1329,
             "frxUSD": "0x80Eede496655FB9047dd39d9f418d5483ED600df",
             "sfrxUSD": "0x5Bff88cA1442c2496f7E475E9e7786383Bc070c0",
@@ -93,7 +93,7 @@
             "fpi": "0x90581eCa9469D8D7F5D3B60f4715027aDFCf7927"
         },
         {
-            "RPC": "https://optimism-mainnet.public.blastapi.io",
+            "RPC": "https://optimism-rpc.publicnode.com",
             "chainid": 10,
             "frxUSD": "0x80Eede496655FB9047dd39d9f418d5483ED600df",
             "sfrxUSD": "0x5Bff88cA1442c2496f7E475E9e7786383Bc070c0",
@@ -103,7 +103,7 @@
             "fpi": "0x90581eCa9469D8D7F5D3B60f4715027aDFCf7927"
         },
         {
-            "RPC": "https://polygon-rpc.com",
+            "RPC": "https://polygon-bor-rpc.publicnode.com",
             "chainid": 137,
             "frxUSD": "0x80Eede496655FB9047dd39d9f418d5483ED600df",
             "sfrxUSD": "0x5Bff88cA1442c2496f7E475E9e7786383Bc070c0",
@@ -123,7 +123,7 @@
             "fpi": "0x90581eCa9469D8D7F5D3B60f4715027aDFCf7927"
         },
         {
-            "RPC": "https://neat-lingering-orb.bsc.quiknode.pro/a9e1547db6f8261bf94f92603eec0cc3d0c66605",
+            "RPC": "https://bsc-rpc.publicnode.com",
             "chainid": 56,
             "frxUSD": "0x80Eede496655FB9047dd39d9f418d5483ED600df",
             "sfrxUSD": "0x5Bff88cA1442c2496f7E475E9e7786383Bc070c0",

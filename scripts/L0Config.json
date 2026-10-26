@@ -75,7 +75,7 @@
             "sendLib302": "0x377530cdA84DFb2673bF4d145DCF0C4D7fdcB5b6"
         },
         {
-            "RPC": "https://rpc.xlayer.tech",
+            "RPC": "https://xlayerrpc.okx.com",
             "chainid": 196,
             "delegate": "0xe7Cc52f0C86f4FAB6630f1E26167B487fbF66a61",
             "dvnHorizen": "0xDd7B5E1dB4AaFd5C8EC3b764eFB8ed265Aa5445B",
@@ -351,6 +351,18 @@
             "sendLib302": "0xC39161c743D0307EB9BCc9FEF03eeb9Dc4802de7"
         },
         {
+            "RPC": "https://forno.celo.org",
+            "chainid": 42220,
+            "delegate": "0xFfdBB6221390d05366df8F6733E586c8CE92103C",
+            "dvnHorizen": "0x31f748a368a893bdb5abb67ec95f232507601a73",
+            "dvnL0": "0x75b073994560a5c03cd970414d9170be0c6e5c36",
+            "eid": 30125,
+            "endpoint": "0x1a44076050125825900e736c501f859c50fE728c",
+            "proxyAdmin": "0x000000dbfaA1Fb91ca46867cE6D41aB6da4f7428",
+            "receiveLib302": "0xaDDed4478B423d991C21E525Cd3638FBce1AaD17",
+            "sendLib302": "0x42b4E9C6495B4cFDaE024B1eC32E09F28027620e"
+        },
+        {
             "RPC": "https://api.mainnet.abs.xyz",
             "chainid": 2741,
             "delegate": "0xcC20eAE3CdC554E96291708B362dF349CC443808",
@@ -391,7 +403,7 @@
     ],
     "Testnet": [
         {
-            "RPC": "https://eth-sepolia.public.blastapi.io",
+            "RPC": "https://ethereum-sepolia-rpc.publicnode.com",
             "chainid": 11155111,
             "delegate": "0x0990be6dB8c785FBbF9deD8bAEc612A10CaE814b",
             "dvnHorizen": "0x000bfb182cc999879ffb5cd7cf9f1db18a454248",

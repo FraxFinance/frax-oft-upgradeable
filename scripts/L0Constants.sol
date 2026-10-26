@@ -235,6 +235,7 @@ contract L0Constants {
         _registerChain(4217, fullDeterministicProxyOfts);
         _registerChain(4663, fullDeterministicProxyOftsPostFpi); // onboarded after FPI retirement
         _registerChain(5031, fullDeterministicProxyOfts);
+        _registerChain(42220, fullDeterministicProxyOftsPostFpi); // onboarded after FPI retirement
 
     }
 

@@ -5,7 +5,7 @@ This repository contains all of the contracts and deployment code used to manage
 ## Contracts & Addresses
 ### Admin
 - `ProxyAdmin`
-  - `Mode`, `Sei`, `Fraxtal`, `X-Layer`, `Ink`, `Sonic`, `Arbitrum`, `Optimism`, `Polygon`, `Avalanche`, `BSC`, `Polygon zkEvm`, `Blast`, `Berachain`, `Worldchain`, `Unichain`, `Plume`, `Katana`, `Aurora`, `Stable`
+  - `Sei`, `Fraxtal`, `X-Layer`, `Ink`, `Sonic`, `Arbitrum`, `Optimism`, `Polygon`, `Avalanche`, `BSC`, `Worldchain`, `Unichain`, `Plume`, `Katana`, `Hyperliquid`, `Stable`
     - `0x223a681fc5c5522c85c96157c0efa18cd6c5405c`
   - `Ethereum`
     - `0x223a681fc5c5522c85c96157c0efa18cd6c5405c`
@@ -14,13 +14,11 @@ This repository contains all of the contracts and deployment code used to manage
     - `0xF59C41A57AB4565AF7424F64981523DfD7A453c5`
   - `Linea`
     - `0x3cf371c128b092b085B7732069cEAF3Fd863F270`
-  - `Scroll`
-    - `0x8f1b9c1fd67136d525e14d96efb3887a33f16250`
-  - `ZKSync`, `Abstract`
+  - `ZKSync`
     - `0xe59dcae52a4ffa39be99588486c84bc2dc1ba52f`
   - `Monad`
     - `0xc2871eae630640ce1a16b39a17c498f22d76c21a`
-  - `Tempo` , `Somnia`
+  - `Tempo`, `Somnia`, `Robinhood`
     - `0x000000dbfaA1Fb91ca46867cE6D41aB6da4f7428`
 
 - Msigs (links to gnosis safe and squad for Solana)
@@ -28,8 +26,6 @@ This repository contains all of the contracts and deployment code used to manage
     - [OFT Admin](https://app.safe.global/home?safe=eth:0xB1748C79709f4Ba2Dd82834B8c82D4a505003f27)
     - [Hop Admin](https://app.safe.global/home?safe=eth:0x6cCF3F2Ca29591F90ADB403D67E4dcB49cEcC634)
     - [frxUSD Upgrade Admin](https://app.safe.global/home?safe=eth:0xffffff4f3bac444b2c0ecf2a1840d018be783937)
-  - [`Blast`](https://app.safe.protofire.io/home?safe=blastmainnet:0x33A133020b2C2CD41a24F74033B11EC2fC0bF97a)
-  - [`Metis`](https://metissafe.tech/home?safe=metis-andromeda:0xF4A4F32732F9B2fB84Ee28c58616946F3bF80F7d)
   - [`Base`](https://app.safe.global/home?safe=base:0xCBfd4Ef00a8cf91Fd1e1Fe97dC05910772c15E53)
   - [`Sei`](https://sei-safe.protofire.io/home?safe=sei:0x0357D02fc95320b990322d3ff69204c3D251171b)
   - [`Fraxtal`](https://safe.mainnet.frax.com/home?safe=fraxtal:0x5f25218ed9474b721d6a38c115107428E832fA2E)
@@ -41,25 +37,25 @@ This repository contains all of the contracts and deployment code used to manage
   - [`Polygon`](https://app.safe.global/home?safe=matic:0xDbf59edA454679bB157b3B048Ba54C4D762b559E)
   - [`Avalanche`](https://app.safe.global/home?safe=avax:0xBF1fF4D8B05F0871ca3f49e49fF1cA8AeeBD3b4b)
   - [`BSC`](https://app.safe.global/home?safe=bnb:0xB1eff95B323D60cc04B1a44Ca1dBcbC935ae2C84)
-  - [`Polygon zkEvm`](https://app.safe.global/home?safe=zkevm:0x57445fD8d544e5D313e4f715220103b091814df4)
   - [`Solana`](https://app.squads.so/squads/FSRTW4KPGifKL8yKcZ8mfoR9mKtAjwZiTHbHwgix8AQo/home)
   - [`Linea`](https://safe.linea.build/home?safe=linea:0x0E5a5284820E350ffce7fe7ba3364FaC1C53eaFD)
   - [`ZkSync`](https://app.safe.global/home?safe=zksync:0x66716ae60898dD4479B52aC4d92ef16C1821f420)
-  - [`Abstract`](https://abstract-safe.protofire.io/home?safe=abstract:0xcC20eAE3CdC554E96291708B362dF349CC443808)
   - [`Worldchain`](https://app.safe.global/home?safe=wc:0xf57d47c3EA11c12253dBc0BeAf097d5c206e8773)
   - [`Unichain`](https://app.safe.global/home?safe=unichain:0x6f8FDdfD4F6a1456BA5632C919bEF74b64DD032D)
   - [`Plume`](https://safe.onchainden.com/home?safe=plume:0x77dDd3EC570EEAf2c513de3c833c5E82A721978B)
   - [`Katana`](https://app.safe.global/settings/setup?safe=katana:0x19A90b0476cdc8EC1239266663CA820175B9B527)
-  - [`Aurora`](https://app.safe.global/home?safe=aurora:0x73F365d34b81E731825a094c2E722A08574335cd)
   - [`HyperEVM`](https://app.safe.global/home?safe=hyper-evm:0x738ee62157f127C879Ff5c4B7102Eb0d166C7a6d)
   - [`Stable`](https://app.safe.global/home?safe=stable:0x0C46f54BF9EF8fd58e2D294b8cEA488204EcB3D8)
   - [`Monad`](https://app.safe.global/home?safe=monad:0x47FF5bBAB981Ff022743AA4281D4d6Dd7Fb1a4D0)
   - [`Tempo`](https://app.safe.global/home?safe=tempo:0x1Ba19a54a01AE967f5E3895764Caaa6919FD2bEe)
   - [`Somnia`](https://safe.somnia.network/home?safe=somnia:0x9527e19F55d1afCE9F1e9Edcea79552bF41983F9)
   - [`Robinhood`](https://app.safe.global/home?safe=robinhood:0xFA1224aDd725eb2708BA4d15F627F4027dAfcEde)
+  - [`Celo`](https://app.safe.global/home?safe=celo:0xFfdBB6221390d05366df8F6733E586c8CE92103C)
+  - [`Blast`](https://app.safe.protofire.io/home?safe=blastmainnet:0x33A133020b2C2CD41a24F74033B11EC2fC0bF97a) (legacy OFTs only)
+  - [`Metis`](https://metissafe.tech/home?safe=metis-andromeda:0xF4A4F32732F9B2fB84Ee28c58616946F3bF80F7d) (legacy OFTs only)
 
 ### Proxy (upgradeable) OFTs
-- Chain: `Sei`, `X-Layer`, `Ink`, `Sonic`, `Arbitrum`, `Optimism`, `Polygon`, `BSC`, `Avalanche`, `Blast`, `Worldchain`, `Unichain`, `Plume`, `Katana`, `Aurora`, `Hyperliquid`, `Stable`
+- Chain: `Sei`, `X-Layer`, `Ink`, `Sonic`, `Arbitrum`, `Optimism`, `Polygon`, `BSC`, `Avalanche`, `Worldchain`, `Unichain`, `Plume`, `Katana`, `Hyperliquid`, `Stable`
   - OFTs
     - `frxUSD`: `0x80Eede496655FB9047dd39d9f418d5483ED600df`
     - `sfrxUSD`: `0x5Bff88cA1442c2496f7E475E9e7786383Bc070c0`
@@ -83,7 +79,7 @@ This repository contains all of the contracts and deployment code used to manage
       - `frxETH`: `0xB1aFD04774c02AE84692619448B08BA79F19b1ff`
       - `sfrxETH`: `0x383Eac7CcaA89684b8277cBabC25BCa8b13B7Aa2`
       - `WFRAX`: `0x5217Ab28ECE654Aab2C68efedb6A22739df6C3D5`
-- Chain: `ZkSync`,`Abstract`
+- Chain: `ZkSync`
   - OFTs:
       - `frxUSD`: `0xEa77c590Bb36c43ef7139cE649cFBCFD6163170d`
       - `sfrxUSD`: `0x9F87fbb47C33Cd0614E43500b9511018116F79eE`
@@ -136,11 +132,11 @@ With the exception of Ethereum, Fraxtal and Tempo (frxUSD TIP20), Frax tokens ar
 - Ethereum (Mintable Adapter): `0x7311CEA93ccf5f4F7b789eE31eBA5D9B9290E126`
 
 #### frxETH
-- Fraxtal (Mintable Adapter): `0x9aBFE1F8a999B0011ecD6116649AEe8D575F5604`
+- Fraxtal (Adapter): `0x9aBFE1F8a999B0011ecD6116649AEe8D575F5604`
 - Ethereum (Adapter): `0x1c1649A38f4A3c5A0c4a24070f688C525AB7D6E6`
 
 #### sfrxETH
-- Fraxtal (Mintable Adapter): `0x999dfAbe3b1cc2EF66eB032Eea42FeA329bBa168`
+- Fraxtal (Adapter): `0x999dfAbe3b1cc2EF66eB032Eea42FeA329bBa168`
 - Ethereum (Adapter): `0xbBc424e58ED38dd911309611ae2d7A23014Bd960`
 
 #### WFRAX
@@ -203,21 +199,33 @@ Prior to Upgradeable lockboxes, Frax operated immutable lockboxes on Ethereum.  
 
 ### Solana
 - Admin: Chain-respective msig
+- OFT program (all tokens): `E1ht9dUh1ZkgWWRRPCuN3kExEoF2FXiyADXeN3XyMHaQ`
+- The bytes32 values below are the **OFT store PDAs** — the LayerZero OApp each EVM adapter holds in `peers(30168)` — not the SPL mints. Full account sets are in `deployments/solana-mainnet/*OFT.json`.
 - `frxUSD`
   - SPL Token: `GzX1ireZDU865FiMaKrdVB1H6AE8LAqWYCg6chrMrfBw`
-    - As bytes32: `0x5e208a73d5bb1c78e9dbf53badd7299afd6bee9acacdcd4fd668833e53c538ad`
+  - OFT store: `7LS6y37WXXCyBHkBU6zVpiqaqbkXLr4P85ZhQi3eonSp`
+    - As bytes32 (EVM peer): `0x5e208a73d5bb1c78e9dbf53badd7299afd6bee9acacdcd4fd668833e53c538ad`
 - `sfrxUSD`
   - SPL Token: `DUvWQMyASSkLNJFwsMDA4kwxEvmfaqpPGrvUVKtitX45`
-    - As bytes32: `0x8602f005ca65b6da46a3c6ce66ecd1d15be911ca650d5f418d369df184b584cf`
+  - OFT store: `A28EK6j1euK4e6taP1KLFpGEoR1mDpXR4vtfiyCE1Nxv`
+    - As bytes32 (EVM peer): `0x8602f005ca65b6da46a3c6ce66ecd1d15be911ca650d5f418d369df184b584cf`
 - `frxETH`
   - SPL Token: `5sDrwVNiHMM2jC78hRBH1CtysDQYiNKihubgW2zNu8tf`
-    - As bytes32: `0x38dd9e11bbf63835dc61d3cbf259f4221f5987ac92982c96609b99634662dfb3`
+  - OFT store: `4pyqBQFhzsuL7ED76x3AyzT4bCVpMpQWXhS1LqEsfQtz`
+    - As bytes32 (EVM peer): `0x38dd9e11bbf63835dc61d3cbf259f4221f5987ac92982c96609b99634662dfb3`
 - `sfrxETH`
   - SPL Token: `58zpC9acE6F4FBtd88L64NoWHJcmzLsQSy5bjz35Ydgv`
-    - As bytes32: `0xbf2f1fc27286a43f25b05bd843a74a5478c4246343fa90c1fcb641a1caf46c61`
+  - OFT store: `DsJYjDF5yVSopMC15q9W42v833MhWGhCxcU2J39oS3wN`
+    - As bytes32 (EVM peer): `0xbf2f1fc27286a43f25b05bd843a74a5478c4246343fa90c1fcb641a1caf46c61`
 - `WFRAX`
   - SPL Token: `zZbQjiRg8uSxZaPu996XuviuZeSY6nsaMuutKZQBJga`
-    - As bytes32: `0x4939035f8dd13d15a9386e28b6705519aa6f488791323466a3c0116a201e51aa`
+  - OFT store: `5vqBiG7nxNnoCst8mEVVS6ax7C1ypEEenPfcZ4kLgj9B`
+    - As bytes32 (EVM peer): `0x4939035f8dd13d15a9386e28b6705519aa6f488791323466a3c0116a201e51aa`
+
+#### Address lookup tables
+A Fraxtal-hop send from Solana (`lz:oft:send:fraxtalhopv2`: HopMessage compose + lzCompose native drop) references 51 accounts and only fits Solana's 1232-byte packet with two lookup tables:
+- LayerZero's: `AokBxha6VMLLgf97B5VYHEtqztamWmYERBmmFvjuTzJB` (endpoint, ULN, executor, LayerZero Labs DVN)
+- Frax's: `AxK5myLkGReGSzEywXUM7hnbQ4n1ccnbR7VL7MqPBxFy`, authority `53dNdHXc7uruWqELhWtpx4f4UvpPk5SaT1upQNoKdi7y` (the fraxOFTWallet). It was created with frxUSD's accounts only; `pnpm exec hardhat lz:oft:solana:extend-hop-lookup-table --eid 30168` computes what every token's hop send still needs (dry run) and `--execute` appends it with `SOLANA_PRIVATE_KEY`, after which each token's hop send is ~780 bytes. Tables only grow: re-run after adding a token or changing the DVN set.
 
 ### Testnet
 Frax operates a lightweight LZ stack on testnets, replicating the dual-lockbox approach.  Below are the following addresses:

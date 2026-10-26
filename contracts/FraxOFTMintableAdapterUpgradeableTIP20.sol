@@ -3,14 +3,15 @@ pragma solidity ^0.8.22;
 
 import { OFTAdapterUpgradeable } from "@fraxfinance/layerzero-v2-upgradeable/oapp/contracts/oft/OFTAdapterUpgradeable.sol";
 import { SupplyTrackingModule } from "contracts/modules/SupplyTrackingModule.sol";
+import { RateLimiterModule } from "contracts/modules/RateLimiterModule.sol";
 import { TempoAltTokenBase } from "contracts/base/TempoAltTokenBase.sol";
 import { ITIP20 } from "@tempo/interfaces/ITIP20.sol";
-import { MessagingFee, MessagingReceipt } from "@layerzerolabs/lz-evm-protocol-v2/contracts/interfaces/ILayerZeroEndpointV2.sol";
-import { IOFT, SendParam, OFTReceipt } from "@fraxfinance/layerzero-v2-upgradeable/oapp/contracts/oft/interfaces/IOFT.sol";
+import { MessagingParams, MessagingFee, MessagingReceipt } from "@layerzerolabs/lz-evm-protocol-v2/contracts/interfaces/ILayerZeroEndpointV2.sol";
+import { IOFT, SendParam, OFTLimit, OFTFeeDetail, OFTReceipt } from "@fraxfinance/layerzero-v2-upgradeable/oapp/contracts/oft/interfaces/IOFT.sol";
 import { IERC20 } from "@openzeppelin/contracts/token/ERC20/IERC20.sol";
 import { SafeERC20 } from "@openzeppelin/contracts/token/ERC20/utils/SafeERC20.sol";
 
-contract FraxOFTMintableAdapterUpgradeableTIP20 is OFTAdapterUpgradeable, SupplyTrackingModule, TempoAltTokenBase {
+contract FraxOFTMintableAdapterUpgradeableTIP20 is OFTAdapterUpgradeable, SupplyTrackingModule, TempoAltTokenBase, RateLimiterModule {
     /// @notice Emitted when ERC20 tokens are recovered
     event RecoveredERC20(address indexed token, uint256 amount);
 
@@ -22,7 +23,7 @@ contract FraxOFTMintableAdapterUpgradeableTIP20 is OFTAdapterUpgradeable, Supply
     }
 
     function version() public pure returns (string memory) {
-        return "1.1.0";
+        return "1.2.0";
     }
 
     /// @dev This method is called specifically when deploying a new OFT
@@ -47,8 +48,69 @@ contract FraxOFTMintableAdapterUpgradeableTIP20 is OFTAdapterUpgradeable, Supply
         _setInitialTotalSupply(_eid, _amount);
     }
 
+    /// @notice Set whether negative supply is allowed for a given chain ID
+    /// @dev added in v1.2.0
+    function setAllowNegativeSupply(uint32 _eid, bool _allow) external onlyOwner {
+        _setAllowNegativeSupply(_eid, _allow);
+    }    
+
+    //==============================================================================
+    // Rate limit admin
+    //==============================================================================
+
+    function setRateLimitGlobalConfig(RateLimitGlobalConfig calldata _globalConfig) external onlyOwner {
+        _setRateLimitGlobalConfig(_globalConfig);
+    }
+
+    /// @notice Set the slippage allowance applied to a quoted fee swap, in basis points.
+    /// @param _bps Allowance in bps, capped by MAX_FEE_SWAP_SLIPPAGE_BPS. 0 restores the default.
+    function setFeeSwapSlippageBps(uint16 _bps) external onlyOwner {
+        _setFeeSwapSlippageBps(_bps);
+    }
+
+    function setDefaultRateLimitConfig(RateLimitConfig calldata _defaultConfig) external onlyOwner {
+        _setDefaultRateLimitConfig(_defaultConfig);
+    }
+
+    function setRateLimitConfigs(SetRateLimitConfigParam[] calldata _params) external onlyOwner {
+        _setRateLimitConfigs(_params);
+    }
+
+    function setRateLimitStates(SetRateLimitStateParam[] calldata _params) external onlyOwner {
+        _setRateLimitStates(_params);
+    }
+
+    function checkpointRateLimits(uint32[] calldata _eids) external onlyOwner {
+        _checkpointRateLimits(_eids);
+    }
+
+    function quoteOFT(
+        SendParam calldata _sendParam
+    )
+        external
+        view
+        override
+        returns (OFTLimit memory oftLimit, OFTFeeDetail[] memory oftFeeDetails, OFTReceipt memory oftReceipt)
+    {
+        uint256 minAmountLD = 0;
+        uint256 maxAmountLD = _removeDust(_rateLimitedMaxAmountLD(_sendParam.dstEid, _toLD(type(uint64).max)));
+        oftLimit = OFTLimit(minAmountLD, maxAmountLD);
+
+        oftFeeDetails = new OFTFeeDetail[](0);
+
+        (uint256 amountSentLD, uint256 amountReceivedLD) = _debitView(
+            _sendParam.amountLD,
+            _sendParam.minAmountLD,
+            _sendParam.dstEid
+        );
+        oftReceipt = OFTReceipt(amountSentLD, amountReceivedLD);
+    }
+
     /// @inheritdoc IOFT
     /// @dev Overrides send to prevent msg.value being sent (EndpointV2Alt uses ERC20 for gas)
+    /// @dev `_refundAddress` receives any fee surplus in LZEndpointDollar rather than the TIP20 paid,
+    ///      so a contract passed here must be able to transfer it or call `unwrap`. See
+    ///      TempoAltTokenBase.
     function send(
         SendParam calldata _sendParam,
         MessagingFee calldata _fee,
@@ -73,6 +135,58 @@ contract FraxOFTMintableAdapterUpgradeableTIP20 is OFTAdapterUpgradeable, Supply
         emit OFTSent(msgReceipt.guid, _sendParam.dstEid, msg.sender, amountSentLD, amountReceivedLD);
     }
 
+    /// @notice `send()` with the LayerZero fee paid in `_feeToken` and that debit capped — the Tempo
+    ///         equivalent of the `msg.value` ceiling on native chains. `IOFT.send` cannot carry a cap,
+    ///         so this companion sits beside it. Takes no value.
+    /// @param _feeToken TIP20 to pay the fee in. Pulled 1:1 when LZEndpointDollar whitelists it,
+    ///        otherwise swapped on the StablecoinDEX; independent of the caller's FeeManager token.
+    /// @param _maxFeeTokenAmount Reverts `FeeAboveCap` (nothing is kept) if the fee in `_feeToken`, as
+    ///        `quoteUserTokenFee(_feeToken, _fee.nativeFee)` reports it at execution, exceeds this. Pass
+    ///        that quote: on the swap path it carries the headroom, and the unspent part is refunded.
+    function sendWithFeeCap(
+        SendParam calldata _sendParam,
+        MessagingFee calldata _fee,
+        address _refundAddress,
+        address _feeToken,
+        uint256 _maxFeeTokenAmount
+    ) external virtual returns (MessagingReceipt memory msgReceipt, OFTReceipt memory oftReceipt) {
+        if (_feeToken == address(0)) revert InvalidFeeToken();
+
+        // Debit tokens from sender
+        (uint256 amountSentLD, uint256 amountReceivedLD) = _debit(
+            _sendParam.amountLD,
+            _sendParam.minAmountLD,
+            _sendParam.dstEid
+        );
+
+        // Build message and options
+        (bytes memory message, bytes memory options) = _buildMsgAndOptions(_sendParam, amountReceivedLD);
+
+        // Pay the fee in TIP20 under the cap, then hand the message over: the steps of `_lzSend`
+        // with its fixed `_payNative(uint256)` replaced by the capped collector.
+        _payNativeAltTokenCapped(_fee.nativeFee, address(endpoint), _feeToken, _maxFeeTokenAmount);
+        if (_fee.lzTokenFee > 0) _payLzToken(_fee.lzTokenFee);
+        msgReceipt = _lzSendPrepaid(_sendParam.dstEid, message, options, _fee.lzTokenFee > 0, _refundAddress);
+        oftReceipt = OFTReceipt(amountSentLD, amountReceivedLD);
+
+        emit OFTSent(msgReceipt.guid, _sendParam.dstEid, msg.sender, amountSentLD, amountReceivedLD);
+    }
+
+    /// @dev `_lzSend` with the fee already pushed to the endpoint; EndpointV2Alt takes no value.
+    function _lzSendPrepaid(
+        uint32 _dstEid,
+        bytes memory _message,
+        bytes memory _options,
+        bool _payInLzToken,
+        address _refundAddress
+    ) internal returns (MessagingReceipt memory) {
+        return
+            endpoint.send(
+                MessagingParams(_dstEid, _getPeerOrRevert(_dstEid), _message, _options, _payInLzToken),
+                _refundAddress
+            );
+    }
+
     /// @dev overrides OFTAdapterUpgradeable.sol to burn the tokens from the sender/track supply
     /// @dev added in v1.1.0
     function _debit(
@@ -81,6 +195,7 @@ contract FraxOFTMintableAdapterUpgradeableTIP20 is OFTAdapterUpgradeable, Supply
         uint32 _dstEid
     ) internal override returns (uint256 amountSentLD, uint256 amountReceivedLD) {
         (amountSentLD, amountReceivedLD) = _debitView(_amountLD, _minAmountLD, _dstEid);
+        _consumeOutboundRateLimit(_dstEid, amountSentLD);
 
         _addToTotalTransferTo(_dstEid, amountSentLD);
 
@@ -96,6 +211,7 @@ contract FraxOFTMintableAdapterUpgradeableTIP20 is OFTAdapterUpgradeable, Supply
         uint256 _amountLD,
         uint32 _srcEid
     ) internal override returns (uint256 amountReceivedLD) {
+        _consumeInboundRateLimit(_srcEid, _amountLD);
         _addToTotalTransferFrom(_srcEid, _amountLD);
 
         ITIP20(address(innerToken)).mint(_to, _amountLD);

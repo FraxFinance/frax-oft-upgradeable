@@ -84,14 +84,6 @@
     ],
     "quorum": 2
   },
-  "abstract": {
-    "uris": [
-      "https://abstract-mainnet.gateway.tatum.io",
-      "https://abstract.drpc.org",
-      "https://api.mainnet.abs.xyz"
-    ],
-    "quorum": 2
-  },
   "base": {
     "uris": [
       "https://1rpc.io/base",
@@ -202,15 +194,6 @@
     ],
     "quorum": 1
   },
-  "aurora": {
-    "uris": [
-      "https://1rpc.io/aurora",
-      "https://aurora-mainnet.gateway.tatum.io",
-      "https://aurora.drpc.org",
-      "https://mainnet.aurora.dev"
-    ],
-    "quorum": 3
-  },
   "hyperliquid": {
     "uris": [
       "https://hyperliquid-json-rpc.stakely.io",
@@ -270,6 +253,17 @@
       "https://robinhood-rpc.publicnode.com",
       "https://rpc.mainnet.chain.robinhood.com",
       "https://robinhood.rpc.blxrbdn.com"
+    ],
+    "quorum": 4
+  },
+  "celo": {
+    "uris": [
+      "https://42220.rpc.thirdweb.com",
+      "https://celo-json-rpc.stakely.io",
+      "https://celo-rpc.publicnode.com",
+      "https://celo.gateway.tenderly.co",
+      "https://forno.celo.org",
+      "https://rpc.ankr.com/celo"
     ],
     "quorum": 4
   }

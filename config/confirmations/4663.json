@@ -55,10 +55,6 @@
         "receiveConfirmations": 5,
         "sendConfirmations": 20
     },
-    "2741": {
-        "receiveConfirmations": 20,
-        "sendConfirmations": 20
-    },
     "4217": {
         "receiveConfirmations": 20,
         "sendConfirmations": 20
@@ -72,6 +68,10 @@
         "sendConfirmations": 20
     },
     "42161": {
+        "receiveConfirmations": 20,
+        "sendConfirmations": 20
+    },
+    "42220": {
         "receiveConfirmations": 20,
         "sendConfirmations": 20
     },
@@ -97,10 +97,6 @@
     },
     "747474": {
         "receiveConfirmations": 60,
-        "sendConfirmations": 20
-    },
-    "1313161554": {
-        "receiveConfirmations": 5,
         "sendConfirmations": 20
     }
 }

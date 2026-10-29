@@ -206,6 +206,41 @@ contract FrxUSDOFTUpgradeableTest is FraxTest {
         oft.freezeMany(accounts);
     }
 
+    function test_Freeze_ZeroAddress_reverts() external {
+        vm.prank(oft.owner());
+        oft.addFreezer(al);
+
+        vm.prank(oft.owner());
+        vm.expectRevert(FreezeThawModule.InvalidFreezeTarget.selector);
+        oft.freeze(address(0));
+
+        vm.prank(al);
+        vm.expectRevert(FreezeThawModule.InvalidFreezeTarget.selector);
+        oft.freeze(address(0));
+
+        assertFalse(oft.isFrozen(address(0)));
+    }
+
+    function test_FreezeMany_ZeroAddress_reverts() external {
+        address[] memory accounts = new address[](3);
+        accounts[0] = bob;
+        accounts[1] = address(0);
+        accounts[2] = carl;
+
+        vm.prank(oft.owner());
+        vm.expectRevert(FreezeThawModule.InvalidFreezeTarget.selector);
+        oft.freezeMany(accounts);
+
+        assertFalse(oft.isFrozen(bob), "Batch must revert atomically");
+        assertEq(oft.frozen().length, 0, "Frozen should remain empty");
+    }
+
+    function test_Thaw_ZeroAddress_succeeds() external {
+        vm.prank(oft.owner());
+        oft.thaw(address(0));
+        assertFalse(oft.isFrozen(address(0)));
+    }
+
     function test_Thaw_succeeds() external {
         vm.prank(oft.owner());
         oft.addFreezer(al);

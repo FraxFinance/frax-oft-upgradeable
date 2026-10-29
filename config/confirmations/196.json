@@ -6,5 +6,9 @@
     "4663": {
         "receiveConfirmations": 20,
         "sendConfirmations": 225000
+    },
+    "42220": {
+        "receiveConfirmations": 20,
+        "sendConfirmations": 225000
     }
 }

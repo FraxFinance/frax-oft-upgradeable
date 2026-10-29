@@ -272,5 +272,16 @@
       "https://robinhood.rpc.blxrbdn.com"
     ],
     "quorum": 4
+  },
+  "celo": {
+    "uris": [
+      "https://42220.rpc.thirdweb.com",
+      "https://celo-json-rpc.stakely.io",
+      "https://celo-rpc.publicnode.com",
+      "https://celo.gateway.tenderly.co",
+      "https://forno.celo.org",
+      "https://rpc.ankr.com/celo"
+    ],
+    "quorum": 4
   }
 }

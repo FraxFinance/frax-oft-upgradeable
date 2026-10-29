@@ -75,6 +75,10 @@
         "receiveConfirmations": 20,
         "sendConfirmations": 5
     },
+    "42220": {
+        "receiveConfirmations": 20,
+        "sendConfirmations": 5
+    },
     "43114": {
         "receiveConfirmations": 12,
         "sendConfirmations": 5

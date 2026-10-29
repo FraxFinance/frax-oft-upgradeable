@@ -199,7 +199,7 @@ Frax operates a lightweight LZ stack on testnets, replicating the dual-lockbox a
 
 
 ### Legacy (non-upgradeable) OFTs
-- Chain: `Ethereum`, `Metis`, `Blast`, `Base`
+- Chain: `Ethereum`, `Base`
 - Chain to convert from native token into OFT: Ethereum
 - Admin: Chain-respective msig
 - OFTs

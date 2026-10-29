@@ -3,6 +3,10 @@
         "receiveConfirmations": 5,
         "sendConfirmations": 15
     },
+    "42220": {
+        "receiveConfirmations": 20,
+        "sendConfirmations": 15
+    },
     "111111111": {
         "receiveConfirmations": 32,
         "sendConfirmations": 15

@@ -53,16 +53,41 @@ contract FrxUSDPolicyAdminTempoTest is TempoTestHelpers {
     }
 
     function test_InitializeWithPolicy_SetsOwner() public {
-        // Deploy new proxy with existing policy
-        bytes memory initData = abi.encodeCall(
-            FrxUSDPolicyAdminTempo.initializeWithPolicy, 
-            (owner, TEST_POLICY_ID)
-        );
-        ERC1967Proxy proxy = new ERC1967Proxy(address(implementation), initData);
+        // `initializeWithPolicy` requires the policy to already name this contract as its admin, so
+        // the proxy has to exist first: deploy it uninitialized, then initialize in a second call.
+        ERC1967Proxy proxy = new ERC1967Proxy(address(implementation), "");
         FrxUSDPolicyAdminTempo admin = FrxUSDPolicyAdminTempo(address(proxy));
-        
+        uint64 existingPolicy = StdPrecompiles.TIP403_REGISTRY.createPolicy(
+            address(admin),
+            ITIP403Registry.PolicyType.BLACKLIST
+        );
+
+        admin.initializeWithPolicy(owner, existingPolicy);
+
         assertEq(admin.owner(), owner);
-        assertEq(admin.policyId(), TEST_POLICY_ID);
+        assertEq(admin.policyId(), existingPolicy);
+    }
+
+    function test_InitializeWithPolicy_RejectsMisconfiguredPolicy() public {
+        ERC1967Proxy proxy = new ERC1967Proxy(address(implementation), "");
+        FrxUSDPolicyAdminTempo admin = FrxUSDPolicyAdminTempo(address(proxy));
+
+        vm.expectRevert(FrxUSDPolicyAdminTempo.InvalidPolicyId.selector);
+        admin.initializeWithPolicy(owner, 0);
+
+        uint64 whitelist = StdPrecompiles.TIP403_REGISTRY.createPolicy(
+            address(admin),
+            ITIP403Registry.PolicyType.WHITELIST
+        );
+        vm.expectRevert(FrxUSDPolicyAdminTempo.InvalidPolicyType.selector);
+        admin.initializeWithPolicy(owner, whitelist);
+
+        uint64 foreign = StdPrecompiles.TIP403_REGISTRY.createPolicy(
+            address(0xFEE1),
+            ITIP403Registry.PolicyType.BLACKLIST
+        );
+        vm.expectRevert(FrxUSDPolicyAdminTempo.NotPolicyAdmin.selector);
+        admin.initializeWithPolicy(owner, foreign);
     }
 
     // ---------------------------------------------------

@@ -1,0 +1,19 @@
+{
+  "_comment": "Seeds the automatic Fraxtal reads cannot produce: Solana (30168) is not EVM. Each value is totalTransferFrom + Solana mint supply - totalTransferTo on the Fraxtal lockbox, read 2026-11-03 (Solana slot 464710001; sfrxUSD mint DUvWQMyASSkLNJFwsMDA4kwxEvmfaqpPGrvUVKtitX45, frxUSD mint GzX1ireZDU865FiMaKrdVB1H6AE8LAqWYCg6chrMrfBw). Somnia (30380) needed no seed on that date: both lockboxes' headroom equalled Somnia's supply.",
+  "oft": [
+    "0x88aa7854d3b2daa5e37e7ce73a1f39669623a361",
+    "0x96a394058e2b84a89bac9667b19661ed003cf5d4"
+  ],
+  "eid": [
+    30168,
+    30168
+  ],
+  "initialTotalSupply": [
+    "173865000000000000",
+    "233911514030661000000000"
+  ],
+  "allowNegativeSupply": [
+    false,
+    false
+  ]
+}

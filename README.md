@@ -143,6 +143,51 @@ With the exception of Ethereum, Fraxtal and Tempo (frxUSD TIP20), Frax tokens ar
 - Fraxtal (Adapter): `0xd86fBBd0c8715d2C1f40e451e5C3514e65E7576A`
 - Ethereum (OFT): `0x04ACaF8D2865c0714F79da09645C13FD2888977f`
 
+### Tempo gas payment and fee refunds
+
+Tempo runs LayerZero's `EndpointV2Alt`, which charges its messaging fee in an ERC-20 —
+`LZEndpointDollar` ("LZD") — rather than in chain-native value. LZD is a wrapper over a basket of
+whitelisted USD TIP-20s (currently `pathUSD`, `USDC.e`, `USDT0`).
+
+On a send, the Tempo OFT and the frxUSD TIP-20 adapter:
+
+1. resolve the caller's gas token from `TIP_FEE_MANAGER.userTokens(msg.sender)`, defaulting to `pathUSD`
+   (or take the `feeToken` named to `sendWithFeeCap`, see below);
+2. if LZD whitelists that token, pull exactly `fee.nativeFee` of it; otherwise swap for the cheapest
+   whitelisted token on the StablecoinDEX, applying a 50 bps allowance (`feeSwapSlippageBps`) because
+   the DEX quote and its settlement round differently across order boundaries — anything the swap does
+   not consume is returned to the caller **in the same TIP-20**;
+3. wrap exactly `fee.nativeFee` into LZD, minted directly to the endpoint.
+
+**Capping the TIP-20 debit.** `IOFT.send` carries no ceiling on the TIP-20 pulled for the fee: only the
+caller's allowance bounds it, and a DEX-routed fee can move between quote and inclusion.
+`sendWithFeeCap(sendParam, fee, refundAddress, feeToken, maxFeeTokenAmount)` is the same send with the
+fee token named explicitly (independent of the FeeManager binding) and the debit capped: it reverts
+`FeeAboveCap`, keeping nothing, if the fee in `feeToken` — `quoteUserTokenFee(feeToken, fee.nativeFee)`,
+headroom included — exceeds the cap. Approve exactly that figure and pass it as the cap; the unspent
+headroom is refunded in the same call. It takes no value.
+
+**Overpaid fees are refunded in LZD, not in the TIP-20 the caller paid with.** The endpoint prices the
+send when the transaction lands and compares it against its whole LZD balance; any surplus goes to
+`_refundAddress` as LZD. The contracts never wrap more than `fee.nativeFee`, so a surplus only arises
+when the caller's declared fee exceeds the endpoint's price at execution.
+
+- **Recovering a refund**: call `unwrap(whitelistedToken, to, amount)` on LZD. Note that if the fee was
+  paid through a swap, the unwrap returns the whitelisted *intermediate* token, not the token originally
+  paid. LZD is backed as a basket and not per token, so pick a token LZD holds enough of.
+- **Quote as late as possible.** The fee is denominated in USD but prices destination gas, so it moves
+  with the destination's gas price and native-token price. The same frxUSD Tempo→Fraxtal send has
+  quoted anywhere from 0.29 to 1.59 LZD within a few thousand blocks. Pass the freshest quote; padding
+  guarantees LZD change, and under-quoting reverts the send.
+- **Contract refund addresses must be able to move LZD** — an ERC-20 transfer, or a direct `unwrap`.
+  `RemoteHopV201Tempo` passes `address(this)`, but it quotes in the same transaction as the send, so
+  its surplus is always zero; it also inherits `recoverERC20` as a backstop.
+
+Converting the refund back to the caller's token inside the OFT is deliberately **not** done: it would
+run after the message is already committed, and both steps it needs are externally constrained — the
+`unwrap` depends on LZD's finite per-token reserves, and a reverse swap re-introduces the same
+quote-versus-settlement divergence on a dust-sized amount.
+
 ### Legacy lockboxes
 Prior to Upgradeable lockboxes, Frax operated immutable lockboxes on Ethereum.  Liquidity can be unlocked via the Stargate UI:
   - `LFRAX`: `0x909DBdE1eBE906Af95660033e478D59EFe831fED`
@@ -218,6 +263,6 @@ Frax operates a lightweight LZ stack on testnets, replicating the dual-lockbox a
 - `source .env && forge script scripts/DeployFraxOFTProtocol.s.sol --rpc-url $RPC_URL`
 - Verify files created within `scripts/txs/{SOURCE_CHAIN_ID}-{DESTINATION_CHAIN_ID}.json` are correct peers, config
 - `source .env && forge script scripts/DeployFraxOFTProtocol.s.sol --rpc-url $RPC_URL --broadcast`
-- Manually verify each contract on the deployed chain (do not need to verify ImplementationMock)
-  - Use `contracts/flat`, Solidity version 0.8.22, Shanghai compiler, 200 optimizer runs
+- Verify each contract on the deployed chain (do not need to verify ImplementationMock)
+  - `scripts/ops/V120/verify-v120-implementations.sh <broadcast run-latest.json>` routes each chain to its verifier and passes the `--libraries` mapping that linked implementations require
 - Submit each newly crafted json to the respective `DESTINATION_CHAIN_ID` msig.

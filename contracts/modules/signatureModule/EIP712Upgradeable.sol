@@ -5,6 +5,8 @@ pragma solidity ^0.8.20;
 
 import {IERC5267} from "@openzeppelin/contracts/interfaces/IERC5267.sol";
 import {ECDSAUpgradeable} from "@openzeppelin/contracts-upgradeable/utils/cryptography/ECDSAUpgradeable.sol";
+import {EIP712Lib} from "contracts/libraries/EIP712Lib.sol";
+import {Initializable} from "@openzeppelin/contracts-upgradeable/proxy/utils/Initializable.sol";
 
 /**
   @notice This contract is a blend of OZ 4 and 5 to
@@ -12,7 +14,8 @@ import {ECDSAUpgradeable} from "@openzeppelin/contracts-upgradeable/utils/crypto
     - Utilize 5.x namespaced storage, protecting from storage clashes
 
   @dev Starting at OZ 5.3, key changes are
-    - Initializable removed
+    - Initializable (5.x) replaced with Initializable (4.x), the same base the LZ upgradeable stack
+      inherits, so `onlyInitializing` reads the flag set by the OFT `initializer`/`reinitializer`s
     - MessageHashUtils (5.x) replaced with ECDSAUpgradeable (4.x)
 */
 
@@ -38,7 +41,7 @@ import {ECDSAUpgradeable} from "@openzeppelin/contracts-upgradeable/utils/crypto
  * separator of the implementation contract. This will cause the {_domainSeparatorV4} function to always rebuild the
  * separator from the immutable values, which is cheaper than accessing a cached version in cold storage.
  */
-abstract contract EIP712Upgradeable is IERC5267 {
+abstract contract EIP712Upgradeable is Initializable, IERC5267 {
     bytes32 private constant TYPE_HASH =
         keccak256("EIP712Domain(string name,string version,uint256 chainId,address verifyingContract)");
 
@@ -74,11 +77,13 @@ abstract contract EIP712Upgradeable is IERC5267 {
      * NOTE: These parameters cannot be changed except through a xref:learn::upgrading-smart-contracts.adoc[smart
      * contract upgrade].
      */
+    /// @dev Unguarded on purpose: it only forwards to the guarded `_unchained` writer, and a second
+    ///      `onlyInitializing` check would cost frxUSD bytecode it cannot spare under EIP-170.
     function __EIP712_init(string memory name, string memory version) internal {
         __EIP712_init_unchained(name, version);
     }
 
-    function __EIP712_init_unchained(string memory name, string memory version) internal {
+    function __EIP712_init_unchained(string memory name, string memory version) internal onlyInitializing {
         EIP712Storage storage $ = _getEIP712Storage();
         $._name = name;
         $._version = version;
@@ -92,11 +97,7 @@ abstract contract EIP712Upgradeable is IERC5267 {
      * @dev Returns the domain separator for the current chain.
      */
     function _domainSeparatorV4() internal view returns (bytes32) {
-        return _buildDomainSeparator();
-    }
-
-    function _buildDomainSeparator() private view returns (bytes32) {
-        return keccak256(abi.encode(TYPE_HASH, _EIP712NameHash(), _EIP712VersionHash(), block.chainid, address(this)));
+        return EIP712Lib.domainSeparatorV4();
     }
 
     /**
@@ -135,20 +136,7 @@ abstract contract EIP712Upgradeable is IERC5267 {
             uint256[] memory extensions
         )
     {
-        EIP712Storage storage $ = _getEIP712Storage();
-        // If the hashed name and version in storage are non-zero, the contract hasn't been properly initialized
-        // and the EIP712 domain is not reliable, as it will be missing name and version.
-        require($._hashedName == 0 && $._hashedVersion == 0, "EIP712: Uninitialized");
-
-        return (
-            hex"0f", // 01111
-            _EIP712Name(),
-            _EIP712Version(),
-            block.chainid,
-            address(this),
-            bytes32(0),
-            new uint256[](0)
-        );
+        return EIP712Lib.eip712Domain();
     }
 
     /**

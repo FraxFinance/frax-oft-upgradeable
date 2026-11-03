@@ -13,7 +13,7 @@
             "sendLib302": "0xbB2Ea70C9E858123480642Cf96acbcCE1372dCe1"
         },
         {
-            "RPC": "https://metis-mainnet.public.blastapi.io",
+            "RPC": "https://andromeda.metis.io/?owner=1088",
             "chainid": 1088,
             "delegate": "0xF4A4F32732F9B2fB84Ee28c58616946F3bF80F7d",
             "dvnHorizen": "0x32d4F92437454829b3Fe7BEBfeCE5D0523DEb475",
@@ -37,7 +37,7 @@
             "sendLib302": "0xc1B621b18187F74c8F6D52a6F709Dd2780C09821"
         },
         {
-            "RPC": "https://mainnet.base.org",
+            "RPC": "https://base-rpc.publicnode.com",
             "chainid": 8453,
             "delegate": "0xCBfd4Ef00a8cf91Fd1e1Fe97dC05910772c15E53",
             "dvnHorizen": "0x9e059a54699a285714207b43B055483E78FAac25",
@@ -50,18 +50,6 @@
         }
     ],
     "Proxy": [
-        {
-            "RPC": "https://mainnet.mode.network/",
-            "chainid": 34443,
-            "delegate": "0x6336CFA6eDBeC2A459d869031DB77fC2770Eaa66",
-            "dvnHorizen": "0xaCDe1f22EEAb249d3ca6Ba8805C8fEe9f52a16e7",
-            "dvnL0": "0xce8358bc28dd8296Ce8cAF1CD2b44787abd65887",
-            "eid": 30260,
-            "endpoint": "0x1a44076050125825900e736c501f859c50fE728c",
-            "proxyAdmin": "0x223a681fc5c5522c85c96157c0efa18cd6c5405c",
-            "receiveLib302": "0xc1B621b18187F74c8F6D52a6F709Dd2780C09821",
-            "sendLib302": "0x2367325334447C5E1E0f1b3a6fB947b262F58312"
-        },
         {
             "RPC": "https://sei-evm-rpc.publicnode.com",
             "chainid": 1329,
@@ -87,7 +75,7 @@
             "sendLib302": "0x377530cdA84DFb2673bF4d145DCF0C4D7fdcB5b6"
         },
         {
-            "RPC": "https://mainnet.xlayer-rpc.com",
+            "RPC": "https://xlayerrpc.okx.com",
             "chainid": 196,
             "delegate": "0xe7Cc52f0C86f4FAB6630f1E26167B487fbF66a61",
             "dvnHorizen": "0xDd7B5E1dB4AaFd5C8EC3b764eFB8ed265Aa5445B",
@@ -135,7 +123,7 @@
             "sendLib302": "0x975bcD720be66659e3EB3C0e4F1866a3020E493A"
         },
         {
-            "RPC": "https://mainnet.optimism.io",
+            "RPC": "https://optimism.rpc.sentio.xyz",
             "chainid": 10,
             "delegate": "0x419e672d625f998dd07a7ecf2E06B896F8717cb2",
             "dvnHorizen": "0x9e930731cb4a6bf7ecc11f695a295c60bdd212eb",
@@ -147,7 +135,7 @@
             "sendLib302": "0x1322871e4ab09Bc7f5717189434f97bBD9546e95"
         },
         {
-            "RPC": "https://polygon-bor-rpc.publicnode.com",
+            "RPC": "https://polygon.gateway.tenderly.co",
             "chainid": 137,
             "delegate": "0xDbf59edA454679bB157b3B048Ba54C4D762b559E",
             "dvnHorizen": "0x25e0e650a78e6304a3983fc4b7ffc6544b1beea6",
@@ -159,7 +147,7 @@
             "sendLib302": "0x6c26c61a97006888ea9E4FA36584c7df57Cd9dA3"
         },
         {
-            "RPC": "https://api.avax.network/ext/bc/C/rpc",
+            "RPC": "https://api.zan.top/avax-mainnet/ext/bc/C/rpc",
             "chainid": 43114,
             "delegate": "0xBF1fF4D8B05F0871ca3f49e49fF1cA8AeeBD3b4b",
             "dvnHorizen": "0x07c05eab7716acb6f83ebf6268f8eecda8892ba1",
@@ -181,18 +169,6 @@
             "proxyAdmin": "0x223a681fc5c5522c85c96157c0efa18cd6c5405c",
             "receiveLib302": "0xB217266c3A98C8B2709Ee26836C98cf12f6cCEC1",
             "sendLib302": "0x9F8C645f2D0b2159767Bd6E0839DE4BE49e823DE"
-        },
-        {
-            "RPC": "https://zkevm-rpc.com",
-            "chainid": 1101,
-            "delegate": "0x57445fD8d544e5D313e4f715220103b091814df4",
-            "dvnHorizen": "0x7fe673201724925b5c477d4e1a4bd3e954688cf5",
-            "dvnL0": "0x488863d609f3a673875a914fbee7508a1de45ec6",
-            "eid": 30158,
-            "endpoint": "0x1a44076050125825900e736c501f859c50fE728c",
-            "proxyAdmin": "0x223a681fc5c5522c85c96157c0efa18cd6c5405c",
-            "receiveLib302": "0x581b26F362AD383f7B51eF8A165Efa13DDe398a4",
-            "sendLib302": "0x28B6140ead70cb2Fb669705b3598ffB4BEaA060b"
         },
         {
             "RPC": "https://eth-mainnet.public.blastapi.io",
@@ -231,18 +207,6 @@
             "sendLib302": "0xB5320B0B3a13cC860893E2Bd79FCd7e13484Dda2"
         },
         {
-            "RPC": "https://rpc.berachain.com",
-            "chainid": 80094,
-            "delegate": "0x436b303dAf4b95e94ad86cA3821d5E50eB0De3aA",
-            "dvnHorizen": "0xecbaa45c33ce6fa284995e5f8314f5bc7f1c2008",
-            "dvnL0": "0x282b3386571f7f794450d5789911a9804fa346b4",
-            "eid": 30362,
-            "endpoint": "0x6F475642a6e85809B1c36Fa62763669b1b48DD5B",
-            "proxyAdmin": "0x223a681fc5c5522c85c96157c0efa18cd6c5405c",
-            "receiveLib302": "0xe1844c5D63a9543023008D332Bd3d2e6f1FE1043",
-            "sendLib302": "0xC39161c743D0307EB9BCc9FEF03eeb9Dc4802de7"
-        },
-        {
             "RPC": "https://rpc.linea.build",
             "chainid": 59144,
             "delegate": "0x0E5a5284820E350ffce7fe7ba3364FaC1C53eaFD",
@@ -279,7 +243,7 @@
             "sendLib302": "0xC39161c743D0307EB9BCc9FEF03eeb9Dc4802de7"
         },
         {
-            "RPC": "https://98866.rpc.thirdweb.com",
+            "RPC": "https://rpc.plume.org",
             "chainid": 98866,
             "delegate": "0x77dDd3EC570EEAf2c513de3c833c5E82A721978B",
             "dvnHorizen": "0x0000000000000000000000000000000000000000",
@@ -289,18 +253,6 @@
             "proxyAdmin": "0x223a681fc5c5522c85c96157c0efa18cd6c5405c",
             "receiveLib302": "0x5B19bd330A84c049b62D5B0FC2bA120217a18C1C",
             "sendLib302": "0xFe7C30860D01e28371D40434806F4A8fcDD3A098"
-        },
-        {
-            "RPC": "https://rpc.botanixlabs.com",
-            "chainid": 3637,
-            "delegate": "0x0000000000000000000000000000000000000000",
-            "dvnHorizen": "0x0000000000000000000000000000000000000000",
-            "dvnL0": "0x0000000000000000000000000000000000000000",
-            "eid": 30376,
-            "endpoint": "0x6F475642a6e85809B1c36Fa62763669b1b48DD5B",
-            "proxyAdmin": "0x0000000000000000000000000000000000000000",
-            "receiveLib302": "0xe1844c5D63a9543023008D332Bd3d2e6f1FE1043",
-            "sendLib302": "0xC39161c743D0307EB9BCc9FEF03eeb9Dc4802de7"
         },
         {
             "RPC": "https://rpc.katana.network",
@@ -325,18 +277,6 @@
             "proxyAdmin": "0x223a681fc5c5522c85c96157c0efa18cd6c5405c",
             "receiveLib302": "0x000CC1A759bC3A15e664Ed5379E321Be5de1c9B6",
             "sendLib302": "0x1aCe9DD1BC743aD036eF2D92Af42Ca70A1159df5"
-        },
-        {
-            "RPC": "https://rpc.scroll.io",
-            "chainid": 534352,
-            "delegate": "0x73F365d34b81E731825a094c2E722A08574335cd",
-            "dvnHorizen": "0x7fe673201724925b5c477d4e1a4bd3e954688cf5",
-            "dvnL0": "0xbe0d08a85eebfcc6eda0a843521f7cbb1180d2e2",
-            "eid": 30214,
-            "endpoint": "0x1a44076050125825900e736c501f859c50fE728c",
-            "proxyAdmin": "0x8f1b9c1fd67136d525e14d96efb3887a33f16250",
-            "receiveLib302": "0x8363302080e711E0CAb978C081b9e69308d49808",
-            "sendLib302": "0x9BbEb2B2184B9313Cf5ed4a4DDFEa2ef62a2a03B"
         },
         {
             "RPC": "https://hyperliquid.drpc.org",
@@ -399,6 +339,30 @@
             "sendLib302": "0xC39161c743D0307EB9BCc9FEF03eeb9Dc4802de7"
         },
         {
+            "RPC": "https://rpc.mainnet.chain.robinhood.com",
+            "chainid": 4663,
+            "delegate": "0xFA1224aDd725eb2708BA4d15F627F4027dAfcEde",
+            "dvnHorizen": "0x1258a278519c7f4bd997a9c3bfd4aa802a028d89",
+            "dvnL0": "0xd01ae6905d48315f7be10c7330aecf8360ef5b12",
+            "eid": 30416,
+            "endpoint": "0x6F475642a6e85809B1c36Fa62763669b1b48DD5B",
+            "proxyAdmin": "0x000000dbfaA1Fb91ca46867cE6D41aB6da4f7428",
+            "receiveLib302": "0xe1844c5D63a9543023008D332Bd3d2e6f1FE1043",
+            "sendLib302": "0xC39161c743D0307EB9BCc9FEF03eeb9Dc4802de7"
+        },
+        {
+            "RPC": "https://forno.celo.org",
+            "chainid": 42220,
+            "delegate": "0xFfdBB6221390d05366df8F6733E586c8CE92103C",
+            "dvnHorizen": "0x31f748a368a893bdb5abb67ec95f232507601a73",
+            "dvnL0": "0x75b073994560a5c03cd970414d9170be0c6e5c36",
+            "eid": 30125,
+            "endpoint": "0x1a44076050125825900e736c501f859c50fE728c",
+            "proxyAdmin": "0x000000dbfaA1Fb91ca46867cE6D41aB6da4f7428",
+            "receiveLib302": "0xaDDed4478B423d991C21E525Cd3638FBce1AaD17",
+            "sendLib302": "0x42b4E9C6495B4cFDaE024B1eC32E09F28027620e"
+        },
+        {
             "RPC": "https://api.mainnet.abs.xyz",
             "chainid": 2741,
             "delegate": "0xcC20eAE3CdC554E96291708B362dF349CC443808",
@@ -435,36 +399,11 @@
             "proxyAdmin": "0x0000000000000000000000000000000000000000",
             "receiveLib302": "0x0000000000000000000000000000000000000000",
             "sendLib302": "0x0000000000000000000000000000000000000000"
-        },
-        {
-            "RPC": "Movement",
-            "chainid": 22222222,
-            "delegate": "0x0000000000000000000000000000000000000000",
-            "dvnHorizen": "0x0000000000000000000000000000000000000000",
-            "dvnL0": "0x0000000000000000000000000000000000000000",
-            "eid": 30325,
-            "endpoint": "0x0000000000000000000000000000000000000000",
-            "proxyAdmin": "0x0000000000000000000000000000000000000000",
-            "receiveLib302": "0x0000000000000000000000000000000000000000",
-            "sendLib302": "0x0000000000000000000000000000000000000000"
-        },
-        {
-            "RPC": "Aptos",
-            "chainid": 33333333,
-            "delegate": "0x0000000000000000000000000000000000000000",
-            "dvnHorizen": "0x0000000000000000000000000000000000000000",
-            "dvnL0": "0x0000000000000000000000000000000000000000",
-            "eid": 30108,
-            "endpoint": "0x0000000000000000000000000000000000000000",
-            "proxyAdmin": "0x0000000000000000000000000000000000000000",
-            "receiveLib302": "0x0000000000000000000000000000000000000000",
-            "sendLib302": "0x0000000000000000000000000000000000000000",
-            "executor": "0x0000000000000000000000000000000000000000"
         }
     ],
     "Testnet": [
         {
-            "RPC": "https://eth-sepolia.public.blastapi.io",
+            "RPC": "https://ethereum-sepolia-rpc.publicnode.com",
             "chainid": 11155111,
             "delegate": "0x0990be6dB8c785FBbF9deD8bAEc612A10CaE814b",
             "dvnHorizen": "0x000bfb182cc999879ffb5cd7cf9f1db18a454248",

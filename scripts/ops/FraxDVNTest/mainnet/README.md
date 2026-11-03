@@ -510,3 +510,8 @@ worldchain : https://layerzeroscan.com/tx/0x0662527651bcc375230985fdb1da1bd736d6
 * fraxtal : https://layerzeroscan.com/tx/0xe2a69f5ccb7b89504cab1d52588fc801e8d8148a639837d74323e0e85c99d24d
 * somnia : https://layerzeroscan.com/tx/0xfc2a65fc9a1d3a2abd76dac0a92231fb38f48d570913b900a99e070a16fbfc6d
 * transfer mockfrxUSD TIP20 : https://explore.mainnet.tempo.xyz/tx/0xd9bc059190d3a2491c39e94aecb2422580cbbb556774ff224873aea01fb3f605
+
+## Celo
+* fraxtal : https://layerzeroscan.com/tx/0xead1ff2e673092c9d1453b1f1609402affcf27440f6be381cb0b1a3e1b6fb1b1
+* celo : https://layerzeroscan.com/tx/0xea2645f557e4e5716193ef224030456066b06cbf9d6289e3592a6e8d2e0fd199
+

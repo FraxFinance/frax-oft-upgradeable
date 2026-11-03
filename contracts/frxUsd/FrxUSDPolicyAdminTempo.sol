@@ -67,6 +67,15 @@ contract FrxUSDPolicyAdminTempo is Ownable2StepUpgradeable {
     /// @notice Error thrown when policy ID is not set
     error PolicyIdNotSet();
 
+    /// @notice Error thrown when the supplied policy ID is zero or unknown to the registry
+    error InvalidPolicyId();
+
+    /// @notice Error thrown when the supplied policy is not BLACKLIST-typed
+    error InvalidPolicyType();
+
+    /// @notice Error thrown when this contract does not administer the supplied policy
+    error NotPolicyAdmin();
+
     /* ========== CONSTRUCTOR ========== */
 
     /// @notice Constructor disables initializers for upgradeable pattern
@@ -94,14 +103,24 @@ contract FrxUSDPolicyAdminTempo is Ownable2StepUpgradeable {
     /// @notice Initializes with an existing policy ID
     /// @param _owner The initial owner of the contract
     /// @param _policyId The existing TIP-403 policy ID to use
-    /// @dev Use this if a policy has already been created
+    /// @dev Use this if a policy has already been created. The policy must exist, be BLACKLIST-typed
+    ///      and already name this contract as its admin — freeze/thaw/setPolicyAdmin are rejected by
+    ///      the registry otherwise, and `isFrozen` would invert against a WHITELIST policy. Because
+    ///      this is a one-time initializer, transfer the policy admin to this address before calling:
+    ///      deploy the proxy without initialization data, then initialize it in a second transaction.
     function initializeWithPolicy(address _owner, uint64 _policyId) external initializer {
+        if (_policyId == 0 || !StdPrecompiles.TIP403_REGISTRY.policyExists(_policyId)) revert InvalidPolicyId();
+        (ITIP403Registry.PolicyType _policyType, address _policyAdmin) =
+            StdPrecompiles.TIP403_REGISTRY.policyData(_policyId);
+        if (_policyType != ITIP403Registry.PolicyType.BLACKLIST) revert InvalidPolicyType();
+        if (_policyAdmin != address(this)) revert NotPolicyAdmin();
+
         __Ownable2Step_init();
         _transferOwnership(_owner);
-        
+
         PolicyAdminStorage storage $ = _getPolicyAdminStorage();
         $.policyId = _policyId;
-        
+
         emit PolicyIdSet(_policyId);
     }
 

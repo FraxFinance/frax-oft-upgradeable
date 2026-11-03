@@ -52,13 +52,8 @@ contract DeployFraxOFTFraxtalHub is DeployFraxOFTProtocol {
         return msg.sender;
     }
 
-    /// @notice Skip wallet check — wallet not deployed on Tempo.
-    function postDeployChecks() internal view override {
-        require(proxyOfts.length == NUM_OFTS, "Did not deploy all OFTs");
-    }
-
     function deploySource() public override {
-        // preDeployChecks();
+        preDeployChecks();
         deployFraxOFTUpgradeablesAndProxies();
         postDeployChecks();
     }

@@ -37,7 +37,7 @@
             "sfrxeth": "0x3Ec3849C33291a9eF4c5dB86De593EB4A37fDe45"
         },
         {
-            "RPC": "https://metis-mainnet.public.blastapi.io",
+            "RPC": "https://metis-rpc.publicnode.com",
             "chainid": 1088,
             "delegate": "0xF4A4F32732F9B2fB84Ee28c58616946F3bF80F7d",
             "dvnHorizen": "0x32d4F92437454829b3Fe7BEBfeCE5D0523DEb475",
@@ -93,7 +93,7 @@
             "sfrxeth": "0x3Ec3849C33291a9eF4c5dB86De593EB4A37fDe45"
         },
         {
-            "RPC": "https://twilight-crimson-grass.sei-pacific.quiknode.pro/1fe7cb5c6950df0f3ebceead37f8eefdf41ddbe9/",
+            "RPC": "https://evm-rpc.sei-apis.com",
             "chainid": 1329,
             "delegate": "0x0357D02fc95320b990322d3ff69204c3D251171b",
             "dvnHorizen": "0x87048402c32632B7c4d0A892d82bC1160E8B2393",
@@ -201,7 +201,7 @@
             "sfrxeth": "0x3Ec3849C33291a9eF4c5dB86De593EB4A37fDe45"
         },
         {
-            "RPC": "https://optimism-mainnet.public.blastapi.io",
+            "RPC": "https://optimism-rpc.publicnode.com",
             "chainid": 10,
             "delegate": "0x419e672d625f998dd07a7ecf2E06B896F8717cb2",
             "dvnHorizen": "0x9e930731cb4a6bf7ecc11f695a295c60bdd212eb",
@@ -219,7 +219,7 @@
             "sfrxeth": "0x3Ec3849C33291a9eF4c5dB86De593EB4A37fDe45"
         },
         {
-            "RPC": "https://polygon-rpc.com",
+            "RPC": "https://polygon-bor-rpc.publicnode.com",
             "chainid": 137,
             "delegate": "0xDbf59edA454679bB157b3B048Ba54C4D762b559E",
             "dvnHorizen": "0x25e0e650a78e6304a3983fc4b7ffc6544b1beea6",
@@ -255,7 +255,7 @@
             "sfrxeth": "0x3Ec3849C33291a9eF4c5dB86De593EB4A37fDe45"
         },
         {
-            "RPC": "https://neat-lingering-orb.bsc.quiknode.pro/a9e1547db6f8261bf94f92603eec0cc3d0c66605",
+            "RPC": "https://bsc-rpc.publicnode.com",
             "chainid": 56,
             "delegate": "0xB1eff95B323D60cc04B1a44Ca1dBcbC935ae2C84",
             "dvnHorizen": "0x247624e2143504730aec22912ed41f092498bef2",

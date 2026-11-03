@@ -10,6 +10,7 @@ abstract contract SetupSourceFraxOFTFraxtalHub is DeployFraxOFTProtocol {
 
     function run() public virtual override {
         _validateAddrs();
+        _validateLibs();
         for (uint256 i = 0; i < proxyConfigs.length; i++) {
             // Set up destinations for Fraxtal lockboxes only
             if (proxyConfigs[i].chainid == 252 || proxyConfigs[i].chainid == broadcastConfig.chainid) {
@@ -30,6 +31,22 @@ abstract contract SetupSourceFraxOFTFraxtalHub is DeployFraxOFTProtocol {
 
     function setupNonEvms() public virtual override {}
 
+    /// @dev The base pairs proxyOfts with the NUM_OFTS-wide expectedProxyOfts, which breaks
+    ///      setEvmPeers' equal-length require for a chain that does not carry every slot.
+    ///      Pair proxyOfts with itself: `_peerOfts[o]` is only the token IDENTITY handed to
+    ///      determinePeer(), and both hub targets (252 and the chain itself) are registered
+    ///      in L0Constants, so the real peer always comes from the canonical registry and
+    ///      the NUM_OFTS-wide fallback array is never reached.
+    function setupEvms() public virtual override {
+        setEvmEnforcedOptions({ _connectedOfts: proxyOfts, _configs: proxyConfigs });
+
+        setEvmPeers({
+            _connectedOfts: proxyOfts,
+            _peerOfts: proxyOfts,
+            _configs: proxyConfigs
+        });
+    }
+
     function setupSource() public virtual override broadcastAs(configDeployerPK) {
         /// @dev set enforced options / peers separately
         setupEvms();
@@ -48,12 +65,29 @@ abstract contract SetupSourceFraxOFTFraxtalHub is DeployFraxOFTProtocol {
         require(isStringEqual(IERC20Metadata(sfrxEthOft).symbol(), "sfrxETH"), "sfrxEthOft != sfrxETH");
         _validateFrxUsdAddr();
         require(isStringEqual(IERC20Metadata(frxEthOft).symbol(), "frxETH"), "frxEthOft != frxETH");
-        require(isStringEqual(IERC20Metadata(fpiOft).symbol(), "FPI"), "fpiOft != FPI");
+        if (_managesToken(Token.FPI)) {
+            require(isStringEqual(IERC20Metadata(fpiOft).symbol(), "FPI"), "fpiOft != FPI");
+        }
     }
 
     /// @notice Validates frxUSD OFT symbol. Override for adapter-based deployments (e.g. Tempo TIP20).
     function _validateFrxUsdAddr() internal view virtual {
         require(isStringEqual(IERC20Metadata(frxUsdOft).symbol(), "frxUSD"), "frxUsdOft != frxUSD");
+    }
+
+    /// @notice Validates the L0Config libs are registered on the endpoint so setLibs() pins real
+    ///         libraries instead of reverting mid-batch on a stale or fat-fingered address.
+    function _validateLibs() internal view virtual {
+        require(broadcastConfig.sendLib302 != address(0), "L0Config: sendLib302 not set");
+        require(broadcastConfig.receiveLib302 != address(0), "L0Config: receiveLib302 not set");
+        require(
+            IMessageLibManager(broadcastConfig.endpoint).isRegisteredLibrary(broadcastConfig.sendLib302),
+            "L0Config: sendLib302 not registered on endpoint"
+        );
+        require(
+            IMessageLibManager(broadcastConfig.endpoint).isRegisteredLibrary(broadcastConfig.receiveLib302),
+            "L0Config: receiveLib302 not registered on endpoint"
+        );
     }
 
     function setPriviledgedRoles() public virtual override {

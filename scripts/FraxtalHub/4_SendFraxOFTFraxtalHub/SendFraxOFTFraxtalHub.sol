@@ -99,10 +99,12 @@ abstract contract SendFraxOFTFraxtalHub is DeployFraxOFTProtocol {
             OFTUpgradeable(dstfrxethOft).isPeer(uint32(srcEid), addressToBytes32(srcfrxethOft)),
             "frxethoft is not wired to source"
         );
-        require(
-            OFTUpgradeable(dstfpiOft).isPeer(uint32(srcEid), addressToBytes32(srcfpiOft)),
-            "fpi is not wired to source"
-        );
+        if (_managesToken(Token.FPI)) {
+            require(
+                OFTUpgradeable(dstfpiOft).isPeer(uint32(srcEid), addressToBytes32(srcfpiOft)),
+                "fpi is not wired to source"
+            );
+        }
         vm.createSelectFork(_sourceRpc);
     }
 
@@ -127,10 +129,12 @@ abstract contract SendFraxOFTFraxtalHub is DeployFraxOFTProtocol {
             OFTUpgradeable(srcfrxethOft).isPeer(uint32(dstEid), addressToBytes32(dstfrxethOft)),
             "frxeth is not wired to destination"
         );
-        require(
-            OFTUpgradeable(srcfpiOft).isPeer(uint32(dstEid), addressToBytes32(dstfpiOft)),
-            "fpi is not wired to destination"
-        );
+        if (_managesToken(Token.FPI)) {
+            require(
+                OFTUpgradeable(srcfpiOft).isPeer(uint32(dstEid), addressToBytes32(dstfpiOft)),
+                "fpi is not wired to destination"
+            );
+        }
 
         uint256 _totalEthFee;
         SendParam memory _sendParam = SendParam({
@@ -148,10 +152,14 @@ abstract contract SendFraxOFTFraxtalHub is DeployFraxOFTProtocol {
 
         SendParam memory _frxUsdSendParam = _getsendParamsForfrxUSD(_sendParam);
 
-        for (uint256 i; i < proxyOfts.length; i++) {
+        uint256 tokenCount = _managedTokenCount();
+        for (uint256 i; i < tokenCount; i++) {
             sendParams.push(_sendParam);
             refundAddresses.push(senderWallet);
         }
+        /// @dev Compact index 3 is frxUSD only while no slot before Token.FRXUSD is retired.
+        ///      The `ofts` pushes below are hardcoded in the same order, so retiring an
+        ///      earlier slot means editing both together.
         // Replace frxUSD entry (index 3) with scaled send params
         sendParams[3] = _frxUsdSendParam;
 
@@ -170,9 +178,11 @@ abstract contract SendFraxOFTFraxtalHub is DeployFraxOFTProtocol {
         ofts.push(IOFT(srcfrxethOft));
         _fee = IOFT(srcfrxethOft).quoteSend(_sendParam, false);
         _totalEthFee += _fee.nativeFee;
-        ofts.push(IOFT(srcfpiOft));
-        _fee = IOFT(srcfpiOft).quoteSend(_sendParam, false);
-        _totalEthFee += _fee.nativeFee;
+        if (_managesToken(Token.FPI)) {
+            ofts.push(IOFT(srcfpiOft));
+            _fee = IOFT(srcfpiOft).quoteSend(_sendParam, false);
+            _totalEthFee += _fee.nativeFee;
+        }
 
         _executeBatchBridge(_totalEthFee);
     }
@@ -196,6 +206,9 @@ abstract contract SendFraxOFTFraxtalHub is DeployFraxOFTProtocol {
         require(isStringEqual(IERC20Metadata(IOFT(frxEthOft).token()).symbol(), "frxETH"), "frxEthOft != frxETH");
         require(isStringEqual(IERC20Metadata(IOFT(sfrxEthOft).token()).symbol(), "sfrxETH"), "sfrxEthOft != sfrxETH");
         require(isStringEqual(IERC20Metadata(IOFT(wfraxOft).token()).symbol(), "WFRAX"), "wFraxOft != WFRAX");
-        require(isStringEqual(IERC20Metadata(IOFT(fpiOft).token()).symbol(), "FPI"), "fpiOft != FPI");
+        // FPI is not launched on new chains; validate only when the child script sets it
+        if (_managesToken(Token.FPI)) {
+            require(isStringEqual(IERC20Metadata(IOFT(fpiOft).token()).symbol(), "FPI"), "fpiOft != FPI");
+        }
     }
 }

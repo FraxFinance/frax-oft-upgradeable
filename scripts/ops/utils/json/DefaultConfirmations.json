@@ -50,7 +50,7 @@
             "sendLib": "0x975bcD720be66659e3EB3C0e4F1866a3020E493A"
         },
         {
-            "RPC": "https://optimism-mainnet.public.blastapi.io",
+            "RPC": "https://optimism-rpc.publicnode.com",
             "chainid": 10,
             "eid": 30111,
             "oft": "0x80Eede496655FB9047dd39d9f418d5483ED600df",
@@ -58,7 +58,7 @@
             "sendLib": "0x1322871e4ab09Bc7f5717189434f97bBD9546e95"
         },
         {
-            "RPC": "https://polygon-rpc.com",
+            "RPC": "https://polygon-bor-rpc.publicnode.com",
             "chainid": 137,
             "eid": 30109,
             "oft": "0x80Eede496655FB9047dd39d9f418d5483ED600df",
@@ -74,7 +74,7 @@
             "sendLib": "0x197D1333DEA5Fe0D6600E9b396c7f1B1cFCc558a"
         },
         {
-            "RPC": "https://neat-lingering-orb.bsc.quiknode.pro/a9e1547db6f8261bf94f92603eec0cc3d0c66605",
+            "RPC": "https://bsc-rpc.publicnode.com",
             "chainid": 56,
             "eid": 30102,
             "oft": "0x80Eede496655FB9047dd39d9f418d5483ED600df",

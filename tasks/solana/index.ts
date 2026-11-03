@@ -286,10 +286,21 @@ export const addComputeUnitInstructions = async (
     txBuilder: TransactionBuilder,
     umiWalletSigner: KeypairSigner,
     computeUnitPriceScaleFactor: number,
-    transactionType: TransactionType
+    transactionType: TransactionType,
+    /**
+     * Lookup tables to use in addition to LayerZero's, e.g. Frax's hop table
+     * (AxK5my…) without which a composed Fraxtal-hop send does not fit a packet.
+     */
+    extraLookupTables: PublicKey[] = []
 ) => {
     const computeUnitLimitScaleFactor = 1.1 // hardcoded to 1.1 as the estimations are not perfect and can fall slightly short of the actual CU usage on-chain
     const { addressLookupTableInput, lookupTableAccount } = await getAddressLookupTable(connection, umi, eid)
+    const extraInputs: AddressLookupTableInput[] = []
+    for (const address of extraLookupTables) {
+        const input = await fetchAddressLookupTable(umi, address)
+        if (!input) throw new Error(`No address lookup table found for ${address}`)
+        extraInputs.push(input)
+    }
     const { computeUnitPrice, computeUnits } = await getComputeUnitPriceAndLimit(
         connection,
         txBuilder.getInstructions(),
@@ -306,7 +317,7 @@ export const addComputeUnitInstructions = async (
             })
         )
         .add(setComputeUnitLimit(umi, { units: computeUnits * computeUnitLimitScaleFactor }))
-        .setAddressLookupTables([addressLookupTableInput])
+        .setAddressLookupTables([addressLookupTableInput, ...extraInputs])
         .add(txBuilder)
     return newTxBuilder
 }

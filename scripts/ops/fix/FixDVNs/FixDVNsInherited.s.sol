@@ -17,7 +17,11 @@ contract FixDVNsInherited is DeployFraxOFTProtocol {
 
     function filenameForStep(string memory _stepName) public view returns (string memory) {
         string memory root = vm.projectRoot();
-        root = string.concat(root, "/scripts/ops/fix/FixDVNs/generated/canary-nethermind/evm/");
+        string memory generatedDir = vm.envOr(
+            "FIX_DVNS_GENERATED_DIR",
+            string("scripts/ops/fix/FixDVNs/generated/canary-nethermind")
+        );
+        root = string.concat(root, "/", generatedDir, "/evm/");
 
         string memory name = string.concat((block.timestamp).toString(), "-");
         name = string.concat(name, _stepName);

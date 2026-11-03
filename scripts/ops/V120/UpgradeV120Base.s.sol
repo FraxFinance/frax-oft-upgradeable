@@ -689,6 +689,18 @@ abstract contract UpgradeV120Base is DeployFraxOFTProtocol {
         }
 
         seeds = _buildAutomaticSupplySeeds(_kinds);
+        // Peers the automatic reads cannot reach (Solana, Somnia) are kept by hand in
+        // supply/<chainid>.manual.json and appended, so a regeneration still refreshes every EVM row.
+        string memory manualPath =
+            string.concat(vm.projectRoot(), "/scripts/ops/V120/supply/", simulateConfig.chainid.toString(), ".manual.json");
+        if (vm.exists(manualPath)) {
+            SupplySeed[] memory manual = _parseSupplySeedsJson(manualPath);
+            SupplySeed[] memory merged = new SupplySeed[](seeds.length + manual.length);
+            for (uint256 i; i < seeds.length; ++i) merged[i] = seeds[i];
+            for (uint256 i; i < manual.length; ++i) merged[seeds.length + i] = manual[i];
+            seeds = merged;
+            console.log("V120: appended manual supply seeds from", manualPath);
+        }
         if (seeds.length != 0) {
             _writeGeneratedSupplySeeds(seeds);
         }
@@ -758,8 +770,32 @@ abstract contract UpgradeV120Base is DeployFraxOFTProtocol {
                 console.log("V120: not yet on v1.2.0, serializing unsimulated (executes post-upgrade):", name);
             }
 
+            if (!foldIntoExecute && owner != upgradeExecutor) _pushUpgradeGuard(owner, _seeds[i].oft, symbol);
             _pushPhasedTx(owner, foldIntoExecute ? BatchPhase.TimelockExecute : BatchPhase.PostUpgrade, name, _seeds[i].oft, data);
         }
+    }
+
+    /// @notice Make a standalone ledger step revert unless `_oft` already serves v1.2.0.
+    /// @dev `setInitialTotalSupply` also exists on v1.1.0, where it zeroes the transfer counters,
+    ///      and a step signed by a different Safe than the upgrade has no nonce ordering against
+    ///      it. `rateLimitGlobalConfig()` only exists from v1.2.0, so calling it ahead of the
+    ///      writes turns an early execution into a revert. A view: no state change, no event.
+    ///      One guard per (executor, OFT); `setAllowNegativeSupply` needs none, being v1.2.0-only.
+    function _pushUpgradeGuard(address _executor, address _oft, string memory _symbol) internal {
+        bytes memory data = abi.encodeWithSignature("rateLimitGlobalConfig()");
+        for (uint256 i; i < phasedTxs.length; ++i) {
+            PhasedTx storage ptx = phasedTxs[i];
+            if (ptx.phase == BatchPhase.PostUpgrade && ptx.executor == _executor && ptx.stx.to == _oft) {
+                if (keccak256(ptx.stx.data) == keccak256(data)) return;
+            }
+        }
+        if (_isUpgraded(_oft)) {
+            (bool ok,) = _oft.staticcall(data);
+            require(ok, "V120: upgrade guard reverts on v1.2.0");
+        }
+        _pushPhasedTx(
+            _executor, BatchPhase.PostUpgrade, string.concat("Require ", _symbol, " on v1.2.0 (reverts before the upgrade)"), _oft, data
+        );
     }
 
     /// @notice Simulate + serialize the v1.2.0-only `setAllowNegativeSupply` calls after the
@@ -807,7 +843,7 @@ abstract contract UpgradeV120Base is DeployFraxOFTProtocol {
 
     function _buildFraxtalSupplySeeds(ImplementationKind[] memory _kinds) internal returns (SupplySeed[] memory seeds) {
         console.log(
-            "V120 WARNING: Somnia (5031, EIP-1898 unsupported) cannot be fork-read; add its circulating supply (and Solana's, if non-zero) manually to scripts/ops/V120/supply/252.json"
+            "V120 WARNING: Somnia (5031, EIP-1898 unsupported) cannot be fork-read; keep its rows (and Solana's) in scripts/ops/V120/supply/252.manual.json"
         );
         uint256 targetFork = vm.activeFork();
         address targetSfrxUsdOft = connectedOfts[uint256(Token.SFRXUSD)];

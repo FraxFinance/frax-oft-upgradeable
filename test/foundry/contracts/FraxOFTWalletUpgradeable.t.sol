@@ -10,6 +10,8 @@ import { UpgradeWalletBridges } from "scripts/ops/UpgradeWalletBridges/UpgradeWa
 /// @notice Arbitrum fork test: runs the real upgrade script against the live dev wallet proxy, then
 ///         exercises every bridge path the upgraded wallet exposes - direct `IOFT.send` and HopV2,
 ///         single and multi-OFT, from-wallet and from-sender.
+/// @dev    Multi-OFT batches use exactly the active mesh tokens (L0Constants.activeTokens): frxUSD, sfrxUSD,
+///         frxETH, sfrxETH, WFRAX. FPI is retired (no peers, not HopV2-approved) and is deliberately absent.
 /// forge test --match-path test/foundry/contracts/FraxOFTWalletUpgradeable.t.sol -vvv
 /// Optional env: ARBITRUM_RPC_URL, ARBITRUM_FORK_BLOCK (0/unset = latest)
 contract FraxOFTWalletUpgradeableForkTest is Test {
@@ -20,9 +22,12 @@ contract FraxOFTWalletUpgradeableForkTest is Test {
     address internal constant WALLET = 0x741F0d8Bde14140f62107FC60A0EE122B37D4630;
     address internal constant HOP_V2 = 0x0000006D38568b00B457580b734e0076C62de659; // RemoteHopV2 (Arbitrum)
 
+    // Active mesh OFTs on Arbitrum (README "Proxy (upgradeable) OFTs")
     address internal constant FRXUSD_OFT = 0x80Eede496655FB9047dd39d9f418d5483ED600df;
     address internal constant SFRXUSD_OFT = 0x5Bff88cA1442c2496f7E475E9e7786383Bc070c0;
-    address internal constant FRAX_OFT = 0x64445f0aecC51E94aD52d8AC56b7190e764E561a;
+    address internal constant FRXETH_OFT = 0x43eDD7f3831b08FE70B7555ddD373C8bF65a9050;
+    address internal constant SFRXETH_OFT = 0x3Ec3849C33291a9eF4c5dB86De593EB4A37fDe45;
+    address internal constant WFRAX_OFT = 0x64445f0aecC51E94aD52d8AC56b7190e764E561a;
 
     uint32 internal constant FRAXTAL_EID = 30255;
     uint32 internal constant BASE_EID = 30184;
@@ -75,12 +80,15 @@ contract FraxOFTWalletUpgradeableForkTest is Test {
         vm.label(HOP_V2, "RemoteHopV2");
         vm.label(FRXUSD_OFT, "frxUSD OFT");
         vm.label(SFRXUSD_OFT, "sfrxUSD OFT");
-        vm.label(FRAX_OFT, "FRAX OFT");
+        vm.label(FRXETH_OFT, "frxETH OFT");
+        vm.label(SFRXETH_OFT, "sfrxETH OFT");
+        vm.label(WFRAX_OFT, "WFRAX OFT");
     }
 
     // ─── Upgrade ─────────────────────────────────────────────────────────
 
-    function test_upgrade_preservesProxyState() public view {
+    /// @dev Not `view`: this forge-std's DSTest-based assertions write a failure flag.
+    function test_upgrade_preservesProxyState() public {
         assertTrue(_load(EIP1967_IMPLEMENTATION_SLOT) != implementationBefore, "implementation not changed");
         assertEq(_load(EIP1967_ADMIN_SLOT), adminBefore, "admin changed");
         assertEq(wallet.owner(), ownerBefore, "owner changed");
@@ -291,31 +299,31 @@ contract FraxOFTWalletUpgradeableForkTest is Test {
     }
 
     function _hopBatch() internal view returns (HopBatch memory b) {
-        b.ofts = new address[](3);
-        b.ofts[0] = FRXUSD_OFT;
-        b.ofts[1] = SFRXUSD_OFT;
-        b.ofts[2] = FRAX_OFT;
-
-        b.dstEids = new uint32[](3);
-        b.dstEids[0] = BASE_EID; // spoke -> Fraxtal -> spoke
-        b.dstEids[1] = FRAXTAL_EID; // spoke -> hub
-        b.dstEids[2] = BASE_EID;
-
-        b.recipients = new bytes32[](3);
-        b.amounts = new uint256[](3);
-        for (uint256 i; i < 3; i++) {
+        IOFT[] memory ofts = _ofts();
+        uint256 len = ofts.length;
+        b.ofts = new address[](len);
+        b.dstEids = new uint32[](len);
+        b.recipients = new bytes32[](len);
+        b.amounts = new uint256[](len);
+        for (uint256 i; i < len; i++) {
+            b.ofts[i] = address(ofts[i]);
+            // alternate spoke -> Fraxtal -> spoke and spoke -> hub routes
+            b.dstEids[i] = i % 2 == 0 ? BASE_EID : FRAXTAL_EID;
             b.recipients[i] = _b32(recipient);
             b.amounts[i] = AMOUNT;
         }
-        b.dstGases = new uint128[](3);
-        b.datas = new bytes[](3);
+        b.dstGases = new uint128[](len);
+        b.datas = new bytes[](len);
     }
 
+    /// @dev The active mesh tokens only; FPI is retired.
     function _ofts() internal pure returns (IOFT[] memory ofts) {
-        ofts = new IOFT[](3);
+        ofts = new IOFT[](5);
         ofts[0] = IOFT(FRXUSD_OFT);
         ofts[1] = IOFT(SFRXUSD_OFT);
-        ofts[2] = IOFT(FRAX_OFT);
+        ofts[2] = IOFT(FRXETH_OFT);
+        ofts[3] = IOFT(SFRXETH_OFT);
+        ofts[4] = IOFT(WFRAX_OFT);
     }
 
     function _sendParam(uint32 _dstEid, uint256 _amount) internal view returns (SendParam memory) {

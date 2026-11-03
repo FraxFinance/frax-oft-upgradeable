@@ -36,17 +36,9 @@ interface IHopV2 {
     ) external view returns (uint256 fee);
 }
 
-interface IRemoteHop {
-    function sendOFT(address _oft, uint32 _dstEid, bytes32 _recipient, uint256 _amountLD) external payable;
-
-    function quote(
-        address _oft,
-        uint32 _dstEid,
-        bytes32 _recipient,
-        uint256 _amountLD
-    ) external view returns (MessagingFee memory fee);
-}
-
+/// @notice Dev wallet used to exercise the LZ mesh: bridges one or many OFTs per tx, either directly via
+///         `IOFT.send` (`bridge*`) or routed through HopV2 (`hopV2*`).
+/// @dev RemoteHop v1 is intentionally not supported - it is paused on every chain it was deployed to.
 contract FraxOFTWalletUpgradeable is Ownable2StepUpgradeable {
     using SafeERC20 for IERC20;
 
@@ -222,89 +214,6 @@ contract FraxOFTWalletUpgradeable is Ownable2StepUpgradeable {
         _token.forceApprove(_hop, _amountLD);
         uint256 fee = IHopV2(_hop).quote(_oft, _dstEid, _recipient, _amountLD, _dstGas, _data);
         IHopV2(_hop).sendOFT{value: fee}(_oft, _dstEid, _recipient, _amountLD, _dstGas, _data);
-    }
-
-    function batchHopWithEthFeeFromWallet(
-        address _hop,
-        address[] memory _ofts,
-        uint32[] memory _dstEids,
-        bytes32[] memory _recipients,
-        uint256[] memory _amounts
-    ) external payable onlyOwner {
-        uint256 _len = _ofts.length;
-        if (_len != _dstEids.length || _len != _recipients.length || _len != _amounts.length) {
-            revert MismatchedArrayLengths();
-        }
-
-        MessagingFee[] memory fees = new MessagingFee[](_len);
-        uint256 totalFee;
-        for (uint256 _i; _i < _len; _i++) {
-            fees[_i] = IRemoteHop(_hop).quote(_ofts[_i], _dstEids[_i], _recipients[_i], _amounts[_i]);
-            totalFee += fees[_i].nativeFee;
-        }
-        require(msg.value >= totalFee, "Insufficient ETH for fees");
-
-        for (uint256 _i; _i < _len; _i++) {
-            IERC20(IOFT(_ofts[_i]).token()).forceApprove(_hop, _amounts[_i]);
-            IRemoteHop(_hop).sendOFT{value: fees[_i].nativeFee}(_ofts[_i], _dstEids[_i], _recipients[_i], _amounts[_i]);
-        }
-    }
-
-    function batchHopWithEthFeeFromSender(
-        address _hop,
-        address[] memory _senders,
-        IERC20[] memory _tokens,
-        address[] memory _ofts,
-        uint32[] memory _dstEids,
-        bytes32[] memory _recipients,
-        uint256[] memory _amounts
-    ) external payable onlyOwner {
-        uint256 _len = _ofts.length;
-        if (
-            _len != _senders.length || _len != _tokens.length || _len != _dstEids.length || _len != _recipients.length
-                || _len != _amounts.length
-        ) {
-            revert MismatchedArrayLengths();
-        }
-
-        MessagingFee[] memory fees = new MessagingFee[](_len);
-        uint256 totalFee;
-        for (uint256 _i; _i < _len; _i++) {
-            fees[_i] = IRemoteHop(_hop).quote(_ofts[_i], _dstEids[_i], _recipients[_i], _amounts[_i]);
-            totalFee += fees[_i].nativeFee;
-        }
-        require(msg.value >= totalFee, "Insufficient ETH for fees");
-
-        for (uint256 _i; _i < _len; _i++) {
-            _tokens[_i].transferFrom(_senders[_i], address(this), _amounts[_i]);
-            _tokens[_i].forceApprove(_hop, _amounts[_i]);
-            IRemoteHop(_hop).sendOFT{value: fees[_i].nativeFee}(_ofts[_i], _dstEids[_i], _recipients[_i], _amounts[_i]);
-        }
-    }
-
-    function hopWithEthFeeFromWallet(address _hop, address _oft, uint32 _dstEid, bytes32 _recipient, uint256 _amountLD)
-        external
-        payable
-        onlyOwner
-    {
-        IERC20(IOFT(_oft).token()).forceApprove(_hop, _amountLD);
-        MessagingFee memory fee = IRemoteHop(_hop).quote(_oft, _dstEid, _recipient, _amountLD);
-        IRemoteHop(_hop).sendOFT{value: fee.nativeFee}(_oft, _dstEid, _recipient, _amountLD);
-    }
-
-    function hopWithEthFeeFromSender(
-        address _hop,
-        address _oft,
-        IERC20 _token,
-        address _sender,
-        uint32 _dstEid,
-        bytes32 _recipient,
-        uint256 _amountLD
-    ) external payable onlyOwner {
-        _token.transferFrom(_sender, address(this), _amountLD);
-        _token.forceApprove(_hop, _amountLD);
-        MessagingFee memory fee = IRemoteHop(_hop).quote(_oft, _dstEid, _recipient, _amountLD);
-        IRemoteHop(_hop).sendOFT{value: fee.nativeFee}(_oft, _dstEid, _recipient, _amountLD);
     }
 
     function _validateHopV2Batch(HopV2Batch memory _batch) internal pure {

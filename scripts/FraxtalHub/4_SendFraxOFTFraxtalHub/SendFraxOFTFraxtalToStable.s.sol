@@ -18,6 +18,6 @@ contract SendFraxOFTFraxtalToStable is SendFraxOFTFraxtalHub {
         dstEid = 30396;
         amount = 0.0001 ether;
         senderWallet = 0x741F0d8Bde14140f62107FC60A0EE122B37D4630;
-        recipientWallet = 0xF6f45CCB5E85D1400067ee66F9e168f83e86124E;
+        recipientWallet = 0x741F0d8Bde14140f62107FC60A0EE122B37D4630;
     }
 }

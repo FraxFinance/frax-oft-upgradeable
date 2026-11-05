@@ -16,7 +16,7 @@ contract SendFraxOFTMonadToFraxtal is SendFraxOFTFraxtalHub {
         srcEid = 30390;
         dstEid = 30255;
         amount = 0.0001 ether;
-        senderWallet = 0x8F37D9F5404067d4bAEc77e42956A198d1858080;
+        senderWallet = 0x84E6F8460e5c7AeebcBC7aA7D7c037FB75D83B4d;
         recipientWallet = 0x741F0d8Bde14140f62107FC60A0EE122B37D4630;
     }
 }

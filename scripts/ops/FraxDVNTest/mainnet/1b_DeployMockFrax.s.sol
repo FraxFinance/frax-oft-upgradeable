@@ -108,6 +108,11 @@ contract DeployMockFrax is DeployFraxOFTProtocol {
                 // Plume (30370)
                 if (eid == 30370) continue;
             }
+            if (broadcastConfig.eid == 30390) {
+                // L0 team has not setup defaultSendLibrary and defaultReceiveLibrary on monad for
+                // Aurora (30211, retired from the mesh)
+                if (eid == 30211) continue;
+            }
             if (broadcastConfig.eid == 30380) {
                 // L0 team has not setup defaultSendLibrary and defaultReceiveLibrary on somnia for
                 // Katana (30375), Solana (30168), Movement (30325)

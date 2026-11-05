@@ -13,39 +13,40 @@ interface IWalletProxyAdminSurface {
 // Upgrades the FraxOFTWallet proxies used to test the LZ mesh.
 //
 // Production flow (the proxy admin 0x8d82... is a hardware wallet):
-//  1. Deploy + verify the implementation on every active chain from a hot EOA (no privileges needed):
-//       python3 scripts/ops/UpgradeWalletBridges/deploy_implementations.py            # dry run
-//       PK_IMPL_DEPLOYER=<key> ETHERSCAN_API_KEY=<key> \
-//       python3 scripts/ops/UpgradeWalletBridges/deploy_implementations.py --broadcast
-//     It runs `deployImplementation()` per chain (Somnia via `forge create`) and records the addresses in
-//     implementations.json. zkSync is deferred until foundry-zksync is installed.
-//  2. Sign `upgradeTo` with the admin in the separate MetaMask upgrade console (wallet-upgrade-ui), which reads
-//     implementations.json. Monad and Stable are administered by their chain Safe: the console writes the batch.
+//  1. Deploy + verify the implementation on each active chain from the hot dev EOA 0x45dc... (no privileges needed),
+//     one chain per run so --verify and per-chain flags apply:
+//       PK_IMPL_DEPLOYER=<key> forge script scripts/ops/UpgradeWalletBridges/UpgradeWalletBridges.s.sol \
+//         --sig "deployImplementation()" --rpc-url <rpc> --broadcast --verify [verifier flags]
+//     Linea adds --evm-version paris. Somnia cannot be forked by forge >= 1.9 (its RPCs reject EIP-1898 block-hash
+//     params), so it uses `forge create`. zkSync runs this with foundry-zksync and `--zksync` (zksolc; keep the
+//     build small, e.g. FOUNDRY_SRC=scripts/ops/UpgradeWalletBridges, or zksolc runs out of memory on the whole
+//     repo). Addresses land in broadcast/.
+//  2. Sign `upgradeTo` with the admin in the separate MetaMask upgrade console (wallet-upgrade-ui).
 //
 // Two admin models exist on chain, and the script picks the path from the proxy's EIP-1967 admin slot:
 //  1. Dev wallets (FraxDVNTest `1b_DeployMockFrax`, owner 0x45dc...): admin is the EOA WALLET_ADMIN_EOA, which calls
-//     `upgradeTo` on the proxy directly. Nothing goes through a msig.
-//  2. Hub-deploy wallets on Monad / Stable (`DeployFraxOFTFraxtalHub`, owner 0x0990be...): admin is the chain's
-//     FraxProxyAdmin, owned by the chain Safe (3 of 6). The upgrade is `ProxyAdmin.upgrade(proxy, impl)` from the Safe.
+//     `upgradeTo` on the proxy directly. Nothing goes through a msig. Every active wallet uses this model.
+//  2. Hub-deploy wallets (`DeployFraxOFTFraxtalHub`): admin is the chain's FraxProxyAdmin, owned by the chain Safe;
+//     the upgrade is `ProxyAdmin.upgrade(proxy, impl)` from the Safe. Monad and Stable were moved off theirs to fresh
+//     1b dev wallets, so no active wallet uses this path today.
 //     (`upgradeAndCall(proxy, impl, "")` would revert: the proxy force-delegatecalls the empty calldata into an
 //     implementation that has no fallback.)
 //
 // `run()` / `upgradeChain()` simulate the complete upgrade (deploy + upgradeTo as the admin, or the Safe batch) on
 // forks; the fork test uses them. Keep them as dry runs: broadcasting would need the admin key (--ledger works).
-// --ffi is required where a Safe batch is written (Stable in the multi-chain run, Monad): SafeTxUtil shells out to sed.
+// --ffi is only needed when a Safe batch is written (a ProxyAdmin-administered wallet): SafeTxUtil shells out to sed.
 // Flaky L0Config RPC? Override per chain, e.g. WALLET_UPGRADE_RPC_480=https://worldchain-mainnet.g.alchemy.com/public
 //
 // Retired chains are never touched: L0Config.json `Proxy` still lists Blast, Aurora and Abstract, but they are
 // disconnected from the mesh (no Fraxtal hub lockbox peers, no FraxtalHopV2 route) - see `isRetired()`.
 //
 // Dry-run commands (chains that need their own flags are skipped by `run()` - see `needsDedicatedRun()`):
-//   forge script scripts/ops/UpgradeWalletBridges/UpgradeWalletBridges.s.sol --ffi
+//   forge script scripts/ops/UpgradeWalletBridges/UpgradeWalletBridges.s.sol
 //   forge script scripts/ops/UpgradeWalletBridges/UpgradeWalletBridges.s.sol --sig "upgradeChain(uint256)" 59144 \
 //     --rpc-url https://rpc.linea.build --evm-version paris
 //   forge script scripts/ops/UpgradeWalletBridges/UpgradeWalletBridges.s.sol --sig "upgradeChain(uint256)" 143 \
-//     --rpc-url https://rpc.monad.xyz --ffi
-// Somnia cannot be forked by forge >= 1.9 (its RPCs reject EIP-1898 block-hash params): no script runs there,
-// deploy_implementations.py uses `forge create` for it.
+//     --rpc-url https://rpc.monad.xyz
+// Somnia cannot be forked by forge >= 1.9, so no script runs there.
 contract UpgradeWalletBridges is BaseL0Script {
     using Strings for uint256;
 
@@ -63,10 +64,11 @@ contract UpgradeWalletBridges is BaseL0Script {
     address public constant ZKSYNC_WALLET_PROXY = 0x0065435a2FcC4D4D5CD2c284C5daA9588E6fe03d;
     address public constant SOMNIA_WALLET_PROXY = 0xE75177ED629a4770e2DA00e1395c28A5f9B745d4;
 
-    // Hub-deploy wallet proxies (admin: chain FraxProxyAdmin, owned by the chain msig).
-    // Same addresses as scripts/FraxtalHub/4_SendFraxOFTFraxtalHub/SendFraxOFT{Monad,Stable}ToFraxtal.s.sol
-    address public constant MONAD_WALLET_PROXY = 0x8F37D9F5404067d4bAEc77e42956A198d1858080;
-    address public constant STABLE_WALLET_PROXY = 0xF6f45CCB5E85D1400067ee66F9e168f83e86124E;
+    /// @dev 1b_DeployMockFrax from 0x45dc... on Monad (its nonce 6 was already used there, so not the canonical
+    ///      address). Replaces the Safe-administered hub-deploy wallet 0x8F37D9F5404067d4bAEc77e42956A198d1858080.
+    ///      Stable uses DEFAULT_WALLET_PROXY (1b_DeployMockFrax at 0x45dc... nonce 6), replacing the Safe-administered
+    ///      hub-deploy wallet 0xF6f45CCB5E85D1400067ee66F9e168f83e86124E.
+    address public constant MONAD_WALLET_PROXY = 0x84E6F8460e5c7AeebcBC7aA7D7c037FB75D83B4d;
 
     uint256 public walletAdminPK = vm.envOr("PK_WALLET_ADMIN", uint256(0));
 
@@ -119,8 +121,7 @@ contract UpgradeWalletBridges is BaseL0Script {
     }
 
     /// @notice Deploy the wallet implementation for the chain `--rpc-url` points at, from an EOA. The proxy upgrade is
-    ///         signed later by the admin in the upgrade console. One chain per run so --verify and per-chain flags apply
-    ///         (deploy_implementations.py drives this for every chain):
+    ///         signed later by the admin in the upgrade console. One chain per run so --verify and per-chain flags apply:
     ///   forge script scripts/ops/UpgradeWalletBridges/UpgradeWalletBridges.s.sol --sig "deployImplementation()" \
     ///     --rpc-url <rpc> --broadcast --verify [verifier flags] [--evm-version paris on Linea]
     function deployImplementation() public returns (address implementation) {
@@ -285,7 +286,6 @@ contract UpgradeWalletBridges is BaseL0Script {
         if (_chainid == 324) return ZKSYNC_WALLET_PROXY;
         if (_chainid == 5031) return SOMNIA_WALLET_PROXY;
         if (_chainid == 143) return MONAD_WALLET_PROXY;
-        if (_chainid == 988) return STABLE_WALLET_PROXY;
         return DEFAULT_WALLET_PROXY;
     }
 }

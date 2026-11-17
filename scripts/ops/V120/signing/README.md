@@ -1,13 +1,10 @@
-# v1.2.0 + Hop 2.0.2 signing payloads
+# v1.2.0 signing payloads
 
-Payloads for the Safe transactions in `msig-comm-docs/OftV120-Upgrade-msig-signers.md` and
-`msig-comm-docs/HopV202-TempoMintRedeem-msig-signers.md`. Each file is byte-identical to the batch that was
-proposed or uploaded, and its SHA-256 is listed in the signer doc.
+OFT v1.2.0 payloads for the Safe transactions in `msig-comm-docs/OftV120-Upgrade-msig-signers.md` that are not
+already under `scripts/ops/V120/*/txs/`. Each file is byte-identical to the batch that was proposed or is to be
+uploaded, and its SHA-256 is listed in the signer doc. The Hop 2.0.2 and Tempo mint/redeem batches live in `hop-v2`
+(`src/script/hop/upgrade/txs/`) and `fraxtal-lz-hop` (`src/script/hop/Fraxtal/generated/`).
 
-- `hop-202/<chain>/` and `hop-202/{celo,robinhood,fraxtal}/`: HopV2 2.0.1 to 2.0.2. Copied from `hop-v2`
-  (`feat/tempo-fee-inclusive-wrapper`, `src/script/hop/upgrade/txs/`).
-- `mintredeem/fraxtal/`: registers the Tempo mint/redeem hop on Fraxtal. Copied from `fraxtal-lz-hop`
-  (`ops/tempo-mintredeem`, `src/script/hop/Fraxtal/generated/`).
 - `ethereum/`: the Hop and OFT timelock calls bundled into one queue and one execute, plus the sfrxUSD
   `setAllowNegativeSupply` step. The bundles are composed from the two Hop and OFT batches; they are not generated
   by a single script.

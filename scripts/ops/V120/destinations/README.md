@@ -80,4 +80,4 @@ A reviewed `scripts/ops/V120/supply/<chainid>.json` is the source of truth and s
 - **WorldChain (480)** — public RPCs rate-limit forge's fork traffic; `L0Config` uses the Tenderly gateway, and chainlist.org lists alternates if it throttles.
 - **zkSync Era / Abstract** — require `foundryup-zksync`, which refuses to auto-deploy unlinked libraries in script mode and whose `--zksync` execution breaks the Safe batch writer. Deploy each library with `forge create --zksync --gcp`, then each implementation with `forge create --zksync --gcp --libraries …`, write the pin by hand and hand-build the batch on signing day. Verification: the zk explorers reject `settings.remappings`, so apply the remappings to the imports and drop the setting before submitting; the on-chain metadata records the zkVM solc fork (`llvm:1.0.1`), which the Etherscan instances cannot be told to use.
 
-Rate limits intentionally remain disabled after the implementation upgrade; enabling them is a separate operation.
+Rate limits intentionally remain disabled after the implementation upgrade; enabling them is a separate operation, driven by `scripts/ops/RateLimits/` (see its README).

@@ -1,0 +1,57 @@
+{
+  "schema": 1,
+  "note": "ILLUSTRATIVE ONLY. Shows the format and a lane-consistent shape; every number is a placeholder, not a recommendation. Copy into ../rate-limits.json and replace the values once the team has picked them.",
+  "tokens": {
+    "frxUSD": {
+      "note": "Amounts are whole frxUSD on every chain (Tempo's 6-decimal TIP-20 included). Each spoke has one lane, to and from Fraxtal; Fraxtal has one lane per spoke.",
+      "*": {
+        "note": "Every chain not listed below, and the fields a listed chain does not set: outbound 2M/day, inbound 10% above it so delayed deliveries that bunch up still clear.",
+        "default": {
+          "outbound": { "limit": "2_000_000", "window": "1d" },
+          "inbound": { "limit": "2_200_000", "window": "1d" }
+        }
+      },
+      "fraxtal": {
+        "note": "Hub. The default (inherited from *) covers the spoke lanes; the bigger lanes get per-peer limits that mirror the far side's own limits below.",
+        "peers": {
+          "ethereum": {
+            "outbound": { "limit": "25_000_000", "window": "1d" },
+            "inbound": { "limit": "27_500_000", "window": "1d" }
+          },
+          "base": {
+            "outbound": { "limit": "10_000_000", "window": "1d" },
+            "inbound": { "limit": "11_000_000", "window": "1d" }
+          },
+          "solana": {
+            "note": "Solana's own limits live in its OFT program's peer config (Squads), not here. Outbound to Solana inherits the default.",
+            "inbound": { "limit": "1_100_000", "window": "1d" }
+          }
+        }
+      },
+      "ethereum": {
+        "default": {
+          "outbound": { "limit": "25_000_000", "window": "1d" },
+          "inbound": { "limit": "27_500_000", "window": "1d" }
+        }
+      },
+      "base": {
+        "default": {
+          "outbound": { "limit": "10_000_000", "window": "1d" },
+          "inbound": { "limit": "11_000_000", "window": "1d" }
+        }
+      },
+      "tempo": {
+        "note": "Example of the emergency bypass: limits stay configured but are not enforced while true.",
+        "globallyDisabled": false
+      }
+    },
+    "frxETH": {
+      "*": {
+        "default": {
+          "outbound": { "limit": "1_000", "window": "1d" },
+          "inbound": { "limit": "1_100", "window": "1d" }
+        }
+      }
+    }
+  }
+}

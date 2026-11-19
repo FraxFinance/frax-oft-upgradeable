@@ -264,5 +264,5 @@ Frax operates a lightweight LZ stack on testnets, replicating the dual-lockbox a
 - Verify files created within `scripts/txs/{SOURCE_CHAIN_ID}-{DESTINATION_CHAIN_ID}.json` are correct peers, config
 - `source .env && forge script scripts/DeployFraxOFTProtocol.s.sol --rpc-url $RPC_URL --broadcast`
 - Verify each contract on the deployed chain (do not need to verify ImplementationMock)
-  - `scripts/ops/V120/verify-v120-implementations.sh <broadcast run-latest.json>` routes each chain to its verifier and passes the `--libraries` mapping that linked implementations require
+  - v1.2.0 implementations link external libraries: `forge verify-contract <implementation> <path>:<Contract> --chain <chainid> --libraries <path>:<Library>:<address> …`, one `--libraries` per entry in the broadcast file's `libraries` list (see `scripts/ops/V120/destinations/README.md`)
 - Submit each newly crafted json to the respective `DESTINATION_CHAIN_ID` msig.

@@ -51,9 +51,19 @@ Implementations are deployed and verified first, go to audit, and are upgraded t
 
 ## Externally linked libraries
 
-The v1.2.0 implementations link `contracts/libraries/*.sol` (rate limiter, EIP-3009, permit, EIP-712, freeze/thaw, pause, Tempo fee routing) to stay under the EIP-170 code size limit. `forge script --broadcast` deploys them via CREATE2 (salt 0 through the canonical `0x4e59…` factory, so the addresses are the same on every chain) in the same run and links automatically, so no extra step is needed — but **explorer verification requires the `--libraries` mapping**. Use `scripts/ops/V120/verify-v120-implementations.sh <broadcast run-latest.json>` (or `--all`), which reads the linked library addresses out of the broadcast file's `libraries` list (present even when forge found them already deployed) and routes each chain to the right verifier.
+The v1.2.0 implementations link `contracts/libraries/*.sol` (rate limiter, EIP-3009, permit, EIP-712, freeze/thaw, pause, Tempo fee routing) to stay under the EIP-170 code size limit. `forge script --broadcast` deploys them via CREATE2 (salt 0 through the canonical `0x4e59…` factory, so the addresses are the same on every chain) in the same run and links automatically, so no extra step is needed — but **explorer verification requires the `--libraries` mapping**. Pass one `--libraries <path>:<Library>:<address>` to `forge verify-contract` per entry in the broadcast file's `libraries` list (present even when forge found them already deployed), with the `--verifier` the chain needs (Etherscan, Blockscout or Sourcify).
 
 `FrxUSDOFTUpgradeable` sits ~227 bytes under the limit — re-check its size on any change to it or its modules.
+
+## Ethereum: hand-composed timelock bundles
+
+`ethereum/txs/1-0xffff…-timelock-queue.json` and `…-timelock-execute.json` are what the timelock admin Safe
+`0xfFFffF4F…` signs. Each bundles the Hop 2.0.2 call (from `hop-v2` `src/script/hop/upgrade/txs/`) with the five
+OFT v1.2.0 calls this script generates, all with eta `1795233600`. Separate Hop and OFT files would put the OFT
+queue at a nonce behind the Hop execute, which cannot run before the eta, by which time the OFT queue's eta is
+no longer valid. They are not produced by one script, and their names differ from the script's
+`UpgradeV120-1-step*` outputs so a regeneration never overwrites them. The execute bundle also carries the frxUSD
+`setAllowNegativeSupply(30255, true)`; `UpgradeV120-1-step3-supply-ledger-0xb174….json` is the sfrxUSD one.
 
 ## Batch ordering and executors
 
@@ -66,7 +76,9 @@ Supply-tracked chains emit **ordered step files** rather than one batch, because
 
 Steps must execute in ascending order; the script prints the file → executor → order summary. Chains where one executor owns everything still emit the single `UpgradeV120-<chainid>.json`.
 
-A reviewed `scripts/ops/V120/supply/<chainid>.json` is the source of truth and skips peer-forking entirely; otherwise the script auto-generates seeds from fresh peer reads and writes `supply/generated/<chainid>.json`. **The auto-generator cannot see Somnia (its RPCs reject the EIP-1898 queries forge's fork backend needs) or Solana** — keep those rows in `scripts/ops/V120/supply/<chainid>.manual.json` (same schema), which is appended to the automatic rows on every run, so regenerating refreshes the EVM rows and keeps the manual ones. Each value is `totalTransferFrom + peer supply - totalTransferTo` read from the lockbox's ledger for that eid; it does not move with transfers through the lockbox, only when the peer's supply changes some other way, so re-read it before signing. `scripts/ops/V120/supply/SeedSupplyLedger.s.sol` covers top-ups after the upgrade; it diffs against live chain state and emits nothing where the chain already satisfies the guard.
+A reviewed `scripts/ops/V120/supply/<chainid>.json` is the source of truth and skips peer-forking entirely; otherwise the script auto-generates seeds from fresh peer reads and writes `supply/generated/<chainid>.json` (gitignored; the values end up in the `txs/` calldata). **The auto-generator cannot see Somnia (its RPCs reject the EIP-1898 queries forge's fork backend needs) or Solana** — keep those rows in `scripts/ops/V120/supply/<chainid>.manual.json` (same schema), which is appended to the automatic rows on every run, so regenerating refreshes the EVM rows and keeps the manual ones. Each value is `totalTransferFrom + peer supply - totalTransferTo` read from the lockbox's ledger for that eid; it does not move with transfers through the lockbox, only when the peer's supply changes some other way, so re-read it before signing.
+
+**Fraxtal hub baselines are exact.** On Fraxtal every wired spoke lane is set to `totalTransferFrom + peer supply + 1,000 tokens - totalTransferTo` (`HUB_SEED_CUSHION_TOKENS`), lowered as well as raised, so its headroom is the spoke's live supply plus 1,000. A baseline above that is room for a forged inbound message to release real tokens; the cushion covers messages in flight while the two sides are read. Every later transfer moves headroom and supply together, so the lane stays exact. The Ethereum lane is the exception: Ethereum mints frxUSD and sfrxUSD natively, so no fixed baseline holds, and Fraxtal gets `setAllowNegativeSupply(30101, true)` instead, mirroring the Ethereum lockboxes' bypass for Fraxtal. Unwired lanes (retired chains) are skipped. The Solana and Somnia rows in `supply/252.manual.json` follow the same formula and must be re-read by hand. Fraxtal step 2 is written as `…-step2-supply-ledger-0x5f25…-part<i>of<n>.json`: `UpgradeV120Fraxtal` sets `_maxBatchBytes()` to 2,000, and `splitGuardedBatch` in `UpgradeV120Base.s.sol` spreads the writes over the fewest parts that fit, repeating the `rateLimitGlobalConfig()` guard in each so none runs before step 1. A Ledger signing through MetaMask rejects a larger SafeTx (`0x6a00` on the 7.9 KB single batch). Propose the parts at consecutive nonces and execute them in one bundle with step 1. Elsewhere seeds still only ever raise a baseline. `scripts/ops/V120/supply/SeedSupplyLedger.s.sol` covers top-ups after the upgrade; it diffs against live chain state and emits nothing where the chain already satisfies the guard.
 
 ## Per-chain quirks
 

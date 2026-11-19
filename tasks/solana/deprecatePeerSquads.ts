@@ -4,12 +4,13 @@ import path from 'node:path'
 import { mplToolbox } from '@metaplex-foundation/mpl-toolbox'
 import { createNoopSigner, publicKey, signerIdentity, transactionBuilder } from '@metaplex-foundation/umi'
 import { createUmi } from '@metaplex-foundation/umi-bundle-defaults'
-import { PublicKey as Web3PublicKey, VersionedMessage, VersionedTransaction } from '@solana/web3.js'
+import { Connection, PublicKey as Web3PublicKey, VersionedMessage, VersionedTransaction } from '@solana/web3.js'
 import bs58 from 'bs58'
+import { Contract, providers, utils } from 'ethers'
 import { task } from 'hardhat/config'
 
 import { types as devtoolsTypes } from '@layerzerolabs/devtools-evm-hardhat'
-import { EndpointId, endpointIdToNetwork } from '@layerzerolabs/lz-definitions'
+import { ChainType, EndpointId, endpointIdToChainType, endpointIdToNetwork } from '@layerzerolabs/lz-definitions'
 import { EndpointPDADeriver, EndpointProgram } from '@layerzerolabs/lz-solana-sdk-v2'
 import { Options } from '@layerzerolabs/lz-v2-utilities'
 import { OftPDA, oft } from '@layerzerolabs/oft-v2-solana-sdk'
@@ -23,7 +24,16 @@ interface Args {
     tokens?: string
     outDir?: string
     squadsAuthority?: string
+    remoteRpc?: string
+    keepReceiveLibrary: boolean
     dryRun: boolean
+}
+
+interface L0ConfigEntry {
+    chainid: number
+    eid: number
+    RPC?: string
+    endpoint?: string
 }
 
 interface SolanaDeployment {
@@ -43,6 +53,9 @@ interface TokenDeployment {
 const BLOCKED_MESSAGE_LIB = '2XrYqmhBMPJgDsb4SVbjV1PnJBprurd5bzRCkHwiFCJB'
 const ZERO_PEER_BYTES_32 = new Uint8Array(32)
 const EMPTY_OPTIONS = Options.newOptions().toBytes()
+const ENDPOINT_OUTBOUND_NONCE_ABI = [
+    'function outboundNonce(address sender, uint32 dstEid, bytes32 receiver) view returns (uint64)',
+]
 
 const TOKEN_DEPLOYMENTS: TokenDeployment[] = [
     { token: 'fpi', filename: 'FPIOFT.json', default: true },
@@ -75,12 +88,78 @@ function loadSolanaDeployment(fromEid: EndpointId, filename: string): SolanaDepl
     return JSON.parse(readFileSync(filePath, 'utf8')) as SolanaDeployment
 }
 
-function chainIdForEid(eid: EndpointId): number | undefined {
-    const l0Config = JSON.parse(readFileSync(path.join('scripts', 'L0Config.json'), 'utf8')) as {
-        Proxy: Array<{ chainid: number; eid: number }>
-        'Non-EVM': Array<{ chainid: number; eid: number }>
+// L0Config.json drops retired chains; L0Config4L0.json still carries them (e.g. Polygon zkEVM).
+function l0ConfigEntry(eid: EndpointId): L0ConfigEntry | undefined {
+    for (const file of ['L0Config.json', 'L0Config4L0.json']) {
+        const l0Config = JSON.parse(readFileSync(path.join('scripts', file), 'utf8')) as Record<string, unknown>
+        const entry = Object.values(l0Config)
+            .filter((section): section is L0ConfigEntry[] => Array.isArray(section))
+            .flat()
+            .find((candidate) => Number(candidate.eid) === Number(eid))
+        if (entry) return entry
     }
-    return [...l0Config.Proxy, ...l0Config['Non-EVM']].find((entry) => Number(entry.eid) === Number(eid))?.chainid
+    return undefined
+}
+
+function chainIdForEid(eid: EndpointId): number | undefined {
+    return l0ConfigEntry(eid)?.chainid
+}
+
+/**
+ * Blocking the receive library with no grace period strands anything already sent toward Solana, so the
+ * receive side is only sealed when the remote endpoint's outbound nonce matches Solana's inbound nonce and
+ * no verified message is waiting to execute.
+ */
+async function receiveSideDrained(
+    connection: Connection,
+    endpointDeriver: EndpointPDADeriver,
+    fromEid: EndpointId,
+    toEid: EndpointId,
+    oftStore: Web3PublicKey,
+    remotePeer: Uint8Array,
+    remoteRpc?: string
+): Promise<{ drained: boolean; reason: string }> {
+    if (endpointIdToChainType(toEid) !== ChainType.EVM) {
+        return { drained: false, reason: 'remote is not EVM, check in-flight messages manually' }
+    }
+    const entry = l0ConfigEntry(toEid)
+    const rpc = remoteRpc ?? entry?.RPC
+    if (!rpc || !entry?.endpoint) {
+        return { drained: false, reason: `no RPC/endpoint for eid ${toEid} in L0Config (or pass --remote-rpc)` }
+    }
+
+    let outbound: bigint
+    try {
+        const endpoint = new Contract(
+            entry.endpoint,
+            ENDPOINT_OUTBOUND_NONCE_ABI,
+            new providers.StaticJsonRpcProvider(rpc)
+        )
+        const sender = utils.getAddress(utils.hexlify(remotePeer.slice(12)))
+        outbound = BigInt((await endpoint.outboundNonce(sender, fromEid, utils.hexlify(oftStore.toBytes()))).toString())
+    } catch (error) {
+        return { drained: false, reason: `remote outboundNonce read failed: ${(error as Error).message}` }
+    }
+
+    const [noncePda] = endpointDeriver.nonce(oftStore, toEid, remotePeer)
+    const nonceInfo = await connection.getAccountInfo(noncePda)
+    const inbound = nonceInfo
+        ? BigInt(EndpointProgram.accounts.Nonce.fromAccountInfo(nonceInfo)[0].inboundNonce.toString())
+        : 0n
+    const [pendingNoncePda] = endpointDeriver.pendingNonce(oftStore, toEid, remotePeer)
+    const pendingNonceInfo = await connection.getAccountInfo(pendingNoncePda)
+    const pending = pendingNonceInfo
+        ? EndpointProgram.accounts.PendingInboundNonce.fromAccountInfo(pendingNonceInfo)[0].nonces.length
+        : 0
+
+    if (pending > 0) return { drained: false, reason: `${pending} verified message(s) not yet executed` }
+    if (outbound > inbound) {
+        return {
+            drained: false,
+            reason: `${outbound - inbound} message(s) in flight (remote outbound ${outbound}, Solana inbound ${inbound})`,
+        }
+    }
+    return { drained: true, reason: `nothing in flight (nonce ${inbound})` }
 }
 
 function selectedTokenDeployments(tokens?: string): TokenDeployment[] {
@@ -120,7 +199,7 @@ async function buildBase58Transaction(
 
 task(
     'lz:oft:solana:deprecate-peer:squads',
-    'Build Solana Squads txs to deprecate a remote peer by blocking send lib and zeroing peer config'
+    'Build Solana Squads txs to deprecate a remote peer by blocking send and receive libs and zeroing peer config'
 )
     .addOptionalParam('fromEid', 'The Solana endpoint ID', EndpointId.SOLANA_V2_MAINNET, devtoolsTypes.eid)
     .addParam('toEid', 'The remote endpoint ID to deprecate', undefined, devtoolsTypes.eid)
@@ -138,9 +217,16 @@ task(
         undefined,
         devtoolsTypes.string
     )
+    .addOptionalParam(
+        'remoteRpc',
+        'Remote chain RPC for the in-flight check before blocking the receive library, overrides L0Config',
+        undefined,
+        devtoolsTypes.string
+    )
+    .addFlag('keepReceiveLibrary', 'Leave the receive library as is on lanes this run cuts')
     .addFlag('dryRun', 'Print planned transactions without writing files')
     .setAction(async (args: Args) => {
-        const { fromEid, toEid, tokens, squadsAuthority, dryRun } = args
+        const { fromEid, toEid, tokens, squadsAuthority, remoteRpc, keepReceiveLibrary, dryRun } = args
         const toChainId = args.toChainId ? Number(args.toChainId) : chainIdForEid(toEid)
         if (!toChainId) throw new Error(`Unable to derive native chain ID for toEid ${toEid}`)
         const fromChainId = chainIdForEid(fromEid) ?? Number(fromEid)
@@ -256,6 +342,46 @@ task(
                     )
                 )
                 instructionNames.push('setPeerConfig(feeBps=0)')
+            }
+
+            // Seal the receive side only on lanes this run cuts; lanes cut earlier are left alone.
+            const receiveLibraryConfig = receiveLibraryInfo
+                ? EndpointProgram.accounts.ReceiveLibraryConfig.fromAccountInfo(receiveLibraryInfo)[0]
+                : null
+            const receiveLibrary = receiveLibraryConfig?.messageLib.toBase58() ?? null
+            if (
+                peerData &&
+                !bytesEqual(peerData.peerAddress, ZERO_PEER_BYTES_32) &&
+                receiveLibrary !== blockedMessageLibPda.toBase58()
+            ) {
+                let check: { drained: boolean; reason: string }
+                if (keepReceiveLibrary) {
+                    check = { drained: false, reason: '--keep-receive-library' }
+                } else if (!receiveLibrary) {
+                    check = { drained: false, reason: 'no OApp receive library config (endpoint default)' }
+                } else {
+                    check = await receiveSideDrained(
+                        connection,
+                        endpointDeriver,
+                        fromEid,
+                        toEid,
+                        new Web3PublicKey(deployment.oftStore),
+                        peerData.peerAddress,
+                        remoteRpc
+                    )
+                }
+                if (check.drained) {
+                    instructions.push(
+                        oft.setReceiveLibrary(
+                            { admin: signer, oftStore },
+                            { receiveLibraryProgram: blockedMessageLib, remoteEid: toEid, gracePeriod: 0n },
+                            oftStoreData.endpointProgram
+                        )
+                    )
+                    instructionNames.push(`setReceiveLibrary(blocked, ${check.reason})`)
+                } else {
+                    console.warn(`WARN ${tokenDeployment.token}: receive library left open, ${check.reason}`)
+                }
             }
 
             if (instructions.length === 0) {

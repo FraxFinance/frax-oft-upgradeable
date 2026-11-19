@@ -219,7 +219,7 @@
             "sendLib302": "0x32042142DD551b4EbE17B6FEd53131dd4b4eEa06"
         },
         {
-            "RPC": "https://worldchain-mainnet.gateway.tenderly.co",
+            "RPC": "https://worldchain-mainnet.g.alchemy.com/public",
             "chainid": 480,
             "delegate": "0xf57d47c3EA11c12253dBc0BeAf097d5c206e8773",
             "dvnHorizen": "0x95729ea44326f8add8a9b1d987279dbdc1dd3dff",

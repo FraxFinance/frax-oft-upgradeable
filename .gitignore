@@ -30,3 +30,6 @@ pnpm-error.log
 .turbo
 build
 target
+
+# V120 supply-seed scratch output (values are in the txs/ calldata)
+scripts/ops/V120/supply/generated/

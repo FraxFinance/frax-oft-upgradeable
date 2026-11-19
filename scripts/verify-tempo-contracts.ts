@@ -49,7 +49,12 @@ interface Transaction {
 
 interface BroadcastFile {
   transactions: Transaction[];
+  libraries?: string[]; // "path:Name:0xaddress" as forge records linked libraries
 }
+
+// --libraries flags for forge, so the standard JSON carries settings.libraries and the bytecode
+// has no unlinked placeholders. Also used for CREATE2 library deployments themselves.
+let LIBRARY_FLAGS = "";
 
 interface VerificationRequest {
   stdJsonInput: object;
@@ -110,8 +115,7 @@ const CONTRACT_PATH_OVERRIDES: Record<string, string> = {
     "node_modules/@fraxfinance/layerzero-v2-upgradeable/messagelib/contracts/upgradeable/proxy/ProxyAdmin.sol",
   FraxProxyAdmin: "contracts/FraxProxyAdmin.sol",
   ImplementationMock: "contracts/ImplementationMock.sol",
-  FraxOFTMintableAdapterUpgradeableTIP20:
-    "contracts/tempo/oft-upgradeable/FraxOFTMintableAdapterUpgradeableTIP20.sol",
+  FraxOFTMintableAdapterUpgradeableTIP20: "contracts/FraxOFTMintableAdapterUpgradeableTIP20.sol",
   FrxUSDPolicyAdminTempo: "contracts/frxUsd/FrxUSDPolicyAdminTempo.sol",
   FraxOFTWalletUpgradeable: "contracts/FraxOFTWalletUpgradeable.sol",
 };
@@ -169,7 +173,7 @@ function findContractPath(contractName: string): string | null {
 function generateStandardJsonInput(contractAddress: string, contractIdentifier: string): object | null {
   try {
     const result = execSync(
-      `forge verify-contract ${contractAddress} "${contractIdentifier}" --show-standard-json-input`,
+      `forge verify-contract ${contractAddress} "${contractIdentifier}" ${LIBRARY_FLAGS} --show-standard-json-input`,
       { encoding: "utf-8", maxBuffer: 50 * 1024 * 1024 }
     );
     return JSON.parse(result);
@@ -415,8 +419,9 @@ async function main() {
 
   // Filter CREATE transactions
   const deployments = broadcast.transactions.filter(
-    (tx) => tx.transactionType === "CREATE" && tx.contractName
+    (tx) => (tx.transactionType === "CREATE" || tx.transactionType === "CREATE2") && tx.contractName
   );
+  LIBRARY_FLAGS = (broadcast.libraries ?? []).map((l) => `--libraries ${l}`).join(" ");
 
   if (deployments.length === 0) {
     log("No CREATE transactions found in broadcast file", "error");

@@ -106,9 +106,7 @@ contract SubmitSendsFromFraxtal is BaseL0Script {
 
         // bytes memory options = OptionsBuilder.newOptions().addExecutorLzReceiveOption(300_000, 0);
         bytes memory options = OptionsBuilder.newOptions();
-        bytes32 to = _dstEid == 30324 || _dstEid == 30165 
-            ? addressToBytes32(address(0)) 
-            : addressToBytes32(vm.addr(senderDeployerPK));
+        bytes32 to = addressToBytes32(vm.addr(senderDeployerPK));
         
         SendParam memory sendParam = SendParam({
                 dstEid: uint32(_dstEid),

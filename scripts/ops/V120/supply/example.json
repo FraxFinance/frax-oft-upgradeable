@@ -1,0 +1,11 @@
+{
+  "_comment": "Template for scripts/ops/V120/supply/<chainId>.json. Rename to the hub chain id (252.json Fraxtal, 1.json Ethereum, 4217.json Tempo). The V120 upgrade run appends one setInitialTotalSupply / setAllowNegativeSupply call per index to the SAME Safe batch, after the upgrade tx, each simulated as the Safe. Fields are INDEX-ALIGNED parallel arrays and must be equal length. 'oft' = supply-tracked adapter proxy on that chain (frxUSD/sfrxUSD mintable, or frxUSD TIP20 on Tempo). 'eid' = destination LayerZero v2 endpoint id. 'initialTotalSupply' = decimal wei string; set '0' with allowNegativeSupply true to use the transitional bypass instead of a numeric seed. No file => upgrade-only batch.",
+  "oft": [
+    "0x80Eede496655FB9047dd39d9f418d5483ED600df",
+    "0x80Eede496655FB9047dd39d9f418d5483ED600df",
+    "0x5Bff88cA1442c2496f7E475E9e7786383Bc070c0"
+  ],
+  "eid": [30101, 30110, 30101],
+  "initialTotalSupply": ["1000000000000000000000", "250000000000000000000", "0"],
+  "allowNegativeSupply": [false, false, true]
+}

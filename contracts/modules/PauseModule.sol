@@ -1,8 +1,10 @@
 pragma solidity ^0.8.0;
+import {PauseLib} from "contracts/libraries/PauseLib.sol";
 
 /*
   * @title PauseModule
   * @dev Contract module that allows pausing and unpausing of the contract.
+  * @dev State transitions are delegated to `PauseLib`.
 */
 abstract contract PauseModule {
 
@@ -20,17 +22,11 @@ abstract contract PauseModule {
     }
 
     function _pause() internal virtual {
-        PauseStorage storage $ =_getPauseStorage();
-        if ($.isPaused) revert IsPaused();
-        $.isPaused = true;
-        emit Paused();
+        PauseLib.pause();
     }
 
     function _unpause() internal virtual {
-        PauseStorage storage $ = _getPauseStorage();
-        if (!$.isPaused) revert NotPaused();
-        $.isPaused = false;
-        emit Unpaused();
+        PauseLib.unpause();
     }
 
     /// @notice Return whether the contract is paused

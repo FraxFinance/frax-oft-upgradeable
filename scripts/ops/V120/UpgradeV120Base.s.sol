@@ -94,7 +94,14 @@ abstract contract UpgradeV120Base is DeployFraxOFTProtocol {
         uint256 transferFrom;
         uint256 transferTo;
         uint8 decimals;
+        bool peered;
     }
+
+    /// @notice Headroom the Fraxtal hub keeps above each spoke's live supply when its baseline is
+    ///         re-seeded, in whole tokens. It absorbs transfers that are mid-flight while the ledger
+    ///         and the spoke's supply are read (the two sides count a message at different times);
+    ///         without it, a lane read mid-transfer ends up short by that amount for good.
+    uint256 internal constant HUB_SEED_CUSHION_TOKENS = 1_000;
 
     struct SupplySeed {
         address oft;
@@ -458,7 +465,7 @@ abstract contract UpgradeV120Base is DeployFraxOFTProtocol {
                 }
 
                 ++step;
-                string memory path = string.concat(
+                string memory stem = string.concat(
                     outputDirectory(),
                     "/",
                     _batchPrefix(),
@@ -469,9 +476,16 @@ abstract contract UpgradeV120Base is DeployFraxOFTProtocol {
                     "-",
                     _phaseLabel(BatchPhase(p)),
                     "-",
-                    Strings.toHexString(uint160(phasedTxs[i].executor), 20),
-                    ".json"
+                    Strings.toHexString(uint160(phasedTxs[i].executor), 20)
                 );
+                string memory path = string.concat(stem, ".json");
+                if (
+                    BatchPhase(p) == BatchPhase.PostUpgrade && _maxBatchBytes() != 0
+                        && multiSendBytes(txs) > _maxBatchBytes()
+                ) {
+                    _writeParts(txs, stem, step);
+                    continue;
+                }
                 new SafeTxUtil().writeTxs(txs, path);
                 console.log("V120 batch step", step);
                 console.log("  phase:", _phaseLabel(BatchPhase(p)));
@@ -486,6 +500,32 @@ abstract contract UpgradeV120Base is DeployFraxOFTProtocol {
             console.log("  eta:", timelockEta);
         }
         console.log("V120: steps MUST execute in ascending order (upgrade before supply-ledger writes).");
+    }
+
+    /// @notice Largest post-upgrade Safe batch, in bytes of `multiSend` calldata, that signers can sign;
+    ///         0 = no limit. A larger one is written as self-guarded parts for consecutive nonces of the
+    ///         same Safe, which execute together with the upgrade step.
+    function _maxBatchBytes() internal view virtual returns (uint256) {
+        return 0;
+    }
+
+    function _writeParts(SerializedTx[] memory _txs, string memory _stem, uint256 _step) internal {
+        SerializedTx[][] memory parts = splitGuardedBatch(_txs, _maxBatchBytes());
+        string memory n = parts.length.toString();
+        for (uint256 k; k < parts.length; ++k) {
+            string memory i = (k + 1).toString();
+            string memory path = string.concat(_stem, "-part", i, "of", n, ".json");
+            new SafeTxUtil().writeTxs(
+                parts[k],
+                path,
+                string.concat(_batchPrefix(), " step ", _step.toString(), " (supply ledger), part ", i, " of ", n)
+            );
+            console.log("V120 batch step", _step);
+            console.log("  part:", path);
+            console.log("  txs:", parts[k].length);
+            console.log("  multiSend bytes:", multiSendBytes(parts[k]));
+        }
+        console.log("V120: propose the parts at consecutive nonces and execute all of them together with the upgrade.");
     }
 
     function _phaseLabel(BatchPhase _phase) internal pure returns (string memory) {
@@ -737,13 +777,15 @@ abstract contract UpgradeV120Base is DeployFraxOFTProtocol {
     ///      separate step and any eid already in deficit rejects inbound messages until it
     ///      executes — those messages stay retryable at the endpoint.
     function _simulateSupplySeeds(ImplementationKind[] memory _kinds, SupplySeed[] memory _seeds) internal {
+        // Fraxtal's baselines are written exactly (raised or lowered, zero included; see
+        // _recordPeerSupplySeed). Elsewhere a seed only ever raises a baseline, and a zero row is
+        // a bypass marker handled by _simulatePostUpgradeSeeds.
+        bool exact = simulateConfig.chainid == FRAXTAL_CHAIN_ID;
         for (uint256 i; i < _seeds.length; ++i) {
-            if (_seeds[i].initialTotalSupply == 0) continue;
-            // Skip anything the chain already satisfies; the setter overwrites, so lowering a
-            // live baseline would shrink headroom rather than extend it.
-            if (ISupplyLedger(_seeds[i].oft).initialTotalSupply(_seeds[i].eid) >= _seeds[i].initialTotalSupply) {
-                continue;
-            }
+            if (_seeds[i].allowNegativeSupply) continue;
+            if (!exact && _seeds[i].initialTotalSupply == 0) continue;
+            uint256 live = ISupplyLedger(_seeds[i].oft).initialTotalSupply(_seeds[i].eid);
+            if (exact ? live == _seeds[i].initialTotalSupply : live >= _seeds[i].initialTotalSupply) continue;
             string memory symbol = _requireSupplyTrackedOft(_seeds[i].oft, _kinds);
             address owner = IV120OFTView(_seeds[i].oft).owner();
             bytes memory data = abi.encodeCall(
@@ -764,6 +806,12 @@ abstract contract UpgradeV120Base is DeployFraxOFTProtocol {
                 _impersonate(owner);
                 _safeCall(_seeds[i].oft, data, name);
                 vm.stopPrank();
+                // A lowered baseline must still admit everything the lane has already let in.
+                require(
+                    ISupplyLedger(_seeds[i].oft).totalTransferFrom(_seeds[i].eid)
+                        <= _seeds[i].initialTotalSupply + ISupplyLedger(_seeds[i].oft).totalTransferTo(_seeds[i].eid),
+                    string.concat("V120: baseline leaves the lane in deficit: ", name)
+                );
             } else {
                 console.log("V120: not yet on v1.2.0, serializing unsimulated (executes post-upgrade):", name);
             }
@@ -857,6 +905,15 @@ abstract contract UpgradeV120Base is DeployFraxOFTProtocol {
 
         for (uint256 c; c < proxyConfigs.length; ++c) {
             L0Config memory peerConfig = proxyConfigs[c];
+
+            // Ethereum mints frxUSD and sfrxUSD natively, so its supply grows without passing through
+            // this ledger and no fixed baseline stays right. Bypass the guard for that lane, as the
+            // Ethereum lockboxes already do for Fraxtal.
+            if (peerConfig.chainid == ETHEREUM_CHAIN_ID) {
+                seedCount = _recordBypassSeed(pendingSeeds, seedCount, targetSfrxUsdOft, targetSfrxUsdKind, peerConfig, sfrxLedger[c]);
+                seedCount = _recordBypassSeed(pendingSeeds, seedCount, targetFrxUsdOft, targetFrxUsdKind, peerConfig, frxLedger[c]);
+                continue;
+            }
             if (!_shouldAutoReadSupply(peerConfig)) continue;
             address[] memory peerOfts = _getChainPeers(peerConfig.chainid);
 
@@ -942,6 +999,7 @@ abstract contract UpgradeV120Base is DeployFraxOFTProtocol {
     ) internal returns (uint256 seedCount) {
         seedCount = _seedCount;
         if (!_isSupplyTracked(_targetKind)) return seedCount;
+        if (!_ledger.peered) return seedCount; // unwired lane (retired chain): nothing can arrive
         if (_peerOft.code.length == 0) return seedCount;
 
         uint256 supply = _readCirculatingSupply(_peerOft, _ledger.decimals);
@@ -957,9 +1015,22 @@ abstract contract UpgradeV120Base is DeployFraxOFTProtocol {
         // already in surplus (transferTo > transferFrom) needs a SMALLER baseline than the raw
         // supply; branching on the sign and falling back to `supply` would over-relax by the
         // whole surplus.
-        uint256 needed = _ledger.transferFrom + supply;
+        //
+        // The hub baseline is set exactly, lowered as well as raised: a baseline above what the lane can
+        // hold is room for a forged inbound message to release real tokens. Every later transfer moves
+        // headroom and supply together, so one exact write keeps the lane exact. A cushion on top covers
+        // messages in flight while the two sides are read.
+        uint256 needed = _ledger.transferFrom + supply + HUB_SEED_CUSHION_TOKENS * 10 ** _ledger.decimals;
         uint256 required = needed > _ledger.transferTo ? needed - _ledger.transferTo : 0;
-        if (required <= _ledger.initialTotalSupply) return seedCount; // already covered; never lower it
+        console.log(string.concat(
+            "V120 SEED: ", _tokenSymbol(_supplyTokenOf(_peerOft)), " eid ", uint256(_peerConfig.eid).toString(),
+            " supply ", supply.toString(), " baseline ", _ledger.initialTotalSupply.toString(), " -> ", required.toString()
+        ));
+        if (needed < _ledger.transferTo) {
+            console.log("  V120 SEED: more went out to this chain than it now holds + cushion; headroom stays above supply by",
+                _ledger.transferTo - needed);
+        }
+        if (required == _ledger.initialTotalSupply) return seedCount;
 
         _seeds[seedCount++] = SupplySeed({
             oft: _targetOft,
@@ -968,6 +1039,27 @@ abstract contract UpgradeV120Base is DeployFraxOFTProtocol {
             allowNegativeSupply: false,
             sourceChainid: _peerConfig.chainid,
             sourceBlock: _sourceBlock
+        });
+    }
+
+    /// @notice Queue `setAllowNegativeSupply(eid, true)` for a wired lane whose peer mints natively.
+    function _recordBypassSeed(
+        SupplySeed[] memory _seeds,
+        uint256 _seedCount,
+        address _targetOft,
+        ImplementationKind _targetKind,
+        L0Config memory _peerConfig,
+        Ledger memory _ledger
+    ) internal pure returns (uint256 seedCount) {
+        seedCount = _seedCount;
+        if (!_isSupplyTracked(_targetKind) || !_ledger.peered) return seedCount;
+        _seeds[seedCount++] = SupplySeed({
+            oft: _targetOft,
+            eid: uint32(_peerConfig.eid),
+            initialTotalSupply: 0,
+            allowNegativeSupply: true,
+            sourceChainid: _peerConfig.chainid,
+            sourceBlock: 0
         });
     }
 
@@ -982,7 +1074,8 @@ abstract contract UpgradeV120Base is DeployFraxOFTProtocol {
                 initialTotalSupply: ISupplyLedger(_oft).initialTotalSupply(eid),
                 transferFrom: ISupplyLedger(_oft).totalTransferFrom(eid),
                 transferTo: ISupplyLedger(_oft).totalTransferTo(eid),
-                decimals: localDecimals
+                decimals: localDecimals,
+                peered: IOAppCore(_oft).peers(eid) != bytes32(0)
             });
         }
     }
@@ -1177,11 +1270,13 @@ abstract contract UpgradeV120Base is DeployFraxOFTProtocol {
         return isStringEqual(abi.decode(ret, (string)), "1.2.0");
     }
 
-    /// @dev The getter only exists from v1.2.0, so a failed call means "not set yet".
+    /// @dev SupplyTrackingModule (ERC-7201 namespace below) has no public getter for the flag; it is
+    ///      `mapping(uint32 => bool) allowNegativeSupply` at struct offset 5. Reads 0 on v1.1.0 / unset.
+    bytes32 internal constant SUPPLY_TRACKING_STORAGE = 0x419276e85a544278a01dfd89b03028910afb9d04e0edf9a7b0d319d61e5bb200;
+
     function _allowNegativeSupplyIsSet(address _oft, uint32 _eid) internal view returns (bool) {
-        (bool ok, bytes memory ret) =
-            _oft.staticcall(abi.encodeWithSignature("allowNegativeSupply(uint32)", _eid));
-        return ok && ret.length == 32 && abi.decode(ret, (bool));
+        bytes32 slot = keccak256(abi.encode(uint256(_eid), uint256(SUPPLY_TRACKING_STORAGE) + 5));
+        return uint256(vm.load(_oft, slot)) & 0xff != 0;
     }
 
     /// @notice Implementation-kind matrix for the active chain, without deploying anything.
@@ -1225,5 +1320,88 @@ abstract contract UpgradeV120Base is DeployFraxOFTProtocol {
     function _isAdapter(ImplementationKind _kind) private pure returns (bool) {
         return _kind == ImplementationKind.EscrowAdapter || _kind == ImplementationKind.MintableAdapter
             || _kind == ImplementationKind.Tip20Adapter;
+    }
+}
+
+// Safe batch splitting for Ledger signers (see `_maxBatchBytes`).
+
+/// @notice Bytes of MultiSendCallOnly `multiSend(bytes)` calldata for these calls: selector, offset and
+///         length words, then the packed (operation, to, value, length, data) entries padded to 32 bytes.
+function multiSendBytes(SerializedTx[] memory _txs) pure returns (uint256) {
+    uint256 packed;
+    for (uint256 i; i < _txs.length; ++i) {
+        packed += 85 + _txs[i].data.length;
+    }
+    return 68 + ((packed + 31) / 32) * 32;
+}
+
+/// @notice Splits a guarded post-upgrade batch into parts of at most `_maxBytes` each. The
+///         `rateLimitGlobalConfig()` guards are dropped and re-inserted per part, before its first write to
+///         each contract, so no part can execute before the upgrade. Writes keep their order and bytes.
+///         The part count is the fewest that fit; the writes are then spread evenly.
+function splitGuardedBatch(SerializedTx[] memory _txs, uint256 _maxBytes)
+    pure
+    returns (SerializedTx[][] memory parts)
+{
+    uint256 n;
+    SerializedTx[] memory writes = new SerializedTx[](_txs.length);
+    for (uint256 i; i < _txs.length; ++i) {
+        if (!_isUpgradeGuard(_txs[i])) writes[n++] = _txs[i];
+    }
+    assembly {
+        mstore(writes, n)
+    }
+
+    uint256 count;
+    for (uint256 start; start < writes.length; ++count) {
+        uint256 end = start + 1;
+        while (end < writes.length && multiSendBytes(_guardedSlice(writes, start, end + 1)) <= _maxBytes) ++end;
+        start = end;
+    }
+
+    parts = new SerializedTx[][](count);
+    uint256 from;
+    for (uint256 i; i < count; ++i) {
+        uint256 to = from + writes.length / count + (i < writes.length % count ? 1 : 0);
+        parts[i] = _guardedSlice(writes, from, to);
+        require(multiSendBytes(parts[i]) <= _maxBytes, "V120: batch part over budget");
+        from = to;
+    }
+}
+
+function _isUpgradeGuard(SerializedTx memory _tx) pure returns (bool) {
+    return _tx.data.length == 4 && bytes4(_tx.data) == bytes4(keccak256("rateLimitGlobalConfig()"));
+}
+
+/// @dev `_writes[_from:_to]` with a `rateLimitGlobalConfig()` guard before the first write to each target.
+function _guardedSlice(SerializedTx[] memory _writes, uint256 _from, uint256 _to)
+    pure
+    returns (SerializedTx[] memory out)
+{
+    address[] memory seen = new address[](_to - _from);
+    uint256 seenCount;
+    uint256 n;
+    out = new SerializedTx[](2 * (_to - _from));
+    for (uint256 i = _from; i < _to; ++i) {
+        bool guarded;
+        for (uint256 j; j < seenCount; ++j) {
+            if (seen[j] == _writes[i].to) {
+                guarded = true;
+                break;
+            }
+        }
+        if (!guarded) {
+            seen[seenCount++] = _writes[i].to;
+            out[n++] = SerializedTx({
+                name: "Require v1.2.0 (reverts before the upgrade)",
+                to: _writes[i].to,
+                value: 0,
+                data: abi.encodeWithSignature("rateLimitGlobalConfig()")
+            });
+        }
+        out[n++] = _writes[i];
+    }
+    assembly {
+        mstore(out, n)
     }
 }

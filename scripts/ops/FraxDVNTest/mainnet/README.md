@@ -18,6 +18,9 @@
 * `linea`
   * `mockFrax` : `0x6185334f1542a9966CbaD694577fFbede3DD1f1F`
   * `fraxOFTWallet` : `0xD555D90A6b23B285575cd6192D972e35F70b5B89`
+* `monad` (the deployer's nonce 6 was already used on Monad, so the canonical addresses were not reachable)
+  * `mockFrax` : `0x03ed9325E0403301337146d421e50f3174A50a0F`
+  * `fraxOFTWallet` : `0x84E6F8460e5c7AeebcBC7aA7D7c037FB75D83B4d`
 * `aptos` , `movement`
   * `mockFrax` : `0xa1bb74f0d5770dfc905c508e6273fadc595ddc15326cc907889bdfffa50602c8`
   * `fraxOFTWallet` : `0x09d0eb2763c96e085fa74ba6cf0d49136f8654c48ec7dbc59279a9066c7dd409`

@@ -38,61 +38,20 @@ contract SendFraxAssets is BaseL0Script {
             oftCmd: ""
         });
 
-        sendParams.push(_sendParam);
-        sendParams.push(_sendParam);
-        sendParams.push(_sendParam);
-        sendParams.push(_sendParam);
-        sendParams.push(_sendParam);
-        sendParams.push(_sendParam);
         simulateConfig.chainid = block.chainid;
         _validateAndPopulateMainnetOfts();
 
-        // if (broadcastConfig.eid == 30255) {
-        //     ofts.push(IOFT(fraxtalFrxUsdLockbox));
-        //     ofts.push(IOFT(fraxtalSFrxUsdLockbox));
-        //     ofts.push(IOFT(fraxtalFrxEthLockbox));
-        //     ofts.push(IOFT(fraxtalSFrxEthLockbox));
-        //     ofts.push(IOFT(fraxtalFraxLockbox));
-        //     ofts.push(IOFT(fraxtalFpiLockbox));
-        //     MessagingFee memory _fee = IOFT(fraxtalFrxUsdLockbox).quoteSend(_sendParam, false);
-        //     _totalEthFee += _fee.nativeFee;
-        //     _fee = IOFT(fraxtalSFrxUsdLockbox).quoteSend(_sendParam, false);
-        //     _totalEthFee += _fee.nativeFee;
-        //     _fee = IOFT(fraxtalFrxEthLockbox).quoteSend(_sendParam, false);
-        //     _totalEthFee += _fee.nativeFee;
-        //     _fee = IOFT(fraxtalSFrxEthLockbox).quoteSend(_sendParam, false);
-        //     _totalEthFee += _fee.nativeFee;
-        //     _fee = IOFT(fraxtalFraxLockbox).quoteSend(_sendParam, false);
-        //     _totalEthFee += _fee.nativeFee;
-        //     _fee = IOFT(fraxtalFpiLockbox).quoteSend(_sendParam, false);
-        //     _totalEthFee += _fee.nativeFee;
-        // } else {
-        ofts.push(IOFT(connectedOfts[0]));
-        ofts.push(IOFT(connectedOfts[1]));
-        ofts.push(IOFT(connectedOfts[2]));
-        ofts.push(IOFT(connectedOfts[3]));
-        ofts.push(IOFT(connectedOfts[4]));
-        ofts.push(IOFT(connectedOfts[5]));
-        MessagingFee memory _fee = IOFT(connectedOfts[0]).quoteSend(_sendParam, false);
-        _totalEthFee += _fee.nativeFee;
-        _fee = IOFT(connectedOfts[1]).quoteSend(_sendParam, false);
-        _totalEthFee += _fee.nativeFee;
-        _fee = IOFT(connectedOfts[2]).quoteSend(_sendParam, false);
-        _totalEthFee += _fee.nativeFee;
-        _fee = IOFT(connectedOfts[3]).quoteSend(_sendParam, false);
-        _totalEthFee += _fee.nativeFee;
-        _fee = IOFT(connectedOfts[4]).quoteSend(_sendParam, false);
-        _totalEthFee += _fee.nativeFee;
-        _fee = IOFT(connectedOfts[5]).quoteSend(_sendParam, false);
-        _totalEthFee += _fee.nativeFee;
-        // }
-
-        refundAddresses.push(senderWallet);
-        refundAddresses.push(senderWallet);
-        refundAddresses.push(senderWallet);
-        refundAddresses.push(senderWallet);
-        refundAddresses.push(senderWallet);
-        refundAddresses.push(senderWallet);
+        // Only tokens still active in the mesh (L0Constants.activeTokens), in Token slot order. Chains keep the
+        // addresses of retired tokens (e.g. FPI) in `connectedOfts`, but those OFTs have no peers, so sending
+        // one would revert the whole batch.
+        for (uint256 i; i < activeTokens.length; i++) {
+            address oft = connectedOfts[uint256(activeTokens[i])];
+            if (oft == address(0)) continue;
+            sendParams.push(_sendParam);
+            ofts.push(IOFT(oft));
+            refundAddresses.push(senderWallet);
+            _totalEthFee += IOFT(oft).quoteSend(_sendParam, false).nativeFee;
+        }
 
         if (broadcastConfig.eid == 30410) {
             // Tempo: approve wallet to pull TIP20 gas token, then bridge

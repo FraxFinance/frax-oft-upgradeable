@@ -59,7 +59,7 @@ The v1.2.0 implementations link `contracts/libraries/*.sol` (rate limiter, EIP-3
 
 `ethereum/txs/1-0xffff…-timelock-queue.json` and `…-timelock-execute.json` are what the timelock admin Safe
 `0xfFFffF4F…` signs. Each bundles the Hop 2.0.2 call (from `hop-v2` `src/script/hop/upgrade/txs/`) with the five
-OFT v1.2.0 calls this script generates, all with eta `1795233600`. Separate Hop and OFT files would put the OFT
+OFT v1.2.0 calls this script generates, all with eta `1796097600`. Separate Hop and OFT files would put the OFT
 queue at a nonce behind the Hop execute, which cannot run before the eta, by which time the OFT queue's eta is
 no longer valid. They are not produced by one script, and their names differ from the script's
 `UpgradeV120-1-step*` outputs so a regeneration never overwrites them. The execute bundle also carries the frxUSD
